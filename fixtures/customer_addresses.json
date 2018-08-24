@@ -1,0 +1,42 @@
+{
+    "addresses": [
+        {
+            "address1": "1 Smith St",
+            "address2": null,
+            "city": "BRISBANE",
+            "company": "TestCo",
+            "country": "Australia",
+            "country_code": "AU",
+            "country_name": "Australia",
+            "customer_id": 1,
+            "default": true,
+            "first_name": "Test",
+            "id": 1,
+            "last_name": "Citizen",
+            "name": "Test Citizen",
+            "phone": "1111 111 111",
+            "province": "Queensland",
+            "province_code": "QLD",
+            "zip": "4000"
+        },
+        {
+            "address1": "2 Smith St",
+            "address2": null,
+            "city": "BRISBANE",
+            "company": null,
+            "country": "Australia",
+            "country_code": "AU",
+            "country_name": "Australia",
+            "customer_id": 1,
+            "default": true,
+            "first_name": "Test",
+            "id": 2,
+            "last_name": "Citizen",
+            "name": "Test Citizen",
+            "phone": "2222 222 222",
+            "province": "Queensland",
+            "province_code": "QLD",
+            "zip": "4000"
+        }
+    ]
+}
