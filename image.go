@@ -25,17 +25,17 @@ type ImageServiceOp struct {
 
 // Image represents a Shopify product's image.
 type Image struct {
-	ID         int        `json:"id"`
-	ProductID  int        `json:"product_id"`
-	Position   int        `json:"position"`
-	CreatedAt  *time.Time `json:"created_at"`
-	UpdatedAt  *time.Time `json:"updated_at"`
-	Width      int        `json:"width"`
-	Height     int        `json:"height"`
+	ID         int        `json:"id,omitempty"`
+	ProductID  int        `json:"product_id,omitempty"`
+	Position   int        `json:"position,omitempty"`
+	CreatedAt  *time.Time `json:"created_at,omitempty"`
+	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
+	Width      int        `json:"width,omitempty"`
+	Height     int        `json:"height,omitempty"`
 	Src        string     `json:"src,omitempty"`
 	Attachment string     `json:"attachment,omitempty"`
 	Filename   string     `json:"filename,omitempty"`
-	VariantIds []int      `json:"variant_ids"`
+	VariantIds []int      `json:"variant_ids,omitempty"`
 }
 
 // ImageResource represents the result form the products/X/images/Y.json endpoint
