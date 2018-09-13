@@ -10,6 +10,7 @@
       "compare_at_price": null,
       "fulfillment_service": "manual",
       "inventory_management": null,
+      "inventory_item_id": 1,
       "option1": "Yellow",
       "option2": null,
       "option3": null,
