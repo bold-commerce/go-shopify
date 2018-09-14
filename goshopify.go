@@ -343,7 +343,7 @@ type ListOptions struct {
 	UpdatedAtMax time.Time `url:"updated_at_max,omitempty"`
 	Order        string    `url:"order,omitempty"`
 	Fields       string    `url:"fields,omitempty"`
-	IDs          []int     `url:"ids,omitempty"`
+	IDs          []int     `url:"ids,omitempty,comma"`
 }
 
 // General count options that can be used for most collection counts.

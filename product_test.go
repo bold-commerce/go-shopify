@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func productTests(t *testing.T, product Product) {
@@ -29,6 +29,26 @@ func TestProductList(t *testing.T) {
 	}
 
 	expected := []Product{{ID: 1}, {ID: 2}}
+	if !reflect.DeepEqual(products, expected) {
+		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
+	}
+}
+
+func TestProductListFilterByIds(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products.json?ids=1%2C2%2C3",
+		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2},{"id":3}]}`))
+
+	listOptions := ListOptions{IDs: []int{1,2,3}}
+
+	products, err := client.Product.List(listOptions)
+	if err != nil {
+		t.Errorf("Product.List returned error: %v", err)
+	}
+
+	expected := []Product{{ID: 1}, {ID: 2}, {ID: 3}}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
 	}
