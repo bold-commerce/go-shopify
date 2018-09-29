@@ -41,7 +41,7 @@ func TestProductListFilterByIds(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products.json?ids=1%2C2%2C3",
 		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2},{"id":3}]}`))
 
-	listOptions := ListOptions{IDs: []int{1,2,3}}
+	listOptions := ListOptions{IDs: []int{1, 2, 3}}
 
 	products, err := client.Product.List(listOptions)
 	if err != nil {

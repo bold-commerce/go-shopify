@@ -4,7 +4,11 @@ import (
 	"net/url"
 	"testing"
 
+	"encoding/base64"
+	"errors"
+	"fmt"
 	"gopkg.in/jarcoal/httpmock.v1"
+	"net/http"
 )
 
 func TestAppAuthorizeUrl(t *testing.T) {
@@ -77,18 +81,128 @@ func TestVerifyWebhookRequest(t *testing.T) {
 	setup()
 	defer teardown()
 
-	hmac := "hMTq0K2x7oyOjoBwGYeTj5oxfnaVYXzbanUG9aajpKI="
-	message := "my secret message"
-	testClient := NewClient(App{}, "", "")
-	req, err := testClient.NewRequest("GET", "", message, nil)
-	if err != nil {
-		t.Fatalf("Webhook.verify err = %v, expected true", err)
+	cases := []struct {
+		hmac     string
+		message  string
+		expected bool
+	}{
+		{"hMTq0K2x7oyOjoBwGYeTj5oxfnaVYXzbanUG9aajpKI=", "my secret message", true},
+		{"wronghash", "my secret message", false},
+		{"wronghash", "", false},
+		{"hMTq0K2x7oyOjoBwGYeTj5oxfnaVYXzbanUG9aajpKI=", "", false},
+		{"", "", false},
+		{"hMTq0K2x7oyOjoBwGYeTj5oxfnaVYXzbanUG9aajpKIthissignatureisnowwaytoolongohmanicantbelievehowlongthisis=", "my secret message", false},
 	}
-	req.Header.Add("X-Shopify-Hmac-Sha256", hmac)
 
-	isValid := app.VerifyWebhookRequest(req)
+	for _, c := range cases {
 
-	if !isValid {
-		t.Error("Webhook.verify could not verified message checksum")
+		testClient := NewClient(App{}, "", "")
+		req, err := testClient.NewRequest("GET", "", c.message, nil)
+		if err != nil {
+			t.Fatalf("Webhook.verify err = %v, expected true", err)
+		}
+		if c.hmac != "" {
+			req.Header.Add("X-Shopify-Hmac-Sha256", c.hmac)
+		}
+
+		isValid := app.VerifyWebhookRequest(req)
+
+		if isValid != c.expected {
+			t.Errorf("Webhook.verify was expecting %t got %t", c.expected, isValid)
+		}
 	}
+
+}
+
+func TestVerifyWebhookRequestVerbose(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var (
+		shortHMAC                   = "YmxhaGJsYWgK"
+		invalidBase64               = "XXXXXaGVsbG8="
+		validHMACSignature          = "hMTq0K2x7oyOjoBwGYeTj5oxfnaVYXzbanUG9aajpKI="
+		validHMACSignatureEmptyBody = "ZAZ6P4c14f6v798OCPYCodtdf9g8Z+GfthdfCgyhUYg="
+		longHMAC                    = "VGhpc2lzdGhlc29uZ3RoYXRuZXZlcmVuZHN5ZXNpdGdvZXNvbmFuZG9ubXlmcmllbmRzc29tZXBlb3BsZXN0YXJ0aW5nc2luZ2luZ2l0bm90a25vd2luZ3doYXRpdHdhc2FuZG5vd2NvbnRpbnVlc2luZ2luZ2l0Zm9yZXZlcmp1c3RiZWNhdXNlCg=="
+		req                         *http.Request
+		err                         error
+	)
+	shortHMACBytes, _ := base64.StdEncoding.DecodeString(shortHMAC)
+	validHMACBytes, _ := base64.StdEncoding.DecodeString(validHMACSignature)
+	longHMACBytes, _ := base64.StdEncoding.DecodeString(longHMAC)
+
+	cases := []struct {
+		hmac          string
+		message       string
+		expected      bool
+		expectedError error
+	}{
+		{validHMACSignature, "my secret message", true, nil},
+		{invalidBase64, "my secret message", false, errors.New("illegal base64 data at input byte 12")},
+		{shortHMAC, "my secret message", false, fmt.Errorf("received HMAC is not of length 32, it is of length %d", len(shortHMACBytes))},
+		{longHMAC, "my secret message", false, fmt.Errorf("received HMAC is not of length 32, it is of length %d", len(longHMACBytes))},
+		{shortHMAC, "", false, fmt.Errorf("received HMAC is not of length 32, it is of length %d", len(shortHMACBytes))},
+		{validHMACSignature, "my invalid message", false, fmt.Errorf("expected hash %s does not equal %x", "ac3560a67dd9ed3f46cf1807856b78f27c9543b5ae98f5292d8eccf6252254f0", validHMACBytes)},
+		{"", "", false, fmt.Errorf("header %s not set", shopifyChecksumHeader)},
+		{validHMACSignatureEmptyBody, "", false, errors.New("request body is empty")},
+	}
+
+	for _, c := range cases {
+
+		testClient := NewClient(App{}, "", "")
+
+		// We actually want to test nil body's, not ""
+		if c.message == "" {
+			req, err = testClient.NewRequest("GET", "", nil, nil)
+		} else {
+			req, err = testClient.NewRequest("GET", "", c.message, nil)
+		}
+
+		if err != nil {
+			t.Fatalf("Webhook.verify err = %v, expected true", err)
+		}
+
+		// We actually want to test not sending the header, not empty headers
+		if c.hmac != "" {
+			req.Header.Add("X-Shopify-Hmac-Sha256", c.hmac)
+		}
+
+		isValid, err := app.VerifyWebhookRequestVerbose(req)
+		if err == nil && c.expectedError != nil {
+			t.Errorf("Expected error %s got nil", c.expectedError.Error())
+		}
+		if c.expectedError == nil && err != nil {
+			t.Errorf("Expected nil got error %s", err.Error())
+		}
+
+		if isValid != c.expected {
+			t.Errorf("Webhook.verify was expecting %t got %t", c.expected, isValid)
+			if err != nil {
+				t.Errorf("Error returned %s header passed is %s", err.Error(), c.hmac)
+			} else {
+				t.Errorf("Header passed is %s", c.hmac)
+			}
+		}
+
+		if c.expectedError != nil && err.Error() != c.expectedError.Error() {
+			t.Errorf("Expected error %s got error %s", c.expectedError.Error(), err.Error())
+		}
+	}
+
+	// Other error cases
+	oldSecret := app.ApiSecret
+	app.ApiSecret = ""
+	isValid, err := app.VerifyWebhookRequestVerbose(req)
+	if err == nil || isValid == true || err.Error() != errors.New("ApiSecret is empty").Error() {
+		t.Errorf("Expected error %s got nil or true", errors.New("ApiSecret is empty"))
+	}
+
+	app.ApiSecret = oldSecret
+
+	req.Body = errReader{}
+	isValid, err = app.VerifyWebhookRequestVerbose(req)
+	if err == nil || isValid == true || err.Error() != errors.New("test-error").Error() {
+		t.Errorf("Expected error %s got %s", errors.New("test-error"), err)
+	}
+
 }
