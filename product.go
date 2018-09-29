@@ -50,6 +50,7 @@ type Product struct {
 	MetafieldsGlobalTitleTag       string          `json:"metafields_global_title_tag,omitempty"`
 	MetafieldsGlobalDescriptionTag string          `json:"metafields_global_description_tag,omitempty"`
 	Metafields                     []Metafield     `json:"metafields,omitempty"`
+	AdminGraphqlAPIID              string          `json:"admin_graphql_api_id,omitempty"`
 }
 
 // The options provided by Shopify
