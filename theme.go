@@ -29,7 +29,7 @@ type ThemeServiceOp struct {
 // Theme represents a Shopify theme
 type Theme struct {
 	ID           int        `json:"id"`
-	Name         string     `json:"string"`
+	Name         string     `json:"name"`
 	Previewable  bool       `json:"previewable"`
 	Processing   bool       `json:"processing"`
 	Role         string     `json:"role"`
