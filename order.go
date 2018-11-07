@@ -280,6 +280,7 @@ type RefundLineItem struct {
 	LineItemId int       `json:"line_item_id,omitempty"`
 	LineItem   *LineItem `json:"line_item,omitempty"`
 	Subtotal   *decimal.Decimal `json:"subtotal,omitempty"`
+	TotalTax   *decimal.Decimal `json:"total_tax,omitempty"`
 }
 
 // List orders
