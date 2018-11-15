@@ -41,7 +41,7 @@ func TestMetafieldCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/metafields/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/metafields/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/metafields/count.json?created_at_min=2016-01-01T00:00:00Z",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Metafield.Count(nil)

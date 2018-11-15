@@ -43,7 +43,7 @@ func TestFulfillmentCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/count.json?created_at_min=2016-01-01T00:00:00Z",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}

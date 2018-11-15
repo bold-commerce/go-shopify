@@ -44,7 +44,7 @@ func TestAssetGet(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json?asset%5Bkey%5D=foo%2Fbar.liquid&theme_id=1",
+		"https://fooshop.myshopify.com/admin/themes/1/assets.json?asset[key]=foo/bar.liquid&theme_id=1",
 		httpmock.NewStringResponder(
 			200,
 			`{"asset": {"key":"foo\/bar.liquid"}}`,

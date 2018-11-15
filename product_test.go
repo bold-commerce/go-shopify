@@ -38,7 +38,7 @@ func TestProductListFilterByIds(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products.json?ids=1%2C2%2C3",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products.json?ids=1,2,3",
 		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2},{"id":3}]}`))
 
 	listOptions := ListOptions{IDs: []int{1, 2, 3}}
@@ -61,7 +61,7 @@ func TestProductCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/count.json?created_at_min=2016-01-01T00:00:00Z",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Product.Count(nil)
@@ -184,7 +184,7 @@ func TestProductCountMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields/count.json?created_at_min=2016-01-01T00:00:00Z",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Product.CountMetafields(1, nil)

@@ -538,7 +538,7 @@ func TestCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/foocount",
 		httpmock.NewStringResponder(200, `{"count": 5}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/foocount?created_at_min=2016-01-01T00%3A00%3A00Z",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/foocount?created_at_min=2016-01-01T00:00:00Z",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	// Test without options

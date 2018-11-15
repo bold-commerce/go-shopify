@@ -78,7 +78,7 @@ func TestWebhookCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/webhooks/count.json",
 		httpmock.NewStringResponder(200, `{"count": 7}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/webhooks/count.json?topic=orders%2Fpaid",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/webhooks/count.json?topic=orders/paid",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Webhook.Count(nil)
