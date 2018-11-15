@@ -63,6 +63,7 @@ type Client struct {
 	Asset                      AssetService
 	ScriptTag                  ScriptTagService
 	RecurringApplicationCharge RecurringApplicationChargeService
+	UsageCharge                UsageChargeService
 	Metafield                  MetafieldService
 	Blog                       BlogService
 	ApplicationCharge          ApplicationChargeService
@@ -205,6 +206,7 @@ func NewClient(app App, shopName, token string) *Client {
 	c.Redirect = &RedirectServiceOp{client: c}
 	c.Page = &PageServiceOp{client: c}
 	c.StorefrontAccessToken = &StorefrontAccessTokenServiceOp{client: c}
+	c.UsageCharge = &UsageChargeServiceOp{client: c}
 
 	return c
 }
