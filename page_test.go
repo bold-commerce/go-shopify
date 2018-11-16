@@ -41,7 +41,11 @@ func TestPageCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/pages/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/pages/count.json?created_at_min=2016-01-01T00:00:00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/pages/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Page.Count(nil)
@@ -161,7 +165,11 @@ func TestPageCountMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/pages/1/metafields/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/pages/1/metafields/count.json?created_at_min=2016-01-01T00:00:00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/pages/1/metafields/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Page.CountMetafields(1, nil)

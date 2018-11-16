@@ -53,7 +53,11 @@ func TestVariantCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/variants/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/variants/count.json?created_at_min=2016-01-01T00:00:00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/products/1/variants/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Variant.Count(1, nil)

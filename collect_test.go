@@ -55,7 +55,9 @@ func TestCollectCount(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"count": 5}`))
 
 	params := map[string]string{"since_id": "123"}
-	httpmock.RegisterResponderWithQuery("GET", "https://fooshop.myshopify.com/admin/collects/count.json", params,
+	httpmock.RegisterResponderWithQuery("GET",
+		"https://fooshop.myshopify.com/admin/collects/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Collect.Count(nil)
