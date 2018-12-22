@@ -72,6 +72,7 @@ type Client struct {
 	StorefrontAccessToken      StorefrontAccessTokenService
 	Collect                    CollectService
 	Location                   LocationService
+	DiscountCode               DiscountCodeService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -211,6 +212,7 @@ func NewClient(app App, shopName, token string) *Client {
 	c.UsageCharge = &UsageChargeServiceOp{client: c}
 	c.Collect = &CollectServiceOp{client: c}
 	c.Location = &LocationServiceOp{client: c}
+	c.DiscountCode = &DiscountCodeServiceOp{client: c}
 
 	return c
 }
