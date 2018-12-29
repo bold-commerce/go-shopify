@@ -65,7 +65,7 @@ func TestDiscountCodeCreate(t *testing.T) {
 		"POST",
 		"https://fooshop.myshopify.com/admin/price_rules/507328175/discount_codes.json",
 		httpmock.NewBytesResponder(
-			200,
+			201,
 			loadFixture("discount_code.json"),
 		),
 	)
@@ -120,7 +120,7 @@ func TestDiscountCodeDelete(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/price_rules/507328175/discount_codes/507328175.json",
-		httpmock.NewStringResponder(200, "{}"))
+		httpmock.NewStringResponder(204, "{}"))
 
 	err := client.DiscountCode.Delete(507328175, 507328175)
 	if err != nil {
