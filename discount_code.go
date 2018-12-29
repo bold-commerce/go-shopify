@@ -18,8 +18,8 @@ type DiscountCodeService interface {
 	Delete(int, int) error
 }
 
-// DiscountCodeServiceOp handles communication with the blog related methods of
-// the Shopify API.
+// DiscountCodeServiceOp handles communication with the discount code
+// related methods of the Shopify API.
 type DiscountCodeServiceOp struct {
 	client *Client
 }
