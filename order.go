@@ -18,6 +18,7 @@ type OrderService interface {
 	Count(interface{}) (int, error)
 	Get(int, interface{}) (*Order, error)
 	Create(Order) (*Order, error)
+	Update(Order) (*Order, error)
 
 	// MetafieldsService used for Order resource to communicate with Metafields resource
 	MetafieldsService
@@ -275,10 +276,12 @@ type Refund struct {
 }
 
 type RefundLineItem struct {
-	Id         int       `json:"id,omitempty"`
-	Quantity   int       `json:"quantity,omitempty"`
-	LineItemId int       `json:"line_item_id,omitempty"`
-	LineItem   *LineItem `json:"line_item,omitempty"`
+	Id         int              `json:"id,omitempty"`
+	Quantity   int              `json:"quantity,omitempty"`
+	LineItemId int              `json:"line_item_id,omitempty"`
+	LineItem   *LineItem        `json:"line_item,omitempty"`
+	Subtotal   *decimal.Decimal `json:"subtotal,omitempty"`
+	TotalTax   *decimal.Decimal `json:"total_tax,omitempty"`
 }
 
 // List orders
@@ -309,6 +312,15 @@ func (s *OrderServiceOp) Create(order Order) (*Order, error) {
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Post(path, wrappedData, resource)
+	return resource.Order, err
+}
+
+// Update order
+func (s *OrderServiceOp) Update(order Order) (*Order, error) {
+	path := fmt.Sprintf("%s/%d.json", ordersBasePath, order.ID)
+	wrappedData := OrderResource{Order: &order}
+	resource := new(OrderResource)
+	err := s.client.Put(path, wrappedData, resource)
 	return resource.Order, err
 }
 

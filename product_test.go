@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func productTests(t *testing.T, product Product) {
@@ -34,6 +34,30 @@ func TestProductList(t *testing.T) {
 	}
 }
 
+func TestProductListFilterByIds(t *testing.T) {
+	setup()
+	defer teardown()
+
+	params := map[string]string{"ids": "1,2,3"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/products.json",
+		params,
+		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2},{"id":3}]}`))
+
+	listOptions := ListOptions{IDs: []int{1, 2, 3}}
+
+	products, err := client.Product.List(listOptions)
+	if err != nil {
+		t.Errorf("Product.List returned error: %v", err)
+	}
+
+	expected := []Product{{ID: 1}, {ID: 2}, {ID: 3}}
+	if !reflect.DeepEqual(products, expected) {
+		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
+	}
+}
+
 func TestProductCount(t *testing.T) {
 	setup()
 	defer teardown()
@@ -41,7 +65,11 @@ func TestProductCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/products/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Product.Count(nil)
@@ -164,7 +192,11 @@ func TestProductCountMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/products/1/metafields/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Product.CountMetafields(1, nil)

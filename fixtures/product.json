@@ -37,7 +37,8 @@
         "weight": 0.0,
         "weight_unit": "lb",
         "old_inventory_quantity": 1,
-        "requires_shipping": true
+        "requires_shipping": true,
+        "admin_graphql_api_id": "gid://shopify/ProductVariant/1070325219"
       }
     ],
     "options": [
@@ -53,6 +54,7 @@
     ],
     "images": [
     ],
-    "image": null
+    "image": null,
+    "admin_graphql_api_id": "gid://shopify/Product/1071559748"
   }
 }

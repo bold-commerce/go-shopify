@@ -52,6 +52,7 @@ type Client struct {
 	CustomCollection           CustomCollectionService
 	SmartCollection            SmartCollectionService
 	Customer                   CustomerService
+	CustomerAddress            CustomerAddressService
 	Order                      OrderService
 	Shop                       ShopService
 	Webhook                    WebhookService
@@ -62,11 +63,17 @@ type Client struct {
 	Asset                      AssetService
 	ScriptTag                  ScriptTagService
 	RecurringApplicationCharge RecurringApplicationChargeService
+	UsageCharge                UsageChargeService
 	Metafield                  MetafieldService
 	Blog                       BlogService
 	ApplicationCharge          ApplicationChargeService
 	Redirect                   RedirectService
 	Page                       PageService
+	StorefrontAccessToken      StorefrontAccessTokenService
+	Collect                    CollectService
+	Location                   LocationService
+	DiscountCode               DiscountCodeService
+	InventoryItem              InventoryItemService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -165,6 +172,14 @@ func (c *Client) NewRequest(method, urlStr string, body, options interface{}) (*
 	return req, nil
 }
 
+// NewClient returns a new Shopify API client with an already authenticated shopname and
+// token. The shopName parameter is the shop's myshopify domain,
+// e.g. "theshop.myshopify.com", or simply "theshop"
+// a.NewClient(shopName, token) is equivalent to NewClient(a, shopName, token)
+func (a App) NewClient(shopName, token string) *Client {
+	return NewClient(a, shopName, token)
+}
+
 // Returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
@@ -178,6 +193,7 @@ func NewClient(app App, shopName, token string) *Client {
 	c.CustomCollection = &CustomCollectionServiceOp{client: c}
 	c.SmartCollection = &SmartCollectionServiceOp{client: c}
 	c.Customer = &CustomerServiceOp{client: c}
+	c.CustomerAddress = &CustomerAddressServiceOp{client: c}
 	c.Order = &OrderServiceOp{client: c}
 	c.Shop = &ShopServiceOp{client: c}
 	c.Webhook = &WebhookServiceOp{client: c}
@@ -193,6 +209,12 @@ func NewClient(app App, shopName, token string) *Client {
 	c.ApplicationCharge = &ApplicationChargeServiceOp{client: c}
 	c.Redirect = &RedirectServiceOp{client: c}
 	c.Page = &PageServiceOp{client: c}
+	c.StorefrontAccessToken = &StorefrontAccessTokenServiceOp{client: c}
+	c.UsageCharge = &UsageChargeServiceOp{client: c}
+	c.Collect = &CollectServiceOp{client: c}
+	c.Location = &LocationServiceOp{client: c}
+	c.DiscountCode = &DiscountCodeServiceOp{client: c}
+	c.InventoryItem = &InventoryItemServiceOp{client: c}
 
 	return c
 }
@@ -335,6 +357,7 @@ type ListOptions struct {
 	UpdatedAtMax time.Time `url:"updated_at_max,omitempty"`
 	Order        string    `url:"order,omitempty"`
 	Fields       string    `url:"fields,omitempty"`
+	IDs          []int     `url:"ids,omitempty,comma"`
 }
 
 // General count options that can be used for most collection counts.

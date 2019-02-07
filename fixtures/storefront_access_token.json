@@ -1,0 +1,10 @@
+{
+  "storefront_access_token": {
+    "id": 755357713,
+    "title": "API Client Extension",
+    "access_token": "378d95641257a4ab3feff967ee234f4d",
+    "access_scope": "unauthenticated_read_product_listings",
+    "admin_graphql_api_id": "gid://shopify/StorefrontAccessToken/755357713",
+    "created_at": "2016-06-01T14:10:44-00:00"
+  }
+}

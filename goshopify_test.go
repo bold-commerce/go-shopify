@@ -72,6 +72,22 @@ func TestNewClientWithNoToken(t *testing.T) {
 	}
 }
 
+func TestAppNewClient(t *testing.T) {
+	testClient := app.NewClient("fooshop", "abcd")
+	expected := "https://fooshop.myshopify.com"
+	if testClient.baseURL.String() != expected {
+		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+	}
+}
+
+func TestAppNewClientWithNoToken(t *testing.T) {
+	testClient := app.NewClient("fooshop", "")
+	expected := "https://fooshop.myshopify.com"
+	if testClient.baseURL.String() != expected {
+		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+	}
+}
+
 func TestNewRequest(t *testing.T) {
 	testClient := NewClient(app, "fooshop", "abcd")
 
@@ -522,7 +538,11 @@ func TestCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/foocount",
 		httpmock.NewStringResponder(200, `{"count": 5}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/foocount?created_at_min=2016-01-01T00%3A00%3A00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/foocount",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	// Test without options

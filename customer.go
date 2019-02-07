@@ -21,6 +21,8 @@ type CustomerService interface {
 	Create(Customer) (*Customer, error)
 	Update(Customer) (*Customer, error)
 	Delete(int) error
+	ListOrders(int, interface{}) ([]Order, error)
+	ListTags(interface{}) ([]string, error)
 
 	// MetafieldsService used for Customer resource to communicate with Metafields resource
 	MetafieldsService
@@ -65,6 +67,11 @@ type CustomerResource struct {
 // Represents the result from the customers.json endpoint
 type CustomersResource struct {
 	Customers []Customer `json:"customers"`
+}
+
+// Represents the result from the customers/tags.json endpoint
+type CustomerTagsResource struct {
+	Tags []string `json:"tags"`
 }
 
 // Represents the options available when searching for a customer
@@ -164,4 +171,20 @@ func (s *CustomerServiceOp) UpdateMetafield(customerID int, metafield Metafield)
 func (s *CustomerServiceOp) DeleteMetafield(customerID int, metafieldID int) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceID: customerID}
 	return metafieldService.Delete(metafieldID)
+}
+
+// ListOrders retrieves all orders from a customer
+func (s *CustomerServiceOp) ListOrders(customerID int, options interface{}) ([]Order, error) {
+	path := fmt.Sprintf("%s/%d/orders.json", customersBasePath, customerID)
+	resource := new(OrdersResource)
+	err := s.client.Get(path, resource, options)
+	return resource.Orders, err
+}
+
+// ListTags retrieves all unique tags across all customers
+func (s *CustomerServiceOp) ListTags(options interface{}) ([]string, error) {
+	path := fmt.Sprintf("%s/tags.json", customersBasePath)
+	resource := new(CustomerTagsResource)
+	err := s.client.Get(path, resource, options)
+	return resource.Tags, err
 }

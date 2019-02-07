@@ -6,6 +6,8 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -92,4 +94,48 @@ func (app App) VerifyWebhookRequest(httpRequest *http.Request) bool {
 	expectedMac := []byte(base64.StdEncoding.EncodeToString(macSum))
 
 	return hmac.Equal(actualMac, expectedMac)
+}
+
+// Verifies a webhook http request, sent by Shopify.
+// The body of the request is still readable after invoking the method.
+// This method has more verbose error output which is useful for debugging.
+func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, error) {
+	if app.ApiSecret == "" {
+		return false, errors.New("ApiSecret is empty")
+	}
+
+	shopifySha256 := httpRequest.Header.Get(shopifyChecksumHeader)
+	if shopifySha256 == "" {
+		return false, fmt.Errorf("header %s not set", shopifyChecksumHeader)
+	}
+
+	decodedReceivedHMAC, err := base64.StdEncoding.DecodeString(shopifySha256)
+	if err != nil {
+		return false, err
+	}
+	if len(decodedReceivedHMAC) != 32 {
+		return false, fmt.Errorf("received HMAC is not of length 32, it is of length %d", len(decodedReceivedHMAC))
+	}
+
+	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
+	requestBody, err := ioutil.ReadAll(httpRequest.Body)
+	if err != nil {
+		return false, err
+	}
+
+	httpRequest.Body = ioutil.NopCloser(bytes.NewBuffer(requestBody))
+	if len(requestBody) == 0 {
+		return false, errors.New("request body is empty")
+	}
+
+	// Sha256 write doesn't actually return an error
+	mac.Write(requestBody)
+
+	computedHMAC := mac.Sum(nil)
+	HMACSame := hmac.Equal(decodedReceivedHMAC, computedHMAC)
+	if !HMACSame {
+		return HMACSame, fmt.Errorf("expected hash %x does not equal %x", computedHMAC, decodedReceivedHMAC)
+	}
+
+	return HMACSame, nil
 }

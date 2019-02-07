@@ -40,7 +40,7 @@ type Variant struct {
 	CompareAtPrice       *decimal.Decimal `json:"compare_at_price,omitempty"`
 	FulfillmentService   string           `json:"fulfillment_service,omitempty"`
 	InventoryManagement  string           `json:"inventory_management,omitempty"`
-	InventoryItemId	     int	      `json:"inventory_item_id,omitempty"`
+	InventoryItemId      int              `json:"inventory_item_id,omitempty"`
 	Option1              string           `json:"option1,omitempty"`
 	Option2              string           `json:"option2,omitempty"`
 	Option3              string           `json:"option3,omitempty"`
@@ -54,6 +54,7 @@ type Variant struct {
 	WeightUnit           string           `json:"weight_unit,omitempty"`
 	OldInventoryQuantity int              `json:"old_inventory_quantity,omitempty"`
 	RequireShipping      bool             `json:"requires_shipping,omitempty"`
+	AdminGraphqlAPIID    string           `json:"admin_graphql_api_id,omitempty"`
 }
 
 // VariantResource represents the result from the variants/X.json endpoint

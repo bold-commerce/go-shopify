@@ -34,7 +34,11 @@ func TestCustomerCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/customers/count.json",
 		httpmock.NewStringResponder(200, `{"count": 5}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/customers/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/customers/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Customer.Count(nil)
@@ -310,7 +314,11 @@ func TestCustomerCountMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/customers/1/metafields/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/customers/1/metafields/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/customers/1/metafields/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Customer.CountMetafields(1, nil)
@@ -408,5 +416,72 @@ func TestCustomerDeleteMetafield(t *testing.T) {
 	err := client.Customer.DeleteMetafield(1, 2)
 	if err != nil {
 		t.Errorf("Customer.DeleteMetafield() returned error: %v", err)
+	}
+}
+
+func TestCustomerListOrders(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder(
+		"GET",
+		"https://fooshop.myshopify.com/admin/customers/1/orders.json",
+		httpmock.NewStringResponder(200, "{\"orders\":[]}"),
+	)
+	params := map[string]string{"status": "any"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/customers/1/orders.json",
+		params,
+		httpmock.NewBytesResponder(200, loadFixture("orders.json")),
+	)
+
+	orders, err := client.Customer.ListOrders(1, nil)
+	if err != nil {
+		t.Errorf("Customer.ListOrders returned error: %v", err)
+	}
+
+	// Check that orders were parsed
+	if len(orders) != 0 {
+		t.Errorf("Customer.ListOrders got %v orders, expected: 1", len(orders))
+	}
+
+	orders, err = client.Customer.ListOrders(1, OrderListOptions{Status: "any"})
+	if err != nil {
+		t.Errorf("Customer.ListOrders returned error: %v", err)
+	}
+
+	// Check that orders were parsed
+	if len(orders) != 1 {
+		t.Errorf("Customer.ListOrders got %v orders, expected: 1", len(orders))
+	}
+
+	order := orders[0]
+	orderTests(t, order)
+}
+
+func TestCustomerListTags(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder(
+		"GET",
+		"https://fooshop.myshopify.com/admin/customers/tags.json",
+		httpmock.NewBytesResponder(200, loadFixture("customer_tags.json")),
+	)
+
+	tags, err := client.Customer.ListTags(nil)
+	if err != nil {
+		t.Errorf("Customer.ListTags returned error: %v", err)
+	}
+
+	// Check that tags were parsed
+	if len(tags) != 2 {
+		t.Errorf("Customer.ListTags got %v tags, expected: 2", len(tags))
+	}
+
+	// Check correct tag was read
+	if len(tags) > 0 && tags[0] != "tag1" {
+		t.Errorf("Customer.ListTags got %v as the first tag, expected: 'tag1'", tags[0])
 	}
 }

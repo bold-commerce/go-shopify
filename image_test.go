@@ -96,7 +96,11 @@ func TestImageCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/images/count.json",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/images/count.json?created_at_min=2016-01-01T00%3A00%3A00Z",
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		"https://fooshop.myshopify.com/admin/products/1/images/count.json",
+		params,
 		httpmock.NewStringResponder(200, `{"count": 1}`))
 
 	cnt, err := client.Image.Count(1, nil)

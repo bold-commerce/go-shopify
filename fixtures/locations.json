@@ -1,0 +1,23 @@
+{
+  "locations": [
+    {
+      "id": 4688969785,
+      "name": "Bajkowa",
+      "address1": "Bajkowa",
+      "address2": "",
+      "city": "Olsztyn",
+      "zip": "10-001",
+      "province": null,
+      "country": "PL",
+      "phone": "12312312",
+      "created_at": "2018-02-19T16:18:59-05:00",
+      "updated_at": "2018-02-19T16:19:00-05:00",
+      "country_code": "PL",
+      "country_name": "Poland",
+      "province_code": null,
+      "legacy": false,
+      "active": true,
+      "admin_graphql_api_id": "gid:\/\/shopify\/Location\/4688969785"
+    }
+  ]
+}
