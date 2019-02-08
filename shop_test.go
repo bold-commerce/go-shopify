@@ -39,7 +39,7 @@ func TestShopGet(t *testing.T) {
 		{"HasStorefront", true, shop.HasStorefront},
 		{"Source", "", shop.Source},
 		{"GoogleAppsDomain", "", shop.GoogleAppsDomain},
-		{"GoogleAppsLoginEnabled", "", shop.GoogleAppsLoginEnabled},
+		{"GoogleAppsLoginEnabled", false, shop.GoogleAppsLoginEnabled},
 		{"MoneyInEmailsFormat", "${{amount}}", shop.MoneyInEmailsFormat},
 		{"MoneyWithCurrencyInEmailsFormat", "${{amount}} USD", shop.MoneyWithCurrencyInEmailsFormat},
 		{"EligibleForPayments", true, shop.EligibleForPayments},

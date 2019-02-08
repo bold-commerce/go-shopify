@@ -60,7 +60,7 @@ type Shop struct {
 	CheckoutAPISupported            bool       `json:"checkout_api_supported"`
 	Source                          string     `json:"source"`
 	GoogleAppsDomain                string     `json:"google_apps_domain"`
-	GoogleAppsLoginEnabled          string     `json:"google_apps_login_enabled"`
+	GoogleAppsLoginEnabled          bool       `json:"google_apps_login_enabled"`
 	MoneyInEmailsFormat             string     `json:"money_in_emails_format"`
 	MoneyWithCurrencyInEmailsFormat string     `json:"money_with_currency_in_emails_format"`
 	EligibleForPayments             bool       `json:"eligible_for_payments"`
