@@ -549,3 +549,84 @@ func TestOrderCancelFulfillment(t *testing.T) {
 
 	FulfillmentTests(t, *returnedFulfillment)
 }
+
+func orderDiscountsTests(t *testing.T, order Order) {
+	// Check that dates are parsed
+	d := time.Date(2016, time.May, 17, 4, 14, 36, 0, time.UTC)
+	if !d.Equal(*order.CreatedAt) {
+		t.Errorf("Order.CreatedAt returned %+v, expected %+v", order.CreatedAt, d)
+	}
+
+	// Check null dates
+	if order.ProcessedAt != nil {
+		t.Errorf("Order.ProcessedAt returned %+v, expected %+v", order.ProcessedAt, nil)
+	}
+
+	// Check prices
+	p := decimal.NewFromFloat(1667.8)
+	if !p.Equals(*order.TotalPrice) {
+		t.Errorf("Order.TotalPrice returned %+v, expected %+v", order.TotalPrice, p)
+	}
+
+	// Check null prices, notice that prices are usually not empty.
+	if order.TotalTax != nil {
+		t.Errorf("Order.TotalTax returned %+v, expected %+v", order.TotalTax, nil)
+	}
+
+	// Check customer
+	if order.Customer == nil {
+		t.Error("Expected Customer to not be nil")
+	}
+	if order.Customer.Email != "john@test.com" {
+		t.Errorf("Customer.Email, expected %v, actual %v", "john@test.com", order.Customer.Email)
+	}
+
+	discount := decimal.NewFromFloat(0)
+
+	//Check discount allocation in each item
+	for _, li := range order.LineItems {
+
+		if len(li.DiscocuntAllocations) != 1 {
+			t.Errorf("Expected only one discount allocation, received %v", len(li.DiscocuntAllocations))
+		}
+		//Sum discount to validate after
+		for _, da := range li.DiscocuntAllocations {
+			discount = decimal.Sum(discount, *da.Amount)
+		}
+	}
+
+	// Check prices
+	//expectedDiscount := decimal.NewFromFloat(1022.2)
+	if !discount.Equals(*order.TotalDiscounts) {
+		t.Errorf("Order line discounts error, expected %v, actual %v", *order.TotalDiscounts, discount)
+	}
+
+}
+
+func TestOrderGetWithCouponCode(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/123456.json",
+		httpmock.NewBytesResponder(200, loadFixture("order_with_coupon.json")))
+
+	order, err := client.Order.Get(123456, nil)
+	if err != nil {
+		t.Errorf("Order.List returned error: %v", err)
+	}
+
+	// Check DiscountApplications is not nil
+	if order.DiscountApplications == nil {
+		t.Error("Expected at least one Discount Application")
+	}
+
+	// Check DiscountCodes is not nil
+	if order.DiscountCodes == nil {
+		t.Error("Expected Discount Codes to not be empty")
+	}
+	if len(order.DiscountCodes) != 1 {
+		t.Errorf("Expected a discount code used but receives %v", len(order.DiscountCodes))
+	}
+
+	orderDiscountsTests(t, *order)
+}
