@@ -13,10 +13,10 @@ const webhooksBasePath = "admin/webhooks"
 type WebhookService interface {
 	List(interface{}) ([]Webhook, error)
 	Count(interface{}) (int, error)
-	Get(int, interface{}) (*Webhook, error)
+	Get(int64, interface{}) (*Webhook, error)
 	Create(Webhook) (*Webhook, error)
 	Update(Webhook) (*Webhook, error)
-	Delete(int) error
+	Delete(int64) error
 }
 
 // WebhookServiceOp handles communication with the webhook-related methods of
@@ -27,7 +27,7 @@ type WebhookServiceOp struct {
 
 // Webhook represents a Shopify webhook
 type Webhook struct {
-	ID                  int        `json:"id"`
+	ID                  int64        `json:"id"`
 	Address             string     `json:"address"`
 	Topic               string     `json:"topic"`
 	Format              string     `json:"format"`
@@ -68,7 +68,7 @@ func (s *WebhookServiceOp) Count(options interface{}) (int, error) {
 }
 
 // Get individual webhook
-func (s *WebhookServiceOp) Get(webhookdID int, options interface{}) (*Webhook, error) {
+func (s *WebhookServiceOp) Get(webhookdID int64, options interface{}) (*Webhook, error) {
 	path := fmt.Sprintf("%s/%d.json", webhooksBasePath, webhookdID)
 	resource := new(WebhookResource)
 	err := s.client.Get(path, resource, options)
@@ -94,6 +94,6 @@ func (s *WebhookServiceOp) Update(webhook Webhook) (*Webhook, error) {
 }
 
 // Delete an existing webhooks
-func (s *WebhookServiceOp) Delete(ID int) error {
+func (s *WebhookServiceOp) Delete(ID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d.json", webhooksBasePath, ID))
 }

@@ -13,12 +13,12 @@ const variantsBasePath = "admin/variants"
 // of the Shopify API.
 // See https://help.shopify.com/api/reference/product_variant
 type VariantService interface {
-	List(int, interface{}) ([]Variant, error)
-	Count(int, interface{}) (int, error)
-	Get(int, interface{}) (*Variant, error)
-	Create(int, Variant) (*Variant, error)
+	List(int64, interface{}) ([]Variant, error)
+	Count(int64, interface{}) (int, error)
+	Get(int64, interface{}) (*Variant, error)
+	Create(int64, Variant) (*Variant, error)
 	Update(Variant) (*Variant, error)
-	Delete(int, int) error
+	Delete(int64, int64) error
 }
 
 // VariantServiceOp handles communication with the variant related methods of
@@ -29,8 +29,8 @@ type VariantServiceOp struct {
 
 // Variant represents a Shopify variant
 type Variant struct {
-	ID                   int              `json:"id,omitempty"`
-	ProductID            int              `json:"product_id,omitempty"`
+	ID                   int64              `json:"id,omitempty"`
+	ProductID            int64              `json:"product_id,omitempty"`
 	Title                string           `json:"title,omitempty"`
 	Sku                  string           `json:"sku,omitempty"`
 	Position             int              `json:"position,omitempty"`
@@ -40,7 +40,7 @@ type Variant struct {
 	CompareAtPrice       *decimal.Decimal `json:"compare_at_price,omitempty"`
 	FulfillmentService   string           `json:"fulfillment_service,omitempty"`
 	InventoryManagement  string           `json:"inventory_management,omitempty"`
-	InventoryItemId      int              `json:"inventory_item_id,omitempty"`
+	InventoryItemId      int64              `json:"inventory_item_id,omitempty"`
 	Option1              string           `json:"option1,omitempty"`
 	Option2              string           `json:"option2,omitempty"`
 	Option3              string           `json:"option3,omitempty"`
@@ -48,7 +48,7 @@ type Variant struct {
 	UpdatedAt            *time.Time       `json:"updated_at,omitempty"`
 	Taxable              bool             `json:"taxable,omitempty"`
 	Barcode              string           `json:"barcode,omitempty"`
-	ImageID              int              `json:"image_id,omitempty"`
+	ImageID              int64              `json:"image_id,omitempty"`
 	InventoryQuantity    int              `json:"inventory_quantity,omitempty"`
 	Weight               *decimal.Decimal `json:"weight,omitempty"`
 	WeightUnit           string           `json:"weight_unit,omitempty"`
@@ -68,7 +68,7 @@ type VariantsResource struct {
 }
 
 // List variants
-func (s *VariantServiceOp) List(productID int, options interface{}) ([]Variant, error) {
+func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant, error) {
 	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
 	resource := new(VariantsResource)
 	err := s.client.Get(path, resource, options)
@@ -76,13 +76,13 @@ func (s *VariantServiceOp) List(productID int, options interface{}) ([]Variant, 
 }
 
 // Count variants
-func (s *VariantServiceOp) Count(productID int, options interface{}) (int, error) {
+func (s *VariantServiceOp) Count(productID int64, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/%d/variants/count.json", productsBasePath, productID)
 	return s.client.Count(path, options)
 }
 
 // Get individual variant
-func (s *VariantServiceOp) Get(variantID int, options interface{}) (*Variant, error) {
+func (s *VariantServiceOp) Get(variantID int64, options interface{}) (*Variant, error) {
 	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variantID)
 	resource := new(VariantResource)
 	err := s.client.Get(path, resource, options)
@@ -90,7 +90,7 @@ func (s *VariantServiceOp) Get(variantID int, options interface{}) (*Variant, er
 }
 
 // Create a new variant
-func (s *VariantServiceOp) Create(productID int, variant Variant) (*Variant, error) {
+func (s *VariantServiceOp) Create(productID int64, variant Variant) (*Variant, error) {
 	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
@@ -108,6 +108,6 @@ func (s *VariantServiceOp) Update(variant Variant) (*Variant, error) {
 }
 
 // Delete an existing product
-func (s *VariantServiceOp) Delete(productID int, variantID int) error {
+func (s *VariantServiceOp) Delete(productID int64, variantID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d/variants/%d.json", productsBasePath, productID, variantID))
 }

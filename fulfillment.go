@@ -11,26 +11,26 @@ import (
 type FulfillmentService interface {
 	List(interface{}) ([]Fulfillment, error)
 	Count(interface{}) (int, error)
-	Get(int, interface{}) (*Fulfillment, error)
+	Get(int64, interface{}) (*Fulfillment, error)
 	Create(Fulfillment) (*Fulfillment, error)
 	Update(Fulfillment) (*Fulfillment, error)
-	Complete(int) (*Fulfillment, error)
-	Transition(int) (*Fulfillment, error)
-	Cancel(int) (*Fulfillment, error)
+	Complete(int64) (*Fulfillment, error)
+	Transition(int64) (*Fulfillment, error)
+	Cancel(int64) (*Fulfillment, error)
 }
 
 // FulfillmentsService is an interface for other Shopify resources
 // to interface with the fulfillment endpoints of the Shopify API.
 // https://help.shopify.com/api/reference/fulfillment
 type FulfillmentsService interface {
-	ListFulfillments(int, interface{}) ([]Fulfillment, error)
-	CountFulfillments(int, interface{}) (int, error)
-	GetFulfillment(int, int, interface{}) (*Fulfillment, error)
-	CreateFulfillment(int, Fulfillment) (*Fulfillment, error)
-	UpdateFulfillment(int, Fulfillment) (*Fulfillment, error)
-	CompleteFulfillment(int, int) (*Fulfillment, error)
-	TransitionFulfillment(int, int) (*Fulfillment, error)
-	CancelFulfillment(int, int) (*Fulfillment, error)
+	ListFulfillments(int64, interface{}) ([]Fulfillment, error)
+	CountFulfillments(int64, interface{}) (int, error)
+	GetFulfillment(int64, int64, interface{}) (*Fulfillment, error)
+	CreateFulfillment(int64, Fulfillment) (*Fulfillment, error)
+	UpdateFulfillment(int64, Fulfillment) (*Fulfillment, error)
+	CompleteFulfillment(int64, int64) (*Fulfillment, error)
+	TransitionFulfillment(int64, int64) (*Fulfillment, error)
+	CancelFulfillment(int64, int64) (*Fulfillment, error)
 }
 
 // FulfillmentServiceOp handles communication with the fulfillment
@@ -38,14 +38,14 @@ type FulfillmentsService interface {
 type FulfillmentServiceOp struct {
 	client     *Client
 	resource   string
-	resourceID int
+	resourceID int64
 }
 
 // Fulfillment represents a Shopify fulfillment.
 type Fulfillment struct {
-	ID              int        `json:"id,omitempty"`
-	OrderID         int        `json:"order_id,omitempty"`
-	LocationID      int        `json:"location_id,omitempty"`
+	ID              int64        `json:"id,omitempty"`
+	OrderID         int64        `json:"order_id,omitempty"`
+	LocationID      int64        `json:"location_id,omitempty"`
 	Status          string     `json:"status,omitempty"`
 	CreatedAt       *time.Time `json:"created_at,omitempty"`
 	Service         string     `json:"service,omitempty"`
@@ -94,7 +94,7 @@ func (s *FulfillmentServiceOp) Count(options interface{}) (int, error) {
 }
 
 // Get individual fulfillment
-func (s *FulfillmentServiceOp) Get(fulfillmentID int, options interface{}) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Get(fulfillmentID int64, options interface{}) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceID)
 	path := fmt.Sprintf("%s/%d.json", prefix, fulfillmentID)
 	resource := new(FulfillmentResource)
@@ -123,7 +123,7 @@ func (s *FulfillmentServiceOp) Update(fulfillment Fulfillment) (*Fulfillment, er
 }
 
 // Complete an existing fulfillment
-func (s *FulfillmentServiceOp) Complete(fulfillmentID int) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Complete(fulfillmentID int64) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceID)
 	path := fmt.Sprintf("%s/%d/complete.json", prefix, fulfillmentID)
 	resource := new(FulfillmentResource)
@@ -132,7 +132,7 @@ func (s *FulfillmentServiceOp) Complete(fulfillmentID int) (*Fulfillment, error)
 }
 
 // Transition an existing fulfillment
-func (s *FulfillmentServiceOp) Transition(fulfillmentID int) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Transition(fulfillmentID int64) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceID)
 	path := fmt.Sprintf("%s/%d/open.json", prefix, fulfillmentID)
 	resource := new(FulfillmentResource)
@@ -141,7 +141,7 @@ func (s *FulfillmentServiceOp) Transition(fulfillmentID int) (*Fulfillment, erro
 }
 
 // Cancel an existing fulfillment
-func (s *FulfillmentServiceOp) Cancel(fulfillmentID int) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Cancel(fulfillmentID int64) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceID)
 	path := fmt.Sprintf("%s/%d/cancel.json", prefix, fulfillmentID)
 	resource := new(FulfillmentResource)

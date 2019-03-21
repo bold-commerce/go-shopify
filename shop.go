@@ -17,7 +17,7 @@ type ShopServiceOp struct {
 
 // Shop represents a Shopify shop
 type Shop struct {
-	ID                              int        `json:"id"`
+	ID                              int64        `json:"id"`
 	Name                            string     `json:"name"`
 	ShopOwner                       string     `json:"shop_owner"`
 	Email                           string     `json:"email"`
@@ -46,7 +46,7 @@ type Shop struct {
 	PlanDisplayName                 string     `json:"plan_display_name"`
 	PasswordEnabled                 bool       `json:"password_enabled"`
 	PrimaryLocale                   string     `json:"primary_locale"`
-	PrimaryLocationId               int        `json:"primary_location_id"`
+	PrimaryLocationId               int64        `json:"primary_location_id"`
 	Timezone                        string     `json:"timezone"`
 	IanaTimezone                    string     `json:"iana_timezone"`
 	ForceSSL                        bool       `json:"force_ssl"`

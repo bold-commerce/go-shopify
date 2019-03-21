@@ -10,7 +10,7 @@ import (
 
 func FulfillmentTests(t *testing.T, fulfillment Fulfillment) {
 	// Check that ID is assigned to the returned fulfillment
-	expectedInt := 1022782888
+	expectedInt := int64(1022782888)
 	if fulfillment.ID != expectedInt {
 		t.Errorf("Fulfillment.ID returned %+v, expected %+v", fulfillment.ID, expectedInt)
 	}

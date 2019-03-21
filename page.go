@@ -14,10 +14,10 @@ const pagesResourceName = "pages"
 type PageService interface {
 	List(interface{}) ([]Page, error)
 	Count(interface{}) (int, error)
-	Get(int, interface{}) (*Page, error)
+	Get(int64, interface{}) (*Page, error)
 	Create(Page) (*Page, error)
 	Update(Page) (*Page, error)
-	Delete(int) error
+	Delete(int64) error
 
 	// MetafieldsService used for Pages resource to communicate with Metafields
 	// resource
@@ -32,7 +32,7 @@ type PageServiceOp struct {
 
 // Page represents a Shopify page.
 type Page struct {
-	ID             int         `json:"id"`
+	ID             int64         `json:"id"`
 	Author         string      `json:"author"`
 	Handle         string      `json:"handle"`
 	Title          string      `json:"title"`
@@ -41,7 +41,7 @@ type Page struct {
 	BodyHTML       string      `json:"body_html"`
 	TemplateSuffix string      `json:"template_suffix"`
 	PublishedAt    *time.Time  `json:"published_at"`
-	ShopID         int         `json:"shop_id"`
+	ShopID         int64         `json:"shop_id"`
 	Metafields     []Metafield `json:"metafields"`
 }
 
@@ -70,7 +70,7 @@ func (s *PageServiceOp) Count(options interface{}) (int, error) {
 }
 
 // Get individual page
-func (s *PageServiceOp) Get(pageID int, options interface{}) (*Page, error) {
+func (s *PageServiceOp) Get(pageID int64, options interface{}) (*Page, error) {
 	path := fmt.Sprintf("%s/%d.json", pagesBasePath, pageID)
 	resource := new(PageResource)
 	err := s.client.Get(path, resource, options)
@@ -96,42 +96,42 @@ func (s *PageServiceOp) Update(page Page) (*Page, error) {
 }
 
 // Delete an existing page.
-func (s *PageServiceOp) Delete(pageID int) error {
+func (s *PageServiceOp) Delete(pageID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d.json", pagesBasePath, pageID))
 }
 
 // List metafields for a page
-func (s *PageServiceOp) ListMetafields(pageID int, options interface{}) ([]Metafield, error) {
+func (s *PageServiceOp) ListMetafields(pageID int64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
 	return metafieldService.List(options)
 }
 
 // Count metafields for a page
-func (s *PageServiceOp) CountMetafields(pageID int, options interface{}) (int, error) {
+func (s *PageServiceOp) CountMetafields(pageID int64, options interface{}) (int, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
 	return metafieldService.Count(options)
 }
 
 // Get individual metafield for a page
-func (s *PageServiceOp) GetMetafield(pageID int, metafieldID int, options interface{}) (*Metafield, error) {
+func (s *PageServiceOp) GetMetafield(pageID int64, metafieldID int64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
 	return metafieldService.Get(metafieldID, options)
 }
 
 // Create a new metafield for a page
-func (s *PageServiceOp) CreateMetafield(pageID int, metafield Metafield) (*Metafield, error) {
+func (s *PageServiceOp) CreateMetafield(pageID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
 	return metafieldService.Create(metafield)
 }
 
 // Update an existing metafield for a page
-func (s *PageServiceOp) UpdateMetafield(pageID int, metafield Metafield) (*Metafield, error) {
+func (s *PageServiceOp) UpdateMetafield(pageID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
 	return metafieldService.Update(metafield)
 }
 
 // Delete an existing metafield for a page
-func (s *PageServiceOp) DeleteMetafield(pageID int, metafieldID int) error {
+func (s *PageServiceOp) DeleteMetafield(pageID int64, metafieldID int64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
 	return metafieldService.Delete(metafieldID)
 }

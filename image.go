@@ -9,12 +9,12 @@ import (
 // of the Shopify API.
 // See https://help.shopify.com/api/reference/product_image
 type ImageService interface {
-	List(int, interface{}) ([]Image, error)
-	Count(int, interface{}) (int, error)
-	Get(int, int, interface{}) (*Image, error)
-	Create(int, Image) (*Image, error)
-	Update(int, Image) (*Image, error)
-	Delete(int, int) error
+	List(int64, interface{}) ([]Image, error)
+	Count(int64, interface{}) (int, error)
+	Get(int64, int64, interface{}) (*Image, error)
+	Create(int64, Image) (*Image, error)
+	Update(int64, Image) (*Image, error)
+	Delete(int64, int64) error
 }
 
 // ImageServiceOp handles communication with the image related methods of
@@ -25,8 +25,8 @@ type ImageServiceOp struct {
 
 // Image represents a Shopify product's image.
 type Image struct {
-	ID         int        `json:"id,omitempty"`
-	ProductID  int        `json:"product_id,omitempty"`
+	ID         int64        `json:"id,omitempty"`
+	ProductID  int64        `json:"product_id,omitempty"`
 	Position   int        `json:"position,omitempty"`
 	CreatedAt  *time.Time `json:"created_at,omitempty"`
 	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
@@ -35,7 +35,7 @@ type Image struct {
 	Src        string     `json:"src,omitempty"`
 	Attachment string     `json:"attachment,omitempty"`
 	Filename   string     `json:"filename,omitempty"`
-	VariantIds []int      `json:"variant_ids,omitempty"`
+	VariantIds []int64      `json:"variant_ids,omitempty"`
 }
 
 // ImageResource represents the result form the products/X/images/Y.json endpoint
@@ -49,7 +49,7 @@ type ImagesResource struct {
 }
 
 // List images
-func (s *ImageServiceOp) List(productID int, options interface{}) ([]Image, error) {
+func (s *ImageServiceOp) List(productID int64, options interface{}) ([]Image, error) {
 	path := fmt.Sprintf("%s/%d/images.json", productsBasePath, productID)
 	resource := new(ImagesResource)
 	err := s.client.Get(path, resource, options)
@@ -57,13 +57,13 @@ func (s *ImageServiceOp) List(productID int, options interface{}) ([]Image, erro
 }
 
 // Count images
-func (s *ImageServiceOp) Count(productID int, options interface{}) (int, error) {
+func (s *ImageServiceOp) Count(productID int64, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/%d/images/count.json", productsBasePath, productID)
 	return s.client.Count(path, options)
 }
 
 // Get individual image
-func (s *ImageServiceOp) Get(productID int, imageID int, options interface{}) (*Image, error) {
+func (s *ImageServiceOp) Get(productID int64, imageID int64, options interface{}) (*Image, error) {
 	path := fmt.Sprintf("%s/%d/images/%d.json", productsBasePath, productID, imageID)
 	resource := new(ImageResource)
 	err := s.client.Get(path, resource, options)
@@ -83,7 +83,7 @@ func (s *ImageServiceOp) Get(productID int, imageID int, options interface{}) (*
 // Shopify will take the attachment.
 //
 // Shopify will accept Image.Attachment without Image.Filename.
-func (s *ImageServiceOp) Create(productID int, image Image) (*Image, error) {
+func (s *ImageServiceOp) Create(productID int64, image Image) (*Image, error) {
 	path := fmt.Sprintf("%s/%d/images.json", productsBasePath, productID)
 	wrappedData := ImageResource{Image: &image}
 	resource := new(ImageResource)
@@ -92,7 +92,7 @@ func (s *ImageServiceOp) Create(productID int, image Image) (*Image, error) {
 }
 
 // Update an existing image
-func (s *ImageServiceOp) Update(productID int, image Image) (*Image, error) {
+func (s *ImageServiceOp) Update(productID int64, image Image) (*Image, error) {
 	path := fmt.Sprintf("%s/%d/images/%d.json", productsBasePath, productID, image.ID)
 	wrappedData := ImageResource{Image: &image}
 	resource := new(ImageResource)
@@ -101,6 +101,6 @@ func (s *ImageServiceOp) Update(productID int, image Image) (*Image, error) {
 }
 
 // Delete an existing image
-func (s *ImageServiceOp) Delete(productID int, imageID int) error {
+func (s *ImageServiceOp) Delete(productID int64, imageID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d/images/%d.json", productsBasePath, productID, imageID))
 }

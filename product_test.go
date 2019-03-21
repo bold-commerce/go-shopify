@@ -10,7 +10,7 @@ import (
 
 func productTests(t *testing.T, product Product) {
 	// Check that ID is assigned to the returned product
-	expectedInt := 1071559748
+	var expectedInt int64 = 1071559748
 	if product.ID != expectedInt {
 		t.Errorf("Product.ID returned %+v, expected %+v", product.ID, expectedInt)
 	}

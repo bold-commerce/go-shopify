@@ -14,7 +14,7 @@ type LocationService interface {
 	// Retrieves a list of locations
 	List(options interface{}) ([]Location, error)
 	// Retrieves a single location by its ID
-	Get(ID int, options interface{}) (*Location, error)
+	Get(ID int64, options interface{}) (*Location, error)
 	// Retrieves a count of locations
 	Count(options interface{}) (int, error)
 }
@@ -46,7 +46,7 @@ type Location struct {
 	CreatedAt time.Time `json:"created_at"`
 
 	// The ID for the location.
-	ID int `json:"id"`
+	ID int64 `json:"id"`
 
 	// Whether this is a fulfillment service location.
 	// If true, then the location is a fulfillment service location.
@@ -87,7 +87,7 @@ func (s *LocationServiceOp) List(options interface{}) ([]Location, error) {
 	return resource.Locations, err
 }
 
-func (s *LocationServiceOp) Get(ID int, options interface{}) (*Location, error) {
+func (s *LocationServiceOp) Get(ID int64, options interface{}) (*Location, error) {
 	path := fmt.Sprintf("%s/%d.json", locationsBasePath, ID)
 	resource := new(LocationResource)
 	err := s.client.Get(path, resource, options)

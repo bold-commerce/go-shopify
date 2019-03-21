@@ -14,7 +14,7 @@ const inventoryItemsBasePath = "admin/inventory_items"
 // See https://help.shopify.com/en/api/reference/inventory/inventoryitem
 type InventoryItemService interface {
 	List(interface{}) ([]InventoryItem, error)
-	Get(int, interface{}) (*InventoryItem, error)
+	Get(int64, interface{}) (*InventoryItem, error)
 	Update(InventoryItem) (*InventoryItem, error)
 }
 
@@ -25,7 +25,7 @@ type InventoryItemServiceOp struct {
 
 // InventoryItem represents a Shopify inventory item
 type InventoryItem struct {
-	ID                int              `json:"id,omitempty"`
+	ID                int64              `json:"id,omitempty"`
 	SKU               string           `json:"sku,omitempty"`
 	CreatedAt         *time.Time       `json:"created_at,omitempty"`
 	UpdatedAt         *time.Time       `json:"updated_at,omitempty"`
@@ -53,7 +53,7 @@ func (s *InventoryItemServiceOp) List(options interface{}) ([]InventoryItem, err
 }
 
 // Get a inventory item
-func (s *InventoryItemServiceOp) Get(id int, options interface{}) (*InventoryItem, error) {
+func (s *InventoryItemServiceOp) Get(id int64, options interface{}) (*InventoryItem, error) {
 	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, id)
 	resource := new(InventoryItemResource)
 	err := s.client.Get(path, resource, options)

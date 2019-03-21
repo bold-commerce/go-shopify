@@ -13,7 +13,7 @@ const storefrontAccessTokensBasePath = "admin/storefront_access_tokens"
 type StorefrontAccessTokenService interface {
 	List(interface{}) ([]StorefrontAccessToken, error)
 	Create(StorefrontAccessToken) (*StorefrontAccessToken, error)
-	Delete(int) error
+	Delete(int64) error
 }
 
 // StorefrontAccessTokenServiceOp handles communication with the storefront access token
@@ -24,7 +24,7 @@ type StorefrontAccessTokenServiceOp struct {
 
 // StorefrontAccessToken represents a Shopify storefront access token
 type StorefrontAccessToken struct {
-	ID                int        `json:"id,omitempty"`
+	ID                int64        `json:"id,omitempty"`
 	Title             string     `json:"title,omitempty"`
 	AccessToken       string     `json:"access_token,omitempty"`
 	AccessScope       string     `json:"access_scope,omitempty"`
@@ -60,6 +60,6 @@ func (s *StorefrontAccessTokenServiceOp) Create(storefrontAccessToken Storefront
 }
 
 // Delete an existing storefront access token
-func (s *StorefrontAccessTokenServiceOp) Delete(ID int) error {
+func (s *StorefrontAccessTokenServiceOp) Delete(ID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d.json", storefrontAccessTokensBasePath, ID))
 }

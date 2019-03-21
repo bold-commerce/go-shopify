@@ -12,10 +12,10 @@ const redirectsBasePath = "admin/redirects"
 type RedirectService interface {
 	List(interface{}) ([]Redirect, error)
 	Count(interface{}) (int, error)
-	Get(int, interface{}) (*Redirect, error)
+	Get(int64, interface{}) (*Redirect, error)
 	Create(Redirect) (*Redirect, error)
 	Update(Redirect) (*Redirect, error)
-	Delete(int) error
+	Delete(int64) error
 }
 
 // RedirectServiceOp handles communication with the redirect related methods of the
@@ -26,7 +26,7 @@ type RedirectServiceOp struct {
 
 // Redirect represents a Shopify redirect.
 type Redirect struct {
-	ID     int    `json:"id"`
+	ID     int64    `json:"id"`
 	Path   string `json:"path"`
 	Target string `json:"target"`
 }
@@ -56,7 +56,7 @@ func (s *RedirectServiceOp) Count(options interface{}) (int, error) {
 }
 
 // Get individual redirect
-func (s *RedirectServiceOp) Get(redirectID int, options interface{}) (*Redirect, error) {
+func (s *RedirectServiceOp) Get(redirectID int64, options interface{}) (*Redirect, error) {
 	path := fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectID)
 	resource := new(RedirectResource)
 	err := s.client.Get(path, resource, options)
@@ -82,6 +82,6 @@ func (s *RedirectServiceOp) Update(redirect Redirect) (*Redirect, error) {
 }
 
 // Delete an existing redirect.
-func (s *RedirectServiceOp) Delete(redirectID int) error {
+func (s *RedirectServiceOp) Delete(redirectID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectID))
 }

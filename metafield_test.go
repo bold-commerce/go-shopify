@@ -10,7 +10,7 @@ import (
 
 func MetafieldTests(t *testing.T, metafield Metafield) {
 	// Check that ID is assigned to the returned metafield
-	expectedInt := 721389482
+	expectedInt := int64(721389482)
 	if metafield.ID != expectedInt {
 		t.Errorf("Metafield.ID returned %+v, expected %+v", metafield.ID, expectedInt)
 	}

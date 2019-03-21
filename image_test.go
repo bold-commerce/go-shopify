@@ -9,13 +9,13 @@ import (
 
 func imageTests(t *testing.T, image Image) {
 	// Check that ID is set
-	expectedImageID := 1
+	expectedImageID := int64(1)
 	if image.ID != expectedImageID {
 		t.Errorf("Image.ID returned %+v, expected %+v", image.ID, expectedImageID)
 	}
 
 	// Check that product_id is set
-	expectedProductID := 1
+	expectedProductID := int64(1)
 	if image.ProductID != expectedProductID {
 		t.Errorf("Image.ProductID returned %+v, expected %+v", image.ProductID, expectedProductID)
 	}
@@ -45,7 +45,7 @@ func imageTests(t *testing.T, image Image) {
 	}
 
 	// Check that variant ids are set
-	expectedVariantIds := make([]int, 2)
+	expectedVariantIds := make([]int64, 2)
 	expectedVariantIds[0] = 808950810
 	expectedVariantIds[1] = 808950811
 
@@ -147,7 +147,7 @@ func TestImageCreate(t *testing.T) {
 	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/products/1/images.json",
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
-	variantIds := make([]int, 2)
+	variantIds := make([]int64, 2)
 	variantIds[0] = 808950810
 	variantIds[1] = 808950811
 
@@ -171,7 +171,7 @@ func TestImageUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
 	// Take an existing image
-	variantIds := make([]int, 2)
+	variantIds := make([]int64, 2)
 	variantIds[0] = 808950810
 	variantIds[1] = 457924702
 	existingImage := Image{

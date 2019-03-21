@@ -10,7 +10,7 @@ import (
 
 func pageTests(t *testing.T, page Page) {
 	// Check that ID is assigned to the returned page
-	expectedInt := 1
+	expectedInt := int64(1)
 	if page.ID != expectedInt {
 		t.Errorf("Page.ID returned %+v, expected %+v", page.ID, expectedInt)
 	}

@@ -11,7 +11,7 @@ import (
 
 func variantTests(t *testing.T, variant Variant) {
 	// Check that the ID is assigned to the returned variant
-	expectedInt := 1
+	expectedInt := int64(1)
 	if variant.ID != expectedInt {
 		t.Errorf("Variant.ID returned %+v, expected %+v", variant.ID, expectedInt)
 	}
@@ -22,7 +22,7 @@ func variantTests(t *testing.T, variant Variant) {
 		t.Errorf("Variant.Title returned %+v, expected %+v", variant.Title, expectedTitle)
 	}
 
-	expectedInventoryItemId := 1
+	expectedInventoryItemId := int64(1)
 	if variant.InventoryItemId != expectedInventoryItemId {
 		t.Errorf("Variant.InventoryItemId returned %+v, expected %+v", variant.InventoryItemId, expectedInventoryItemId)
 	}

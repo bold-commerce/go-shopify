@@ -10,13 +10,13 @@ import (
 
 func TransactionTests(t *testing.T, transaction Transaction) {
 	// Check that the ID is assigned to the returned transaction
-	expectedID := 389404469
+	expectedID := int64(389404469)
 	if transaction.ID != expectedID {
 		t.Errorf("Transaction.ID returned %+v, expected %+v", transaction.ID, expectedID)
 	}
 
 	// Check that the OrderID value is assigned to the returned transaction
-	expectedOrderID := 450789469
+	expectedOrderID := int64(450789469)
 	if transaction.OrderID != expectedOrderID {
 		t.Errorf("Transaction.OrderID returned %+v, expected %+v", transaction.OrderID, expectedOrderID)
 	}

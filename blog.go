@@ -13,10 +13,10 @@ const blogsBasePath = "admin/blogs"
 type BlogService interface {
 	List(interface{}) ([]Blog, error)
 	Count(interface{}) (int, error)
-	Get(int, interface{}) (*Blog, error)
+	Get(int64, interface{}) (*Blog, error)
 	Create(Blog) (*Blog, error)
 	Update(Blog) (*Blog, error)
-	Delete(int) error
+	Delete(int64) error
 }
 
 // BlogServiceOp handles communication with the blog related methods of
@@ -27,7 +27,7 @@ type BlogServiceOp struct {
 
 // Blog represents a Shopify blog
 type Blog struct {
-	ID                 int        `json:"id"`
+	ID                 int64        `json:"id"`
 	Title              string     `json:"title"`
 	Commentable        string     `json:"commentable"`
 	Feedburner         string     `json:"feedburner"`
@@ -65,7 +65,7 @@ func (s *BlogServiceOp) Count(options interface{}) (int, error) {
 }
 
 // Get single blog
-func (s *BlogServiceOp) Get(blogId int, options interface{}) (*Blog, error) {
+func (s *BlogServiceOp) Get(blogId int64, options interface{}) (*Blog, error) {
 	path := fmt.Sprintf("%s/%d.json", blogsBasePath, blogId)
 	resource := new(BlogResource)
 	err := s.client.Get(path, resource, options)
@@ -91,6 +91,6 @@ func (s *BlogServiceOp) Update(blog Blog) (*Blog, error) {
 }
 
 // Delete an blog
-func (s *BlogServiceOp) Delete(blogId int) error {
+func (s *BlogServiceOp) Delete(blogId int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d.json", blogsBasePath, blogId))
 }

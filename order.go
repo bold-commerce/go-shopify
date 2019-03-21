@@ -16,7 +16,7 @@ const ordersResourceName = "orders"
 type OrderService interface {
 	List(interface{}) ([]Order, error)
 	Count(interface{}) (int, error)
-	Get(int, interface{}) (*Order, error)
+	Get(int64, interface{}) (*Order, error)
 	Create(Order) (*Order, error)
 	Update(Order) (*Order, error)
 
@@ -37,7 +37,7 @@ type OrderServiceOp struct {
 type OrderCountOptions struct {
 	Page              int       `url:"page,omitempty"`
 	Limit             int       `url:"limit,omitempty"`
-	SinceID           int       `url:"since_id,omitempty"`
+	SinceID           int64       `url:"since_id,omitempty"`
 	CreatedAtMin      time.Time `url:"created_at_min,omitempty"`
 	CreatedAtMax      time.Time `url:"created_at_max,omitempty"`
 	UpdatedAtMin      time.Time `url:"updated_at_min,omitempty"`
@@ -54,7 +54,7 @@ type OrderCountOptions struct {
 type OrderListOptions struct {
 	Page              int       `url:"page,omitempty"`
 	Limit             int       `url:"limit,omitempty"`
-	SinceID           int       `url:"since_id,omitempty"`
+	SinceID           int64       `url:"since_id,omitempty"`
 	Status            string    `url:"status,omitempty"`
 	FinancialStatus   string    `url:"financial_status,omitempty"`
 	FulfillmentStatus string    `url:"fulfillment_status,omitempty"`
@@ -70,7 +70,7 @@ type OrderListOptions struct {
 
 // Order represents a Shopify order
 type Order struct {
-	ID                    int              `json:"id,omitempty"`
+	ID                    int64              `json:"id,omitempty"`
 	Name                  string           `json:"name,omitempty"`
 	Email                 string           `json:"email,omitempty"`
 	CreatedAt             *time.Time       `json:"created_at,omitempty"`
@@ -114,11 +114,11 @@ type Order struct {
 	SourceName            string           `json:"source_name,omitempty"`
 	ClientDetails         *ClientDetails   `json:"client_details,omitempty"`
 	Tags                  string           `json:"tags,omitempty"`
-	LocationId            int              `json:"location_id,omitempty"`
+	LocationId            int64              `json:"location_id,omitempty"`
 	PaymentGatewayNames   []string         `json:"payment_gateway_names,omitempty"`
 	ProcessingMethod      string           `json:"processing_method,omitempty"`
 	Refunds               []Refund         `json:"refunds,omitempty"`
-	UserId                int              `json:"user_id,omitempty"`
+	UserId                int64              `json:"user_id,omitempty"`
 	OrderStatusUrl        string           `json:"order_status_url,omitempty"`
 	Gateway               string           `json:"gateway,omitempty"`
 	Confirmed             bool             `json:"confirmed,omitempty"`
@@ -127,16 +127,16 @@ type Order struct {
 	Reference             string           `json:"reference,omitempty"`
 	SourceIdentifier      string           `json:"source_identifier,omitempty"`
 	SourceURL             string           `json:"source_url,omitempty"`
-	DeviceID              int              `json:"device_id,omitempty"`
+	DeviceID              int64              `json:"device_id,omitempty"`
 	Phone                 string           `json:"phone,omitempty"`
 	LandingSiteRef        string           `json:"landing_site_ref,omitempty"`
-	CheckoutID            int              `json:"checkout_id,omitempty"`
+	CheckoutID            int64              `json:"checkout_id,omitempty"`
 	ContactEmail          string           `json:"contact_email,omitempty"`
 	Metafields            []Metafield      `json:"metafields,omitempty"`
 }
 
 type Address struct {
-	ID           int     `json:"id,omitempty"`
+	ID           int64     `json:"id,omitempty"`
 	Address1     string  `json:"address1,omitempty"`
 	Address2     string  `json:"address2,omitempty"`
 	City         string  `json:"city,omitempty"`
@@ -161,9 +161,9 @@ type DiscountCode struct {
 }
 
 type LineItem struct {
-	ID                         int              `json:"id,omitempty"`
-	ProductID                  int              `json:"product_id,omitempty"`
-	VariantID                  int              `json:"variant_id,omitempty"`
+	ID                         int64              `json:"id,omitempty"`
+	ProductID                  int64              `json:"product_id,omitempty"`
+	VariantID                  int64              `json:"variant_id,omitempty"`
 	Quantity                   int              `json:"quantity,omitempty"`
 	Price                      *decimal.Decimal `json:"price,omitempty"`
 	TotalDiscount              *decimal.Decimal `json:"total_discount,omitempty"`
@@ -216,7 +216,7 @@ type PaymentDetails struct {
 }
 
 type ShippingLines struct {
-	ID                            int              `json:"id,omitempty"`
+	ID                            int64              `json:"id,omitempty"`
 	Title                         string           `json:"title,omitempty"`
 	Price                         *decimal.Decimal `json:"price,omitempty"`
 	Code                          string           `json:"code,omitempty"`
@@ -235,8 +235,8 @@ type TaxLine struct {
 }
 
 type Transaction struct {
-	ID             int              `json:"id,omitempty"`
-	OrderID        int              `json:"order_id,omitempty"`
+	ID             int64              `json:"id,omitempty"`
+	OrderID        int64              `json:"order_id,omitempty"`
 	Amount         *decimal.Decimal `json:"amount,omitempty"`
 	Kind           string           `json:"kind,omitempty"`
 	Gateway        string           `json:"gateway,omitempty"`
@@ -246,10 +246,10 @@ type Transaction struct {
 	Test           bool             `json:"test,omitempty"`
 	Authorization  string           `json:"authorization,omitempty"`
 	Currency       string           `json:"currency,omitempty"`
-	LocationID     *int             `json:"location_id,omitempty"`
-	UserID         *int             `json:"user_id,omitempty"`
-	ParentID       *int             `json:"parent_id,omitempty"`
-	DeviceID       *int             `json:"device_id,omitempty"`
+	LocationID     *int64             `json:"location_id,omitempty"`
+	UserID         *int64             `json:"user_id,omitempty"`
+	ParentID       *int64             `json:"parent_id,omitempty"`
+	DeviceID       *int64             `json:"device_id,omitempty"`
 	ErrorCode      string           `json:"error_code,omitempty"`
 	SourceName     string           `json:"source_name,omitempty"`
 	PaymentDetails *PaymentDetails  `json:"payment_details,omitempty"`
@@ -265,20 +265,20 @@ type ClientDetails struct {
 }
 
 type Refund struct {
-	Id              int              `json:"id,omitempty"`
-	OrderId         int              `json:"order_id,omitempty"`
+	Id              int64              `json:"id,omitempty"`
+	OrderId         int64              `json:"order_id,omitempty"`
 	CreatedAt       *time.Time       `json:"created_at,omitempty"`
 	Note            string           `json:"note,omitempty"`
 	Restock         bool             `json:"restock,omitempty"`
-	UserId          int              `json:"user_id,omitempty"`
+	UserId          int64              `json:"user_id,omitempty"`
 	RefundLineItems []RefundLineItem `json:"refund_line_items,omitempty"`
 	Transactions    []Transaction    `json:"transactions,omitempty"`
 }
 
 type RefundLineItem struct {
-	Id         int              `json:"id,omitempty"`
+	Id         int64              `json:"id,omitempty"`
 	Quantity   int              `json:"quantity,omitempty"`
-	LineItemId int              `json:"line_item_id,omitempty"`
+	LineItemId int64              `json:"line_item_id,omitempty"`
 	LineItem   *LineItem        `json:"line_item,omitempty"`
 	Subtotal   *decimal.Decimal `json:"subtotal,omitempty"`
 	TotalTax   *decimal.Decimal `json:"total_tax,omitempty"`
@@ -299,7 +299,7 @@ func (s *OrderServiceOp) Count(options interface{}) (int, error) {
 }
 
 // Get individual order
-func (s *OrderServiceOp) Get(orderID int, options interface{}) (*Order, error) {
+func (s *OrderServiceOp) Get(orderID int64, options interface{}) (*Order, error) {
 	path := fmt.Sprintf("%s/%d.json", ordersBasePath, orderID)
 	resource := new(OrderResource)
 	err := s.client.Get(path, resource, options)
@@ -325,85 +325,85 @@ func (s *OrderServiceOp) Update(order Order) (*Order, error) {
 }
 
 // List metafields for an order
-func (s *OrderServiceOp) ListMetafields(orderID int, options interface{}) ([]Metafield, error) {
+func (s *OrderServiceOp) ListMetafields(orderID int64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return metafieldService.List(options)
 }
 
 // Count metafields for an order
-func (s *OrderServiceOp) CountMetafields(orderID int, options interface{}) (int, error) {
+func (s *OrderServiceOp) CountMetafields(orderID int64, options interface{}) (int, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return metafieldService.Count(options)
 }
 
 // Get individual metafield for an order
-func (s *OrderServiceOp) GetMetafield(orderID int, metafieldID int, options interface{}) (*Metafield, error) {
+func (s *OrderServiceOp) GetMetafield(orderID int64, metafieldID int64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return metafieldService.Get(metafieldID, options)
 }
 
 // Create a new metafield for an order
-func (s *OrderServiceOp) CreateMetafield(orderID int, metafield Metafield) (*Metafield, error) {
+func (s *OrderServiceOp) CreateMetafield(orderID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return metafieldService.Create(metafield)
 }
 
 // Update an existing metafield for an order
-func (s *OrderServiceOp) UpdateMetafield(orderID int, metafield Metafield) (*Metafield, error) {
+func (s *OrderServiceOp) UpdateMetafield(orderID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return metafieldService.Update(metafield)
 }
 
 // Delete an existing metafield for an order
-func (s *OrderServiceOp) DeleteMetafield(orderID int, metafieldID int) error {
+func (s *OrderServiceOp) DeleteMetafield(orderID int64, metafieldID int64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return metafieldService.Delete(metafieldID)
 }
 
 // List fulfillments for an order
-func (s *OrderServiceOp) ListFulfillments(orderID int, options interface{}) ([]Fulfillment, error) {
+func (s *OrderServiceOp) ListFulfillments(orderID int64, options interface{}) ([]Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.List(options)
 }
 
 // Count fulfillments for an order
-func (s *OrderServiceOp) CountFulfillments(orderID int, options interface{}) (int, error) {
+func (s *OrderServiceOp) CountFulfillments(orderID int64, options interface{}) (int, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Count(options)
 }
 
 // Get individual fulfillment for an order
-func (s *OrderServiceOp) GetFulfillment(orderID int, fulfillmentID int, options interface{}) (*Fulfillment, error) {
+func (s *OrderServiceOp) GetFulfillment(orderID int64, fulfillmentID int64, options interface{}) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Get(fulfillmentID, options)
 }
 
 // Create a new fulfillment for an order
-func (s *OrderServiceOp) CreateFulfillment(orderID int, fulfillment Fulfillment) (*Fulfillment, error) {
+func (s *OrderServiceOp) CreateFulfillment(orderID int64, fulfillment Fulfillment) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Create(fulfillment)
 }
 
 // Update an existing fulfillment for an order
-func (s *OrderServiceOp) UpdateFulfillment(orderID int, fulfillment Fulfillment) (*Fulfillment, error) {
+func (s *OrderServiceOp) UpdateFulfillment(orderID int64, fulfillment Fulfillment) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Update(fulfillment)
 }
 
 // Complete an existing fulfillment for an order
-func (s *OrderServiceOp) CompleteFulfillment(orderID int, fulfillmentID int) (*Fulfillment, error) {
+func (s *OrderServiceOp) CompleteFulfillment(orderID int64, fulfillmentID int64) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Complete(fulfillmentID)
 }
 
 // Transition an existing fulfillment for an order
-func (s *OrderServiceOp) TransitionFulfillment(orderID int, fulfillmentID int) (*Fulfillment, error) {
+func (s *OrderServiceOp) TransitionFulfillment(orderID int64, fulfillmentID int64) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Transition(fulfillmentID)
 }
 
 // Cancel an existing fulfillment for an order
-func (s *OrderServiceOp) CancelFulfillment(orderID int, fulfillmentID int) (*Fulfillment, error) {
+func (s *OrderServiceOp) CancelFulfillment(orderID int64, fulfillmentID int64) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Cancel(fulfillmentID)
 }
