@@ -45,7 +45,7 @@ func TestProductListFilterByIds(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2},{"id":3}]}`))
 
-	listOptions := ListOptions{IDs: []int{1, 2, 3}}
+	listOptions := ListOptions{IDs: []int64{1, 2, 3}}
 
 	products, err := client.Product.List(listOptions)
 	if err != nil {

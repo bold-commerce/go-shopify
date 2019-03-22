@@ -37,7 +37,7 @@ type OrderServiceOp struct {
 type OrderCountOptions struct {
 	Page              int       `url:"page,omitempty"`
 	Limit             int       `url:"limit,omitempty"`
-	SinceID           int64       `url:"since_id,omitempty"`
+	SinceID           int64     `url:"since_id,omitempty"`
 	CreatedAtMin      time.Time `url:"created_at_min,omitempty"`
 	CreatedAtMax      time.Time `url:"created_at_max,omitempty"`
 	UpdatedAtMin      time.Time `url:"updated_at_min,omitempty"`
@@ -54,7 +54,7 @@ type OrderCountOptions struct {
 type OrderListOptions struct {
 	Page              int       `url:"page,omitempty"`
 	Limit             int       `url:"limit,omitempty"`
-	SinceID           int64       `url:"since_id,omitempty"`
+	SinceID           int64     `url:"since_id,omitempty"`
 	Status            string    `url:"status,omitempty"`
 	FinancialStatus   string    `url:"financial_status,omitempty"`
 	FulfillmentStatus string    `url:"fulfillment_status,omitempty"`
@@ -70,7 +70,7 @@ type OrderListOptions struct {
 
 // Order represents a Shopify order
 type Order struct {
-	ID                    int64              `json:"id,omitempty"`
+	ID                    int64            `json:"id,omitempty"`
 	Name                  string           `json:"name,omitempty"`
 	Email                 string           `json:"email,omitempty"`
 	CreatedAt             *time.Time       `json:"created_at,omitempty"`
@@ -114,11 +114,11 @@ type Order struct {
 	SourceName            string           `json:"source_name,omitempty"`
 	ClientDetails         *ClientDetails   `json:"client_details,omitempty"`
 	Tags                  string           `json:"tags,omitempty"`
-	LocationId            int64              `json:"location_id,omitempty"`
+	LocationId            int64            `json:"location_id,omitempty"`
 	PaymentGatewayNames   []string         `json:"payment_gateway_names,omitempty"`
 	ProcessingMethod      string           `json:"processing_method,omitempty"`
 	Refunds               []Refund         `json:"refunds,omitempty"`
-	UserId                int64              `json:"user_id,omitempty"`
+	UserId                int64            `json:"user_id,omitempty"`
 	OrderStatusUrl        string           `json:"order_status_url,omitempty"`
 	Gateway               string           `json:"gateway,omitempty"`
 	Confirmed             bool             `json:"confirmed,omitempty"`
@@ -127,16 +127,16 @@ type Order struct {
 	Reference             string           `json:"reference,omitempty"`
 	SourceIdentifier      string           `json:"source_identifier,omitempty"`
 	SourceURL             string           `json:"source_url,omitempty"`
-	DeviceID              int64              `json:"device_id,omitempty"`
+	DeviceID              int64            `json:"device_id,omitempty"`
 	Phone                 string           `json:"phone,omitempty"`
 	LandingSiteRef        string           `json:"landing_site_ref,omitempty"`
-	CheckoutID            int64              `json:"checkout_id,omitempty"`
+	CheckoutID            int64            `json:"checkout_id,omitempty"`
 	ContactEmail          string           `json:"contact_email,omitempty"`
 	Metafields            []Metafield      `json:"metafields,omitempty"`
 }
 
 type Address struct {
-	ID           int64     `json:"id,omitempty"`
+	ID           int64   `json:"id,omitempty"`
 	Address1     string  `json:"address1,omitempty"`
 	Address2     string  `json:"address2,omitempty"`
 	City         string  `json:"city,omitempty"`
@@ -161,9 +161,9 @@ type DiscountCode struct {
 }
 
 type LineItem struct {
-	ID                         int64              `json:"id,omitempty"`
-	ProductID                  int64              `json:"product_id,omitempty"`
-	VariantID                  int64              `json:"variant_id,omitempty"`
+	ID                         int64            `json:"id,omitempty"`
+	ProductID                  int64            `json:"product_id,omitempty"`
+	VariantID                  int64            `json:"variant_id,omitempty"`
 	Quantity                   int              `json:"quantity,omitempty"`
 	Price                      *decimal.Decimal `json:"price,omitempty"`
 	TotalDiscount              *decimal.Decimal `json:"total_discount,omitempty"`
@@ -216,7 +216,7 @@ type PaymentDetails struct {
 }
 
 type ShippingLines struct {
-	ID                            int64              `json:"id,omitempty"`
+	ID                            int64            `json:"id,omitempty"`
 	Title                         string           `json:"title,omitempty"`
 	Price                         *decimal.Decimal `json:"price,omitempty"`
 	Code                          string           `json:"code,omitempty"`
@@ -235,8 +235,8 @@ type TaxLine struct {
 }
 
 type Transaction struct {
-	ID             int64              `json:"id,omitempty"`
-	OrderID        int64              `json:"order_id,omitempty"`
+	ID             int64            `json:"id,omitempty"`
+	OrderID        int64            `json:"order_id,omitempty"`
 	Amount         *decimal.Decimal `json:"amount,omitempty"`
 	Kind           string           `json:"kind,omitempty"`
 	Gateway        string           `json:"gateway,omitempty"`
@@ -246,10 +246,10 @@ type Transaction struct {
 	Test           bool             `json:"test,omitempty"`
 	Authorization  string           `json:"authorization,omitempty"`
 	Currency       string           `json:"currency,omitempty"`
-	LocationID     *int64             `json:"location_id,omitempty"`
-	UserID         *int64             `json:"user_id,omitempty"`
-	ParentID       *int64             `json:"parent_id,omitempty"`
-	DeviceID       *int64             `json:"device_id,omitempty"`
+	LocationID     *int64           `json:"location_id,omitempty"`
+	UserID         *int64           `json:"user_id,omitempty"`
+	ParentID       *int64           `json:"parent_id,omitempty"`
+	DeviceID       *int64           `json:"device_id,omitempty"`
 	ErrorCode      string           `json:"error_code,omitempty"`
 	SourceName     string           `json:"source_name,omitempty"`
 	PaymentDetails *PaymentDetails  `json:"payment_details,omitempty"`
@@ -265,20 +265,20 @@ type ClientDetails struct {
 }
 
 type Refund struct {
-	Id              int64              `json:"id,omitempty"`
-	OrderId         int64              `json:"order_id,omitempty"`
+	Id              int64            `json:"id,omitempty"`
+	OrderId         int64            `json:"order_id,omitempty"`
 	CreatedAt       *time.Time       `json:"created_at,omitempty"`
 	Note            string           `json:"note,omitempty"`
 	Restock         bool             `json:"restock,omitempty"`
-	UserId          int64              `json:"user_id,omitempty"`
+	UserId          int64            `json:"user_id,omitempty"`
 	RefundLineItems []RefundLineItem `json:"refund_line_items,omitempty"`
 	Transactions    []Transaction    `json:"transactions,omitempty"`
 }
 
 type RefundLineItem struct {
-	Id         int64              `json:"id,omitempty"`
+	Id         int64            `json:"id,omitempty"`
 	Quantity   int              `json:"quantity,omitempty"`
-	LineItemId int64              `json:"line_item_id,omitempty"`
+	LineItemId int64            `json:"line_item_id,omitempty"`
 	LineItem   *LineItem        `json:"line_item,omitempty"`
 	Subtotal   *decimal.Decimal `json:"subtotal,omitempty"`
 	TotalTax   *decimal.Decimal `json:"total_tax,omitempty"`

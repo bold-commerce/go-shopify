@@ -27,7 +27,7 @@ type BlogServiceOp struct {
 
 // Blog represents a Shopify blog
 type Blog struct {
-	ID                 int64        `json:"id"`
+	ID                 int64      `json:"id"`
 	Title              string     `json:"title"`
 	Commentable        string     `json:"commentable"`
 	Feedburner         string     `json:"feedburner"`

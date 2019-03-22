@@ -40,7 +40,7 @@ type RecurringApplicationCharge struct {
 	ConfirmationURL       string           `json:"confirmation_url"`
 	CreatedAt             *time.Time       `json:"created_at"`
 	DecoratedReturnURL    string           `json:"decorated_return_url"`
-	ID                    int64              `json:"id"`
+	ID                    int64            `json:"id"`
 	Name                  string           `json:"name"`
 	Price                 *decimal.Decimal `json:"price"`
 	ReturnURL             string           `json:"return_url"`

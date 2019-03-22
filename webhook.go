@@ -27,7 +27,7 @@ type WebhookServiceOp struct {
 
 // Webhook represents a Shopify webhook
 type Webhook struct {
-	ID                  int64        `json:"id"`
+	ID                  int64      `json:"id"`
 	Address             string     `json:"address"`
 	Topic               string     `json:"topic"`
 	Format              string     `json:"format"`

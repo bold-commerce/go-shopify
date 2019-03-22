@@ -29,7 +29,7 @@ type ScriptTagServiceOp struct {
 type ScriptTag struct {
 	CreatedAt    *time.Time `json:"created_at"`
 	Event        string     `json:"event"`
-	ID           int64        `json:"id"`
+	ID           int64      `json:"id"`
 	Src          string     `json:"src"`
 	DisplayScope string     `json:"display_scope"`
 	UpdatedAt    *time.Time `json:"updated_at"`
@@ -39,7 +39,7 @@ type ScriptTag struct {
 type ScriptTagOption struct {
 	Limit        int       `url:"limit,omitempty"`
 	Page         int       `url:"page,omitempty"`
-	SinceID      int64       `url:"since_id,omitempty"`
+	SinceID      int64     `url:"since_id,omitempty"`
 	CreatedAtMin time.Time `url:"created_at_min,omitempty"`
 	CreatedAtMax time.Time `url:"created_at_max,omitempty"`
 	UpdatedAtMin time.Time `url:"updated_at_min,omitempty"`

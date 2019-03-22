@@ -71,7 +71,7 @@ func TestInventoryItemsListWithIDs(t *testing.T) {
 	)
 
 	options := ListOptions{
-		IDs: []int{1, 2},
+		IDs: []int64{1, 2},
 	}
 
 	items, err := client.InventoryItem.List(options)

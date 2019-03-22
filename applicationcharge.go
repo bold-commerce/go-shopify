@@ -24,7 +24,7 @@ type ApplicationChargeServiceOp struct {
 }
 
 type ApplicationCharge struct {
-	ID                 int64              `json:"id"`
+	ID                 int64            `json:"id"`
 	Name               string           `json:"name"`
 	APIClientID        int              `json:"api_client_id"`
 	Price              *decimal.Decimal `json:"price"`

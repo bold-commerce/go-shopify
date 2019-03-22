@@ -43,9 +43,9 @@ type FulfillmentServiceOp struct {
 
 // Fulfillment represents a Shopify fulfillment.
 type Fulfillment struct {
-	ID              int64        `json:"id,omitempty"`
-	OrderID         int64        `json:"order_id,omitempty"`
-	LocationID      int64        `json:"location_id,omitempty"`
+	ID              int64      `json:"id,omitempty"`
+	OrderID         int64      `json:"order_id,omitempty"`
+	LocationID      int64      `json:"location_id,omitempty"`
 	Status          string     `json:"status,omitempty"`
 	CreatedAt       *time.Time `json:"created_at,omitempty"`
 	Service         string     `json:"service,omitempty"`

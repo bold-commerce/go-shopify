@@ -37,7 +37,7 @@ type Rule struct {
 
 // SmartCollection represents a Shopify smart collection.
 type SmartCollection struct {
-	ID             int64         `json:"id"`
+	ID             int64       `json:"id"`
 	Handle         string      `json:"handle"`
 	Title          string      `json:"title"`
 	UpdatedAt      *time.Time  `json:"updated_at"`

@@ -29,8 +29,8 @@ type VariantServiceOp struct {
 
 // Variant represents a Shopify variant
 type Variant struct {
-	ID                   int64              `json:"id,omitempty"`
-	ProductID            int64              `json:"product_id,omitempty"`
+	ID                   int64            `json:"id,omitempty"`
+	ProductID            int64            `json:"product_id,omitempty"`
 	Title                string           `json:"title,omitempty"`
 	Sku                  string           `json:"sku,omitempty"`
 	Position             int              `json:"position,omitempty"`
@@ -40,7 +40,7 @@ type Variant struct {
 	CompareAtPrice       *decimal.Decimal `json:"compare_at_price,omitempty"`
 	FulfillmentService   string           `json:"fulfillment_service,omitempty"`
 	InventoryManagement  string           `json:"inventory_management,omitempty"`
-	InventoryItemId      int64              `json:"inventory_item_id,omitempty"`
+	InventoryItemId      int64            `json:"inventory_item_id,omitempty"`
 	Option1              string           `json:"option1,omitempty"`
 	Option2              string           `json:"option2,omitempty"`
 	Option3              string           `json:"option3,omitempty"`
@@ -48,7 +48,7 @@ type Variant struct {
 	UpdatedAt            *time.Time       `json:"updated_at,omitempty"`
 	Taxable              bool             `json:"taxable,omitempty"`
 	Barcode              string           `json:"barcode,omitempty"`
-	ImageID              int64              `json:"image_id,omitempty"`
+	ImageID              int64            `json:"image_id,omitempty"`
 	InventoryQuantity    int              `json:"inventory_quantity,omitempty"`
 	Weight               *decimal.Decimal `json:"weight,omitempty"`
 	WeightUnit           string           `json:"weight_unit,omitempty"`

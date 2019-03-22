@@ -32,7 +32,7 @@ type Asset struct {
 	Size        int        `json:"size"`
 	SourceKey   string     `json:"source_key"`
 	Src         string     `json:"src"`
-	ThemeID     int64        `json:"theme_id"`
+	ThemeID     int64      `json:"theme_id"`
 	Value       string     `json:"value"`
 	CreatedAt   *time.Time `json:"created_at"`
 	UpdatedAt   *time.Time `json:"updated_at"`
@@ -50,7 +50,7 @@ type AssetsResource struct {
 
 type assetGetOptions struct {
 	Key     string `url:"asset[key]"`
-	ThemeID int64    `url:"theme_id"`
+	ThemeID int64  `url:"theme_id"`
 }
 
 // List the metadata for all assets in the given theme

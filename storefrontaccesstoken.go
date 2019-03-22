@@ -24,7 +24,7 @@ type StorefrontAccessTokenServiceOp struct {
 
 // StorefrontAccessToken represents a Shopify storefront access token
 type StorefrontAccessToken struct {
-	ID                int64        `json:"id,omitempty"`
+	ID                int64      `json:"id,omitempty"`
 	Title             string     `json:"title,omitempty"`
 	AccessToken       string     `json:"access_token,omitempty"`
 	AccessScope       string     `json:"access_scope,omitempty"`

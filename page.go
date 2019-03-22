@@ -32,7 +32,7 @@ type PageServiceOp struct {
 
 // Page represents a Shopify page.
 type Page struct {
-	ID             int64         `json:"id"`
+	ID             int64       `json:"id"`
 	Author         string      `json:"author"`
 	Handle         string      `json:"handle"`
 	Title          string      `json:"title"`
@@ -41,7 +41,7 @@ type Page struct {
 	BodyHTML       string      `json:"body_html"`
 	TemplateSuffix string      `json:"template_suffix"`
 	PublishedAt    *time.Time  `json:"published_at"`
-	ShopID         int64         `json:"shop_id"`
+	ShopID         int64       `json:"shop_id"`
 	Metafields     []Metafield `json:"metafields"`
 }
 

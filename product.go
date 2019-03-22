@@ -55,8 +55,8 @@ type Product struct {
 
 // The options provided by Shopify
 type ProductOption struct {
-	ID        int64      `json:"id,omitempty"`
-	ProductID int64      `json:"product_id,omitempty"`
+	ID        int64    `json:"id,omitempty"`
+	ProductID int64    `json:"product_id,omitempty"`
 	Name      string   `json:"name,omitempty"`
 	Position  int      `json:"position,omitempty"`
 	Values    []string `json:"values,omitempty"`

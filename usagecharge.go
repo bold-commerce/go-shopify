@@ -32,7 +32,7 @@ type UsageCharge struct {
 	BillingOn        *time.Time       `json:"billing_on,omitempty"`
 	CreatedAt        *time.Time       `json:"created_at,omitempty"`
 	Description      string           `json:"description,omitempty"`
-	ID               int64              `json:"id,omitempty"`
+	ID               int64            `json:"id,omitempty"`
 	Price            *decimal.Decimal `json:"price,omitempty"`
 	RiskLevel        *decimal.Decimal `json:"risk_level,omitempty"`
 }

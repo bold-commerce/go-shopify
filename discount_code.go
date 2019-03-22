@@ -26,8 +26,8 @@ type DiscountCodeServiceOp struct {
 
 // PriceRuleDiscountCode represents a Shopify Discount Code
 type PriceRuleDiscountCode struct {
-	ID          int64        `json:"id,omitempty"`
-	PriceRuleID int64        `json:"price_rule_id,omitempty"`
+	ID          int64      `json:"id,omitempty"`
+	PriceRuleID int64      `json:"price_rule_id,omitempty"`
 	Code        string     `json:"code,omitempty"`
 	UsageCount  int        `json:"usage_count,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`

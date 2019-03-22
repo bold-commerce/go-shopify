@@ -36,7 +36,7 @@ type CustomerServiceOp struct {
 
 // Customer represents a Shopify customer
 type Customer struct {
-	ID                  int64                `json:"id,omitempty"`
+	ID                  int64              `json:"id,omitempty"`
 	Email               string             `json:"email,omitempty"`
 	FirstName           string             `json:"first_name,omitempty"`
 	LastName            string             `json:"last_name,omitempty"`
@@ -49,7 +49,7 @@ type Customer struct {
 	TotalSpent          *decimal.Decimal   `json:"total_spent,omitempty"`
 	Phone               string             `json:"phone,omitempty"`
 	Tags                string             `json:"tags,omitempty"`
-	LastOrderId         int64                `json:"last_order_id,omitempty"`
+	LastOrderId         int64              `json:"last_order_id,omitempty"`
 	LastOrderName       string             `json:"last_order_name,omitempty"`
 	AcceptsMarketing    bool               `json:"accepts_marketing,omitempty"`
 	DefaultAddress      *CustomerAddress   `json:"default_address,omitempty"`

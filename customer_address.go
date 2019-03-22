@@ -23,8 +23,8 @@ type CustomerAddressServiceOp struct {
 
 // CustomerAddress represents a Shopify customer address
 type CustomerAddress struct {
-	ID           int64    `json:"id,omitempty"`
-	CustomerID   int64    `json:"customer_id,omitempty"`
+	ID           int64  `json:"id,omitempty"`
+	CustomerID   int64  `json:"customer_id,omitempty"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
 	Company      string `json:"company,omitempty"`
