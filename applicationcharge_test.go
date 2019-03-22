@@ -17,7 +17,7 @@ func applicationChargeTests(t *testing.T, charge ApplicationCharge) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", 1017262355, charge.ID},
+		{"ID", int64(1017262355), charge.ID},
 		{"Name", "Super Duper Expensive action", charge.Name},
 		{"APIClientID", 755357713, charge.APIClientID},
 		{"Price", decimal.NewFromFloat(100.00).String(), charge.Price.String()},

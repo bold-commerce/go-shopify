@@ -21,7 +21,7 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", 1029266948, charge.ID},
+		{"ID", int64(1029266948), charge.ID},
 		{"Name", "Super Duper Plan", charge.Name},
 		{"APIClientID", 755357713, charge.APIClientID},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
@@ -69,7 +69,7 @@ func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", 1029266948, charge.ID},
+		{"ID", int64(1029266948), charge.ID},
 		{"Name", "Super Duper Plan", charge.Name},
 		{"APIClientID", 755357713, charge.APIClientID},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
