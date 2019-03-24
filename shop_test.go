@@ -37,6 +37,13 @@ func TestShopGet(t *testing.T) {
 		{"Name", "Apple Computers", shop.Name},
 		{"Email", "steve@apple.com", shop.Email},
 		{"HasStorefront", true, shop.HasStorefront},
+		{"Source", "", shop.Source},
+		{"GoogleAppsDomain", "", shop.GoogleAppsDomain},
+		{"GoogleAppsLoginEnabled", false, shop.GoogleAppsLoginEnabled},
+		{"MoneyInEmailsFormat", "${{amount}}", shop.MoneyInEmailsFormat},
+		{"MoneyWithCurrencyInEmailsFormat", "${{amount}} USD", shop.MoneyWithCurrencyInEmailsFormat},
+		{"EligibleForPayments", true, shop.EligibleForPayments},
+		{"RequiresExtraPaymentsAgreement", false, shop.RequiresExtraPaymentsAgreement},
 	}
 
 	for _, c := range cases {
