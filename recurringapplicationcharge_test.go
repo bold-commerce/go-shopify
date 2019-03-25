@@ -23,7 +23,7 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 	}{
 		{"ID", int64(1029266948), charge.ID},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientID", 755357713, charge.APIClientID},
+		{"APIClientID", int64(755357713), charge.APIClientID},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -71,7 +71,7 @@ func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
 	}{
 		{"ID", int64(1029266948), charge.ID},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientID", 755357713, charge.APIClientID},
+		{"APIClientID", int64(755357713), charge.APIClientID},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},

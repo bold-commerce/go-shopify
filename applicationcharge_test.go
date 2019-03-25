@@ -19,7 +19,7 @@ func applicationChargeTests(t *testing.T, charge ApplicationCharge) {
 	}{
 		{"ID", int64(1017262355), charge.ID},
 		{"Name", "Super Duper Expensive action", charge.Name},
-		{"APIClientID", 755357713, charge.APIClientID},
+		{"APIClientID", int64(755357713), charge.APIClientID},
 		{"Price", decimal.NewFromFloat(100.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},

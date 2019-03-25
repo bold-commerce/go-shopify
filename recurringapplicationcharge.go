@@ -30,7 +30,7 @@ type RecurringApplicationChargeServiceOp struct {
 
 // RecurringApplicationCharge represents a Shopify RecurringApplicationCharge.
 type RecurringApplicationCharge struct {
-	APIClientID           int              `json:"api_client_id"`
+	APIClientID           int64              `json:"api_client_id"`
 	ActivatedOn           *time.Time       `json:"activated_on"`
 	BalanceRemaining      *decimal.Decimal `json:"balance_remaining"`
 	BalanceUsed           *decimal.Decimal `json:"balance_used"`
