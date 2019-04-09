@@ -12,7 +12,7 @@ func TestLocationServiceOp_List(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/locations.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/locations.json",
 		httpmock.NewBytesResponder(200, loadFixture("locations.json")))
 
 	products, err := client.Location.List(nil)
@@ -50,7 +50,7 @@ func TestLocationServiceOp_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/locations/4688969785.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/locations/4688969785.json",
 		httpmock.NewBytesResponder(200, loadFixture("location.json")))
 
 	product, err := client.Location.Get(4688969785, nil)
@@ -88,7 +88,7 @@ func TestLocationServiceOp_Count(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/locations/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/locations/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	cnt, err := client.Location.Count(nil)

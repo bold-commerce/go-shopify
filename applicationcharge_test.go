@@ -33,7 +33,7 @@ func applicationChargeTests(t *testing.T, charge ApplicationCharge) {
 		},
 		{
 			"ConfirmationURL",
-			"https://apple.myshopify.com/admin/charges/1017262355/confirm_application_charge?sign" +
+			"https://apple.myshopify.com/admin/api/2019-04/charges/1017262355/confirm_application_charge?sign" +
 				"ature=BAhpBBMxojw%3D--1139a82a3433b1a6771786e03f02300440e11883",
 			charge.ConfirmationURL,
 		},
@@ -52,7 +52,7 @@ func TestApplicationChargeServiceOp_Create(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		"https://fooshop.myshopify.com/admin/application_charges.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/application_charges.json",
 		httpmock.NewBytesResponder(200, loadFixture("applicationcharge.json")),
 	)
 
@@ -77,7 +77,7 @@ func TestApplicationChargeServiceOp_Get(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/application_charges/1.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/application_charges/1.json",
 		httpmock.NewStringResponder(200, `{"application_charge": {"id":1}}`),
 	)
 
@@ -98,7 +98,7 @@ func TestApplicationChargeServiceOp_List(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/application_charges.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/application_charges.json",
 		httpmock.NewStringResponder(200, `{"application_charges": [{"id":1},{"id":2}]}`),
 	)
 
@@ -119,7 +119,7 @@ func TestApplicationChargeServiceOp_Activate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		"https://fooshop.myshopify.com/admin/application_charges/455696195/activate.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/application_charges/455696195/activate.json",
 		httpmock.NewStringResponder(
 			200,
 			`{"application_charge":{"id":455696195,"status":"active"}}`,

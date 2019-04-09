@@ -40,7 +40,7 @@ func TestWebhookList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/webhooks.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/webhooks.json",
 		httpmock.NewBytesResponder(200, loadFixture("webhooks.json")))
 
 	webhooks, err := client.Webhook.List(nil)
@@ -60,7 +60,7 @@ func TestWebhookGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/webhooks/4759306.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/webhooks/4759306.json",
 		httpmock.NewBytesResponder(200, loadFixture("webhook.json")))
 
 	webhook, err := client.Webhook.Get(4759306, nil)
@@ -75,13 +75,13 @@ func TestWebhookCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/webhooks/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/webhooks/count.json",
 		httpmock.NewStringResponder(200, `{"count": 7}`))
 
 	params := map[string]string{"topic": "orders/paid"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/webhooks/count.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/webhooks/count.json",
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
@@ -111,7 +111,7 @@ func TestWebhookCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/webhooks.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/webhooks.json",
 		httpmock.NewBytesResponder(200, loadFixture("webhook.json")))
 
 	webhook := Webhook{
@@ -131,7 +131,7 @@ func TestWebhookUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/webhooks/4759306.json",
+	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/webhooks/4759306.json",
 		httpmock.NewBytesResponder(200, loadFixture("webhook.json")))
 
 	webhook := Webhook{
@@ -152,7 +152,7 @@ func TestWebhookDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/webhooks/4759306.json",
+	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/webhooks/4759306.json",
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.Webhook.Delete(4759306)

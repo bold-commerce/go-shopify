@@ -13,7 +13,7 @@ func TestBlogList(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/blogs.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/blogs.json",
 		httpmock.NewStringResponder(
 			200,
 			`{"blogs": [{"id":1},{"id":2}]}`,
@@ -38,7 +38,7 @@ func TestBlogCount(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/blogs/count.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/blogs/count.json",
 		httpmock.NewStringResponder(
 			200,
 			`{"count": 5}`,
@@ -63,7 +63,7 @@ func TestBlogGet(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/blogs/1.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/blogs/1.json",
 		httpmock.NewStringResponder(
 			200,
 			`{"blog": {"id":1}}`,
@@ -88,7 +88,7 @@ func TestBlogCreate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		"https://fooshop.myshopify.com/admin/blogs.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/blogs.json",
 		httpmock.NewBytesResponder(
 			200,
 			loadFixture("blog.json"),
@@ -117,7 +117,7 @@ func TestBlogUpdate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"PUT",
-		"https://fooshop.myshopify.com/admin/blogs/1.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/blogs/1.json",
 		httpmock.NewBytesResponder(
 			200,
 			loadFixture("blog.json"),
@@ -144,7 +144,7 @@ func TestBlogDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/blogs/1.json",
+	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/blogs/1.json",
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.Blog.Delete(1)

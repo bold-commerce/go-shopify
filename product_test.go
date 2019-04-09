@@ -20,7 +20,7 @@ func TestProductList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products.json",
 		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2}]}`))
 
 	products, err := client.Product.List(nil)
@@ -41,7 +41,7 @@ func TestProductListFilterByIds(t *testing.T) {
 	params := map[string]string{"ids": "1,2,3"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/products.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/products.json",
 		params,
 		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2},{"id":3}]}`))
 
@@ -62,13 +62,13 @@ func TestProductCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/products/count.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/products/count.json",
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
@@ -98,7 +98,7 @@ func TestProductGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1.json",
 		httpmock.NewStringResponder(200, `{"product": {"id":1}}`))
 
 	product, err := client.Product.Get(1, nil)
@@ -116,7 +116,7 @@ func TestProductCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/products.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/products.json",
 		httpmock.NewBytesResponder(200, loadFixture("product.json")))
 
 	product := Product{
@@ -138,7 +138,7 @@ func TestProductUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/products/1.json",
+	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/products/1.json",
 		httpmock.NewBytesResponder(200, loadFixture("product.json")))
 
 	product := Product{
@@ -158,7 +158,7 @@ func TestProductDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/products/1.json",
+	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/products/1.json",
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.Product.Delete(1)
@@ -171,7 +171,7 @@ func TestProductListMetafields(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/metafields.json",
 		httpmock.NewStringResponder(200, `{"metafields": [{"id":1},{"id":2}]}`))
 
 	metafields, err := client.Product.ListMetafields(1, nil)
@@ -189,13 +189,13 @@ func TestProductCountMetafields(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/metafields/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/products/1/metafields/count.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/products/1/metafields/count.json",
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
@@ -225,7 +225,7 @@ func TestProductGetMetafield(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/products/1/metafields/2.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/metafields/2.json",
 		httpmock.NewStringResponder(200, `{"metafield": {"id":2}}`))
 
 	metafield, err := client.Product.GetMetafield(1, 2, nil)
@@ -243,7 +243,7 @@ func TestProductCreateMetafield(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/products/1/metafields.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/metafields.json",
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
@@ -265,7 +265,7 @@ func TestProductUpdateMetafield(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/products/1/metafields/2.json",
+	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/metafields/2.json",
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
@@ -288,7 +288,7 @@ func TestProductDeleteMetafield(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/products/1/metafields/2.json",
+	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/metafields/2.json",
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.Product.DeleteMetafield(1, 2)

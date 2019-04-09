@@ -38,7 +38,7 @@ func TestStorefrontAccessTokenList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/storefront_access_tokens.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/storefront_access_tokens.json",
 		httpmock.NewBytesResponder(200, loadFixture("storefront_access_tokens.json")))
 
 	storefrontAccessTokens, err := client.StorefrontAccessToken.List(nil)
@@ -57,7 +57,7 @@ func TestStorefrontAccessTokenCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/storefront_access_tokens.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/storefront_access_tokens.json",
 		httpmock.NewBytesResponder(200, loadFixture("storefront_access_token.json")))
 
 	storefrontAccessToken := StorefrontAccessToken{
@@ -76,7 +76,7 @@ func TestStorefrontAccessTokenDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/storefront_access_tokens/755357713.json",
+	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/storefront_access_tokens/755357713.json",
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.StorefrontAccessToken.Delete(755357713)

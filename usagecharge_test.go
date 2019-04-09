@@ -39,7 +39,7 @@ func TestUsageChargeServiceOp_Create(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/455696195/usage_charges.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/455696195/usage_charges.json",
 		httpmock.NewBytesResponder(
 			200, loadFixture("usagecharge.json"),
 		),
@@ -65,7 +65,7 @@ func TestUsageChargeServiceOp_Get(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/455696195/usage_charges/1034618210.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/455696195/usage_charges/1034618210.json",
 		httpmock.NewBytesResponder(
 			200, loadFixture("usagecharge.json"),
 		),
@@ -85,7 +85,7 @@ func TestUsageChargeServiceOp_List(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/455696195/usage_charges.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/455696195/usage_charges.json",
 		httpmock.NewBytesResponder(
 			200, loadFixture("usagecharges.json"),
 		),
@@ -111,7 +111,7 @@ func TestUsageChargeServiceOp_GetBadFields(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/455696195/usage_charges/1034618210.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/455696195/usage_charges/1034618210.json",
 		httpmock.NewStringResponder(
 			200, `{"usage_charge":{"id":"wrong_id_type"}}`,
 		),
@@ -123,7 +123,7 @@ func TestUsageChargeServiceOp_GetBadFields(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/455696195/usage_charges/1034618210.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/455696195/usage_charges/1034618210.json",
 		httpmock.NewStringResponder(
 			200, `{"usage_charge":{"billing_on":"2018-14-01"}}`,
 		),

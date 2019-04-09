@@ -69,8 +69,8 @@ func TestMetafieldPathPrefix(t *testing.T) {
 		resourceID int64
 		expected   string
 	}{
-		{"", 0, "admin/metafields"},
-		{"products", 123, "admin/products/123/metafields"},
+		{"", 0, "admin/api/2019-04/metafields"},
+		{"products", 123, "admin/api/2019-04/products/123/metafields"},
 	}
 
 	for _, c := range cases {
@@ -87,8 +87,8 @@ func TestFulfillmentPathPrefix(t *testing.T) {
 		resourceID int64
 		expected   string
 	}{
-		{"", 0, "admin/fulfillments"},
-		{"orders", 123, "admin/orders/123/fulfillments"},
+		{"", 0, "admin/api/2019-04/fulfillments"},
+		{"orders", 123, "admin/api/2019-04/orders/123/fulfillments"},
 	}
 
 	for _, c := range cases {

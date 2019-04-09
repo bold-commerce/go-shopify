@@ -20,7 +20,7 @@ func TestRedirectList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/redirects.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/redirects.json",
 		httpmock.NewStringResponder(200, `{"redirects": [{"id":1},{"id":2}]}`))
 
 	redirects, err := client.Redirect.List(nil)
@@ -38,13 +38,13 @@ func TestRedirectCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/redirects/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/redirects/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/redirects/count.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/redirects/count.json",
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
@@ -74,7 +74,7 @@ func TestRedirectGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/redirects/1.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/redirects/1.json",
 		httpmock.NewStringResponder(200, `{"redirect": {"id":1}}`))
 
 	redirect, err := client.Redirect.Get(1, nil)
@@ -92,7 +92,7 @@ func TestRedirectCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/redirects.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/redirects.json",
 		httpmock.NewBytesResponder(200, loadFixture("redirect.json")))
 
 	redirect := Redirect{
@@ -112,7 +112,7 @@ func TestRedirectUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/redirects/1.json",
+	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/redirects/1.json",
 		httpmock.NewBytesResponder(200, loadFixture("redirect.json")))
 
 	redirect := Redirect{
@@ -131,7 +131,7 @@ func TestRedirectDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/redirects/1.json",
+	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/redirects/1.json",
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.Redirect.Delete(1)

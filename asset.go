@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const assetsBasePath = "admin/themes"
+const assetsBasePath = "themes"
 
 // AssetService is an interface for interfacing with the asset endpoints
 // of the Shopify API.
@@ -55,7 +55,7 @@ type assetGetOptions struct {
 
 // List the metadata for all assets in the given theme
 func (s *AssetServiceOp) List(themeID int64, options interface{}) ([]Asset, error) {
-	path := fmt.Sprintf("%s/%d/assets.json", assetsBasePath, themeID)
+	path := fmt.Sprintf("%s/%s/%d/assets.json", globalPathVersionPrefix, assetsBasePath, themeID)
 	resource := new(AssetsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Assets, err
@@ -63,7 +63,7 @@ func (s *AssetServiceOp) List(themeID int64, options interface{}) ([]Asset, erro
 
 // Get an asset by key from the given theme
 func (s *AssetServiceOp) Get(themeID int64, key string) (*Asset, error) {
-	path := fmt.Sprintf("%s/%d/assets.json", assetsBasePath, themeID)
+	path := fmt.Sprintf("%s/%s/%d/assets.json", globalPathVersionPrefix, assetsBasePath, themeID)
 	options := assetGetOptions{
 		Key:     key,
 		ThemeID: themeID,
@@ -75,7 +75,7 @@ func (s *AssetServiceOp) Get(themeID int64, key string) (*Asset, error) {
 
 // Update an asset
 func (s *AssetServiceOp) Update(themeID int64, asset Asset) (*Asset, error) {
-	path := fmt.Sprintf("%s/%d/assets.json", assetsBasePath, themeID)
+	path := fmt.Sprintf("%s/%s/%d/assets.json", globalPathVersionPrefix, assetsBasePath, themeID)
 	wrappedData := AssetResource{Asset: &asset}
 	resource := new(AssetResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -84,6 +84,6 @@ func (s *AssetServiceOp) Update(themeID int64, asset Asset) (*Asset, error) {
 
 // Delete an asset
 func (s *AssetServiceOp) Delete(themeID int64, key string) error {
-	path := fmt.Sprintf("%s/%d/assets.json?asset[key]=%s", assetsBasePath, themeID, key)
+	path := fmt.Sprintf("%s/%s/%d/assets.json?asset[key]=%s", globalPathVersionPrefix, assetsBasePath, themeID, key)
 	return s.client.Delete(path)
 }

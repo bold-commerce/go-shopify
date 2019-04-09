@@ -33,7 +33,7 @@ func TestCollectList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/collects.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/collects.json",
 		httpmock.NewStringResponder(200, `{"collects": [{"id":1},{"id":2}]}`))
 
 	collects, err := client.Collect.List(nil)
@@ -51,12 +51,12 @@ func TestCollectCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/collects/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/collects/count.json",
 		httpmock.NewStringResponder(200, `{"count": 5}`))
 
 	params := map[string]string{"since_id": "123"}
 	httpmock.RegisterResponderWithQuery("GET",
-		"https://fooshop.myshopify.com/admin/collects/count.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/collects/count.json",
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 

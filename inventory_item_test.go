@@ -45,7 +45,7 @@ func TestInventoryItemsList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/inventory_items.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/inventory_items.json",
 		httpmock.NewBytesResponder(200, loadFixture("inventory_items.json")))
 
 	items, err := client.InventoryItem.List(nil)
@@ -65,7 +65,7 @@ func TestInventoryItemsListWithIDs(t *testing.T) {
 	}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/inventory_items.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/inventory_items.json",
 		params,
 		httpmock.NewBytesResponder(200, loadFixture("inventory_items.json")),
 	)
@@ -86,7 +86,7 @@ func TestInventoryItemGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/inventory_items/1.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/inventory_items/1.json",
 		httpmock.NewBytesResponder(200, loadFixture("inventory_item.json")))
 
 	item, err := client.InventoryItem.Get(1, nil)
@@ -100,7 +100,7 @@ func TestInventoryItemUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/inventory_items/1.json",
+	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/inventory_items/1.json",
 		httpmock.NewBytesResponder(200, loadFixture("inventory_item.json")))
 
 	item := InventoryItem{

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const themesBasePath = "admin/themes"
+const themesBasePath = "themes"
 
 // Options for theme list
 type ThemeListOptions struct {
@@ -45,7 +45,7 @@ type ThemesResource struct {
 
 // List all themes
 func (s *ThemeServiceOp) List(options interface{}) ([]Theme, error) {
-	path := fmt.Sprintf("%s.json", themesBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, themesBasePath)
 	resource := new(ThemesResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Themes, err

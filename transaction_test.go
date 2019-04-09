@@ -130,7 +130,7 @@ func TestTransactionList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/1/transactions.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/orders/1/transactions.json",
 		httpmock.NewBytesResponder(200, loadFixture("transactions.json")))
 
 	transactions, err := client.Transaction.List(1, nil)
@@ -147,7 +147,7 @@ func TestTransactionCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/1/transactions/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/orders/1/transactions/count.json",
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	cnt, err := client.Transaction.Count(1, nil)
@@ -165,7 +165,7 @@ func TestTransactionGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/1/transactions/1.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/orders/1/transactions/1.json",
 		httpmock.NewBytesResponder(200, loadFixture("transaction.json")))
 
 	transaction, err := client.Transaction.Get(1, 1, nil)
@@ -180,7 +180,7 @@ func TestTransactionCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/orders/1/transactions.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/orders/1/transactions.json",
 		httpmock.NewBytesResponder(200, loadFixture("transaction.json")))
 
 	amount := decimal.NewFromFloat(409.94)

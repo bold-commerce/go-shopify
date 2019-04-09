@@ -18,7 +18,8 @@ import (
 )
 
 const (
-	UserAgent = "goshopify/1.0.0"
+	UserAgent               = "goshopify/1.0.0"
+	globalPathVersionPrefix = "admin/api/2019-04"
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.

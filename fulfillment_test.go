@@ -20,7 +20,7 @@ func TestFulfillmentList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/123/fulfillments.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments.json",
 		httpmock.NewStringResponder(200, `{"fulfillments": [{"id":1},{"id":2}]}`))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -40,13 +40,13 @@ func TestFulfillmentCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/count.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments/count.json",
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/orders/123/fulfillments/count.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments/count.json",
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
@@ -78,7 +78,7 @@ func TestFulfillmentGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/1.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments/1.json",
 		httpmock.NewStringResponder(200, `{"fulfillment": {"id":1}}`))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -98,7 +98,7 @@ func TestFulfillmentCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/orders/123/fulfillments.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments.json",
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -125,7 +125,7 @@ func TestFulfillmentUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/1022782888.json",
+	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments/1022782888.json",
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -147,7 +147,7 @@ func TestFulfillmentComplete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/1/complete.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments/1/complete.json",
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -164,7 +164,7 @@ func TestFulfillmentTransition(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/1/open.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments/1/open.json",
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -181,7 +181,7 @@ func TestFulfillmentCancel(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/orders/123/fulfillments/1/cancel.json",
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/orders/123/fulfillments/1/cancel.json",
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}

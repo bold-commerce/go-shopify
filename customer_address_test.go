@@ -97,7 +97,7 @@ func TestList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/customers/1/addresses.json", httpmock.NewBytesResponder(200, loadFixture("customer_addresses.json")))
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/customers/1/addresses.json", httpmock.NewBytesResponder(200, loadFixture("customer_addresses.json")))
 
 	addresses, err := client.CustomerAddress.List(1, nil)
 	if err != nil {
@@ -114,7 +114,7 @@ func TestGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/customers/1/addresses/1.json", httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/customers/1/addresses/1.json", httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
 
 	address, err := client.CustomerAddress.Get(1, 1, nil)
 	if err != nil {
@@ -128,7 +128,7 @@ func TestCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/customers/1/addresses.json", httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/customers/1/addresses.json", httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
 
 	address, err := client.CustomerAddress.Create(1, CustomerAddress{})
 	if err != nil {
@@ -142,7 +142,7 @@ func TestUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/customers/1/addresses/1.json", httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
+	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/customers/1/addresses/1.json", httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
 
 	address, err := client.CustomerAddress.Update(1, CustomerAddress{ID: 1})
 	if err != nil {
@@ -156,7 +156,7 @@ func TestDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/customers/1/addresses/1.json", httpmock.NewStringResponder(200, "{}"))
+	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/customers/1/addresses/1.json", httpmock.NewStringResponder(200, "{}"))
 
 	err := client.CustomerAddress.Delete(1, 1)
 	if err != nil {

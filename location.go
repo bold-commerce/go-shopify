@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const locationsBasePath = "admin/locations"
+const locationsBasePath = "locations"
 
 // LocationService is an interface for interfacing with the location endpoints
 // of the Shopify API.
@@ -81,21 +81,21 @@ type LocationServiceOp struct {
 }
 
 func (s *LocationServiceOp) List(options interface{}) ([]Location, error) {
-	path := fmt.Sprintf("%s.json", locationsBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, locationsBasePath)
 	resource := new(LocationsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Locations, err
 }
 
 func (s *LocationServiceOp) Get(ID int64, options interface{}) (*Location, error) {
-	path := fmt.Sprintf("%s/%d.json", locationsBasePath, ID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, locationsBasePath, ID)
 	resource := new(LocationResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Location, err
 }
 
 func (s *LocationServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/count.json", locationsBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, locationsBasePath)
 	return s.client.Count(path, options)
 }
 

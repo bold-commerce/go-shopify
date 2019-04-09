@@ -42,7 +42,7 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 		},
 		{
 			"ConfirmationURL",
-			"https://apple.myshopify.com/admin/charges/1029266948/confirm_recurring_application_c" +
+			"https://apple.myshopify.com/admin/api/2019-04/charges/1029266948/confirm_recurring_application_c" +
 				"harge?signature=BAhpBAReWT0%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68",
 			charge.ConfirmationURL,
 		},
@@ -90,7 +90,7 @@ func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
 		},
 		{
 			"ConfirmationURL",
-			"https://apple.myshopify.com/admin/charges/1029266948/confirm_recurring_application_c" +
+			"https://apple.myshopify.com/admin/api/2019-04/charges/1029266948/confirm_recurring_application_c" +
 				"harge?signature=BAhpBAReWT0%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68",
 			charge.ConfirmationURL,
 		},
@@ -110,7 +110,7 @@ func TestRecurringApplicationChargeServiceOp_Create(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges.json",
 		httpmock.NewBytesResponder(
 			200, loadFixture("reccuringapplicationcharge/reccuringapplicationcharge.json"),
 		),
@@ -137,7 +137,7 @@ func TestRecurringApplicationChargeServiceOp_Get(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/1.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/1.json",
 		httpmock.NewStringResponder(200, `{"recurring_application_charge": {"id":1}}`),
 	)
 
@@ -158,7 +158,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsAffected(t *testing.T) 
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/1029266948.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/1029266948.json",
 		httpmock.NewBytesResponder(
 			200, loadFixture(
 				"reccuringapplicationcharge/reccuringapplicationcharge_all_fields_affected.json",
@@ -189,7 +189,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsBad(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			"GET",
-			"https://fooshop.myshopify.com/admin/recurring_application_charges/1029266948.json",
+			"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/1029266948.json",
 			httpmock.NewBytesResponder(
 				200,
 				loadFixture(
@@ -212,7 +212,7 @@ func TestRecurringApplicationChargeServiceOp_List(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges.json",
 		httpmock.NewStringResponder(200, `{"recurring_application_charges": [{"id":1},{"id":2}]}`),
 	)
 
@@ -233,7 +233,7 @@ func TestRecurringApplicationChargeServiceOp_Activate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/455696195/activate.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/455696195/activate.json",
 		httpmock.NewStringResponder(
 			200, `{"recurring_application_charge":{"id":455696195,"status":"active"}}`,
 		),
@@ -261,7 +261,7 @@ func TestRecurringApplicationChargeServiceOp_Delete(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"DELETE",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/1.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/1.json",
 		httpmock.NewStringResponder(200, "{}"),
 	)
 
@@ -276,7 +276,7 @@ func TestRecurringApplicationChargeServiceOp_Update(t *testing.T) {
 	params := map[string]string{"recurring_application_charge[capped_amount]": "100"}
 	httpmock.RegisterResponderWithQuery(
 		"PUT",
-		"https://fooshop.myshopify.com/admin/recurring_application_charges/455696195/customize.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/recurring_application_charges/455696195/customize.json",
 		params,
 		httpmock.NewStringResponder(
 			200, `{"recurring_application_charge":{"id":455696195,"capped_amount":"100.00"}}`,

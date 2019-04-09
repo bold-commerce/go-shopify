@@ -11,7 +11,7 @@ func TestShopGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/shop.json",
+	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/shop.json",
 		httpmock.NewBytesResponder(200, loadFixture("shop.json")))
 
 	shop, err := client.Shop.Get(nil)

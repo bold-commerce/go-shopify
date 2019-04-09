@@ -7,7 +7,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const ordersBasePath = "admin/orders"
+const ordersBasePath = "orders"
 const ordersResourceName = "orders"
 
 // OrderService is an interface for interfacing with the orders endpoints of
@@ -286,7 +286,7 @@ type RefundLineItem struct {
 
 // List orders
 func (s *OrderServiceOp) List(options interface{}) ([]Order, error) {
-	path := fmt.Sprintf("%s.json", ordersBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, ordersBasePath)
 	resource := new(OrdersResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Orders, err
@@ -294,13 +294,13 @@ func (s *OrderServiceOp) List(options interface{}) ([]Order, error) {
 
 // Count orders
 func (s *OrderServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/count.json", ordersBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, ordersBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get individual order
 func (s *OrderServiceOp) Get(orderID int64, options interface{}) (*Order, error) {
-	path := fmt.Sprintf("%s/%d.json", ordersBasePath, orderID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, ordersBasePath, orderID)
 	resource := new(OrderResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Order, err
@@ -308,7 +308,7 @@ func (s *OrderServiceOp) Get(orderID int64, options interface{}) (*Order, error)
 
 // Create order
 func (s *OrderServiceOp) Create(order Order) (*Order, error) {
-	path := fmt.Sprintf("%s.json", ordersBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, ordersBasePath)
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -317,7 +317,7 @@ func (s *OrderServiceOp) Create(order Order) (*Order, error) {
 
 // Update order
 func (s *OrderServiceOp) Update(order Order) (*Order, error) {
-	path := fmt.Sprintf("%s/%d.json", ordersBasePath, order.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, ordersBasePath, order.ID)
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Put(path, wrappedData, resource)

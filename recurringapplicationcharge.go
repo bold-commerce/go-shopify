@@ -8,7 +8,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const recurringApplicationChargesBasePath = "admin/recurring_application_charges"
+const recurringApplicationChargesBasePath = "recurring_application_charges"
 
 // RecurringApplicationChargeService is an interface for interacting with the
 // RecurringApplicationCharge endpoints of the Shopify API.
@@ -30,7 +30,7 @@ type RecurringApplicationChargeServiceOp struct {
 
 // RecurringApplicationCharge represents a Shopify RecurringApplicationCharge.
 type RecurringApplicationCharge struct {
-	APIClientID           int64              `json:"api_client_id"`
+	APIClientID           int64            `json:"api_client_id"`
 	ActivatedOn           *time.Time       `json:"activated_on"`
 	BalanceRemaining      *decimal.Decimal `json:"balance_remaining"`
 	BalanceUsed           *decimal.Decimal `json:"balance_used"`
@@ -128,7 +128,7 @@ type RecurringApplicationChargesResource struct {
 func (r *RecurringApplicationChargeServiceOp) Create(charge RecurringApplicationCharge) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s.json", recurringApplicationChargesBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, recurringApplicationChargesBasePath)
 	wrappedData := RecurringApplicationChargeResource{Charge: &charge}
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Post(path, wrappedData, resource)
@@ -139,7 +139,7 @@ func (r *RecurringApplicationChargeServiceOp) Create(charge RecurringApplication
 func (r *RecurringApplicationChargeServiceOp) Get(chargeID int64, options interface{}) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%d.json", recurringApplicationChargesBasePath, chargeID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, recurringApplicationChargesBasePath, chargeID)
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Get(path, resource, options)
 	return resource.Charge, err
@@ -149,7 +149,7 @@ func (r *RecurringApplicationChargeServiceOp) Get(chargeID int64, options interf
 func (r *RecurringApplicationChargeServiceOp) List(options interface{}) (
 	[]RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s.json", recurringApplicationChargesBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, recurringApplicationChargesBasePath)
 	resource := &RecurringApplicationChargesResource{}
 	err := r.client.Get(path, resource, options)
 	return resource.Charges, err
@@ -159,7 +159,7 @@ func (r *RecurringApplicationChargeServiceOp) List(options interface{}) (
 func (r *RecurringApplicationChargeServiceOp) Activate(charge RecurringApplicationCharge) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%d/activate.json", recurringApplicationChargesBasePath, charge.ID)
+	path := fmt.Sprintf("%s/%s/%d/activate.json", globalPathVersionPrefix, recurringApplicationChargesBasePath, charge.ID)
 	wrappedData := RecurringApplicationChargeResource{Charge: &charge}
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Post(path, wrappedData, resource)
@@ -168,14 +168,14 @@ func (r *RecurringApplicationChargeServiceOp) Activate(charge RecurringApplicati
 
 // Delete deletes recurring application charge.
 func (r *RecurringApplicationChargeServiceOp) Delete(chargeID int64) error {
-	return r.client.Delete(fmt.Sprintf("%s/%d.json", recurringApplicationChargesBasePath, chargeID))
+	return r.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, recurringApplicationChargesBasePath, chargeID))
 }
 
 // Update updates recurring application charge.
 func (r *RecurringApplicationChargeServiceOp) Update(chargeID, newCappedAmount int64) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%d/customize.json?recurring_application_charge[capped_amount]=%d",
+	path := fmt.Sprintf("%s/%s/%d/customize.json?recurring_application_charge[capped_amount]=%d", globalPathVersionPrefix,
 		recurringApplicationChargesBasePath, chargeID, newCappedAmount)
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Put(path, nil, resource)

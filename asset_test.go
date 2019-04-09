@@ -20,7 +20,7 @@ func TestAssetList(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/themes/1/assets.json",
 		httpmock.NewStringResponder(
 			200,
 			`{"assets": [{"key":"assets\/1.liquid"},{"key":"assets\/2.liquid"}]}`,
@@ -47,7 +47,7 @@ func TestAssetGet(t *testing.T) {
 	}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/themes/1/assets.json",
 		params,
 		httpmock.NewStringResponder(
 			200,
@@ -72,7 +72,7 @@ func TestAssetUpdate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"PUT",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/themes/1/assets.json",
 		httpmock.NewBytesResponder(
 			200,
 			loadFixture("asset.json"),
@@ -100,7 +100,7 @@ func TestAssetDelete(t *testing.T) {
 	params := map[string]string{"asset[key]": "foo/bar.liquid"}
 	httpmock.RegisterResponderWithQuery(
 		"DELETE",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		"https://fooshop.myshopify.com/admin/api/2019-04/themes/1/assets.json",
 		params,
 		httpmock.NewStringResponder(200, "{}"),
 	)
