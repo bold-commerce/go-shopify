@@ -57,7 +57,7 @@ type CustomCollectionsResource struct {
 
 // List custom collections
 func (s *CustomCollectionServiceOp) List(options interface{}) ([]CustomCollection, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, customCollectionsBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), customCollectionsBasePath)
 	resource := new(CustomCollectionsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Collections, err
@@ -65,13 +65,13 @@ func (s *CustomCollectionServiceOp) List(options interface{}) ([]CustomCollectio
 
 // Count custom collections
 func (s *CustomCollectionServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, customCollectionsBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", GetAdminVersionedApiPathPrefix(), customCollectionsBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get individual custom collection
 func (s *CustomCollectionServiceOp) Get(collectionID int64, options interface{}) (*CustomCollection, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, customCollectionsBasePath, collectionID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), customCollectionsBasePath, collectionID)
 	resource := new(CustomCollectionResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Collection, err
@@ -80,7 +80,7 @@ func (s *CustomCollectionServiceOp) Get(collectionID int64, options interface{})
 // Create a new custom collection
 // See Image for the details of the Image creation for a collection.
 func (s *CustomCollectionServiceOp) Create(collection CustomCollection) (*CustomCollection, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, customCollectionsBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), customCollectionsBasePath)
 	wrappedData := CustomCollectionResource{Collection: &collection}
 	resource := new(CustomCollectionResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -89,7 +89,7 @@ func (s *CustomCollectionServiceOp) Create(collection CustomCollection) (*Custom
 
 // Update an existing custom collection
 func (s *CustomCollectionServiceOp) Update(collection CustomCollection) (*CustomCollection, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, customCollectionsBasePath, collection.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), customCollectionsBasePath, collection.ID)
 	wrappedData := CustomCollectionResource{Collection: &collection}
 	resource := new(CustomCollectionResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -98,7 +98,7 @@ func (s *CustomCollectionServiceOp) Update(collection CustomCollection) (*Custom
 
 // Delete an existing custom collection.
 func (s *CustomCollectionServiceOp) Delete(collectionID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, customCollectionsBasePath, collectionID))
+	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), customCollectionsBasePath, collectionID))
 }
 
 // List metafields for a custom collection

@@ -73,7 +73,7 @@ type UsageChargesResource struct {
 func (r *UsageChargeServiceOp) Create(chargeID int64, usageCharge UsageCharge) (
 	*UsageCharge, error) {
 
-	path := fmt.Sprintf("%s/%s/%d/%s.json", globalPathVersionPrefix, recurringApplicationChargesBasePath, chargeID, usageChargesPath)
+	path := fmt.Sprintf("%s/%s/%d/%s.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath, chargeID, usageChargesPath)
 	wrappedData := UsageChargeResource{Charge: &usageCharge}
 	resource := &UsageChargeResource{}
 	err := r.client.Post(path, wrappedData, resource)
@@ -84,7 +84,7 @@ func (r *UsageChargeServiceOp) Create(chargeID int64, usageCharge UsageCharge) (
 func (r *UsageChargeServiceOp) Get(chargeID int64, usageChargeID int64, options interface{}) (
 	*UsageCharge, error) {
 
-	path := fmt.Sprintf("%s/%s/%d/%s/%d.json", globalPathVersionPrefix, recurringApplicationChargesBasePath, chargeID, usageChargesPath, usageChargeID)
+	path := fmt.Sprintf("%s/%s/%d/%s/%d.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath, chargeID, usageChargesPath, usageChargeID)
 	resource := &UsageChargeResource{}
 	err := r.client.Get(path, resource, options)
 	return resource.Charge, err
@@ -94,7 +94,7 @@ func (r *UsageChargeServiceOp) Get(chargeID int64, usageChargeID int64, options 
 func (r *UsageChargeServiceOp) List(chargeID int64, options interface{}) (
 	[]UsageCharge, error) {
 
-	path := fmt.Sprintf("%s/%s/%d/%s.json", globalPathVersionPrefix, recurringApplicationChargesBasePath, chargeID, usageChargesPath)
+	path := fmt.Sprintf("%s/%s/%d/%s.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath, chargeID, usageChargesPath)
 	resource := &UsageChargesResource{}
 	err := r.client.Get(path, resource, options)
 	return resource.Charges, err

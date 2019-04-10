@@ -286,7 +286,7 @@ type RefundLineItem struct {
 
 // List orders
 func (s *OrderServiceOp) List(options interface{}) ([]Order, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, ordersBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), ordersBasePath)
 	resource := new(OrdersResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Orders, err
@@ -294,13 +294,13 @@ func (s *OrderServiceOp) List(options interface{}) ([]Order, error) {
 
 // Count orders
 func (s *OrderServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, ordersBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", GetAdminVersionedApiPathPrefix(), ordersBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get individual order
 func (s *OrderServiceOp) Get(orderID int64, options interface{}) (*Order, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, ordersBasePath, orderID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), ordersBasePath, orderID)
 	resource := new(OrderResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Order, err
@@ -308,7 +308,7 @@ func (s *OrderServiceOp) Get(orderID int64, options interface{}) (*Order, error)
 
 // Create order
 func (s *OrderServiceOp) Create(order Order) (*Order, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, ordersBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), ordersBasePath)
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -317,7 +317,7 @@ func (s *OrderServiceOp) Create(order Order) (*Order, error) {
 
 // Update order
 func (s *OrderServiceOp) Update(order Order) (*Order, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, ordersBasePath, order.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), ordersBasePath, order.ID)
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Put(path, wrappedData, resource)

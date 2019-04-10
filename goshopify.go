@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -18,8 +19,12 @@ import (
 )
 
 const (
-	UserAgent               = "goshopify/1.0.0"
-	globalPathVersionPrefix = "admin/api/2019-04"
+	UserAgent = "goshopify/1.0.0"
+)
+
+var (
+	// Shopify API version YYYY-MM
+	apiVersion string
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
@@ -177,14 +182,15 @@ func (c *Client) NewRequest(method, urlStr string, body, options interface{}) (*
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
 // a.NewClient(shopName, token) is equivalent to NewClient(a, shopName, token)
-func (a App) NewClient(shopName, token string) *Client {
-	return NewClient(a, shopName, token)
+func (a App) NewClient(shopName, token string, apiVersion string) *Client {
+	return NewClient(a, shopName, token, apiVersion)
 }
 
 // Returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
-func NewClient(app App, shopName, token string) *Client {
+func NewClient(app App, shopName, token string, version string) *Client {
+	apiVersion = version
 	httpClient := http.DefaultClient
 
 	baseURL, _ := url.Parse(ShopBaseUrl(shopName))
@@ -422,4 +428,15 @@ func (c *Client) Put(path string, data, resource interface{}) error {
 // Delete performs a DELETE request for the given path
 func (c *Client) Delete(path string) error {
 	return c.CreateAndDo("DELETE", path, nil, nil, nil)
+}
+
+func GetAdminVersionedApiPathPrefix() string {
+	// 	if our apiVersion exists, this should return the form:  "admin/api/2019-04"
+	// 	if not, this should return the form:  "admin/", as the default year ago version going forward.
+	var rxPat = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
+	if len(apiVersion) > 0 && rxPat.MatchString(apiVersion) {
+		return fmt.Sprintf("admin/api/%s", apiVersion)
+	} else {
+		return "admin"
+	}
 }

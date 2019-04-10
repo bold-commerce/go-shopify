@@ -96,7 +96,7 @@ func TestVerifyWebhookRequest(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
+		testClient := NewClient(App{}, "", "", "")
 		req, err := testClient.NewRequest("GET", "", c.message, nil)
 		if err != nil {
 			t.Fatalf("Webhook.verify err = %v, expected true", err)
@@ -149,7 +149,7 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
+		testClient := NewClient(App{}, "", "", "")
 
 		// We actually want to test nil body's, not ""
 		if c.message == "" {

@@ -81,21 +81,21 @@ type LocationServiceOp struct {
 }
 
 func (s *LocationServiceOp) List(options interface{}) ([]Location, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, locationsBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), locationsBasePath)
 	resource := new(LocationsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Locations, err
 }
 
 func (s *LocationServiceOp) Get(ID int64, options interface{}) (*Location, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, locationsBasePath, ID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), locationsBasePath, ID)
 	resource := new(LocationResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Location, err
 }
 
 func (s *LocationServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, locationsBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", GetAdminVersionedApiPathPrefix(), locationsBasePath)
 	return s.client.Count(path, options)
 }
 

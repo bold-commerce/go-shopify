@@ -40,7 +40,7 @@ func setup() {
 		Scope:       "read_products",
 		Password:    "privateapppassword",
 	}
-	client = NewClient(app, "fooshop", "abcd")
+	client = NewClient(app, "fooshop", "abcd", "2019-04")
 	httpmock.ActivateNonDefault(client.Client)
 }
 
@@ -57,7 +57,7 @@ func loadFixture(filename string) []byte {
 }
 
 func TestNewClient(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd")
+	testClient := NewClient(app, "fooshop", "abcd", "2019-04")
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -65,7 +65,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewClientWithNoToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "")
+	testClient := NewClient(app, "fooshop", "", "2019-04")
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -73,7 +73,7 @@ func TestNewClientWithNoToken(t *testing.T) {
 }
 
 func TestAppNewClient(t *testing.T) {
-	testClient := app.NewClient("fooshop", "abcd")
+	testClient := app.NewClient("fooshop", "abcd", "2019-04")
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -81,7 +81,7 @@ func TestAppNewClient(t *testing.T) {
 }
 
 func TestAppNewClientWithNoToken(t *testing.T) {
-	testClient := app.NewClient("fooshop", "")
+	testClient := app.NewClient("fooshop", "", "2019-04")
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -89,7 +89,7 @@ func TestAppNewClientWithNoToken(t *testing.T) {
 }
 
 func TestNewRequest(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd")
+	testClient := NewClient(app, "fooshop", "abcd", "2019-04")
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -132,7 +132,7 @@ func TestNewRequest(t *testing.T) {
 }
 
 func TestNewRequestForPrivateApp(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "")
+	testClient := NewClient(app, "fooshop", "", "2019-04")
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -189,7 +189,7 @@ func TestNewRequestForPrivateApp(t *testing.T) {
 }
 
 func TestNewRequestMissingToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "")
+	testClient := NewClient(app, "fooshop", "", "2019-04")
 
 	req, _ := testClient.NewRequest("GET", "/foo", nil, nil)
 
@@ -201,7 +201,7 @@ func TestNewRequestMissingToken(t *testing.T) {
 }
 
 func TestNewRequestError(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd")
+	testClient := NewClient(app, "fooshop", "abcd", "2019-04")
 
 	cases := []struct {
 		method  string

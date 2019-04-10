@@ -45,7 +45,7 @@ type ThemesResource struct {
 
 // List all themes
 func (s *ThemeServiceOp) List(options interface{}) ([]Theme, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, themesBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), themesBasePath)
 	resource := new(ThemesResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Themes, err

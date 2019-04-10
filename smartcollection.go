@@ -65,7 +65,7 @@ type SmartCollectionsResource struct {
 
 // List smart collections
 func (s *SmartCollectionServiceOp) List(options interface{}) ([]SmartCollection, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, smartCollectionsBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), smartCollectionsBasePath)
 	resource := new(SmartCollectionsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Collections, err
@@ -73,13 +73,13 @@ func (s *SmartCollectionServiceOp) List(options interface{}) ([]SmartCollection,
 
 // Count smart collections
 func (s *SmartCollectionServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, smartCollectionsBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", GetAdminVersionedApiPathPrefix(), smartCollectionsBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get individual smart collection
 func (s *SmartCollectionServiceOp) Get(collectionID int64, options interface{}) (*SmartCollection, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, smartCollectionsBasePath, collectionID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), smartCollectionsBasePath, collectionID)
 	resource := new(SmartCollectionResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Collection, err
@@ -88,7 +88,7 @@ func (s *SmartCollectionServiceOp) Get(collectionID int64, options interface{}) 
 // Create a new smart collection
 // See Image for the details of the Image creation for a collection.
 func (s *SmartCollectionServiceOp) Create(collection SmartCollection) (*SmartCollection, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, smartCollectionsBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), smartCollectionsBasePath)
 	wrappedData := SmartCollectionResource{Collection: &collection}
 	resource := new(SmartCollectionResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -97,7 +97,7 @@ func (s *SmartCollectionServiceOp) Create(collection SmartCollection) (*SmartCol
 
 // Update an existing smart collection
 func (s *SmartCollectionServiceOp) Update(collection SmartCollection) (*SmartCollection, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, smartCollectionsBasePath, collection.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), smartCollectionsBasePath, collection.ID)
 	wrappedData := SmartCollectionResource{Collection: &collection}
 	resource := new(SmartCollectionResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -106,7 +106,7 @@ func (s *SmartCollectionServiceOp) Update(collection SmartCollection) (*SmartCol
 
 // Delete an existing smart collection.
 func (s *SmartCollectionServiceOp) Delete(collectionID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, smartCollectionsBasePath, collectionID))
+	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), smartCollectionsBasePath, collectionID))
 }
 
 // List metafields for a smart collection

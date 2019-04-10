@@ -45,7 +45,7 @@ type CollectsResource struct {
 
 // List collects
 func (s *CollectServiceOp) List(options interface{}) ([]Collect, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, collectsBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), collectsBasePath)
 	resource := new(CollectsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Collects, err
@@ -53,6 +53,6 @@ func (s *CollectServiceOp) List(options interface{}) ([]Collect, error) {
 
 // Count collects
 func (s *CollectServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, collectsBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", GetAdminVersionedApiPathPrefix(), collectsBasePath)
 	return s.client.Count(path, options)
 }

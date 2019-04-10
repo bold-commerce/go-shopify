@@ -52,28 +52,28 @@ type ApplicationChargesResource struct {
 
 // Create creates new application charge.
 func (a ApplicationChargeServiceOp) Create(charge ApplicationCharge) (*ApplicationCharge, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, applicationChargesBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), applicationChargesBasePath)
 	resource := &ApplicationChargeResource{}
 	return resource.Charge, a.client.Post(path, ApplicationChargeResource{Charge: &charge}, resource)
 }
 
 // Get gets individual application charge.
 func (a ApplicationChargeServiceOp) Get(chargeID int64, options interface{}) (*ApplicationCharge, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, applicationChargesBasePath, chargeID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), applicationChargesBasePath, chargeID)
 	resource := &ApplicationChargeResource{}
 	return resource.Charge, a.client.Get(path, resource, options)
 }
 
 // List gets all application charges.
 func (a ApplicationChargeServiceOp) List(options interface{}) ([]ApplicationCharge, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, applicationChargesBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), applicationChargesBasePath)
 	resource := &ApplicationChargesResource{}
 	return resource.Charges, a.client.Get(path, resource, options)
 }
 
 // Activate activates application charge.
 func (a ApplicationChargeServiceOp) Activate(charge ApplicationCharge) (*ApplicationCharge, error) {
-	path := fmt.Sprintf("%s/%s/%d/activate.json", globalPathVersionPrefix, applicationChargesBasePath, charge.ID)
+	path := fmt.Sprintf("%s/%s/%d/activate.json", GetAdminVersionedApiPathPrefix(), applicationChargesBasePath, charge.ID)
 	resource := &ApplicationChargeResource{}
 	return resource.Charge, a.client.Post(path, ApplicationChargeResource{Charge: &charge}, resource)
 }

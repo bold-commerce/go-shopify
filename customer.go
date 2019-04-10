@@ -85,7 +85,7 @@ type CustomerSearchOptions struct {
 
 // List customers
 func (s *CustomerServiceOp) List(options interface{}) ([]Customer, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, customersBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), customersBasePath)
 	resource := new(CustomersResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Customers, err
@@ -93,13 +93,13 @@ func (s *CustomerServiceOp) List(options interface{}) ([]Customer, error) {
 
 // Count customers
 func (s *CustomerServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalPathVersionPrefix, customersBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", GetAdminVersionedApiPathPrefix(), customersBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get customer
 func (s *CustomerServiceOp) Get(customerID int64, options interface{}) (*Customer, error) {
-	path := fmt.Sprintf("%s/%s/%v.json", globalPathVersionPrefix, customersBasePath, customerID)
+	path := fmt.Sprintf("%s/%s/%v.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID)
 	resource := new(CustomerResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Customer, err
@@ -107,7 +107,7 @@ func (s *CustomerServiceOp) Get(customerID int64, options interface{}) (*Custome
 
 // Create a new customer
 func (s *CustomerServiceOp) Create(customer Customer) (*Customer, error) {
-	path := fmt.Sprintf("%s/%s.json", globalPathVersionPrefix, customersBasePath)
+	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), customersBasePath)
 	wrappedData := CustomerResource{Customer: &customer}
 	resource := new(CustomerResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -116,7 +116,7 @@ func (s *CustomerServiceOp) Create(customer Customer) (*Customer, error) {
 
 // Update an existing customer
 func (s *CustomerServiceOp) Update(customer Customer) (*Customer, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, customersBasePath, customer.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customer.ID)
 	wrappedData := CustomerResource{Customer: &customer}
 	resource := new(CustomerResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -125,13 +125,13 @@ func (s *CustomerServiceOp) Update(customer Customer) (*Customer, error) {
 
 // Delete an existing customer
 func (s *CustomerServiceOp) Delete(customerID int64) error {
-	path := fmt.Sprintf("%s/%s/%d.json", globalPathVersionPrefix, customersBasePath, customerID)
+	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID)
 	return s.client.Delete(path)
 }
 
 // Search customers
 func (s *CustomerServiceOp) Search(options interface{}) ([]Customer, error) {
-	path := fmt.Sprintf("%s/%s/search.json", globalPathVersionPrefix, customersBasePath)
+	path := fmt.Sprintf("%s/%s/search.json", GetAdminVersionedApiPathPrefix(), customersBasePath)
 	resource := new(CustomersResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Customers, err
@@ -139,7 +139,7 @@ func (s *CustomerServiceOp) Search(options interface{}) ([]Customer, error) {
 
 // ListOrders retrieves all orders from a customer
 func (s *CustomerServiceOp) ListOrders(customerID int64, options interface{}) ([]Order, error) {
-	path := fmt.Sprintf("%s/%s/%d/orders.json", globalPathVersionPrefix, customersBasePath, customerID)
+	path := fmt.Sprintf("%s/%s/%d/orders.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID)
 	resource := new(OrdersResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Orders, err
@@ -147,7 +147,7 @@ func (s *CustomerServiceOp) ListOrders(customerID int64, options interface{}) ([
 
 // ListTags retrieves all unique tags across all customers
 func (s *CustomerServiceOp) ListTags(options interface{}) ([]string, error) {
-	path := fmt.Sprintf("%s/%s/tags.json", globalPathVersionPrefix, customersBasePath)
+	path := fmt.Sprintf("%s/%s/tags.json", GetAdminVersionedApiPathPrefix(), customersBasePath)
 	resource := new(CustomerTagsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Tags, err

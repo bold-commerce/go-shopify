@@ -54,7 +54,7 @@ type CustomerAddressesResource struct {
 
 // List addresses
 func (s *CustomerAddressServiceOp) List(customerID int64, options interface{}) ([]CustomerAddress, error) {
-	path := fmt.Sprintf("%s/%s/%d/addresses.json", globalPathVersionPrefix, customersBasePath, customerID)
+	path := fmt.Sprintf("%s/%s/%d/addresses.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID)
 	resource := new(CustomerAddressesResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Addresses, err
@@ -62,7 +62,7 @@ func (s *CustomerAddressServiceOp) List(customerID int64, options interface{}) (
 
 // Get address
 func (s *CustomerAddressServiceOp) Get(customerID, addressID int64, options interface{}) (*CustomerAddress, error) {
-	path := fmt.Sprintf("%s/%s/%d/addresses/%d.json", globalPathVersionPrefix, customersBasePath, customerID, addressID)
+	path := fmt.Sprintf("%s/%s/%d/addresses/%d.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID, addressID)
 	resource := new(CustomerAddressResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Address, err
@@ -70,7 +70,7 @@ func (s *CustomerAddressServiceOp) Get(customerID, addressID int64, options inte
 
 // Create a new address for given customer
 func (s *CustomerAddressServiceOp) Create(customerID int64, address CustomerAddress) (*CustomerAddress, error) {
-	path := fmt.Sprintf("%s/%s/%d/addresses.json", globalPathVersionPrefix, customersBasePath, customerID)
+	path := fmt.Sprintf("%s/%s/%d/addresses.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID)
 	wrappedData := CustomerAddressResource{Address: &address}
 	resource := new(CustomerAddressResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -79,7 +79,7 @@ func (s *CustomerAddressServiceOp) Create(customerID int64, address CustomerAddr
 
 // Create a new address for given customer
 func (s *CustomerAddressServiceOp) Update(customerID int64, address CustomerAddress) (*CustomerAddress, error) {
-	path := fmt.Sprintf("%s/%s/%d/addresses/%d.json", globalPathVersionPrefix, customersBasePath, customerID, address.ID)
+	path := fmt.Sprintf("%s/%s/%d/addresses/%d.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID, address.ID)
 	wrappedData := CustomerAddressResource{Address: &address}
 	resource := new(CustomerAddressResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -88,5 +88,5 @@ func (s *CustomerAddressServiceOp) Update(customerID int64, address CustomerAddr
 
 // Delete an existing address
 func (s *CustomerAddressServiceOp) Delete(customerID, addressID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d/addresses/%d.json", globalPathVersionPrefix, customersBasePath, customerID, addressID))
+	return s.client.Delete(fmt.Sprintf("%s/%s/%d/addresses/%d.json", GetAdminVersionedApiPathPrefix(), customersBasePath, customerID, addressID))
 }
