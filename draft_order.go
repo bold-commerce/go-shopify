@@ -19,9 +19,9 @@ type DraftOrderService interface {
 	Get(int64, interface{}) (*DraftOrder, error)
 	Create(DraftOrder) (*DraftOrder, error)
 	Update(DraftOrder) (*DraftOrder, error)
-	Delete(int) error
-	Invoice(int, DraftOrderInvoice) (*DraftOrderInvoice, error)
-	Complete(int, bool) (*DraftOrder, error)
+	Delete(int64) error
+	Invoice(int64, DraftOrderInvoice) (*DraftOrderInvoice, error)
+	Complete(int64, bool) (*DraftOrder, error)
 
 	// MetafieldsService used for DrafT Order resource to communicate with Metafields resource
 	MetafieldsService
@@ -35,31 +35,33 @@ type DraftOrderServiceOp struct {
 
 // DraftOrder represents a shopify draft order
 type DraftOrder struct {
-	ID                        int64            `json:"id,omitempty"`
-	OrderID                   int64            `json:"order_id,omitempty"`
-	Name                      string           `json:"name,omitempty"`
-	Customer                  *Customer        `json:"customer,omitempty"`
-	ShippingAddress           *Address         `json:"shipping_address,omitempty"`
-	BillingAddress            *Address         `json:"billing_address,omitempty"`
-	Note                      string           `json:"note,omitempty"`
-	NoteAttributes            []NoteAttribute  `json:"note_attribute,omitempty"`
-	Email                     string           `json:"email,omitempty"`
-	Currency                  string           `json:"currency,omitempty"`
-	InvoiceSentAt             *time.Time       `json:"invoice_sent_at,omitempty"`
-	InvoiceURL                string           `json:"invoice_sent_at,omitempty"`
-	LineItems                 []LineItem       `json:"line_items,omitempty"`
-	ShippingLine              *ShippingLines   `json:"shipping_line,omitempty"`
-	Tags                      string           `json:"tags,omitempty"`
-	TaxLines                  []TaxLine        `json:"tax_lines,omitempty"`
-	AppliedDiscount           *AppliedDiscount `json:"applied_discount,omitempty"`
-	TaxesIncluded             bool             `json:"taxes_included,omitempty"`
-	TotalTax                  string           `json:"total_tax,omitempty"`
-	SubtotalPrice             *decimal.Decimal `json:"subtotal_price,omitempty"`
-	CompletedAt               *time.Time       `json:"completed_at,omitempty"`
-	CreatedAt                 *time.Time       `json:"created_at,omitempty"`
-	UpdatedAt                 *time.Time       `json:"updated_at,omitempty"`
-	Status                    string           `json:"status,omitempty"`
-	UseCustomerDefaultAddress bool             `json:"use_customer_default_address,omitempty"`
+	ID              int64            `json:"id,omitempty"`
+	OrderID         int64            `json:"order_id,omitempty"`
+	Name            string           `json:"name,omitempty"`
+	Customer        *Customer        `json:"customer,omitempty"`
+	ShippingAddress *Address         `json:"shipping_address,omitempty"`
+	BillingAddress  *Address         `json:"billing_address,omitempty"`
+	Note            string           `json:"note,omitempty"`
+	NoteAttributes  []NoteAttribute  `json:"note_attribute,omitempty"`
+	Email           string           `json:"email,omitempty"`
+	Currency        string           `json:"currency,omitempty"`
+	InvoiceSentAt   *time.Time       `json:"invoice_sent_at,omitempty"`
+	InvoiceURL      string           `json:"invoice_sent_at,omitempty"`
+	LineItems       []LineItem       `json:"line_items,omitempty"`
+	ShippingLine    *ShippingLines   `json:"shipping_line,omitempty"`
+	Tags            string           `json:"tags,omitempty"`
+	TaxLines        []TaxLine        `json:"tax_lines,omitempty"`
+	AppliedDiscount *AppliedDiscount `json:"applied_discount,omitempty"`
+	TaxesIncluded   bool             `json:"taxes_included,omitempty"`
+	TotalTax        string           `json:"total_tax,omitempty"`
+	TotalPrice      string           `json:"total_price,omitempty"`
+	SubtotalPrice   *decimal.Decimal `json:"subtotal_price,omitempty"`
+	CompletedAt     *time.Time       `json:"completed_at,omitempty"`
+	CreatedAt       *time.Time       `json:"created_at,omitempty"`
+	UpdatedAt       *time.Time       `json:"updated_at,omitempty"`
+	Status          string           `json:"status,omitempty"`
+	// only in request to flag using the customer's default address
+	UseCustomerDefaultAddress bool `json:"use_customer_default_address,omitempty"`
 }
 
 // AppliedDiscount is the discount applied to the line item or the draft order object.
@@ -113,6 +115,15 @@ type DraftOrderCountOptions struct {
 	Status  string `url:"status,omitempty"`
 }
 
+// Create draft order
+func (s *DraftOrderServiceOp) Create(draftOrder DraftOrder) (*DraftOrder, error) {
+	path := fmt.Sprintf("%s.json", draftOrdersBasePath)
+	wrappedData := DraftOrderResource{DraftOrder: &draftOrder}
+	resource := new(DraftOrderResource)
+	err := s.client.Post(path, wrappedData, resource)
+	return resource.DraftOrder, err
+}
+
 // List draft orders
 func (s *DraftOrderServiceOp) List(options interface{}) ([]DraftOrder, error) {
 	path := fmt.Sprintf("%s.json", draftOrdersBasePath)
@@ -127,9 +138,15 @@ func (s *DraftOrderServiceOp) Count(options interface{}) (int, error) {
 	return s.client.Count(path, options)
 }
 
+// Delete draft orders
+func (s *DraftOrderServiceOp) Delete(draftOrderID int64) error {
+	path := fmt.Sprintf("%s/%d.json", draftOrdersBasePath, draftOrderID)
+	return s.client.Delete(path)
+}
+
 // Invoice a draft order
-func (s *DraftOrderServiceOp) Invoice(draftOrderID int, draftOrderInvoice DraftOrderInvoice) (*DraftOrderInvoice, error) {
-	path := fmt.Sprintf("%s/%s/send_invoice.json", ordersBasePath, draftOrderID)
+func (s *DraftOrderServiceOp) Invoice(draftOrderID int64, draftOrderInvoice DraftOrderInvoice) (*DraftOrderInvoice, error) {
+	path := fmt.Sprintf("%s/%d/send_invoice.json", draftOrdersBasePath, draftOrderID)
 	wrappedData := DraftOrderInvoiceResource{DraftOrderInvoice: &draftOrderInvoice}
 	resource := new(DraftOrderInvoiceResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -154,7 +171,7 @@ func (s *DraftOrderServiceOp) Update(draftOrder DraftOrder) (*DraftOrder, error)
 }
 
 // Complete draft order
-func (s *DraftOrderServiceOp) Complete(draftOrderID int, paymentPending bool) (*DraftOrder, error) {
+func (s *DraftOrderServiceOp) Complete(draftOrderID int64, paymentPending bool) (*DraftOrder, error) {
 	path := fmt.Sprintf("%s/%d/complete.json?payment_pending=%t", draftOrdersBasePath, draftOrderID, paymentPending)
 	resource := new(DraftOrderResource)
 	err := s.client.Put(path, nil, resource)
