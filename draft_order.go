@@ -7,8 +7,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const draftOrdersBasePath = "admin/draft_orders"
-const draftOrdersResourceName = "draft_orders"
+const (
+	draftOrdersBasePath     = "admin/draft_orders"
+	draftOrdersResourceName = "draft_orders"
+)
 
 // DraftOrderService is an interface for interfacing with the draft orders endpoints of
 // the Shopify API.
@@ -46,7 +48,7 @@ type DraftOrder struct {
 	Email           string           `json:"email,omitempty"`
 	Currency        string           `json:"currency,omitempty"`
 	InvoiceSentAt   *time.Time       `json:"invoice_sent_at,omitempty"`
-	InvoiceURL      string           `json:"invoice_sent_at,omitempty"`
+	InvoiceURL      string           `json:"invoice_url,omitempty"`
 	LineItems       []LineItem       `json:"line_items,omitempty"`
 	ShippingLine    *ShippingLines   `json:"shipping_line,omitempty"`
 	Tags            string           `json:"tags,omitempty"`
