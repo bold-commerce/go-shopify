@@ -1,0 +1,11 @@
+{
+  "draft_order_invoice": {
+    "to": "first@example.com",
+    "from": "steve@apple.com",
+    "subject": "Apple Computer Invoice",
+    "custom_message": "Thank you for ordering!",
+    "bcc": [
+      "steve@apple.com"
+    ]
+  }
+}
