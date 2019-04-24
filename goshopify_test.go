@@ -40,7 +40,7 @@ func setup() {
 		Scope:       "read_products",
 		Password:    "privateapppassword",
 	}
-	client = NewClient(app, "fooshop", "abcd", "2019-04")
+	client = NewClient(app, "fooshop", "abcd", "9999-99")
 	httpmock.ActivateNonDefault(client.Client)
 }
 

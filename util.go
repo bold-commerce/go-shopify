@@ -33,9 +33,9 @@ func ShopBaseUrl(name string) string {
 func MetafieldPathPrefix(resource string, resourceID int64) string {
 	var prefix string
 	if resource == "" {
-		prefix = fmt.Sprintf("%s/metafields", GetAdminVersionedApiPathPrefix())
+		prefix = fmt.Sprintf("%s/metafields", globalApiPathPrefix)
 	} else {
-		prefix = fmt.Sprintf("%s/%s/%d/metafields", GetAdminVersionedApiPathPrefix(), resource, resourceID)
+		prefix = fmt.Sprintf("%s/%s/%d/metafields", globalApiPathPrefix, resource, resourceID)
 	}
 	return prefix
 }
@@ -44,9 +44,9 @@ func MetafieldPathPrefix(resource string, resourceID int64) string {
 func FulfillmentPathPrefix(resource string, resourceID int64) string {
 	var prefix string
 	if resource == "" {
-		prefix = fmt.Sprintf("%s/fulfillments", GetAdminVersionedApiPathPrefix())
+		prefix = fmt.Sprintf("%s/fulfillments", globalApiPathPrefix)
 	} else {
-		prefix = fmt.Sprintf("%s/%s/%d/fulfillments", GetAdminVersionedApiPathPrefix(), resource, resourceID)
+		prefix = fmt.Sprintf("%s/%s/%d/fulfillments", globalApiPathPrefix, resource, resourceID)
 	}
 	return prefix
 }

@@ -15,6 +15,6 @@
     "cancelled_on": "2018-06-05",
     "trial_days": 0,
     "decorated_return_url": "http://super-duper.shopifyapps.com/?charge_id=1029266948",
-    "confirmation_url": "https://apple.myshopify.com/admin/api/2019-04/charges/1029266948/confirm_recurring_application_charge?signature=BAhpBAReWT0%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68"
+    "confirmation_url": "https://apple.myshopify.com/admin/api/9999-99/charges/1029266948/confirm_recurring_application_charge?signature=BAhpBAReWT0%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68"
   }
 }

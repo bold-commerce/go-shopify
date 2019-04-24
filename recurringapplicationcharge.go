@@ -128,7 +128,7 @@ type RecurringApplicationChargesResource struct {
 func (r *RecurringApplicationChargeServiceOp) Create(charge RecurringApplicationCharge) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, recurringApplicationChargesBasePath)
 	wrappedData := RecurringApplicationChargeResource{Charge: &charge}
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Post(path, wrappedData, resource)
@@ -139,7 +139,7 @@ func (r *RecurringApplicationChargeServiceOp) Create(charge RecurringApplication
 func (r *RecurringApplicationChargeServiceOp) Get(chargeID int64, options interface{}) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath, chargeID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, recurringApplicationChargesBasePath, chargeID)
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Get(path, resource, options)
 	return resource.Charge, err
@@ -149,7 +149,7 @@ func (r *RecurringApplicationChargeServiceOp) Get(chargeID int64, options interf
 func (r *RecurringApplicationChargeServiceOp) List(options interface{}) (
 	[]RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, recurringApplicationChargesBasePath)
 	resource := &RecurringApplicationChargesResource{}
 	err := r.client.Get(path, resource, options)
 	return resource.Charges, err
@@ -159,7 +159,7 @@ func (r *RecurringApplicationChargeServiceOp) List(options interface{}) (
 func (r *RecurringApplicationChargeServiceOp) Activate(charge RecurringApplicationCharge) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%s/%d/activate.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath, charge.ID)
+	path := fmt.Sprintf("%s/%s/%d/activate.json", globalApiPathPrefix, recurringApplicationChargesBasePath, charge.ID)
 	wrappedData := RecurringApplicationChargeResource{Charge: &charge}
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Post(path, wrappedData, resource)
@@ -168,14 +168,14 @@ func (r *RecurringApplicationChargeServiceOp) Activate(charge RecurringApplicati
 
 // Delete deletes recurring application charge.
 func (r *RecurringApplicationChargeServiceOp) Delete(chargeID int64) error {
-	return r.client.Delete(fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), recurringApplicationChargesBasePath, chargeID))
+	return r.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, recurringApplicationChargesBasePath, chargeID))
 }
 
 // Update updates recurring application charge.
 func (r *RecurringApplicationChargeServiceOp) Update(chargeID, newCappedAmount int64) (
 	*RecurringApplicationCharge, error) {
 
-	path := fmt.Sprintf("%s/%s/%d/customize.json?recurring_application_charge[capped_amount]=%d", GetAdminVersionedApiPathPrefix(),
+	path := fmt.Sprintf("%s/%s/%d/customize.json?recurring_application_charge[capped_amount]=%d", globalApiPathPrefix,
 		recurringApplicationChargesBasePath, chargeID, newCappedAmount)
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Put(path, nil, resource)

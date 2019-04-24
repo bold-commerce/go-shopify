@@ -24,7 +24,7 @@ const (
 
 var (
 	// Shopify API version YYYY-MM
-	apiVersion string
+	globalApiPathPrefix string
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
@@ -190,8 +190,17 @@ func (a App) NewClient(shopName, token string, apiVersion string) *Client {
 // Returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
-func NewClient(app App, shopName, token string, version string) *Client {
-	apiVersion = version
+func NewClient(app App, shopName, token string, apiVersion string) *Client {
+
+	// 	if our apiVersion exists, this should return the form:  "admin/api/YYYY-MM"
+	// 	if not, this should return the form:  "admin/", as the default year ago version going forward.
+	var rxPat = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
+	if len(apiVersion) > 0 && rxPat.MatchString(apiVersion) {
+		globalApiPathPrefix = fmt.Sprintf("admin/api/%s", apiVersion)
+	} else {
+		globalApiPathPrefix = "admin"
+	}
+
 	httpClient := http.DefaultClient
 
 	baseURL, _ := url.Parse(ShopBaseUrl(shopName))
@@ -430,15 +439,4 @@ func (c *Client) Put(path string, data, resource interface{}) error {
 // Delete performs a DELETE request for the given path
 func (c *Client) Delete(path string) error {
 	return c.CreateAndDo("DELETE", path, nil, nil, nil)
-}
-
-func GetAdminVersionedApiPathPrefix() string {
-	// 	if our apiVersion exists, this should return the form:  "admin/api/2019-04"
-	// 	if not, this should return the form:  "admin/", as the default year ago version going forward.
-	var rxPat = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
-	if len(apiVersion) > 0 && rxPat.MatchString(apiVersion) {
-		return fmt.Sprintf("admin/api/%s", apiVersion)
-	} else {
-		return "admin"
-	}
 }

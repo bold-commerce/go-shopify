@@ -1,9 +1,10 @@
 package goshopify
 
 import (
+	"fmt"
 	"testing"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestDiscountCodeList(t *testing.T) {
@@ -12,7 +13,7 @@ func TestDiscountCodeList(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/api/2019-04/price_rules/507328175/discount_codes.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/price_rules/507328175/discount_codes.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(
 			200,
 			`{"discount_codes":[{"id":507328175,"price_rule_id":507328175,"code":"SUMMERSALE10OFF","usage_count":0,"created_at":"2018-07-05T12:41:00-04:00","updated_at":"2018-07-05T12:41:00-04:00"}]}`,
@@ -37,7 +38,7 @@ func TestDiscountCodeGet(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/api/2019-04/price_rules/507328175/discount_codes/507328175.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/price_rules/507328175/discount_codes/507328175.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(
 			200,
 			`{"discount_code":{"id":507328175,"price_rule_id":507328175,"code":"SUMMERSALE10OFF","usage_count":0,"created_at":"2018-07-05T12:41:00-04:00","updated_at":"2018-07-05T12:41:00-04:00"}}`,
@@ -63,7 +64,7 @@ func TestDiscountCodeCreate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		"https://fooshop.myshopify.com/admin/api/2019-04/price_rules/507328175/discount_codes.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/price_rules/507328175/discount_codes.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(
 			201,
 			loadFixture("discount_code.json"),
@@ -92,7 +93,7 @@ func TestDiscountCodeUpdate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"PUT",
-		"https://fooshop.myshopify.com/admin/api/2019-04/price_rules/507328175/discount_codes/1054381139.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/price_rules/507328175/discount_codes/1054381139.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(
 			200,
 			loadFixture("discount_code.json"),
@@ -119,7 +120,7 @@ func TestDiscountCodeDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/price_rules/507328175/discount_codes/507328175.json",
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/price_rules/507328175/discount_codes/507328175.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(204, "{}"))
 
 	err := client.DiscountCode.Delete(507328175, 507328175)

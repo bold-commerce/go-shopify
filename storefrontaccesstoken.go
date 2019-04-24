@@ -44,7 +44,7 @@ type StorefrontAccessTokensResource struct {
 
 // List storefront access tokens
 func (s *StorefrontAccessTokenServiceOp) List(options interface{}) ([]StorefrontAccessToken, error) {
-	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), storefrontAccessTokensBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, storefrontAccessTokensBasePath)
 	resource := new(StorefrontAccessTokensResource)
 	err := s.client.Get(path, resource, options)
 	return resource.StorefrontAccessTokens, err
@@ -52,7 +52,7 @@ func (s *StorefrontAccessTokenServiceOp) List(options interface{}) ([]Storefront
 
 // Create a new storefront access token
 func (s *StorefrontAccessTokenServiceOp) Create(storefrontAccessToken StorefrontAccessToken) (*StorefrontAccessToken, error) {
-	path := fmt.Sprintf("%s/%s.json", GetAdminVersionedApiPathPrefix(), storefrontAccessTokensBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, storefrontAccessTokensBasePath)
 	wrappedData := StorefrontAccessTokenResource{StorefrontAccessToken: &storefrontAccessToken}
 	resource := new(StorefrontAccessTokenResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -61,5 +61,5 @@ func (s *StorefrontAccessTokenServiceOp) Create(storefrontAccessToken Storefront
 
 // Delete an existing storefront access token
 func (s *StorefrontAccessTokenServiceOp) Delete(ID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", GetAdminVersionedApiPathPrefix(), storefrontAccessTokensBasePath, ID))
+	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, storefrontAccessTokensBasePath, ID))
 }

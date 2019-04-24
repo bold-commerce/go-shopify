@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -73,7 +74,7 @@ func TestImageList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/images.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("images.json")))
 
 	images, err := client.Image.List(1, nil)
@@ -93,13 +94,13 @@ func TestImageCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/images/count.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images/count.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/api/2019-04/products/1/images/count.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images/count.json", globalApiPathPrefix),
 		params,
 		httpmock.NewStringResponder(200, `{"count": 1}`))
 
@@ -129,7 +130,7 @@ func TestImageGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/images/1.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images/1.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
 	image, err := client.Image.Get(1, 1, nil)
@@ -144,7 +145,7 @@ func TestImageCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/images.json",
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
 	variantIds := make([]int64, 2)
@@ -167,7 +168,7 @@ func TestImageUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/images/1.json",
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images/1.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
 	// Take an existing image
@@ -192,7 +193,7 @@ func TestImageDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/images/1.json",
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images/1.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.Image.Delete(1, 1)

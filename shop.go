@@ -78,6 +78,6 @@ type ShopResource struct {
 // Get shop
 func (s *ShopServiceOp) Get(options interface{}) (*Shop, error) {
 	resource := new(ShopResource)
-	err := s.client.Get(fmt.Sprintf("%s/shop.json", GetAdminVersionedApiPathPrefix()), resource, options)
+	err := s.client.Get(fmt.Sprintf("%s/shop.json", globalApiPathPrefix), resource, options)
 	return resource.Shop, err
 }

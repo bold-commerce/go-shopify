@@ -1,12 +1,13 @@
 package goshopify
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/shopspring/decimal"
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func variantTests(t *testing.T, variant Variant) {
@@ -32,7 +33,7 @@ func TestVariantList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/variants.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"variants": [{"id":1},{"id":2}]}`))
 
 	variants, err := client.Variant.List(1, nil)
@@ -50,13 +51,13 @@ func TestVariantCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/variants/count.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants/count.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/api/2019-04/products/1/variants/count.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants/count.json", globalApiPathPrefix),
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
@@ -86,7 +87,7 @@ func TestVariantGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/variants/1.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"variant": {"id":1}}`))
 
 	variant, err := client.Variant.Get(1, nil)
@@ -104,7 +105,7 @@ func TestVariantCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/variants.json",
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("variant.json")))
 
 	price := decimal.NewFromFloat(1)
@@ -124,7 +125,7 @@ func TestVariantUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/api/2019-04/variants/1.json",
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("variant.json")))
 
 	variant := Variant{
@@ -145,7 +146,7 @@ func TestVariantDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/products/1/variants/1.json",
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants/1.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.Variant.Delete(1, 1)

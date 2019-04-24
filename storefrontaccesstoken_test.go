@@ -1,10 +1,11 @@
 package goshopify
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
-	httpmock "gopkg.in/jarcoal/httpmock.v1"
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func storefrontAccessTokenTests(t *testing.T, StorefrontAccessToken StorefrontAccessToken) {
@@ -38,7 +39,7 @@ func TestStorefrontAccessTokenList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/api/2019-04/storefront_access_tokens.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("storefront_access_tokens.json")))
 
 	storefrontAccessTokens, err := client.StorefrontAccessToken.List(nil)
@@ -57,7 +58,7 @@ func TestStorefrontAccessTokenCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/api/2019-04/storefront_access_tokens.json",
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("storefront_access_token.json")))
 
 	storefrontAccessToken := StorefrontAccessToken{
@@ -76,7 +77,7 @@ func TestStorefrontAccessTokenDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/api/2019-04/storefront_access_tokens/755357713.json",
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens/755357713.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.StorefrontAccessToken.Delete(755357713)
