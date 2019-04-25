@@ -16,6 +16,10 @@ import (
 	"gopkg.in/jarcoal/httpmock.v1"
 )
 
+const (
+	testApiVersion = "9999-99"
+)
+
 var (
 	client *Client
 	app    App
@@ -40,7 +44,7 @@ func setup() {
 		Scope:       "read_products",
 		Password:    "privateapppassword",
 	}
-	client = NewClient(app, "fooshop", "abcd", "9999-99")
+	client = NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 	httpmock.ActivateNonDefault(client.Client)
 }
 
@@ -56,8 +60,16 @@ func loadFixture(filename string) []byte {
 	return f
 }
 
+func TestWithVersion(t *testing.T) {
+	_ = WithVersion(testApiVersion)
+	expected := fmt.Sprintf("admin/api/%s", testApiVersion)
+	if globalApiPathPrefix != expected {
+		t.Errorf("WithVersion globalApiPathPrefix = %s, expected %s", globalApiPathPrefix, expected)
+	}
+}
+
 func TestNewClient(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", "2019-04")
+	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -65,7 +77,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestNewClientWithNoToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", "2019-04")
+	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -73,7 +85,7 @@ func TestNewClientWithNoToken(t *testing.T) {
 }
 
 func TestAppNewClient(t *testing.T) {
-	testClient := app.NewClient("fooshop", "abcd", "2019-04")
+	testClient := app.NewClient("fooshop", "abcd", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -81,7 +93,7 @@ func TestAppNewClient(t *testing.T) {
 }
 
 func TestAppNewClientWithNoToken(t *testing.T) {
-	testClient := app.NewClient("fooshop", "", "2019-04")
+	testClient := app.NewClient("fooshop", "", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
 		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
@@ -89,7 +101,7 @@ func TestAppNewClientWithNoToken(t *testing.T) {
 }
 
 func TestNewRequest(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", "2019-04")
+	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -132,7 +144,7 @@ func TestNewRequest(t *testing.T) {
 }
 
 func TestNewRequestForPrivateApp(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", "2019-04")
+	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -189,7 +201,7 @@ func TestNewRequestForPrivateApp(t *testing.T) {
 }
 
 func TestNewRequestMissingToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", "2019-04")
+	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
 
 	req, _ := testClient.NewRequest("GET", "/foo", nil, nil)
 
@@ -201,7 +213,7 @@ func TestNewRequestMissingToken(t *testing.T) {
 }
 
 func TestNewRequestError(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", "2019-04")
+	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 
 	cases := []struct {
 		method  string
