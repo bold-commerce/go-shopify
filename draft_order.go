@@ -71,7 +71,7 @@ type AppliedDiscount struct {
 	Title       string `json:"applied_discount,omitempty"`
 	Description string `json:"description,omitempty"`
 	Value       string `json:"value,omitempty"`
-	ValueType   string `json:"fixed_amount,omitempty"`
+	ValueType   string `json:"value_type,omitempty"`
 	Amount      string `json:"amount,omitempty"`
 }
 
