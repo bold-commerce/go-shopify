@@ -186,6 +186,7 @@ type LineItem struct {
 	TaxLines                   []TaxLine        `json:"tax_lines,omitempty"`
 	OriginLocation             *Address         `json:"origin_location,omitempty"`
 	DestinationLocation        *Address         `json:"destination_location,omitempty"`
+	AppliedDiscount            *AppliedDiscount `json:"applied_discount,omitempty"`
 }
 
 type LineItemProperty struct {
