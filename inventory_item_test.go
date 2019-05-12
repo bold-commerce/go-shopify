@@ -38,7 +38,7 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 func inventoryItemsTests(t *testing.T, items []InventoryItem) {
 	expectedLen := 3
 	if len(items) != expectedLen {
-		t.Errorf("InventoryItems list lenth is %+v, expected %+v", len(items), expectedLen)
+		t.Errorf("InventoryItems list length is %+v, expected %+v", len(items), expectedLen)
 	}
 }
 

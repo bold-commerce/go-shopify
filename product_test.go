@@ -34,6 +34,31 @@ func TestProductList(t *testing.T) {
 		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
 	}
 }
+func TestProductListWithZeroSinceID(t *testing.T) {
+	setup()
+	defer teardown()
+
+	params := map[string]string{"since_id": "0"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/products.json", globalApiPathPrefix),
+		params,
+		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2}]}`),
+	)
+
+	zero := int64(0)
+	listOptions := ListOptions{SinceID: &zero}
+
+	products, err := client.Product.List(listOptions)
+	if err != nil {
+		t.Errorf("Product.List returned error: %v", err)
+	}
+
+	expected := []Product{{ID: 1}, {ID: 2}}
+	if !reflect.DeepEqual(products, expected) {
+		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
+	}
+}
 
 func TestProductListFilterByIds(t *testing.T) {
 	setup()

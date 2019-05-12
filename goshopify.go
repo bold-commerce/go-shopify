@@ -378,7 +378,7 @@ func CheckResponseError(r *http.Response) error {
 type ListOptions struct {
 	Page         int       `url:"page,omitempty"`
 	Limit        int       `url:"limit,omitempty"`
-	SinceID      int64     `url:"since_id,omitempty"`
+	SinceID      *int64    `url:"since_id,omitempty"`
 	CreatedAtMin time.Time `url:"created_at_min,omitempty"`
 	CreatedAtMax time.Time `url:"created_at_max,omitempty"`
 	UpdatedAtMin time.Time `url:"updated_at_min,omitempty"`
