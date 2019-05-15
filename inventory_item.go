@@ -7,7 +7,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const inventoryItemsBasePath = "admin/inventory_items"
+const inventoryItemsBasePath = "inventory_items"
 
 // InventoryItemService is an interface for interacting with the
 // inventory items endpoints of the Shopify API
@@ -46,7 +46,7 @@ type InventoryItemsResource struct {
 
 // List inventory items
 func (s *InventoryItemServiceOp) List(options interface{}) ([]InventoryItem, error) {
-	path := fmt.Sprintf("%s.json", inventoryItemsBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, inventoryItemsBasePath)
 	resource := new(InventoryItemsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.InventoryItems, err
@@ -54,7 +54,7 @@ func (s *InventoryItemServiceOp) List(options interface{}) ([]InventoryItem, err
 
 // Get a inventory item
 func (s *InventoryItemServiceOp) Get(id int64, options interface{}) (*InventoryItem, error) {
-	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, id)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, inventoryItemsBasePath, id)
 	resource := new(InventoryItemResource)
 	err := s.client.Get(path, resource, options)
 	return resource.InventoryItem, err
@@ -62,7 +62,7 @@ func (s *InventoryItemServiceOp) Get(id int64, options interface{}) (*InventoryI
 
 // Update a inventory item
 func (s *InventoryItemServiceOp) Update(item InventoryItem) (*InventoryItem, error) {
-	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, item.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, inventoryItemsBasePath, item.ID)
 	wrappedData := InventoryItemResource{InventoryItem: &item}
 	resource := new(InventoryItemResource)
 	err := s.client.Put(path, wrappedData, resource)

@@ -7,7 +7,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const variantsBasePath = "admin/variants"
+const variantsBasePath = "variants"
 
 // VariantService is an interface for interacting with the variant endpoints
 // of the Shopify API.
@@ -69,7 +69,7 @@ type VariantsResource struct {
 
 // List variants
 func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant, error) {
-	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
+	path := fmt.Sprintf("%s/%s/%d/variants.json", globalApiPathPrefix, productsBasePath, productID)
 	resource := new(VariantsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Variants, err
@@ -77,13 +77,13 @@ func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant
 
 // Count variants
 func (s *VariantServiceOp) Count(productID int64, options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%d/variants/count.json", productsBasePath, productID)
+	path := fmt.Sprintf("%s/%s/%d/variants/count.json", globalApiPathPrefix, productsBasePath, productID)
 	return s.client.Count(path, options)
 }
 
 // Get individual variant
 func (s *VariantServiceOp) Get(variantID int64, options interface{}) (*Variant, error) {
-	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variantID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, variantsBasePath, variantID)
 	resource := new(VariantResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Variant, err
@@ -91,7 +91,7 @@ func (s *VariantServiceOp) Get(variantID int64, options interface{}) (*Variant, 
 
 // Create a new variant
 func (s *VariantServiceOp) Create(productID int64, variant Variant) (*Variant, error) {
-	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
+	path := fmt.Sprintf("%s/%s/%d/variants.json", globalApiPathPrefix, productsBasePath, productID)
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -100,7 +100,7 @@ func (s *VariantServiceOp) Create(productID int64, variant Variant) (*Variant, e
 
 // Update existing variant
 func (s *VariantServiceOp) Update(variant Variant) (*Variant, error) {
-	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variant.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, variantsBasePath, variant.ID)
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -109,5 +109,5 @@ func (s *VariantServiceOp) Update(variant Variant) (*Variant, error) {
 
 // Delete an existing product
 func (s *VariantServiceOp) Delete(productID int64, variantID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d/variants/%d.json", productsBasePath, productID, variantID))
+	return s.client.Delete(fmt.Sprintf("%s/%s/%d/variants/%d.json", globalApiPathPrefix, productsBasePath, productID, variantID))
 }

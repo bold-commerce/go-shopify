@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -11,7 +12,7 @@ func TestScriptTagList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/script_tags.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"script_tags": [{"id": 1},{"id": 2}]}`))
 
 	scriptTags, err := client.ScriptTag.List(nil)
@@ -29,7 +30,7 @@ func TestScriptTagCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/script_tags/count.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags/count.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	cnt, err := client.ScriptTag.Count(nil)
@@ -47,7 +48,7 @@ func TestScriptTagGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/admin/script_tags/1.json",
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags/1.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"script_tag": {"id": 1}}`))
 
 	scriptTag, err := client.ScriptTag.Get(1, nil)
@@ -72,7 +73,7 @@ func TestScriptTagCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/script_tags.json",
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("script_tags.json")))
 
 	tag0 := ScriptTag{
@@ -92,7 +93,7 @@ func TestScriptTagUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", "https://fooshop.myshopify.com/admin/script_tags/1.json",
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags/1.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("script_tags.json")))
 
 	tag := ScriptTag{
@@ -111,7 +112,7 @@ func TestScriptTagDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", "https://fooshop.myshopify.com/admin/script_tags/1.json",
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags/1.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
 	if err := client.ScriptTag.Delete(1); err != nil {

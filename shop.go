@@ -1,6 +1,9 @@
 package goshopify
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // ShopService is an interface for interfacing with the shop endpoint of the
 // Shopify API.
@@ -75,6 +78,6 @@ type ShopResource struct {
 // Get shop
 func (s *ShopServiceOp) Get(options interface{}) (*Shop, error) {
 	resource := new(ShopResource)
-	err := s.client.Get("admin/shop.json", resource, options)
+	err := s.client.Get(fmt.Sprintf("%s/shop.json", globalApiPathPrefix), resource, options)
 	return resource.Shop, err
 }

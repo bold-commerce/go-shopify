@@ -11,6 +11,6 @@
     "updated_at": "2018-07-05T13:11:28-04:00",
     "charge_type": null,
     "decorated_return_url": "http://super-duper.shopifyapps.com/?charge_id=1017262355",
-    "confirmation_url": "https://apple.myshopify.com/admin/charges/1017262355/confirm_application_charge?signature=BAhpBBMxojw%3D--1139a82a3433b1a6771786e03f02300440e11883"
+    "confirmation_url": "https://apple.myshopify.com/admin/api/9999-99/charges/1017262355/confirm_application_charge?signature=BAhpBBMxojw%3D--1139a82a3433b1a6771786e03f02300440e11883"
   }
 }

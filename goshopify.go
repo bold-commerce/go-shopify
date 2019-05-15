@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -19,6 +20,11 @@ import (
 
 const (
 	UserAgent = "goshopify/1.0.0"
+)
+
+var (
+	// Shopify API version YYYY-MM
+	globalApiPathPrefix string
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
@@ -173,18 +179,33 @@ func (c *Client) NewRequest(method, urlStr string, body, options interface{}) (*
 	return req, nil
 }
 
+// Option is used to configure client with options
+type Option func(c *Client)
+
+// WithVersion optionally sets the api-version if the passed string is valid
+func WithVersion(apiVersion string) Option {
+	return func(c *Client) {
+		var rxPat = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
+		if len(apiVersion) > 0 && rxPat.MatchString(apiVersion) {
+			globalApiPathPrefix = fmt.Sprintf("admin/api/%s", apiVersion)
+		} else {
+			globalApiPathPrefix = "admin"
+		}
+	}
+}
+
 // NewClient returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
-// a.NewClient(shopName, token) is equivalent to NewClient(a, shopName, token)
-func (a App) NewClient(shopName, token string) *Client {
-	return NewClient(a, shopName, token)
+// a.NewClient(shopName, token, opts) is equivalent to NewClient(a, shopName, token, opts)
+func (a App) NewClient(shopName, token string, opts ...Option) *Client {
+	return NewClient(a, shopName, token, opts...)
 }
 
 // Returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
-func NewClient(app App, shopName, token string) *Client {
+func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	httpClient := http.DefaultClient
 
 	baseURL, _ := url.Parse(ShopBaseUrl(shopName))
@@ -217,6 +238,11 @@ func NewClient(app App, shopName, token string) *Client {
 	c.Location = &LocationServiceOp{client: c}
 	c.DiscountCode = &DiscountCodeServiceOp{client: c}
 	c.InventoryItem = &InventoryItemServiceOp{client: c}
+
+	// apply any options
+	for _, opt := range opts {
+		opt(c)
+	}
 
 	return c
 }

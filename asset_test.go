@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -20,7 +21,7 @@ func TestAssetList(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
 		httpmock.NewStringResponder(
 			200,
 			`{"assets": [{"key":"assets\/1.liquid"},{"key":"assets\/2.liquid"}]}`,
@@ -47,7 +48,7 @@ func TestAssetGet(t *testing.T) {
 	}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
 		params,
 		httpmock.NewStringResponder(
 			200,
@@ -72,7 +73,7 @@ func TestAssetUpdate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"PUT",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
 		httpmock.NewBytesResponder(
 			200,
 			loadFixture("asset.json"),
@@ -100,7 +101,7 @@ func TestAssetDelete(t *testing.T) {
 	params := map[string]string{"asset[key]": "foo/bar.liquid"}
 	httpmock.RegisterResponderWithQuery(
 		"DELETE",
-		"https://fooshop.myshopify.com/admin/themes/1/assets.json",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
 		params,
 		httpmock.NewStringResponder(200, "{}"),
 	)

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	draftOrdersBasePath     = "admin/draft_orders"
+	draftOrdersBasePath     = "draft_orders"
 	draftOrdersResourceName = "draft_orders"
 )
 
@@ -71,7 +71,7 @@ type AppliedDiscount struct {
 	Title       string `json:"applied_discount,omitempty"`
 	Description string `json:"description,omitempty"`
 	Value       string `json:"value,omitempty"`
-	ValueType   string `json:"fixed_amount,omitempty"`
+	ValueType   string `json:"value_type,omitempty"`
 	Amount      string `json:"amount,omitempty"`
 }
 
@@ -119,7 +119,7 @@ type DraftOrderCountOptions struct {
 
 // Create draft order
 func (s *DraftOrderServiceOp) Create(draftOrder DraftOrder) (*DraftOrder, error) {
-	path := fmt.Sprintf("%s.json", draftOrdersBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, draftOrdersBasePath)
 	wrappedData := DraftOrderResource{DraftOrder: &draftOrder}
 	resource := new(DraftOrderResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -128,7 +128,7 @@ func (s *DraftOrderServiceOp) Create(draftOrder DraftOrder) (*DraftOrder, error)
 
 // List draft orders
 func (s *DraftOrderServiceOp) List(options interface{}) ([]DraftOrder, error) {
-	path := fmt.Sprintf("%s.json", draftOrdersBasePath)
+	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, draftOrdersBasePath)
 	resource := new(DraftOrdersResource)
 	err := s.client.Get(path, resource, options)
 	return resource.DraftOrders, err
@@ -136,19 +136,19 @@ func (s *DraftOrderServiceOp) List(options interface{}) ([]DraftOrder, error) {
 
 // Count draft orders
 func (s *DraftOrderServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/count.json", draftOrdersBasePath)
+	path := fmt.Sprintf("%s/%s/count.json", globalApiPathPrefix, draftOrdersBasePath)
 	return s.client.Count(path, options)
 }
 
 // Delete draft orders
 func (s *DraftOrderServiceOp) Delete(draftOrderID int64) error {
-	path := fmt.Sprintf("%s/%d.json", draftOrdersBasePath, draftOrderID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, draftOrdersBasePath, draftOrderID)
 	return s.client.Delete(path)
 }
 
 // Invoice a draft order
 func (s *DraftOrderServiceOp) Invoice(draftOrderID int64, draftOrderInvoice DraftOrderInvoice) (*DraftOrderInvoice, error) {
-	path := fmt.Sprintf("%s/%d/send_invoice.json", draftOrdersBasePath, draftOrderID)
+	path := fmt.Sprintf("%s/%s/%d/send_invoice.json", globalApiPathPrefix, draftOrdersBasePath, draftOrderID)
 	wrappedData := DraftOrderInvoiceResource{DraftOrderInvoice: &draftOrderInvoice}
 	resource := new(DraftOrderInvoiceResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -157,7 +157,7 @@ func (s *DraftOrderServiceOp) Invoice(draftOrderID int64, draftOrderInvoice Draf
 
 // Get individual draft order
 func (s *DraftOrderServiceOp) Get(draftOrderID int64, options interface{}) (*DraftOrder, error) {
-	path := fmt.Sprintf("%s/%d.json", draftOrdersBasePath, draftOrderID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, draftOrdersBasePath, draftOrderID)
 	resource := new(DraftOrderResource)
 	err := s.client.Get(path, resource, options)
 	return resource.DraftOrder, err
@@ -165,7 +165,7 @@ func (s *DraftOrderServiceOp) Get(draftOrderID int64, options interface{}) (*Dra
 
 // Update draft order
 func (s *DraftOrderServiceOp) Update(draftOrder DraftOrder) (*DraftOrder, error) {
-	path := fmt.Sprintf("%s/%d.json", draftOrdersBasePath, draftOrder.ID)
+	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, draftOrdersBasePath, draftOrder.ID)
 	wrappedData := DraftOrderResource{DraftOrder: &draftOrder}
 	resource := new(DraftOrderResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -174,7 +174,7 @@ func (s *DraftOrderServiceOp) Update(draftOrder DraftOrder) (*DraftOrder, error)
 
 // Complete draft order
 func (s *DraftOrderServiceOp) Complete(draftOrderID int64, paymentPending bool) (*DraftOrder, error) {
-	path := fmt.Sprintf("%s/%d/complete.json?payment_pending=%t", draftOrdersBasePath, draftOrderID, paymentPending)
+	path := fmt.Sprintf("%s/%s/%d/complete.json?payment_pending=%t", globalApiPathPrefix, draftOrdersBasePath, draftOrderID, paymentPending)
 	resource := new(DraftOrderResource)
 	err := s.client.Put(path, nil, resource)
 	return resource.DraftOrder, err
