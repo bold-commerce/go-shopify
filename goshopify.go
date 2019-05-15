@@ -23,8 +23,8 @@ const (
 )
 
 var (
-	// Shopify API version YYYY-MM
-	globalApiPathPrefix string
+	// Shopify API version YYYY-MM - defaults to admin which uses the oldest stable version of the api
+	globalApiPathPrefix string = "admin"
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
