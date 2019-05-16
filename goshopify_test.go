@@ -76,6 +76,14 @@ func TestWithVersionNoVersion(t *testing.T) {
 	}
 }
 
+func TestWithoutVersionInInitiation(t *testing.T) {
+	_ = NewClient(app, "fooshop", "abcd")
+	expected := "admin"
+	if globalApiPathPrefix != expected {
+		t.Errorf("WithVersion globalApiPathPrefix = %s, expected %s", globalApiPathPrefix, expected)
+	}
+}
+
 func TestWithVersionInvalidVersion(t *testing.T) {
 	_ = NewClient(app, "fooshop", "abcd", WithVersion("9999-99b"))
 	expected := "admin"
