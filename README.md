@@ -152,7 +152,7 @@ type WebhooksResource struct {
 
 func FetchWebhooks() ([]Webhook, error) {
     path := "admin/webhooks.json"
-    resource := new(WebhooksResoure)
+    resource := new(WebhooksResource)
     client := goshopify.NewClient(app, "shopname", "token")
 
     // resource gets modified when calling Get
