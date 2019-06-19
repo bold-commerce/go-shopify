@@ -58,7 +58,7 @@ type Fulfillment struct {
 	TrackingUrls    []string   `json:"tracking_urls,omitempty"`
 	Receipt         Receipt    `json:"receipt,omitempty"`
 	LineItems       []LineItem `json:"line_items,omitempty"`
-	NotifyCustomer  bool       `json:"notify_customer,omitempty"`
+	NotifyCustomer  bool       `json:"notify_customer"`
 }
 
 // Receipt represents a Shopify receipt.
