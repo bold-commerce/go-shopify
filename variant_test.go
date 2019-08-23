@@ -27,6 +27,40 @@ func variantTests(t *testing.T, variant Variant) {
 	if variant.InventoryItemId != expectedInventoryItemId {
 		t.Errorf("Variant.InventoryItemId returned %+v, expected %+v", variant.InventoryItemId, expectedInventoryItemId)
 	}
+
+	expectedMetafieldCount := 0
+	if len(variant.Metafields) != expectedMetafieldCount {
+		t.Errorf("Variant.Metafield returned %+v, expected %+v", variant.Metafields, expectedMetafieldCount)
+	}
+}
+
+func variantWithMetafieldsTests(t *testing.T, variant Variant) {
+	// Check that the ID is assigned to the returned variant
+	expectedInt := int64(2)
+	if variant.ID != expectedInt {
+		t.Errorf("Variant.ID returned %+v, expected %+v", variant.ID, expectedInt)
+	}
+
+	// Check that the Title is assigned to the returned variant
+	expectedTitle := "Blue"
+	if variant.Title != expectedTitle {
+		t.Errorf("Variant.Title returned %+v, expected %+v", variant.Title, expectedTitle)
+	}
+
+	expectedInventoryItemId := int64(1)
+	if variant.InventoryItemId != expectedInventoryItemId {
+		t.Errorf("Variant.InventoryItemId returned %+v, expected %+v", variant.InventoryItemId, expectedInventoryItemId)
+	}
+
+	expectedMetafieldCount := 1
+	if len(variant.Metafields) != expectedMetafieldCount {
+		t.Errorf("Variant.Metafield returned %+v, expected %+v", variant.Metafields, expectedMetafieldCount)
+	}
+
+	expectedMetafieldDescription := "description"
+	if variant.Metafields[0].Description != expectedMetafieldDescription {
+		t.Errorf("Variant.Metafield.Description returned %+v, expected %+v", variant.Metafields[0].Description, expectedMetafieldDescription)
+	}
 }
 
 func TestVariantList(t *testing.T) {
@@ -121,6 +155,26 @@ func TestVariantCreate(t *testing.T) {
 	variantTests(t, *result)
 }
 
+func TestVariantCreateWithMetafields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants.json", globalApiPathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("variant_with_metafields.json")))
+
+	price := decimal.NewFromFloat(2)
+
+	variant := Variant{
+		Option1: "Blue",
+		Price:   &price,
+	}
+	result, err := client.Variant.Create(1, variant)
+	if err != nil {
+		t.Errorf("Variant.Create returned error: %v", err)
+	}
+	variantWithMetafieldsTests(t, *result)
+}
+
 func TestVariantUpdate(t *testing.T) {
 	setup()
 	defer teardown()
@@ -140,6 +194,35 @@ func TestVariantUpdate(t *testing.T) {
 		t.Errorf("Variant.Update returned error: %v", err)
 	}
 	variantTests(t, *returnedVariant)
+}
+
+func TestVariantWithMetafieldsUpdate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/2.json", globalApiPathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("variant_with_metafields.json")))
+
+	variant := Variant{
+		ID:      2,
+		Option1: "Green",
+		Metafields: []Metafield{
+			{
+				ID:          123,
+				Description: "Original",
+			},
+		},
+	}
+
+	variant.Option1 = "Blue"
+	variant.Metafields[0].Description = "description"
+
+	returnedVariant, err := client.Variant.Update(variant)
+	if err != nil {
+		t.Errorf("Variant.Update returned error: %v", err)
+	}
+
+	variantWithMetafieldsTests(t, *returnedVariant)
 }
 
 func TestVariantDelete(t *testing.T) {
