@@ -47,6 +47,7 @@ type Variant struct {
 	CreatedAt            *time.Time       `json:"created_at,omitempty"`
 	UpdatedAt            *time.Time       `json:"updated_at,omitempty"`
 	Taxable              bool             `json:"taxable,omitempty"`
+	TaxCode              string           `json:"tax_code,omitempty"`
 	Barcode              string           `json:"barcode,omitempty"`
 	ImageID              int64            `json:"image_id,omitempty"`
 	InventoryQuantity    int              `json:"inventory_quantity,omitempty"`
