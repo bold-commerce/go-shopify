@@ -45,6 +45,7 @@ func TestShopGet(t *testing.T) {
 		{"MoneyWithCurrencyInEmailsFormat", "${{amount}} USD", shop.MoneyWithCurrencyInEmailsFormat},
 		{"EligibleForPayments", true, shop.EligibleForPayments},
 		{"RequiresExtraPaymentsAgreement", false, shop.RequiresExtraPaymentsAgreement},
+		{"PreLaunchEnabled", false, shop.PreLaunchEnabled},
 	}
 
 	for _, c := range cases {
