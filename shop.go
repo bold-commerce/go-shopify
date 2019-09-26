@@ -68,6 +68,7 @@ type Shop struct {
 	MoneyWithCurrencyInEmailsFormat string     `json:"money_with_currency_in_emails_format"`
 	EligibleForPayments             bool       `json:"eligible_for_payments"`
 	RequiresExtraPaymentsAgreement  bool       `json:"requires_extra_payments_agreement"`
+	PreLaunchEnabled                bool       `json:"pre_launch_enabled"`
 }
 
 // Represents the result from the admin/shop.json endpoint
