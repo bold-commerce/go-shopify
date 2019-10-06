@@ -63,6 +63,7 @@ type Client struct {
 	DraftOrder                 DraftOrderService
 	Shop                       ShopService
 	Webhook                    WebhookService
+	Fulfillment                FulfillmentService
 	Variant                    VariantService
 	Image                      ImageService
 	Transaction                TransactionService
@@ -238,6 +239,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.Location = &LocationServiceOp{client: c}
 	c.DiscountCode = &DiscountCodeServiceOp{client: c}
 	c.InventoryItem = &InventoryItemServiceOp{client: c}
+	c.Fulfillment = &FulfillmentServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {
