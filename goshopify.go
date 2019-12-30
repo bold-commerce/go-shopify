@@ -91,6 +91,18 @@ type ResponseError struct {
 	Errors  []string
 }
 
+func (e ResponseError) GetStatus() int {
+	return e.Status
+}
+
+func (e ResponseError) GetMessage() string {
+	return e.Message
+}
+
+func (e ResponseError) GetErrors() []string {
+	return e.Errors
+}
+
 func (e ResponseError) Error() string {
 	if e.Message != "" {
 		return e.Message

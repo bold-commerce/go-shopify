@@ -481,6 +481,24 @@ func TestCreateAndDo(t *testing.T) {
 	}
 }
 
+func TestResponseErrorStructError(t *testing.T) {
+	res := ResponseError{
+		Status:  400,
+		Message: "invalid email",
+		Errors:  []string{"invalid email"},
+	}
+
+	expected := ResponseError{
+		Status:  res.GetStatus(),
+		Message: res.GetMessage(),
+		Errors:  res.GetErrors(),
+	}
+	if !reflect.DeepEqual(res, expected) {
+		t.Errorf("ResponseError returned  %+v, expected %+v", res, expected)
+	}
+
+}
+
 func TestResponseErrorError(t *testing.T) {
 	cases := []struct {
 		err      ResponseError
