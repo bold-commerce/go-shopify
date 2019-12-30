@@ -117,7 +117,7 @@ func (s *ProductServiceOp) Delete(productID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, productsBasePath, productID))
 }
 
-// List metafields for a product
+// ListMetafields for a product
 func (s *ProductServiceOp) ListMetafields(productID int64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceID: productID}
 	return metafieldService.List(options)
@@ -129,25 +129,25 @@ func (s *ProductServiceOp) CountMetafields(productID int64, options interface{})
 	return metafieldService.Count(options)
 }
 
-// Get individual metafield for a product
+// GetMetafield for a product
 func (s *ProductServiceOp) GetMetafield(productID int64, metafieldID int64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceID: productID}
 	return metafieldService.Get(metafieldID, options)
 }
 
-// Create a new metafield for a product
+// CreateMetafield for a product
 func (s *ProductServiceOp) CreateMetafield(productID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceID: productID}
 	return metafieldService.Create(metafield)
 }
 
-// Update an existing metafield for a product
+// UpdateMetafield for a product
 func (s *ProductServiceOp) UpdateMetafield(productID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceID: productID}
 	return metafieldService.Update(metafield)
 }
 
-// // Delete an existing metafield for a product
+// DeleteMetafield for a product
 func (s *ProductServiceOp) DeleteMetafield(productID int64, metafieldID int64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceID: productID}
 	return metafieldService.Delete(metafieldID)
