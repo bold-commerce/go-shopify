@@ -250,7 +250,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 // Do sends an API request and populates the given interface with the parsed
 // response. It does not make much sense to call Do without a prepared
 // interface instance.
-func (c *Client) Do(req *http.Request, v interface{}) error {
+func (c *Client) Do(req *http.Request, v interface{}, headers *http.Header) error {
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		return err
@@ -270,6 +270,9 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 		}
 	}
 
+	if (headers != nil) {
+		*headers = resp.Header
+	}
 	return nil
 }
 
@@ -376,7 +379,6 @@ func CheckResponseError(r *http.Response) error {
 
 // General list options that can be used for most collections of entities.
 type ListOptions struct {
-	Page         int       `url:"page,omitempty"`
 	Limit        int       `url:"limit,omitempty"`
 	SinceID      int64     `url:"since_id,omitempty"`
 	CreatedAtMin time.Time `url:"created_at_min,omitempty"`
@@ -387,6 +389,7 @@ type ListOptions struct {
 	Fields       string    `url:"fields,omitempty"`
 	Vendor       string    `url:"vendor,omitempty"`
 	IDs          []int64   `url:"ids,omitempty,comma"`
+	PageInfo     string    `url:"page_info,omitempty"`
 }
 
 // General count options that can be used for most collection counts.
@@ -414,13 +417,13 @@ func (c *Client) Count(path string, options interface{}) (int, error) {
 // The options argument is used for specifying request options such as search
 // parameters like created_at_min
 // Any data returned from Shopify will be marshalled into resource argument.
-func (c *Client) CreateAndDo(method, path string, data, options, resource interface{}) error {
+func (c *Client) CreateAndDo(method, path string, data, options, resource interface{}, headers *http.Header) error {
 	req, err := c.NewRequest(method, path, data, options)
 	if err != nil {
 		return err
 	}
 
-	err = c.Do(req, resource)
+	err = c.Do(req, resource, headers)
 	if err != nil {
 		return err
 	}
@@ -431,22 +434,22 @@ func (c *Client) CreateAndDo(method, path string, data, options, resource interf
 // Get performs a GET request for the given path and saves the result in the
 // given resource.
 func (c *Client) Get(path string, resource, options interface{}) error {
-	return c.CreateAndDo("GET", path, nil, options, resource)
+	return c.CreateAndDo("GET", path, nil, options, resource, nil)
 }
 
 // Post performs a POST request for the given path and saves the result in the
 // given resource.
 func (c *Client) Post(path string, data, resource interface{}) error {
-	return c.CreateAndDo("POST", path, data, nil, resource)
+	return c.CreateAndDo("POST", path, data, nil, resource, nil)
 }
 
 // Put performs a PUT request for the given path and saves the result in the
 // given resource.
 func (c *Client) Put(path string, data, resource interface{}) error {
-	return c.CreateAndDo("PUT", path, data, nil, resource)
+	return c.CreateAndDo("PUT", path, data, nil, resource, nil)
 }
 
 // Delete performs a DELETE request for the given path
 func (c *Client) Delete(path string) error {
-	return c.CreateAndDo("DELETE", path, nil, nil, nil)
+	return c.CreateAndDo("DELETE", path, nil, nil, nil, nil)
 }

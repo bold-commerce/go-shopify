@@ -338,7 +338,8 @@ func TestDo(t *testing.T) {
 
 		body := new(MyStruct)
 		req, _ := client.NewRequest("GET", c.url, nil, nil)
-		err := client.Do(req, body)
+		headers := new(http.Header)
+		err := client.Do(req, body, headers)
 
 		if err != nil {
 			if e, ok := err.(*url.Error); ok {
@@ -413,11 +414,12 @@ func TestCustomHTTPClientDo(t *testing.T) {
 		httpmock.RegisterResponder("GET", shopUrl, c.responder)
 
 		body := new(MyStruct)
+		headers := new(http.Header)
 		req, err := client.NewRequest("GET", c.url, nil, nil)
 		if err != nil {
 			t.Fatal(c.url, err)
 		}
-		err = client.Do(req, body)
+		err = client.Do(req, body, headers)
 		if err != nil {
 			t.Fatal(c.url, err)
 		}
@@ -471,7 +473,8 @@ func TestCreateAndDo(t *testing.T) {
 	for _, c := range cases {
 		httpmock.RegisterResponder("GET", c.url, c.responder)
 		body := new(MyStruct)
-		err := client.CreateAndDo("GET", c.url, nil, nil, body)
+		headers := new(http.Header)
+		err := client.CreateAndDo("GET", c.url, nil, nil, body, headers)
 
 		if err != nil && fmt.Sprint(err) != fmt.Sprint(c.expected) {
 			t.Errorf("CreateAndDo(): expected error %v, actual %v", c.expected, err)
