@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -56,6 +57,101 @@ func TestProductListFilterByIds(t *testing.T) {
 	expected := []Product{{ID: 1}, {ID: 2}, {ID: 3}}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
+	}
+}
+
+func TestProductListWithPagination(t *testing.T) {
+	setup()
+	defer teardown()
+
+	listUrl := fmt.Sprintf("https://fooshop.myshopify.com/%s/products.json", globalApiPathPrefix)
+
+	cases := []struct {
+		body string
+		linkHeader string
+		expectedProducts []Product
+		expectedPagination Pagination
+		expectedErr error
+	}{
+		{
+			`{"products": [{"id":1},{"id":2}]}`,
+			"",
+			[]Product{{ID: 1}, {ID: 2}},
+			Pagination{},
+			nil,
+		},
+		{
+			"{}",
+			"invalid link",
+			[]Product(nil),
+			Pagination{},
+			ResponseDecodingError{Message: "could not extract pagination link header"},
+		},
+		{
+			"{}",
+			`<:invalid.url>; rel="next"`,
+			[]Product(nil),
+			Pagination{},
+			ResponseDecodingError{Message: "pagination does not contain a valid URL"},
+		},
+		{
+			"{}",
+			`<http://valid.url>; rel="next"`,
+			[]Product(nil),
+			Pagination{},
+			ResponseDecodingError{Message: "page_info is missing"},
+		},
+		{
+			`{"products": [{"id":1}]}`,
+			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
+			[]Product{{ID: 1}},
+			Pagination{
+				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
+			},
+			nil,
+		},
+		{
+			`{"products": [{"id":2}]}`,
+			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
+			[]Product{{ID: 2}},
+			Pagination{
+				NextPageOptions: &ListOptions{PageInfo: "foo"},
+				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
+			},
+			nil,
+		},
+	}
+	for _, c := range cases {
+		response := &http.Response{
+			StatusCode: 200, 
+			Body:	httpmock.NewRespBodyFromString(c.body),
+			Header:	http.Header{
+				"Link": {c.linkHeader},
+			},
+		}
+
+		httpmock.RegisterResponder("GET", listUrl, httpmock.ResponderFromResponse(response))
+
+		products, pagination, err := client.Product.ListWithPagination(nil)
+		if !reflect.DeepEqual(products, c.expectedProducts) {
+			t.Errorf("Product.ListWithPagination products returned %+v, expected %+v", products, c.expectedProducts)
+		}
+
+		if !reflect.DeepEqual(pagination, c.expectedPagination) {
+			t.Errorf(
+				"Product.ListWithPagination pagination returned %+v, expected %+v", 
+				pagination, 
+				c.expectedPagination,
+			)
+		}
+
+		if !reflect.DeepEqual(err, c.expectedErr) {
+			t.Errorf(
+				"Product.ListWithPagination err returned %+v, expected %+v", 
+				err, 
+				c.expectedErr,
+			)
+		}
 	}
 }
 

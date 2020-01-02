@@ -2,6 +2,11 @@ package goshopify
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -13,6 +18,7 @@ const productsResourceName = "products"
 // See: https://help.shopify.com/api/reference/product
 type ProductService interface {
 	List(interface{}) ([]Product, error)
+	ListWithPagination(interface{}) ([]Product, Pagination, error)
 	Count(interface{}) (int, error)
 	Get(int64, interface{}) (*Product, error)
 	Create(Product) (*Product, error)
@@ -72,12 +78,99 @@ type ProductsResource struct {
 	Products []Product `json:"products"`
 }
 
+// Pagination of results
+type Pagination struct {
+	NextPageOptions		*ListOptions
+	PreviousPageOptions *ListOptions
+}
+
 // List products
 func (s *ProductServiceOp) List(options interface{}) ([]Product, error) {
+	products, _, err := s.ListWithPagination(options)
+	return products, err
+}
+
+// List products and return pagination to retrieve next/previous results
+func (s *ProductServiceOp) ListWithPagination(options interface{}) ([]Product, Pagination, error) {
 	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, productsBasePath)
 	resource := new(ProductsResource)
-	err := s.client.Get(path, resource, options)
-	return resource.Products, err
+	headers := http.Header{}
+
+	err := s.client.CreateAndDo("GET", path, nil, options, resource, &headers)
+
+	// Extract pagination from header
+	linkHeader := ""
+	_, ok := headers["Link"]
+	if ok {
+		linkHeader = headers["Link"][0]
+	}
+	pagination, err := extractPagination(linkHeader)
+
+	return resource.Products, pagination, err
+}
+
+// Extract pagination from the Link header 
+// Details on the format are here:
+// https://help.shopify.com/en/api/guides/paginated-rest-results
+func extractPagination(linkHeader string) (Pagination, error) {
+	pagination := Pagination{}
+	
+	if linkHeader == "" {
+		return pagination, nil
+	}
+
+	linkRegex := regexp.MustCompile(`^ *<([^>]+)>; rel="(previous|next)" *$`)
+
+	for _, link := range strings.Split(linkHeader, ",") {
+		match := linkRegex.FindStringSubmatch(link); 
+		if len(match) == 0 {
+			err := ResponseDecodingError{
+				Message: "could not extract pagination link header",
+			}
+			return pagination, err
+		}
+
+		rel, err := url.Parse(match[1])
+		if err != nil {
+			err = ResponseDecodingError{
+				Message: "pagination does not contain a valid URL",
+			}
+			return pagination, err 
+		}
+
+		params, _ := url.ParseQuery(rel.RawQuery)
+
+		paginationListOptions := ListOptions{}
+
+		paginationListOptions.PageInfo = getSingleValueParam(params, "page_info")
+		if paginationListOptions.PageInfo == "" {
+			err = ResponseDecodingError{
+				Message: "page_info is missing",
+			}
+			return pagination, err
+		}
+
+		paginationListOptions.Limit, _ = strconv.Atoi(getSingleValueParam(params, "limit"))
+
+		// 'rel' is either next or previous
+		if match[2] == "next" {
+			pagination.NextPageOptions = &paginationListOptions
+		} else {
+			pagination.PreviousPageOptions = &paginationListOptions
+		}
+	}
+
+	return pagination, nil
+}
+
+// Gets the value from a param that has only 1 value, defaults to empty string
+func getSingleValueParam(params url.Values, name string) string {
+	values, ok := params[name]
+	if ok {
+		return values[0]
+	}
+
+	return ""
 }
 
 // Count products
