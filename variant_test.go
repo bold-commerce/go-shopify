@@ -367,3 +367,61 @@ func TestVariantDeleteMetafield(t *testing.T) {
 		t.Errorf("Variant.DeleteMetafield() returned error: %v", err)
 	}
 }
+
+func TestVariantListWithTaxCode(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants.json", globalApiPathPrefix),
+		httpmock.NewStringResponder(200, `{"variants": [{"id":1, "tax_code":"P001"},{"id":2, "tax_code":"P002"}]}`))
+
+	variants, err := client.Variant.List(1, nil)
+	if err != nil {
+		t.Errorf("Variant.List returned error: %v", err)
+	}
+
+	expected := []Variant{{ID: 1, TaxCode:"P001"}, {ID: 2, TaxCode:"P002"}}
+	if !reflect.DeepEqual(variants, expected) {
+		t.Errorf("Variant.List returned %+v, expected %+v", variants, expected)
+	}
+}
+
+
+func TestVariantGetWithTaxCode(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1.json", globalApiPathPrefix),
+		httpmock.NewStringResponder(200, `{"variant": {"id":1, "tax_code":"P001"}}`))
+
+	variant, err := client.Variant.Get(1, nil)
+	if err != nil {
+		t.Errorf("Variant.Get returned error: %v", err)
+	}
+
+	expected := &Variant{ID: 1, TaxCode:"P001"}
+	if !reflect.DeepEqual(variant, expected) {
+		t.Errorf("Variant.Get returned %+v, expected %+v", variant, expected)
+	}
+}
+
+func TestVariantCreateWithTaxCode(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/variants.json", globalApiPathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("variant_with_taxcode.json")))
+
+	price := decimal.NewFromFloat(1)
+
+	variant := Variant{
+		Option1: "Yellow",
+		Price:   &price,
+		TaxCode: "P001",
+	}
+	result, err := client.Variant.Create(1, variant)
+	if err != nil {
+		t.Errorf("Variant.Create returned error: %v", err)
+	}
+	variantTests(t, *result)
+}
