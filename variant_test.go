@@ -237,3 +237,133 @@ func TestVariantDelete(t *testing.T) {
 		t.Errorf("Variant.Delete returned error: %v", err)
 	}
 }
+
+func TestVariantListMetafields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1/metafields.json", globalApiPathPrefix),
+		httpmock.NewStringResponder(200, `{"metafields": [{"id":1},{"id":2}]}`))
+
+	metafields, err := client.Variant.ListMetafields(1, nil)
+	if err != nil {
+		t.Errorf("Variant.ListMetafields() returned error: %v", err)
+	}
+
+	expected := []Metafield{{ID: 1}, {ID: 2}}
+	if !reflect.DeepEqual(metafields, expected) {
+		t.Errorf("Variant.ListMetafields() returned %+v, expected %+v", metafields, expected)
+	}
+}
+
+func TestVariantCountMetafields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1/metafields/count.json", globalApiPathPrefix),
+		httpmock.NewStringResponder(200, `{"count": 3}`))
+
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1/metafields/count.json", globalApiPathPrefix),
+		params,
+		httpmock.NewStringResponder(200, `{"count": 2}`))
+
+	cnt, err := client.Variant.CountMetafields(1, nil)
+	if err != nil {
+		t.Errorf("Variant.CountMetafields() returned error: %v", err)
+	}
+
+	expected := 3
+	if cnt != expected {
+		t.Errorf("Variant.CountMetafields() returned %d, expected %d", cnt, expected)
+	}
+
+	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
+	cnt, err = client.Variant.CountMetafields(1, CountOptions{CreatedAtMin: date})
+	if err != nil {
+		t.Errorf("Variant.CountMetafields() returned error: %v", err)
+	}
+
+	expected = 2
+	if cnt != expected {
+		t.Errorf("Variant.CountMetafields() returned %d, expected %d", cnt, expected)
+	}
+}
+
+func TestVariantGetMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1/metafields/2.json", globalApiPathPrefix),
+		httpmock.NewStringResponder(200, `{"metafield": {"id":2}}`))
+
+	metafield, err := client.Variant.GetMetafield(1, 2, nil)
+	if err != nil {
+		t.Errorf("Variant.GetMetafield() returned error: %v", err)
+	}
+
+	expected := &Metafield{ID: 2}
+	if !reflect.DeepEqual(metafield, expected) {
+		t.Errorf("Variant.GetMetafield() returned %+v, expected %+v", metafield, expected)
+	}
+}
+
+func TestVariantCreateMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1/metafields.json", globalApiPathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
+
+	metafield := Metafield{
+		Key:       "app_key",
+		Value:     "app_value",
+		ValueType: "string",
+		Namespace: "affiliates",
+	}
+
+	returnedMetafield, err := client.Variant.CreateMetafield(1, metafield)
+	if err != nil {
+		t.Errorf("Variant.CreateMetafield() returned error: %v", err)
+	}
+
+	MetafieldTests(t, *returnedMetafield)
+}
+
+func TestVariantUpdateMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1/metafields/2.json", globalApiPathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
+
+	metafield := Metafield{
+		ID:        2,
+		Key:       "app_key",
+		Value:     "app_value",
+		ValueType: "string",
+		Namespace: "affiliates",
+	}
+
+	returnedMetafield, err := client.Variant.UpdateMetafield(1, metafield)
+	if err != nil {
+		t.Errorf("Variant.UpdateMetafield() returned error: %v", err)
+	}
+
+	MetafieldTests(t, *returnedMetafield)
+}
+
+func TestVariantDeleteMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1/metafields/2.json", globalApiPathPrefix),
+		httpmock.NewStringResponder(200, "{}"))
+
+	err := client.Variant.DeleteMetafield(1, 2)
+	if err != nil {
+		t.Errorf("Variant.DeleteMetafield() returned error: %v", err)
+	}
+}
