@@ -7,8 +7,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func TestAppAuthorizeUrl(t *testing.T) {
