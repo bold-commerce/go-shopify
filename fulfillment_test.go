@@ -21,7 +21,7 @@ func TestFulfillmentList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments.json", defaultApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"fulfillments": [{"id":1},{"id":2}]}`))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -41,13 +41,13 @@ func TestFulfillmentCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/count.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/count.json", defaultApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/count.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/count.json", defaultApiPathPrefix),
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
@@ -79,7 +79,7 @@ func TestFulfillmentGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1.json", defaultApiPathPrefix),
 		httpmock.NewStringResponder(200, `{"fulfillment": {"id":1}}`))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -99,7 +99,7 @@ func TestFulfillmentCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments.json", defaultApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -126,7 +126,7 @@ func TestFulfillmentUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1022782888.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1022782888.json", defaultApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -148,7 +148,7 @@ func TestFulfillmentComplete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/complete.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/complete.json", defaultApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -165,7 +165,7 @@ func TestFulfillmentTransition(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/open.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/open.json", defaultApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
@@ -182,7 +182,7 @@ func TestFulfillmentCancel(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/cancel.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/cancel.json", defaultApiPathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}

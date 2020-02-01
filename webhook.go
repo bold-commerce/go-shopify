@@ -55,7 +55,7 @@ type WebhooksResource struct {
 
 // List webhooks
 func (s *WebhookServiceOp) List(options interface{}) ([]Webhook, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, webhooksBasePath)
+	path := fmt.Sprintf("%s.json", webhooksBasePath)
 	resource := new(WebhooksResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Webhooks, err
@@ -63,13 +63,13 @@ func (s *WebhookServiceOp) List(options interface{}) ([]Webhook, error) {
 
 // Count webhooks
 func (s *WebhookServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalApiPathPrefix, webhooksBasePath)
+	path := fmt.Sprintf("%s/count.json", webhooksBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get individual webhook
 func (s *WebhookServiceOp) Get(webhookdID int64, options interface{}) (*Webhook, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, webhooksBasePath, webhookdID)
+	path := fmt.Sprintf("%s/%d.json", webhooksBasePath, webhookdID)
 	resource := new(WebhookResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Webhook, err
@@ -77,7 +77,7 @@ func (s *WebhookServiceOp) Get(webhookdID int64, options interface{}) (*Webhook,
 
 // Create a new webhook
 func (s *WebhookServiceOp) Create(webhook Webhook) (*Webhook, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, webhooksBasePath)
+	path := fmt.Sprintf("%s.json", webhooksBasePath)
 	wrappedData := WebhookResource{Webhook: &webhook}
 	resource := new(WebhookResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -86,7 +86,7 @@ func (s *WebhookServiceOp) Create(webhook Webhook) (*Webhook, error) {
 
 // Update an existing webhook.
 func (s *WebhookServiceOp) Update(webhook Webhook) (*Webhook, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, webhooksBasePath, webhook.ID)
+	path := fmt.Sprintf("%s/%d.json", webhooksBasePath, webhook.ID)
 	wrappedData := WebhookResource{Webhook: &webhook}
 	resource := new(WebhookResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -95,5 +95,5 @@ func (s *WebhookServiceOp) Update(webhook Webhook) (*Webhook, error) {
 
 // Delete an existing webhooks
 func (s *WebhookServiceOp) Delete(ID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, webhooksBasePath, ID))
+	return s.client.Delete(fmt.Sprintf("%s/%d.json", webhooksBasePath, ID))
 }

@@ -98,7 +98,7 @@ func TestList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses.json", globalApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_addresses.json")))
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses.json", defaultApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_addresses.json")))
 
 	addresses, err := client.CustomerAddress.List(1, nil)
 	if err != nil {
@@ -115,7 +115,7 @@ func TestGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses/1.json", globalApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses/1.json", defaultApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
 
 	address, err := client.CustomerAddress.Get(1, 1, nil)
 	if err != nil {
@@ -129,7 +129,7 @@ func TestCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses.json", globalApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses.json", defaultApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
 
 	address, err := client.CustomerAddress.Create(1, CustomerAddress{})
 	if err != nil {
@@ -143,7 +143,7 @@ func TestUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses/1.json", globalApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses/1.json", defaultApiPathPrefix), httpmock.NewBytesResponder(200, loadFixture("customer_address.json")))
 
 	address, err := client.CustomerAddress.Update(1, CustomerAddress{ID: 1})
 	if err != nil {
@@ -157,7 +157,7 @@ func TestDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses/1.json", globalApiPathPrefix), httpmock.NewStringResponder(200, "{}"))
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/addresses/1.json", defaultApiPathPrefix), httpmock.NewStringResponder(200, "{}"))
 
 	err := client.CustomerAddress.Delete(1, 1)
 	if err != nil {

@@ -30,7 +30,7 @@ type TransactionsResource struct {
 
 // List transactions
 func (s *TransactionServiceOp) List(orderID int64, options interface{}) ([]Transaction, error) {
-	path := fmt.Sprintf("%s/%s/%d/transactions.json", globalApiPathPrefix, ordersBasePath, orderID)
+	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderID)
 	resource := new(TransactionsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Transactions, err
@@ -38,13 +38,13 @@ func (s *TransactionServiceOp) List(orderID int64, options interface{}) ([]Trans
 
 // Count transactions
 func (s *TransactionServiceOp) Count(orderID int64, options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/%d/transactions/count.json", globalApiPathPrefix, ordersBasePath, orderID)
+	path := fmt.Sprintf("%s/%d/transactions/count.json", ordersBasePath, orderID)
 	return s.client.Count(path, options)
 }
 
 // Get individual transaction
 func (s *TransactionServiceOp) Get(orderID int64, transactionID int64, options interface{}) (*Transaction, error) {
-	path := fmt.Sprintf("%s/%s/%d/transactions/%d.json", globalApiPathPrefix, ordersBasePath, orderID, transactionID)
+	path := fmt.Sprintf("%s/%d/transactions/%d.json", ordersBasePath, orderID, transactionID)
 	resource := new(TransactionResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Transaction, err
@@ -52,7 +52,7 @@ func (s *TransactionServiceOp) Get(orderID int64, transactionID int64, options i
 
 // Create a new transaction
 func (s *TransactionServiceOp) Create(orderID int64, transaction Transaction) (*Transaction, error) {
-	path := fmt.Sprintf("%s/%s/%d/transactions.json", globalApiPathPrefix, ordersBasePath, orderID)
+	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderID)
 	wrappedData := TransactionResource{Transaction: &transaction}
 	resource := new(TransactionResource)
 	err := s.client.Post(path, wrappedData, resource)
