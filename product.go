@@ -86,7 +86,7 @@ type ProductsResource struct {
 
 // List products
 func (s *ProductServiceOp) List(options interface{}) ([]Product, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, productsBasePath)
+	path := fmt.Sprintf("%s.json", productsBasePath)
 	resource := new(ProductsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Products, err
@@ -94,13 +94,13 @@ func (s *ProductServiceOp) List(options interface{}) ([]Product, error) {
 
 // Count products
 func (s *ProductServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalApiPathPrefix, productsBasePath)
+	path := fmt.Sprintf("%s/count.json", productsBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get individual product
 func (s *ProductServiceOp) Get(productID int64, options interface{}) (*Product, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, productsBasePath, productID)
+	path := fmt.Sprintf("%s/%d.json", productsBasePath, productID)
 	resource := new(ProductResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Product, err
@@ -108,7 +108,7 @@ func (s *ProductServiceOp) Get(productID int64, options interface{}) (*Product, 
 
 // Create a new product
 func (s *ProductServiceOp) Create(product Product) (*Product, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, productsBasePath)
+	path := fmt.Sprintf("%s.json", productsBasePath)
 	wrappedData := ProductResource{Product: &product}
 	resource := new(ProductResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -117,7 +117,7 @@ func (s *ProductServiceOp) Create(product Product) (*Product, error) {
 
 // Update an existing product
 func (s *ProductServiceOp) Update(product Product) (*Product, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, productsBasePath, product.ID)
+	path := fmt.Sprintf("%s/%d.json", productsBasePath, product.ID)
 	wrappedData := ProductResource{Product: &product}
 	resource := new(ProductResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -126,7 +126,7 @@ func (s *ProductServiceOp) Update(product Product) (*Product, error) {
 
 // Delete an existing product
 func (s *ProductServiceOp) Delete(productID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, productsBasePath, productID))
+	return s.client.Delete(fmt.Sprintf("%s/%d.json", productsBasePath, productID))
 }
 
 // ListMetafields for a product

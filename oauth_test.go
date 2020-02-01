@@ -1,13 +1,12 @@
 package goshopify
 
 import (
-	"net/url"
-	"testing"
-
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
+	"testing"
 
 	"github.com/jarcoal/httpmock"
 )
@@ -39,6 +38,7 @@ func TestAppGetAccessToken(t *testing.T) {
 	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
 		httpmock.NewStringResponder(200, `{"access_token":"footoken"}`))
 
+	app.Client = client
 	token, err := app.GetAccessToken("fooshop", "foocode")
 
 	if err != nil {
