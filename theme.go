@@ -55,7 +55,7 @@ type ThemesResource struct {
 
 // List all themes
 func (s *ThemeServiceOp) List(options interface{}) ([]Theme, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, themesBasePath)
+	path := fmt.Sprintf("%s.json", themesBasePath)
 	resource := new(ThemesResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Themes, err
@@ -63,7 +63,7 @@ func (s *ThemeServiceOp) List(options interface{}) ([]Theme, error) {
 
 // Update a theme
 func (s *ThemeServiceOp) Create(theme Theme) (*Theme, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, themesBasePath)
+	path := fmt.Sprintf("%s.json", themesBasePath)
 	wrappedData := ThemeResource{Theme: &theme}
 	resource := new(ThemeResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -72,7 +72,7 @@ func (s *ThemeServiceOp) Create(theme Theme) (*Theme, error) {
 
 // Get a theme
 func (s *ThemeServiceOp) Get(themeID int64, options interface{}) (*Theme, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, themesBasePath, themeID)
+	path := fmt.Sprintf("%s/%d.json", themesBasePath, themeID)
 	resource := new(ThemeResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Theme, err
@@ -80,7 +80,7 @@ func (s *ThemeServiceOp) Get(themeID int64, options interface{}) (*Theme, error)
 
 // Update a theme
 func (s *ThemeServiceOp) Update(theme Theme) (*Theme, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, themesBasePath, theme.ID)
+	path := fmt.Sprintf("%s/%d.json", themesBasePath, theme.ID)
 	wrappedData := ThemeResource{Theme: &theme}
 	resource := new(ThemeResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -89,6 +89,6 @@ func (s *ThemeServiceOp) Update(theme Theme) (*Theme, error) {
 
 // Delete a theme
 func (s *ThemeServiceOp) Delete(themeID int64) error {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, themesBasePath, themeID)
+	path := fmt.Sprintf("%s/%d.json", themesBasePath, themeID)
 	return s.client.Delete(path)
 }

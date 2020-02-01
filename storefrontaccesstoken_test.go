@@ -39,7 +39,7 @@ func TestStorefrontAccessTokenList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("storefront_access_tokens.json")))
 
 	storefrontAccessTokens, err := client.StorefrontAccessToken.List(nil)
@@ -58,7 +58,7 @@ func TestStorefrontAccessTokenCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("storefront_access_token.json")))
 
 	storefrontAccessToken := StorefrontAccessToken{
@@ -77,7 +77,7 @@ func TestStorefrontAccessTokenDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens/755357713.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens/755357713.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
 	err := client.StorefrontAccessToken.Delete(755357713)

@@ -7,8 +7,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
+
+	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TestAppAuthorizeUrl(t *testing.T) {
@@ -38,6 +39,7 @@ func TestAppGetAccessToken(t *testing.T) {
 	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
 		httpmock.NewStringResponder(200, `{"access_token":"footoken"}`))
 
+	app.Client = client
 	token, err := app.GetAccessToken("fooshop", "foocode")
 
 	if err != nil {

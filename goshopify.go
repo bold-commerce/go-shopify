@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path"
 	"reflect"
 	"regexp"
 	"sort"
@@ -20,11 +21,16 @@ import (
 
 const (
 	UserAgent = "goshopify/1.0.0"
+
+	// Shopify API version YYYY-MM - defaults to admin which uses the oldest stable version of the api
+	defaultApiPathPrefix = "admin"
+	defaultApiVersion    = "stable"
+	defaultHttpTimeout   = 10
 )
 
 var (
-	// Shopify API version YYYY-MM - defaults to admin which uses the oldest stable version of the api
-	globalApiPathPrefix string = "admin"
+	// version regex match
+	apiVersionRegex = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
@@ -35,6 +41,7 @@ type App struct {
 	RedirectUrl string
 	Scope       string
 	Password    string
+	Client      *Client // see GetAccessToken
 }
 
 // Client manages communication with the Shopify API.
@@ -49,6 +56,12 @@ type Client struct {
 	// This is set on a per-store basis which means that each store must have
 	// its own client.
 	baseURL *url.URL
+
+	// URL Prefix, defaults to "admin" see WithVersion
+	pathPrefix string
+
+	// version you're currently using of the api, defaults to "stable"
+	apiVersion string
 
 	// A permanent access token
 	token string
@@ -144,8 +157,8 @@ type RateLimitError struct {
 // be resolved to the BaseURL of the Client. Relative URLS should always be
 // specified without a preceding slash. If specified, the value pointed to by
 // body is JSON encoded and included as the request body.
-func (c *Client) NewRequest(method, urlStr string, body, options interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+func (c *Client) NewRequest(method, relPath string, body, options interface{}) (*http.Request, error) {
+	rel, err := url.Parse(relPath)
 	if err != nil {
 		return nil, err
 	}
@@ -200,12 +213,12 @@ type Option func(c *Client)
 // WithVersion optionally sets the api-version if the passed string is valid
 func WithVersion(apiVersion string) Option {
 	return func(c *Client) {
-		var rxPat = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
-		if len(apiVersion) > 0 && rxPat.MatchString(apiVersion) {
-			globalApiPathPrefix = fmt.Sprintf("admin/api/%s", apiVersion)
-		} else {
-			globalApiPathPrefix = "admin"
+		pathPrefix := defaultApiPathPrefix
+		if len(apiVersion) > 0 && apiVersionRegex.MatchString(apiVersion) {
+			pathPrefix = fmt.Sprintf("admin/api/%s", apiVersion)
 		}
+		c.apiVersion = apiVersion
+		c.pathPrefix = pathPrefix
 	}
 }
 
@@ -221,11 +234,22 @@ func (a App) NewClient(shopName, token string, opts ...Option) *Client {
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
 func NewClient(app App, shopName, token string, opts ...Option) *Client {
-	httpClient := http.DefaultClient
+	baseURL, err := url.Parse(ShopBaseUrl(shopName))
+	if err != nil {
+		panic(err) // something really wrong with shopName
+	}
 
-	baseURL, _ := url.Parse(ShopBaseUrl(shopName))
+	c := &Client{
+		Client: &http.Client{
+			Timeout: time.Second * defaultHttpTimeout,
+		},
+		app:        app,
+		baseURL:    baseURL,
+		token:      token,
+		apiVersion: defaultApiVersion,
+		pathPrefix: defaultApiPathPrefix,
+	}
 
-	c := &Client{Client: httpClient, app: app, baseURL: baseURL, token: token}
 	c.Product = &ProductServiceOp{client: c}
 	c.CustomCollection = &CustomCollectionServiceOp{client: c}
 	c.SmartCollection = &SmartCollectionServiceOp{client: c}
@@ -275,6 +299,11 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 	err = CheckResponseError(resp)
 	if err != nil {
 		return err
+	}
+
+	if c.apiVersion == defaultApiVersion && resp.Header.Get("X-Shopify-API-Version") != "" {
+		// if using stable on first request set the api version
+		c.apiVersion = resp.Header.Get("X-Shopify-API-Version")
 	}
 
 	if v != nil {
@@ -429,8 +458,14 @@ func (c *Client) Count(path string, options interface{}) (int, error) {
 // The options argument is used for specifying request options such as search
 // parameters like created_at_min
 // Any data returned from Shopify will be marshalled into resource argument.
-func (c *Client) CreateAndDo(method, path string, data, options, resource interface{}) error {
-	req, err := c.NewRequest(method, path, data, options)
+func (c *Client) CreateAndDo(method, relPath string, data, options, resource interface{}) error {
+	if strings.HasPrefix("/", relPath) {
+		// make sure it's a relative path
+		relPath = strings.TrimLeft(relPath, "/")
+	}
+
+	relPath = path.Join(c.pathPrefix, relPath)
+	req, err := c.NewRequest(method, relPath, data, options)
 	if err != nil {
 		return err
 	}

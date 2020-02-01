@@ -61,34 +61,34 @@ func loadFixture(filename string) []byte {
 }
 
 func TestWithVersion(t *testing.T) {
-	_ = NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	c := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 	expected := fmt.Sprintf("admin/api/%s", testApiVersion)
-	if globalApiPathPrefix != expected {
-		t.Errorf("WithVersion globalApiPathPrefix = %s, expected %s", globalApiPathPrefix, expected)
+	if c.pathPrefix != expected {
+		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
 	}
 }
 
 func TestWithVersionNoVersion(t *testing.T) {
-	_ = NewClient(app, "fooshop", "abcd", WithVersion(""))
+	c := NewClient(app, "fooshop", "abcd", WithVersion(""))
 	expected := "admin"
-	if globalApiPathPrefix != expected {
-		t.Errorf("WithVersion globalApiPathPrefix = %s, expected %s", globalApiPathPrefix, expected)
+	if c.pathPrefix != expected {
+		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
 	}
 }
 
 func TestWithoutVersionInInitiation(t *testing.T) {
-	_ = NewClient(app, "fooshop", "abcd")
+	c := NewClient(app, "fooshop", "abcd")
 	expected := "admin"
-	if globalApiPathPrefix != expected {
-		t.Errorf("WithVersion globalApiPathPrefix = %s, expected %s", globalApiPathPrefix, expected)
+	if c.pathPrefix != expected {
+		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
 	}
 }
 
 func TestWithVersionInvalidVersion(t *testing.T) {
-	_ = NewClient(app, "fooshop", "abcd", WithVersion("9999-99b"))
+	c := NewClient(app, "fooshop", "abcd", WithVersion("9999-99b"))
 	expected := "admin"
-	if globalApiPathPrefix != expected {
-		t.Errorf("WithVersion globalApiPathPrefix = %s, expected %s", globalApiPathPrefix, expected)
+	if c.pathPrefix != expected {
+		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
 	}
 }
 
@@ -446,30 +446,39 @@ func TestCreateAndDo(t *testing.T) {
 		Foo string `json:"foo"`
 	}
 
+	mockPrefix := fmt.Sprintf("https://fooshop.myshopify.com/%s/", client.pathPrefix)
+
 	cases := []struct {
 		url       string
 		responder httpmock.Responder
 		expected  interface{}
 	}{
 		{
-			"https://fooshop.myshopify.com/foo/1",
+			"foo/1",
 			httpmock.NewStringResponder(200, `{"foo": "bar"}`),
 			&MyStruct{Foo: "bar"},
 		},
 		{
-			"https://fooshop.myshopify.com/foo/2",
+			"foo/2",
 			httpmock.NewStringResponder(404, `{"error": "does not exist"}`),
 			ResponseError{Status: 404, Message: "does not exist"},
 		},
+
+		// non relPath will get auto fixed by CreateAndDo but the httpmock endpoints above will respond for them
 		{
-			"://fooshop.myshopify.com/foo/2",
-			httpmock.NewStringResponder(200, ""),
-			errors.New("parse ://fooshop.myshopify.com/foo/2: missing protocol scheme"),
+			"/foo/1",
+			httpmock.NewStringResponder(200, `{"foo": "bar"}`),
+			&MyStruct{Foo: "bar"},
+		},
+		{
+			"/foo/2",
+			httpmock.NewStringResponder(404, `{"error": "does not exist"}`),
+			ResponseError{Status: 404, Message: "does not exist"},
 		},
 	}
 
 	for _, c := range cases {
-		httpmock.RegisterResponder("GET", c.url, c.responder)
+		httpmock.RegisterResponder("GET", mockPrefix+c.url, c.responder)
 		body := new(MyStruct)
 		err := client.CreateAndDo("GET", c.url, nil, nil, body)
 
@@ -478,6 +487,18 @@ func TestCreateAndDo(t *testing.T) {
 		} else if err == nil && !reflect.DeepEqual(body, c.expected) {
 			t.Errorf("CreateAndDo(): expected %#v, actual %#v", c.expected, body)
 		}
+	}
+
+	// test invalid invalid protocol
+	httpmock.RegisterResponder("GET", "://fooshop.myshopify.com/foo/2", httpmock.NewStringResponder(200, ""))
+	body := new(MyStruct)
+	_, err := client.NewRequest("GET", "://fooshop.myshopify.com/foo/2", body, nil)
+	expected := errors.New("parse ://fooshop.myshopify.com/foo/2: missing protocol scheme")
+
+	if err != nil && fmt.Sprint(err) != fmt.Sprint(expected) {
+		t.Errorf("CreateAndDo(): expected error %v, actual %v", expected, err)
+	} else if err == nil && !reflect.DeepEqual(body, expected) {
+		t.Errorf("CreateAndDo(): expected %#v, actual %#v", expected, body)
 	}
 }
 
@@ -589,13 +610,14 @@ func TestCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", "https://fooshop.myshopify.com/foocount",
+	httpmock.RegisterResponder("GET",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/foocount", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 5}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		"https://fooshop.myshopify.com/foocount",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/foocount", client.pathPrefix),
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 

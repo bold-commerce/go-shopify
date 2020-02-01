@@ -1,7 +1,6 @@
 package goshopify
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -72,8 +71,8 @@ func TestMetafieldPathPrefix(t *testing.T) {
 		resourceID int64
 		expected   string
 	}{
-		{"", 0, fmt.Sprintf("%s/metafields", globalApiPathPrefix)},
-		{"products", 123, fmt.Sprintf("%s/products/123/metafields", globalApiPathPrefix)},
+		{"", 0, "metafields"},
+		{"products", 123, "products/123/metafields"},
 	}
 
 	for _, c := range cases {
@@ -90,8 +89,8 @@ func TestFulfillmentPathPrefix(t *testing.T) {
 		resourceID int64
 		expected   string
 	}{
-		{"", 0, fmt.Sprintf("%s/fulfillments", globalApiPathPrefix)},
-		{"orders", 123, fmt.Sprintf("%s/orders/123/fulfillments", globalApiPathPrefix)},
+		{"", 0, "fulfillments"},
+		{"orders", 123, "orders/123/fulfillments"},
 	}
 
 	for _, c := range cases {
