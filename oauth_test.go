@@ -9,7 +9,11 @@ import (
 	"fmt"
 	"net/http"
 
+<<<<<<< HEAD
 	"gopkg.in/jarcoal/httpmock.v1"
+=======
+	"github.com/jarcoal/httpmock"
+>>>>>>> 054a36d... adding go mod (#77)
 )
 
 func TestAppAuthorizeUrl(t *testing.T) {

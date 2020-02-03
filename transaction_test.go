@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/shopspring/decimal"
-	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 func TransactionTests(t *testing.T, transaction Transaction) {
