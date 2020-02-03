@@ -94,13 +94,12 @@ func TestCustomerGet(t *testing.T) {
 		t.Errorf("Customer.Get returned error: %v", err)
 	}
 
-	loc := time.FixedZone("AEST", 10)
 	address1 := &CustomerAddress{ID: 1, CustomerID: 1, FirstName: "Test", LastName: "Citizen", Company: "",
 		Address1: "1 Smith St", Address2: "", City: "BRISBANE", Province: "Queensland", Country: "Australia",
 		Zip: "4000", Phone: "1111 111 111", Name: "Test Citizen", ProvinceCode: "QLD", CountryCode: "AU",
 		CountryName: "Australia", Default: true}
-	createdAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, loc)
-	updatedAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, loc)
+	createdAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
+	updatedAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	totalSpent := decimal.NewFromFloat(278.60)
 
 	expectation := &Customer{
@@ -127,7 +126,7 @@ func TestCustomerGet(t *testing.T) {
 		t.Errorf("Customer.ID returned %+v, expected %+v", customer.ID, expectation.ID)
 	}
 	if customer.Email != expectation.Email {
-		t.Errorf("Customer.Email returned %+v, expected %+v", customer.ID, expectation.Email)
+		t.Errorf("Customer.Email returned %+v, expected %+v", customer.Email, expectation.Email)
 	}
 	if customer.FirstName != expectation.FirstName {
 		t.Errorf("Customer.FirstName returned %+v, expected %+v", customer.FirstName, expectation.FirstName)
@@ -138,10 +137,10 @@ func TestCustomerGet(t *testing.T) {
 	if customer.AcceptsMarketing != expectation.AcceptsMarketing {
 		t.Errorf("Customer.AcceptsMarketing returned %+v, expected %+v", customer.AcceptsMarketing, expectation.AcceptsMarketing)
 	}
-	if customer.CreatedAt.Equal(*expectation.CreatedAt) {
+	if !customer.CreatedAt.Equal(*expectation.CreatedAt) {
 		t.Errorf("Customer.CreatedAt returned %+v, expected %+v", customer.CreatedAt, expectation.CreatedAt)
 	}
-	if customer.UpdatedAt.Equal(*expectation.UpdatedAt) {
+	if !customer.UpdatedAt.Equal(*expectation.UpdatedAt) {
 		t.Errorf("Customer.UpdatedAt returned %+v, expected %+v", customer.UpdatedAt, expectation.UpdatedAt)
 	}
 	if customer.OrdersCount != expectation.OrdersCount {
