@@ -62,7 +62,7 @@ type ScriptTagResource struct {
 
 // List script tags
 func (s *ScriptTagServiceOp) List(options interface{}) ([]ScriptTag, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, scriptTagsBasePath)
+	path := fmt.Sprintf("%s.json", scriptTagsBasePath)
 	resource := &ScriptTagsResource{}
 	err := s.client.Get(path, resource, options)
 	return resource.ScriptTags, err
@@ -70,13 +70,13 @@ func (s *ScriptTagServiceOp) List(options interface{}) ([]ScriptTag, error) {
 
 // Count script tags
 func (s *ScriptTagServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalApiPathPrefix, scriptTagsBasePath)
+	path := fmt.Sprintf("%s/count.json", scriptTagsBasePath)
 	return s.client.Count(path, options)
 }
 
 // Get individual script tag
 func (s *ScriptTagServiceOp) Get(tagID int64, options interface{}) (*ScriptTag, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, scriptTagsBasePath, tagID)
+	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagID)
 	resource := &ScriptTagResource{}
 	err := s.client.Get(path, resource, options)
 	return resource.ScriptTag, err
@@ -84,7 +84,7 @@ func (s *ScriptTagServiceOp) Get(tagID int64, options interface{}) (*ScriptTag, 
 
 // Create a new script tag
 func (s *ScriptTagServiceOp) Create(tag ScriptTag) (*ScriptTag, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, scriptTagsBasePath)
+	path := fmt.Sprintf("%s.json", scriptTagsBasePath)
 	wrappedData := ScriptTagResource{ScriptTag: &tag}
 	resource := &ScriptTagResource{}
 	err := s.client.Post(path, wrappedData, resource)
@@ -93,7 +93,7 @@ func (s *ScriptTagServiceOp) Create(tag ScriptTag) (*ScriptTag, error) {
 
 // Update an existing script tag
 func (s *ScriptTagServiceOp) Update(tag ScriptTag) (*ScriptTag, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, scriptTagsBasePath, tag.ID)
+	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tag.ID)
 	wrappedData := ScriptTagResource{ScriptTag: &tag}
 	resource := &ScriptTagResource{}
 	err := s.client.Put(path, wrappedData, resource)
@@ -102,5 +102,5 @@ func (s *ScriptTagServiceOp) Update(tag ScriptTag) (*ScriptTag, error) {
 
 // Delete an existing script tag
 func (s *ScriptTagServiceOp) Delete(tagID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, scriptTagsBasePath, tagID))
+	return s.client.Delete(fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagID))
 }

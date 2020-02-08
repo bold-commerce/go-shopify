@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/jarcoal/httpmock"
 )
 
 func collectTests(t *testing.T, collect Collect) {
@@ -34,7 +34,7 @@ func TestCollectList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"collects": [{"id":1},{"id":2}]}`))
 
 	collects, err := client.Collect.List(nil)
@@ -52,12 +52,12 @@ func TestCollectCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/count.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/count.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 5}`))
 
 	params := map[string]string{"since_id": "123"}
 	httpmock.RegisterResponderWithQuery("GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/count.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/count.json", client.pathPrefix),
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 

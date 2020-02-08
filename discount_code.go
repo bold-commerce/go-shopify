@@ -46,7 +46,7 @@ type DiscountCodeResource struct {
 
 // Create a discount code
 func (s *DiscountCodeServiceOp) Create(priceRuleID int64, dc PriceRuleDiscountCode) (*PriceRuleDiscountCode, error) {
-	path := fmt.Sprintf("%s/"+discountCodeBasePath+".json", globalApiPathPrefix, priceRuleID)
+	path := fmt.Sprintf(discountCodeBasePath+".json", priceRuleID)
 	wrappedData := DiscountCodeResource{PriceRuleDiscountCode: &dc}
 	resource := new(DiscountCodeResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -55,7 +55,7 @@ func (s *DiscountCodeServiceOp) Create(priceRuleID int64, dc PriceRuleDiscountCo
 
 // Update an existing discount code
 func (s *DiscountCodeServiceOp) Update(priceRuleID int64, dc PriceRuleDiscountCode) (*PriceRuleDiscountCode, error) {
-	path := fmt.Sprintf("%s/"+discountCodeBasePath+"/%d.json", globalApiPathPrefix, priceRuleID, dc.ID)
+	path := fmt.Sprintf(discountCodeBasePath+"/%d.json", priceRuleID, dc.ID)
 	wrappedData := DiscountCodeResource{PriceRuleDiscountCode: &dc}
 	resource := new(DiscountCodeResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -64,7 +64,7 @@ func (s *DiscountCodeServiceOp) Update(priceRuleID int64, dc PriceRuleDiscountCo
 
 // List of discount codes
 func (s *DiscountCodeServiceOp) List(priceRuleID int64) ([]PriceRuleDiscountCode, error) {
-	path := fmt.Sprintf("%s/"+discountCodeBasePath+".json", globalApiPathPrefix, priceRuleID)
+	path := fmt.Sprintf(discountCodeBasePath+".json", priceRuleID)
 	resource := new(DiscountCodesResource)
 	err := s.client.Get(path, resource, nil)
 	return resource.DiscountCodes, err
@@ -72,7 +72,7 @@ func (s *DiscountCodeServiceOp) List(priceRuleID int64) ([]PriceRuleDiscountCode
 
 // Get a single discount code
 func (s *DiscountCodeServiceOp) Get(priceRuleID int64, discountCodeID int64) (*PriceRuleDiscountCode, error) {
-	path := fmt.Sprintf("%s/"+discountCodeBasePath+"/%d.json", globalApiPathPrefix, priceRuleID, discountCodeID)
+	path := fmt.Sprintf(discountCodeBasePath+"/%d.json", priceRuleID, discountCodeID)
 	resource := new(DiscountCodeResource)
 	err := s.client.Get(path, resource, nil)
 	return resource.PriceRuleDiscountCode, err
@@ -80,5 +80,5 @@ func (s *DiscountCodeServiceOp) Get(priceRuleID int64, discountCodeID int64) (*P
 
 // Delete a discount code
 func (s *DiscountCodeServiceOp) Delete(priceRuleID int64, discountCodeID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/"+discountCodeBasePath+"/%d.json", globalApiPathPrefix, priceRuleID, discountCodeID))
+	return s.client.Delete(fmt.Sprintf(discountCodeBasePath+"/%d.json", priceRuleID, discountCodeID))
 }

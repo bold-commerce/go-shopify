@@ -51,6 +51,7 @@ type Variant struct {
 	CreatedAt            *time.Time       `json:"created_at,omitempty"`
 	UpdatedAt            *time.Time       `json:"updated_at,omitempty"`
 	Taxable              bool             `json:"taxable,omitempty"`
+	TaxCode              string           `json:"tax_code,omitempty"`
 	Barcode              string           `json:"barcode,omitempty"`
 	ImageID              int64            `json:"image_id,omitempty"`
 	InventoryQuantity    int              `json:"inventory_quantity,omitempty"`
@@ -74,7 +75,7 @@ type VariantsResource struct {
 
 // List variants
 func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant, error) {
-	path := fmt.Sprintf("%s/%s/%d/variants.json", globalApiPathPrefix, productsBasePath, productID)
+	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
 	resource := new(VariantsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Variants, err
@@ -82,13 +83,13 @@ func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant
 
 // Count variants
 func (s *VariantServiceOp) Count(productID int64, options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/%d/variants/count.json", globalApiPathPrefix, productsBasePath, productID)
+	path := fmt.Sprintf("%s/%d/variants/count.json", productsBasePath, productID)
 	return s.client.Count(path, options)
 }
 
 // Get individual variant
 func (s *VariantServiceOp) Get(variantID int64, options interface{}) (*Variant, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, variantsBasePath, variantID)
+	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variantID)
 	resource := new(VariantResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Variant, err
@@ -96,7 +97,7 @@ func (s *VariantServiceOp) Get(variantID int64, options interface{}) (*Variant, 
 
 // Create a new variant
 func (s *VariantServiceOp) Create(productID int64, variant Variant) (*Variant, error) {
-	path := fmt.Sprintf("%s/%s/%d/variants.json", globalApiPathPrefix, productsBasePath, productID)
+	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
 	err := s.client.Post(path, wrappedData, resource)
@@ -105,7 +106,7 @@ func (s *VariantServiceOp) Create(productID int64, variant Variant) (*Variant, e
 
 // Update existing variant
 func (s *VariantServiceOp) Update(variant Variant) (*Variant, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, variantsBasePath, variant.ID)
+	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variant.ID)
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
 	err := s.client.Put(path, wrappedData, resource)
@@ -114,7 +115,7 @@ func (s *VariantServiceOp) Update(variant Variant) (*Variant, error) {
 
 // Delete an existing variant
 func (s *VariantServiceOp) Delete(productID int64, variantID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d/variants/%d.json", globalApiPathPrefix, productsBasePath, productID, variantID))
+	return s.client.Delete(fmt.Sprintf("%s/%d/variants/%d.json", productsBasePath, productID, variantID))
 }
 
 // ListMetafields for a variant

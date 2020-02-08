@@ -46,8 +46,15 @@ func (app App) GetAccessToken(shopName string, code string) (string, error) {
 		Code:         code,
 	}
 
-	client := NewClient(app, shopName, "")
+	client := app.Client
+	if client == nil {
+		client = NewClient(app, shopName, "")
+	}
+
 	req, err := client.NewRequest("POST", "admin/oauth/access_token", data, nil)
+	if err != nil {
+		return "", err
+	}
 
 	token := new(Token)
 	err = client.Do(req, token)
