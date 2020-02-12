@@ -130,7 +130,7 @@ func (s *ProductServiceOp) ListWithPagination(options interface{}) ([]Product, *
 	return resource.Products, pagination, nil
 }
 
-// Extract pagination from the Link header
+// extractPagination extracts pagination info from linkHeader.
 // Details on the format are here:
 // https://help.shopify.com/en/api/guides/paginated-rest-results
 func extractPagination(linkHeader string) (*Pagination, error) {
