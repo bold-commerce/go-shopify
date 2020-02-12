@@ -89,7 +89,7 @@ func TestProductListWithPagination(t *testing.T) {
 
 	// The strconv.Atoi error changed in go 1.8, 1.7 is still being tested/supported.
 	limitConversionErrorMessage := `strconv.Atoi: parsing "invalid": invalid syntax`
-	if runtime.Version() < "go1.8" {
+	if runtime.Version()[2:5] == "1.7" {
 		limitConversionErrorMessage = `strconv.ParseInt: parsing "invalid": invalid syntax`
 	}
 
