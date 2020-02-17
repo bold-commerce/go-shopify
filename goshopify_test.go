@@ -709,3 +709,103 @@ func TestCount(t *testing.T) {
 		t.Errorf("Client.Count returned %d, expected %d", cnt, expected)
 	}
 }
+
+func createResponderWithHeaders(status int, body string, headers map[string]string) httpmock.Responder {
+	header := http.Header{}
+	resp := httpmock.NewStringResponse(status, body)
+	for k, v := range headers {
+		header.Add(k, v)
+	}
+	resp.Header = header
+
+	return httpmock.ResponderFromResponse(resp)
+}
+
+func TestDoRateLimit(t *testing.T) {
+	setup()
+	defer teardown()
+
+	cases := []struct {
+		description string
+		url         string
+		responder   httpmock.Responder
+		expected    RateLimitInfo
+	}{
+		{
+			"valid request count and bucket size should set values properly",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{
+				"X-Shopify-Shop-Api-Call-Limit": "15/30",
+			}),
+			RateLimitInfo{
+				RequestCount:      15,
+				BucketSize:        30,
+				RetryAfterSeconds: 0,
+			},
+		},
+		{
+			"valid retry should set RetryAfterSeconds properly",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{
+				"X-Shopify-Shop-Api-Call-Limit": "0/30",
+				"Retry-after":                   "30",
+			}),
+			RateLimitInfo{
+				RequestCount:      0,
+				BucketSize:        30,
+				RetryAfterSeconds: 30,
+			},
+		},
+		{
+			"invalid headers should set all values to 0",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{
+				"X-Shopify-Shop-Api-Call-Limit": "invalid/invalid",
+				"Retry-after":                   "invalid",
+			}),
+			RateLimitInfo{
+				RequestCount:      0,
+				BucketSize:        0,
+				RetryAfterSeconds: 0,
+			},
+		},
+		{
+			"missing headers should set all values to 0",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{}),
+			RateLimitInfo{
+				RequestCount:      0,
+				BucketSize:        0,
+				RetryAfterSeconds: 0,
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.description, func(t *testing.T) {
+
+			shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", c.url)
+			httpmock.RegisterResponder("GET", shopUrl, c.responder)
+
+			var reqBody struct {
+				Foo string `json:"foo"`
+			}
+			req, _ := client.NewRequest("GET", c.url, nil, nil)
+			err := client.Do(req, reqBody)
+
+			if err != nil {
+				if e, ok := err.(*url.Error); ok {
+					err = e.Err
+				} else if e, ok := err.(*json.SyntaxError); ok {
+					err = errors.New(e.Error())
+				}
+
+				if !reflect.DeepEqual(err, c.expected) {
+					t.Errorf("Do(): expected error %#v, actual %#v", c.expected, err)
+				}
+			} else if err == nil && !reflect.DeepEqual(client.RateLimits, c.expected) {
+				t.Errorf("%s: expected %#v, actual %#v", c.description, c.expected, client.RateLimits)
+			}
+		})
+	}
+}
