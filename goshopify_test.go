@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 
 const (
 	testApiVersion = "9999-99"
+	maxRetries     = 3
 )
 
 var (
@@ -44,7 +46,7 @@ func setup() {
 		Scope:       "read_products",
 		Password:    "privateapppassword",
 	}
-	client = NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	client = NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion), WithRetry(maxRetries))
 	httpmock.ActivateNonDefault(client.Client)
 }
 
@@ -58,38 +60,6 @@ func loadFixture(filename string) []byte {
 		panic(fmt.Sprintf("Cannot load fixture %v", filename))
 	}
 	return f
-}
-
-func TestWithVersion(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
-	expected := fmt.Sprintf("admin/api/%s", testApiVersion)
-	if c.pathPrefix != expected {
-		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
-	}
-}
-
-func TestWithVersionNoVersion(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithVersion(""))
-	expected := "admin"
-	if c.pathPrefix != expected {
-		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
-	}
-}
-
-func TestWithoutVersionInInitiation(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd")
-	expected := "admin"
-	if c.pathPrefix != expected {
-		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
-	}
-}
-
-func TestWithVersionInvalidVersion(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithVersion("9999-99b"))
-	expected := "admin"
-	if c.pathPrefix != expected {
-		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
-	}
 }
 
 func TestNewClient(t *testing.T) {
@@ -337,7 +307,7 @@ func TestDo(t *testing.T) {
 			httpmock.NewStringResponder(406, ``),
 			ResponseError{
 				Status:  406,
-				Message: "Not acceptable",
+				Message: "Not Acceptable",
 			},
 		},
 		{
@@ -362,6 +332,118 @@ func TestDo(t *testing.T) {
 		}
 
 		err = client.Do(req, body)
+		if err != nil {
+			if e, ok := err.(*url.Error); ok {
+				err = e.Err
+			} else if e, ok := err.(*json.SyntaxError); ok {
+				err = errors.New(e.Error())
+			}
+
+			if !reflect.DeepEqual(err, c.expected) {
+				t.Errorf("Do(): expected error %#v, actual %#v", c.expected, err)
+			}
+		} else if err == nil && !reflect.DeepEqual(body, c.expected) {
+			t.Errorf("Do(): expected %#v, actual %#v", c.expected, body)
+		}
+	}
+}
+
+func TestRetry(t *testing.T) {
+	setup()
+	defer teardown()
+
+	type MyStruct struct {
+		Foo string `json:"foo"`
+	}
+
+	var retries int
+	urlFormat := "https://fooshop.myshopify.com/%s"
+
+	cases := []struct {
+		relPath   string
+		responder httpmock.Responder
+		expected  interface{}
+		retries   int
+	}{
+		{ // no retries
+			relPath:  "foo/1",
+			retries:  1,
+			expected: &MyStruct{Foo: "bar"},
+			responder: func(req *http.Request) (*http.Response, error) {
+				return httpmock.NewStringResponse(http.StatusOK, `{"foo": "bar"}`), nil
+			},
+		},
+		{ // 2 retries rate limited, 3 succeeds
+			relPath:  "foo/2",
+			retries:  maxRetries,
+			expected: &MyStruct{Foo: "bar"},
+			responder: func(req *http.Request) (*http.Response, error) {
+				if retries > 1 {
+					resp := httpmock.NewStringResponse(http.StatusTooManyRequests, `{"errors":"Exceeded 2 calls per second for api client. Reduce request rates to resume uninterrupted service."}`)
+					resp.Header.Add("Retry-After", "2.0")
+					retries--
+					return resp, nil
+				}
+
+				return httpmock.NewStringResponse(http.StatusOK, `{"foo": "bar"}`), nil
+			},
+		},
+		{ // all retries rate limited
+			relPath: "foo/3",
+			retries: maxRetries,
+			expected: RateLimitError{
+				RetryAfter: 2,
+				ResponseError: ResponseError{
+					Status:  429,
+					Message: "Exceeded 2 calls per second for api client. Reduce request rates to resume uninterrupted service.",
+				},
+			},
+			responder: func(req *http.Request) (*http.Response, error) {
+				resp := httpmock.NewStringResponse(http.StatusTooManyRequests, `{"errors":"Exceeded 2 calls per second for api client. Reduce request rates to resume uninterrupted service."}`)
+				resp.Header.Add("Retry-After", "2.0")
+				return resp, nil
+			},
+		},
+		{ // 2 retries 503, 3 succeeds
+			relPath:  "foo/4",
+			retries:  maxRetries,
+			expected: &MyStruct{Foo: "bar"},
+			responder: func(req *http.Request) (*http.Response, error) {
+				if retries > 1 {
+					retries--
+					return httpmock.NewStringResponse(http.StatusServiceUnavailable, "<html></html>"), nil
+				}
+
+				return httpmock.NewStringResponse(http.StatusOK, `{"foo": "bar"}`), nil
+			},
+		},
+		{ // all retries 503
+			relPath: "foo/5",
+			retries: maxRetries,
+			expected: ResponseError{
+				Status: http.StatusServiceUnavailable,
+			},
+			responder: func(req *http.Request) (*http.Response, error) {
+				return httpmock.NewStringResponse(http.StatusServiceUnavailable, ""), nil
+			},
+		},
+	}
+
+	for _, c := range cases {
+		retries = c.retries
+		httpmock.RegisterResponder("GET", fmt.Sprintf(urlFormat, c.relPath), c.responder)
+		body := new(MyStruct)
+		req, err := client.NewRequest("GET", c.relPath, nil, nil)
+		if err != nil {
+			t.Error("error creating request: ", err)
+		}
+
+		err = client.Do(req, body)
+
+		if client.attempts != c.retries {
+			t.Errorf("Do(): attempts do not match retries %#v, actual %#v", client.attempts, c.retries)
+		}
+
 		if err != nil {
 			if e, ok := err.(*url.Error); ok {
 				err = e.Err
@@ -558,9 +640,10 @@ func TestCreateAndDo(t *testing.T) {
 	httpmock.RegisterResponder("GET", "://fooshop.myshopify.com/foo/2", httpmock.NewStringResponder(200, ""))
 	body := new(MyStruct)
 	_, err := client.NewRequest("GET", "://fooshop.myshopify.com/foo/2", body, nil)
-	expected := errors.New("parse ://fooshop.myshopify.com/foo/2: missing protocol scheme")
 
-	if err != nil && fmt.Sprint(err) != fmt.Sprint(expected) {
+	expected := errors.New("parse \"://fooshop.myshopify.com/foo/2\": missing protocol scheme")
+
+	if err != nil && !strings.Contains(err.Error(), "missing protocol scheme") {
 		t.Errorf("CreateAndDo(): expected error %v, actual %v", expected, err)
 	} else if err == nil && !reflect.DeepEqual(body, expected) {
 		t.Errorf("CreateAndDo(): expected %#v, actual %#v", expected, body)

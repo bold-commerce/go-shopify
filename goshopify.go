@@ -72,6 +72,10 @@ type Client struct {
 	// A permanent access token
 	token string
 
+	// max number of retries, defaults to 0 for no retries see WithRetry option
+	retries  int
+	attempts int
+
 	RateLimits RateLimitInfo
 
 	// Services used for communicating with the API
@@ -215,21 +219,6 @@ func (c *Client) NewRequest(method, relPath string, body, options interface{}) (
 	return req, nil
 }
 
-// Option is used to configure client with options
-type Option func(c *Client)
-
-// WithVersion optionally sets the api-version if the passed string is valid
-func WithVersion(apiVersion string) Option {
-	return func(c *Client) {
-		pathPrefix := defaultApiPathPrefix
-		if len(apiVersion) > 0 && apiVersionRegex.MatchString(apiVersion) {
-			pathPrefix = fmt.Sprintf("admin/api/%s", apiVersion)
-		}
-		c.apiVersion = apiVersion
-		c.pathPrefix = pathPrefix
-	}
-}
-
 // NewClient returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
@@ -308,16 +297,53 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 
 // doGetHeaders executes a request, decoding the response into `v` and also returns any response headers.
 func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, error) {
-	resp, err := c.Client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	var resp *http.Response
+	var err error
+	retries := c.retries
+	c.attempts = 0
+	for {
+		c.attempts++
+		resp, err = c.Client.Do(req)
+		if err != nil {
+			return nil, err //http client errors, not api responses
+		}
 
-	err = CheckResponseError(resp)
-	if err != nil {
-		return nil, err
+		respErr := CheckResponseError(resp)
+		if respErr == nil {
+			break // no errors, break out of the retry loop
+		}
+
+		// retry scenario, close resp and any continue will retry
+		resp.Body.Close()
+
+		if retries <= 1 {
+			return nil, respErr
+		}
+
+		if rateLimitErr, isRetryErr := respErr.(RateLimitError); isRetryErr {
+			// back off and retry
+			wait := time.Duration(rateLimitErr.RetryAfter) * time.Second
+			time.Sleep(wait)
+			retries--
+			continue
+		}
+
+		var doRetry bool
+		switch resp.StatusCode {
+		case http.StatusServiceUnavailable:
+			doRetry = true
+			retries--
+		}
+
+		if doRetry {
+			continue
+		}
+
+		// no retry attempts, just return the err
+		return nil, respErr
 	}
+
+	defer resp.Body.Close()
 
 	if c.apiVersion == defaultApiVersion && resp.Header.Get("X-Shopify-API-Version") != "" {
 		// if using stable on first request set the api version
@@ -343,21 +369,30 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 }
 
 func wrapSpecificError(r *http.Response, err ResponseError) error {
-	if err.Status == 429 {
-		f, _ := strconv.ParseFloat(r.Header.Get("retry-after"), 64)
+	// see https://www.shopify.dev/concepts/about-apis/response-codes
+	if err.Status == http.StatusTooManyRequests {
+		f, _ := strconv.ParseFloat(r.Header.Get("Retry-After"), 64)
 		return RateLimitError{
 			ResponseError: err,
 			RetryAfter:    int(f),
 		}
 	}
-	if err.Status == 406 {
-		err.Message = "Not acceptable"
+
+	// if err.Status == http.StatusSeeOther {
+	// todo
+	// The response to the request can be found under a different URL in the
+	// Location header and can be retrieved using a GET method on that resource.
+	// }
+
+	if err.Status == http.StatusNotAcceptable {
+		err.Message = http.StatusText(err.Status)
 	}
+
 	return err
 }
 
 func CheckResponseError(r *http.Response) error {
-	if r.StatusCode >= 200 && r.StatusCode < 300 {
+	if http.StatusOK <= r.StatusCode && r.StatusCode < http.StatusMultipleChoices {
 		return nil
 	}
 
