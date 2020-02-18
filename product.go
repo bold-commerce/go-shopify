@@ -10,8 +10,11 @@ import (
 	"time"
 )
 
-const productsBasePath = "products"
-const productsResourceName = "products"
+const (
+	productsBasePath     = "products"
+	productsResourceName = "products"
+	productsMaxLimit     = 250
+)
 
 // linkRegex is used to extract pagination links from product search results.
 var linkRegex = regexp.MustCompile(`^ *<([^>]+)>; rel="(previous|next)" *$`)
@@ -27,6 +30,8 @@ type ProductService interface {
 	Create(Product) (*Product, error)
 	Update(Product) (*Product, error)
 	Delete(int64) error
+	IterateAll(func(Product) error) error
+	Iterate(ProductListOptions, func(Product) error) error
 
 	// MetafieldsService used for Product resource to communicate with Metafields resource
 	MetafieldsService
@@ -230,6 +235,45 @@ func (s *ProductServiceOp) Update(product Product) (*Product, error) {
 // Delete an existing product
 func (s *ProductServiceOp) Delete(productID int64) error {
 	return s.client.Delete(fmt.Sprintf("%s/%d.json", productsBasePath, productID))
+}
+
+func (s *ProductServiceOp) IterateAll(f func(product Product) error) error {
+	return s.Iterate(ProductListOptions{}, f)
+}
+
+// iterate through products one at a time and passes them to the helper func
+// uses since_id and order will be ignored, use ListWithPagination if you care about order
+func (s *ProductServiceOp) Iterate(options ProductListOptions, f func(product Product) error) error {
+	if options.Limit <= 0 {
+		options.Limit = productsMaxLimit
+	}
+
+	sinceId := int64(0)
+	for {
+		if sinceId > int64(0) {
+			options.SinceID = sinceId
+		}
+
+		products, err := s.List(options)
+
+		if err != nil {
+			return err
+		}
+
+		if len(products) == 0 {
+			break
+		}
+
+		for _, product := range products {
+			if err := f(product); err != nil {
+				return err
+			}
+
+			sinceId = product.ID
+		}
+	}
+
+	return nil
 }
 
 // ListMetafields for a product
