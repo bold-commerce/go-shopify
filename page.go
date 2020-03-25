@@ -32,17 +32,17 @@ type PageServiceOp struct {
 
 // Page represents a Shopify page.
 type Page struct {
-	ID             int64       `json:"id"`
-	Author         string      `json:"author"`
-	Handle         string      `json:"handle"`
-	Title          string      `json:"title"`
-	CreatedAt      *time.Time  `json:"created_at"`
-	UpdatedAt      *time.Time  `json:"updated_at"`
-	BodyHTML       string      `json:"body_html"`
-	TemplateSuffix string      `json:"template_suffix"`
-	PublishedAt    *time.Time  `json:"published_at"`
-	ShopID         int64       `json:"shop_id"`
-	Metafields     []Metafield `json:"metafields"`
+	ID             int64       `json:"id,omitempty"`
+	Author         string      `json:"author,omitempty"`
+	Handle         string      `json:"handle,omitempty"`
+	Title          string      `json:"title,omitempty"`
+	CreatedAt      *time.Time  `json:"created_at,omitempty"`
+	UpdatedAt      *time.Time  `json:"updated_at,omitempty"`
+	BodyHTML       string      `json:"body_html,omitempty"`
+	TemplateSuffix string      `json:"template_suffix,omitempty"`
+	PublishedAt    *time.Time  `json:"published_at,omitempty"`
+	ShopID         int64       `json:"shop_id,omitempty"`
+	Metafields     []Metafield `json:"metafields,omitempty"`
 }
 
 // PageResource represents the result from the pages/X.json endpoint
