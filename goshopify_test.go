@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -356,9 +357,12 @@ func TestDo(t *testing.T) {
 		httpmock.RegisterResponder("GET", shopUrl, c.responder)
 
 		body := new(MyStruct)
-		req, _ := client.NewRequest("GET", c.url, nil, nil)
-		err := client.Do(req, body)
+		req, err := client.NewRequest("GET", c.url, nil, nil)
+		if err != nil {
+			t.Error("error creating request: ", err)
+		}
 
+		err = client.Do(req, body)
 		if err != nil {
 			if e, ok := err.(*url.Error); ok {
 				err = e.Err
@@ -501,16 +505,19 @@ func TestCreateAndDo(t *testing.T) {
 	cases := []struct {
 		url       string
 		responder httpmock.Responder
+		options   interface{}
 		expected  interface{}
 	}{
 		{
 			"foo/1",
 			httpmock.NewStringResponder(200, `{"foo": "bar"}`),
+			nil,
 			&MyStruct{Foo: "bar"},
 		},
 		{
 			"foo/2",
 			httpmock.NewStringResponder(404, `{"error": "does not exist"}`),
+			nil,
 			ResponseError{Status: 404, Message: "does not exist"},
 		},
 
@@ -518,19 +525,28 @@ func TestCreateAndDo(t *testing.T) {
 		{
 			"/foo/1",
 			httpmock.NewStringResponder(200, `{"foo": "bar"}`),
+			nil,
 			&MyStruct{Foo: "bar"},
 		},
 		{
 			"/foo/2",
 			httpmock.NewStringResponder(404, `{"error": "does not exist"}`),
+			nil,
 			ResponseError{Status: 404, Message: "does not exist"},
+		},
+		// Problem with options to test c.NewRequest() returning error in createAndDoGetHeaders()
+		{
+			"foo/1",
+			httpmock.NewStringResponder(500, ""),
+			123,
+			errors.New("query: Values() expects struct input. Got int"),
 		},
 	}
 
 	for _, c := range cases {
 		httpmock.RegisterResponder("GET", mockPrefix+c.url, c.responder)
 		body := new(MyStruct)
-		err := client.CreateAndDo("GET", c.url, nil, nil, body)
+		err := client.CreateAndDo("GET", c.url, nil, c.options, body)
 
 		if err != nil && fmt.Sprint(err) != fmt.Sprint(c.expected) {
 			t.Errorf("CreateAndDo(): expected error %v, actual %v", c.expected, err)
@@ -543,9 +559,10 @@ func TestCreateAndDo(t *testing.T) {
 	httpmock.RegisterResponder("GET", "://fooshop.myshopify.com/foo/2", httpmock.NewStringResponder(200, ""))
 	body := new(MyStruct)
 	_, err := client.NewRequest("GET", "://fooshop.myshopify.com/foo/2", body, nil)
-	expected := errors.New("parse ://fooshop.myshopify.com/foo/2: missing protocol scheme")
 
-	if err != nil && fmt.Sprint(err) != fmt.Sprint(expected) {
+	expected := errors.New("parse \"://fooshop.myshopify.com/foo/2\": missing protocol scheme")
+
+	if err != nil && !strings.Contains(err.Error(), "missing protocol scheme") {
 		t.Errorf("CreateAndDo(): expected error %v, actual %v", expected, err)
 	} else if err == nil && !reflect.DeepEqual(body, expected) {
 		t.Errorf("CreateAndDo(): expected %#v, actual %#v", expected, body)
@@ -692,5 +709,105 @@ func TestCount(t *testing.T) {
 	expected = 2
 	if cnt != expected {
 		t.Errorf("Client.Count returned %d, expected %d", cnt, expected)
+	}
+}
+
+func createResponderWithHeaders(status int, body string, headers map[string]string) httpmock.Responder {
+	header := http.Header{}
+	resp := httpmock.NewStringResponse(status, body)
+	for k, v := range headers {
+		header.Add(k, v)
+	}
+	resp.Header = header
+
+	return httpmock.ResponderFromResponse(resp)
+}
+
+func TestDoRateLimit(t *testing.T) {
+	setup()
+	defer teardown()
+
+	cases := []struct {
+		description string
+		url         string
+		responder   httpmock.Responder
+		expected    RateLimitInfo
+	}{
+		{
+			"valid request count and bucket size should set values properly",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{
+				"X-Shopify-Shop-Api-Call-Limit": "15/30",
+			}),
+			RateLimitInfo{
+				RequestCount:      15,
+				BucketSize:        30,
+				RetryAfterSeconds: 0,
+			},
+		},
+		{
+			"valid retry should set RetryAfterSeconds properly",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{
+				"X-Shopify-Shop-Api-Call-Limit": "0/30",
+				"Retry-after":                   "30",
+			}),
+			RateLimitInfo{
+				RequestCount:      0,
+				BucketSize:        30,
+				RetryAfterSeconds: 30,
+			},
+		},
+		{
+			"invalid headers should set all values to 0",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{
+				"X-Shopify-Shop-Api-Call-Limit": "invalid/invalid",
+				"Retry-after":                   "invalid",
+			}),
+			RateLimitInfo{
+				RequestCount:      0,
+				BucketSize:        0,
+				RetryAfterSeconds: 0,
+			},
+		},
+		{
+			"missing headers should set all values to 0",
+			"foo/1",
+			createResponderWithHeaders(200, `{"foo": "bar"}`, map[string]string{}),
+			RateLimitInfo{
+				RequestCount:      0,
+				BucketSize:        0,
+				RetryAfterSeconds: 0,
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.description, func(t *testing.T) {
+
+			shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", c.url)
+			httpmock.RegisterResponder("GET", shopUrl, c.responder)
+
+			var reqBody struct {
+				Foo string `json:"foo"`
+			}
+			req, _ := client.NewRequest("GET", c.url, nil, nil)
+			err := client.Do(req, reqBody)
+
+			if err != nil {
+				if e, ok := err.(*url.Error); ok {
+					err = e.Err
+				} else if e, ok := err.(*json.SyntaxError); ok {
+					err = errors.New(e.Error())
+				}
+
+				if !reflect.DeepEqual(err, c.expected) {
+					t.Errorf("Do(): expected error %#v, actual %#v", c.expected, err)
+				}
+			} else if err == nil && !reflect.DeepEqual(client.RateLimits, c.expected) {
+				t.Errorf("%s: expected %#v, actual %#v", c.description, c.expected, client.RateLimits)
+			}
+		})
 	}
 }

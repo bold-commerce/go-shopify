@@ -44,9 +44,15 @@ type App struct {
 	Client      *Client // see GetAccessToken
 }
 
+type RateLimitInfo struct {
+	RequestCount      int
+	BucketSize        int
+	RetryAfterSeconds float64
+}
+
 // Client manages communication with the Shopify API.
 type Client struct {
-	// HTTP client used to communicate with the DO API.
+	// HTTP client used to communicate with the Shopify API.
 	Client *http.Client
 
 	// App settings
@@ -65,6 +71,8 @@ type Client struct {
 
 	// A permanent access token
 	token string
+
+	RateLimits RateLimitInfo
 
 	// Services used for communicating with the API
 	Product                    ProductService
@@ -290,15 +298,25 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 // response. It does not make much sense to call Do without a prepared
 // interface instance.
 func (c *Client) Do(req *http.Request, v interface{}) error {
-	resp, err := c.Client.Do(req)
+	_, err := c.doGetHeaders(req, v)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// doGetHeaders executes a request, decoding the response into `v` and also returns any response headers.
+func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, error) {
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	err = CheckResponseError(resp)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if c.apiVersion == defaultApiVersion && resp.Header.Get("X-Shopify-API-Version") != "" {
@@ -310,11 +328,18 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 		decoder := json.NewDecoder(resp.Body)
 		err := decoder.Decode(&v)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	if s := strings.Split(resp.Header.Get("X-Shopify-Shop-Api-Call-Limit"), "/"); len(s) == 2 {
+		c.RateLimits.RequestCount, _ = strconv.Atoi(s[0])
+		c.RateLimits.BucketSize, _ = strconv.Atoi(s[1])
+	}
+
+	c.RateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(resp.Header.Get("Retry-After"), 64)
+
+	return resp.Header, nil
 }
 
 func wrapSpecificError(r *http.Response, err ResponseError) error {
@@ -420,6 +445,12 @@ func CheckResponseError(r *http.Response) error {
 
 // General list options that can be used for most collections of entities.
 type ListOptions struct {
+
+	// PageInfo is used with new pagination search.
+	PageInfo string `url:"page_info,omitempty"`
+
+	// Page is used to specify a specific page to load.
+	// It is the deprecated way to do pagination.
 	Page         int       `url:"page,omitempty"`
 	Limit        int       `url:"limit,omitempty"`
 	SinceID      int64     `url:"since_id,omitempty"`
@@ -459,6 +490,15 @@ func (c *Client) Count(path string, options interface{}) (int, error) {
 // parameters like created_at_min
 // Any data returned from Shopify will be marshalled into resource argument.
 func (c *Client) CreateAndDo(method, relPath string, data, options, resource interface{}) error {
+	_, err := c.createAndDoGetHeaders(method, relPath, data, options, resource)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// createAndDoGetHeaders creates an executes a request while returning the response headers.
+func (c *Client) createAndDoGetHeaders(method, relPath string, data, options, resource interface{}) (http.Header, error) {
 	if strings.HasPrefix(relPath, "/") {
 		// make sure it's a relative path
 		relPath = strings.TrimLeft(relPath, "/")
@@ -467,15 +507,10 @@ func (c *Client) CreateAndDo(method, relPath string, data, options, resource int
 	relPath = path.Join(c.pathPrefix, relPath)
 	req, err := c.NewRequest(method, relPath, data, options)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = c.Do(req, resource)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.doGetHeaders(req, resource)
 }
 
 // Get performs a GET request for the given path and saves the result in the

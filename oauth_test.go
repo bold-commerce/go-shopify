@@ -51,6 +51,20 @@ func TestAppGetAccessToken(t *testing.T) {
 	}
 }
 
+func TestAppGetAccessTokenError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	// app.Client isn't specified so NewClient called
+	expectedError := errors.New("invalid_request")
+
+	_, err := app.GetAccessToken("fooshop", "")
+
+	if err == nil || err.Error() != expectedError.Error() {
+		t.Errorf("Expected error %s got error %s", expectedError.Error(), err.Error())
+	}
+}
+
 func TestAppVerifyAuthorizationURL(t *testing.T) {
 	// These credentials are from the Shopify example page:
 	// https://help.shopify.com/api/guides/authentication/oauth#verification

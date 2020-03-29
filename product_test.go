@@ -1,8 +1,11 @@
 package goshopify
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"reflect"
+	"runtime"
 	"testing"
 	"time"
 
@@ -56,6 +59,145 @@ func TestProductListFilterByIds(t *testing.T) {
 	expected := []Product{{ID: 1}, {ID: 2}, {ID: 3}}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
+	}
+}
+
+func TestProductListError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products.json", client.pathPrefix),
+		httpmock.NewStringResponder(500, ""))
+
+	expectedErrMessage := "Unknown Error"
+
+	products, err := client.Product.List(nil)
+	if products != nil {
+		t.Errorf("Product.List returned products, expected nil: %v", err)
+	}
+
+	if err == nil || err.Error() != expectedErrMessage {
+		t.Errorf("Product.List err returned %+v, expected %+v", err, expectedErrMessage)
+	}
+}
+
+func TestProductListWithPagination(t *testing.T) {
+	setup()
+	defer teardown()
+
+	listURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/products.json", client.pathPrefix)
+
+	// The strconv.Atoi error changed in go 1.8, 1.7 is still being tested/supported.
+	limitConversionErrorMessage := `strconv.Atoi: parsing "invalid": invalid syntax`
+	if runtime.Version()[2:5] == "1.7" {
+		limitConversionErrorMessage = `strconv.ParseInt: parsing "invalid": invalid syntax`
+	}
+
+	cases := []struct {
+		body               string
+		linkHeader         string
+		expectedProducts   []Product
+		expectedPagination *Pagination
+		expectedErr        error
+	}{
+		// Expect empty pagination when there is no link header
+		{
+			`{"products": [{"id":1},{"id":2}]}`,
+			"",
+			[]Product{{ID: 1}, {ID: 2}},
+			new(Pagination),
+			nil,
+		},
+		// Invalid link header responses
+		{
+			"{}",
+			"invalid link",
+			[]Product(nil),
+			nil,
+			ResponseDecodingError{Message: "could not extract pagination link header"},
+		},
+		{
+			"{}",
+			`<:invalid.url>; rel="next"`,
+			[]Product(nil),
+			nil,
+			ResponseDecodingError{Message: "pagination does not contain a valid URL"},
+		},
+		{
+			"{}",
+			`<http://valid.url?%invalid_query>; rel="next"`,
+			[]Product(nil),
+			nil,
+			errors.New(`invalid URL escape "%in"`),
+		},
+		{
+			"{}",
+			`<http://valid.url>; rel="next"`,
+			[]Product(nil),
+			nil,
+			ResponseDecodingError{Message: "page_info is missing"},
+		},
+		{
+			"{}",
+			`<http://valid.url?page_info=foo&limit=invalid>; rel="next"`,
+			[]Product(nil),
+			nil,
+			errors.New(limitConversionErrorMessage),
+		},
+		// Valid link header responses
+		{
+			`{"products": [{"id":1}]}`,
+			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
+			[]Product{{ID: 1}},
+			&Pagination{
+				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
+			},
+			nil,
+		},
+		{
+			`{"products": [{"id":2}]}`,
+			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
+			[]Product{{ID: 2}},
+			&Pagination{
+				NextPageOptions:     &ListOptions{PageInfo: "foo"},
+				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
+			},
+			nil,
+		},
+	}
+	for i, c := range cases {
+		response := &http.Response{
+			StatusCode: 200,
+			Body:       httpmock.NewRespBodyFromString(c.body),
+			Header: http.Header{
+				"Link": {c.linkHeader},
+			},
+		}
+
+		httpmock.RegisterResponder("GET", listURL, httpmock.ResponderFromResponse(response))
+
+		products, pagination, err := client.Product.ListWithPagination(nil)
+		if !reflect.DeepEqual(products, c.expectedProducts) {
+			t.Errorf("test %d Product.ListWithPagination products returned %+v, expected %+v", i, products, c.expectedProducts)
+		}
+
+		if !reflect.DeepEqual(pagination, c.expectedPagination) {
+			t.Errorf(
+				"test %d Product.ListWithPagination pagination returned %+v, expected %+v",
+				i,
+				pagination,
+				c.expectedPagination,
+			)
+		}
+
+		if (c.expectedErr != nil || err != nil) && err.Error() != c.expectedErr.Error() {
+			t.Errorf(
+				"test %d Product.ListWithPagination err returned %+v, expected %+v",
+				i,
+				err,
+				c.expectedErr,
+			)
+		}
 	}
 }
 

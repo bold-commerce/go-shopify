@@ -2,7 +2,6 @@ package goshopify
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 )
 
 func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
-
 	price := decimal.NewFromFloat(1.0)
 	createdAt, _ := time.Parse(time.RFC3339, "2018-07-05T13:05:43-04:00")
 	billingOn, _ := time.Parse("2006-01-02", "2018-08-04")
@@ -30,9 +28,31 @@ func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
 		RiskLevel:        &riskLevel,
 	}
 
-	if !reflect.DeepEqual(usageCharge, expected) {
-		t.Errorf("UsageCharge.Create returned %+v, expected %+v", usageCharge, expected)
+	if usageCharge.ID != expected.ID {
+		t.Errorf("UsageCharge.ID returned %v, expected %v", usageCharge.ID, expected.ID)
 	}
+	if usageCharge.Description != expected.Description {
+		t.Errorf("UsageCharge.Description returned %v, expected %v", usageCharge.Description, expected.Description)
+	}
+	if !usageCharge.Price.Equal(*expected.Price) {
+		t.Errorf("UsageCharge.Price returned %v, expected %v", usageCharge.Price, expected.Price)
+	}
+	if !usageCharge.CreatedAt.Equal(*expected.CreatedAt) {
+		t.Errorf("UsageCharge.CreatedAt returned %v, expected %v", usageCharge.CreatedAt, expected.CreatedAt)
+	}
+	if !usageCharge.BillingOn.Equal(*expected.BillingOn) {
+		t.Errorf("UsageCharge.BillingOn returned %v, expected %v", usageCharge.BillingOn, expected.BillingOn)
+	}
+	if !usageCharge.BalanceRemaining.Equal(*expected.BalanceRemaining) {
+		t.Errorf("UsageCharge.BalanceRemaining returned %v, expected %v", usageCharge.BalanceRemaining, expected.BalanceRemaining)
+	}
+	if !usageCharge.BalanceUsed.Equal(*expected.BalanceUsed) {
+		t.Errorf("UsageCharge.BalanceUsed returned %v, expected %v", usageCharge.BalanceUsed, expected.BalanceUsed)
+	}
+	if !usageCharge.RiskLevel.Equal(*expected.RiskLevel) {
+		t.Errorf("UsageCharge.RiskLevel returned %v, expected %v", usageCharge.RiskLevel, expected.RiskLevel)
+	}
+
 }
 func TestUsageChargeServiceOp_Create(t *testing.T) {
 	setup()
