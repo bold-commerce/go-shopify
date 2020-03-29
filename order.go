@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -15,6 +16,7 @@ const ordersResourceName = "orders"
 // See: https://help.shopify.com/api/reference/order
 type OrderService interface {
 	List(interface{}) ([]Order, error)
+	ListWithPagination(interface{}) ([]Order, *Pagination, error)
 	Count(interface{}) (int, error)
 	Get(int64, interface{}) (*Order, error)
 	Create(Order) (*Order, error)
@@ -52,19 +54,12 @@ type OrderCountOptions struct {
 // A struct for all available order list options.
 // See: https://help.shopify.com/api/reference/order#index
 type OrderListOptions struct {
-	Page              int       `url:"page,omitempty"`
-	Limit             int       `url:"limit,omitempty"`
-	SinceID           int64     `url:"since_id,omitempty"`
+	ListOptions
 	Status            string    `url:"status,omitempty"`
 	FinancialStatus   string    `url:"financial_status,omitempty"`
 	FulfillmentStatus string    `url:"fulfillment_status,omitempty"`
-	CreatedAtMin      time.Time `url:"created_at_min,omitempty"`
-	CreatedAtMax      time.Time `url:"created_at_max,omitempty"`
-	UpdatedAtMin      time.Time `url:"updated_at_min,omitempty"`
-	UpdatedAtMax      time.Time `url:"updated_at_max,omitempty"`
 	ProcessedAtMin    time.Time `url:"processed_at_min,omitempty"`
 	ProcessedAtMax    time.Time `url:"processed_at_max,omitempty"`
-	Fields            string    `url:"fields,omitempty"`
 	Order             string    `url:"order,omitempty"`
 }
 
@@ -288,12 +283,33 @@ type RefundLineItem struct {
 
 // List orders
 func (s *OrderServiceOp) List(options interface{}) ([]Order, error) {
-	path := fmt.Sprintf("%s.json", ordersBasePath)
-	resource := new(OrdersResource)
-	err := s.client.Get(path, resource, options)
-	return resource.Orders, err
+	orders, _, err := s.ListWithPagination(options)
+	if err != nil {
+		return nil, err
+	}
+	return orders, nil
 }
 
+func (s *OrderServiceOp) ListWithPagination(options interface{}) ([]Order, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", ordersBasePath)
+	resource := new(OrdersResource)
+	headers := http.Header{}
+
+	headers, err := s.client.createAndDoGetHeaders("GET", path, nil, options, resource)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Extract pagination info from header
+	linkHeader := headers.Get("Link")
+
+	pagination, err := extractPagination(linkHeader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return resource.Orders, pagination, nil
+}
 // Count orders
 func (s *OrderServiceOp) Count(options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", ordersBasePath)
