@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -558,9 +559,10 @@ func TestCreateAndDo(t *testing.T) {
 	httpmock.RegisterResponder("GET", "://fooshop.myshopify.com/foo/2", httpmock.NewStringResponder(200, ""))
 	body := new(MyStruct)
 	_, err := client.NewRequest("GET", "://fooshop.myshopify.com/foo/2", body, nil)
-	expected := errors.New("parse ://fooshop.myshopify.com/foo/2: missing protocol scheme")
 
-	if err != nil && fmt.Sprint(err) != fmt.Sprint(expected) {
+	expected := errors.New("parse \"://fooshop.myshopify.com/foo/2\": missing protocol scheme")
+
+	if err != nil && !strings.Contains(err.Error(), "missing protocol scheme") {
 		t.Errorf("CreateAndDo(): expected error %v, actual %v", expected, err)
 	} else if err == nil && !reflect.DeepEqual(body, expected) {
 		t.Errorf("CreateAndDo(): expected %#v, actual %#v", expected, body)
