@@ -1,7 +1,8 @@
-version: '2'
+version: '3.7'
 
 services:
-  dev:
+  test:
+    image: go-shopify:latest
     build: .
     command: go test -v -cover ./...
     volumes:
