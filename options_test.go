@@ -44,3 +44,12 @@ func TestWithRetry(t *testing.T) {
 		t.Errorf("WithRetry client.retries = %d, expected %d", c.retries, expected)
 	}
 }
+
+func TestWithLogger(t *testing.T) {
+	logger := &LeveledLogger{Level: LevelDebug}
+	c := NewClient(app, "fooshop", "abcd", WithLogger(logger))
+
+	if c.log != logger {
+		t.Errorf("WithLogger expected logs to match %v != %v", c.log, logger)
+	}
+}

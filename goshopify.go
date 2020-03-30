@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -54,6 +55,7 @@ type RateLimitInfo struct {
 type Client struct {
 	// HTTP client used to communicate with the Shopify API.
 	Client *http.Client
+	log    LeveledLoggerInterface
 
 	// App settings
 	app App
@@ -240,6 +242,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 		Client: &http.Client{
 			Timeout: time.Second * defaultHttpTimeout,
 		},
+		log:        &LeveledLogger{},
 		app:        app,
 		baseURL:    baseURL,
 		token:      token,
@@ -301,9 +304,12 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	var err error
 	retries := c.retries
 	c.attempts = 0
+	c.logRequest(req)
+
 	for {
 		c.attempts++
 		resp, err = c.Client.Do(req)
+		c.logResponse(resp)
 		if err != nil {
 			return nil, err //http client errors, not api responses
 		}
@@ -322,7 +328,9 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 
 		if rateLimitErr, isRetryErr := respErr.(RateLimitError); isRetryErr {
 			// back off and retry
+
 			wait := time.Duration(rateLimitErr.RetryAfter) * time.Second
+			c.log.Debugf("rate limited waiting %s", wait.String())
 			time.Sleep(wait)
 			retries--
 			continue
@@ -331,6 +339,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		var doRetry bool
 		switch resp.StatusCode {
 		case http.StatusServiceUnavailable:
+			c.log.Debugf("service unavailable, retrying")
 			doRetry = true
 			retries--
 		}
@@ -343,11 +352,13 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		return nil, respErr
 	}
 
+	c.logResponse(resp)
 	defer resp.Body.Close()
 
 	if c.apiVersion == defaultApiVersion && resp.Header.Get("X-Shopify-API-Version") != "" {
 		// if using stable on first request set the api version
 		c.apiVersion = resp.Header.Get("X-Shopify-API-Version")
+		c.log.Infof("api version not set, now using %s", c.apiVersion)
 	}
 
 	if v != nil {
@@ -366,6 +377,35 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	c.RateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(resp.Header.Get("Retry-After"), 64)
 
 	return resp.Header, nil
+}
+
+func (c *Client) logRequest(req *http.Request) {
+	if req == nil {
+		return
+	}
+	if req.URL != nil {
+		c.log.Debugf("%s: %s", req.Method, req.URL.String())
+	}
+	c.logBody(&req.Body, "SENT: %s")
+}
+
+func (c *Client) logResponse(res *http.Response) {
+	if res == nil {
+		return
+	}
+	c.log.Debugf("RECV %d: %s", res.StatusCode, res.Status)
+	c.logBody(&res.Body, "RESP: %s")
+}
+
+func (c *Client) logBody(body *io.ReadCloser, format string) {
+	if body == nil {
+		return
+	}
+	b, _ := ioutil.ReadAll(*body)
+	if len(b) > 0 {
+		c.log.Debugf(format, string(b))
+	}
+	*body = ioutil.NopCloser(bytes.NewBuffer(b))
 }
 
 func wrapSpecificError(r *http.Response, err ResponseError) error {

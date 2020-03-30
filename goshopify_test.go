@@ -46,7 +46,9 @@ func setup() {
 		Scope:       "read_products",
 		Password:    "privateapppassword",
 	}
-	client = NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion), WithRetry(maxRetries))
+	client = NewClient(app, "fooshop", "abcd",
+		WithVersion(testApiVersion),
+		WithRetry(maxRetries))
 	httpmock.ActivateNonDefault(client.Client)
 }
 

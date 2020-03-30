@@ -22,3 +22,9 @@ func WithRetry(retries int) Option {
 		c.retries = retries
 	}
 }
+
+func WithLogger(logger LeveledLoggerInterface) Option {
+	return func(c *Client) {
+		c.log = logger
+	}
+}
