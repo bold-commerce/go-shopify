@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -695,4 +696,385 @@ func TestOrderCancelFulfillment(t *testing.T) {
 	}
 
 	FulfillmentTests(t, *returnedFulfillment)
+}
+
+// TestLineItemUnmarshalJSON tests unmarsalling a LineItem from json
+func TestLineItemUnmarshalJSON(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/valid.json"))
+	if err != nil {
+		t.Errorf("LineItem.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := validLineItem()
+
+	testLineItem(t, expected, actual)
+}
+
+// TestLineItemUnmarshalJSONInvalid0 tests unmarsalling a LineItem from invalid json
+func TestLineItemUnmarshalJSONInvalid0(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/properties_invalid0.json"))
+	if err == nil || !strings.Contains(err.Error(), "unexpected end of JSON input") {
+		t.Errorf("LineItem.UnmarshalJSON expected unexpected end of JSON input error got %v", err)
+	}
+}
+
+// TestLineItemUnmarshalJSONInvalid1 tests unmarsalling a LineItem with properties that are a struct with invalid
+// values
+func TestLineItemUnmarshalJSONInvalid1(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/properties_invalid1.json"))
+	if err == nil || !strings.Contains(err.Error(), "cannot unmarshal number") {
+		t.Errorf("LineItem.UnmarshalJSON expected cannot unmarshal number into string error got %v", err)
+	}
+}
+
+// TestLineItemUnmarshalJSONInvalid2 tests unmarsalling a LineItem with properties that are an array with invalid
+// values
+func TestLineItemUnmarshalJSONInvalid2(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/properties_invalid2.json"))
+	if err == nil || !strings.Contains(err.Error(), "cannot unmarshal number") {
+		t.Errorf("LineItem.UnmarshalJSON expected cannot unmarshal number into string error got %v", err)
+	}
+}
+
+// TestLineItemUnmarshalJSONPropertiesEmptyObject tests unmarsalling a LineItem from json which has properties as an empty json object
+func TestLineItemUnmarshalJSONPropertiesEmptyObject(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/properties_empty_object.json"))
+	if err != nil {
+		t.Errorf("LineItem.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := propertiesEmptyStructLientItem()
+
+	testLineItem(t, expected, actual)
+}
+
+// TestLineItemUnmarshalJSONPropertiesObject tests unmarsalling a LineItem from json which has properties as an json object
+func TestLineItemUnmarshalJSONPropertiesObject(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/properties_object.json"))
+	if err != nil {
+		t.Errorf("LineItem.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := propertiesStructLientItem()
+
+	testLineItem(t, expected, actual)
+}
+
+func testLineItem(t *testing.T, expected, actual LineItem) {
+	if actual.ID != expected.ID {
+		t.Errorf("LineItem.ID should be (%v), was (%v)", expected.ID, actual.ID)
+	}
+
+	if actual.ProductID != expected.ProductID {
+		t.Errorf("LineItem.ProductID should be (%v), was (%v)", expected.ProductID, actual.ProductID)
+	}
+
+	if actual.VariantID != expected.VariantID {
+		t.Errorf("LineItem.VariantID should be (%v), was (%v)", expected.VariantID, actual.VariantID)
+	}
+
+	if actual.Quantity != expected.Quantity {
+		t.Errorf("LineItem.Quantity should be (%v), was (%v)", expected.Quantity, actual.Quantity)
+	}
+
+	if actual.Price == nil {
+		if actual.Price != expected.Price {
+			t.Errorf("LineItem.Price should be (%s), was (%s)", expected.Price, actual.Price)
+		}
+	} else {
+		if !actual.Price.Equals(*expected.Price) {
+			t.Errorf("LineItem.Price should be (%s), was (%s)", expected.Price, actual.Price)
+		}
+	}
+
+	if actual.TotalDiscount == nil {
+		if actual.TotalDiscount != expected.TotalDiscount {
+			t.Errorf("LineItem.TotalDiscount should be (%s), was (%s)", expected.TotalDiscount, actual.TotalDiscount)
+		}
+	} else {
+		if !actual.TotalDiscount.Equals(*expected.TotalDiscount) {
+			t.Errorf("LineItem.TotalDiscount should be (%s), was (%s)", expected.TotalDiscount, actual.TotalDiscount)
+		}
+	}
+
+	if actual.Title != expected.Title {
+		t.Errorf("LineItem.Title should be (%v), was (%v)", expected.Title, actual.Title)
+	}
+
+	if actual.VariantTitle != expected.VariantTitle {
+		t.Errorf("LineItem.VariantTitle should be (%v), was (%v)", expected.VariantTitle, actual.VariantTitle)
+	}
+
+	if actual.Name != expected.Name {
+		t.Errorf("LineItem.Name should be (%v), was (%v)", expected.Name, actual.Name)
+	}
+
+	if actual.SKU != expected.SKU {
+		t.Errorf("LineItem.SKU should be (%v), was (%v)", expected.SKU, actual.SKU)
+	}
+
+	if actual.Vendor != expected.Vendor {
+		t.Errorf("LineItem.Vendor should be (%v), was (%v)", expected.Vendor, actual.Vendor)
+	}
+
+	if actual.GiftCard != expected.GiftCard {
+		t.Errorf("LineItem.GiftCard should be (%v), was (%v)", expected.GiftCard, actual.GiftCard)
+	}
+
+	if actual.Taxable != expected.Taxable {
+		t.Errorf("LineItem.Taxable should be (%v), was (%v)", expected.Taxable, actual.Taxable)
+	}
+
+	if actual.FulfillmentService != expected.FulfillmentService {
+		t.Errorf("LineItem.FulfillmentService should be (%v), was (%v)", expected.FulfillmentService, actual.FulfillmentService)
+	}
+
+	if actual.RequiresShipping != expected.RequiresShipping {
+		t.Errorf("LineItem.RequiresShipping should be (%v), was (%v)", expected.RequiresShipping, actual.RequiresShipping)
+	}
+
+	if actual.VariantInventoryManagement != expected.VariantInventoryManagement {
+		t.Errorf("LineItem.VariantInventoryManagement should be (%v), was (%v)", expected.VariantInventoryManagement, actual.VariantInventoryManagement)
+	}
+
+	if actual.PreTaxPrice == nil {
+		if actual.PreTaxPrice != expected.PreTaxPrice {
+			t.Errorf("LineItem.PreTaxPrice should be (%v), was (%v)", expected.PreTaxPrice, actual.PreTaxPrice)
+		}
+	} else {
+		if !actual.PreTaxPrice.Equals(*expected.PreTaxPrice) {
+			t.Errorf("LineItem.PreTaxPrice should be (%v), was (%v)", expected.PreTaxPrice, actual.PreTaxPrice)
+		}
+	}
+
+	testProperties(t, expected.Properties, actual.Properties)
+
+	if actual.ProductExists != expected.ProductExists {
+		t.Errorf("LineItem.ProductExists should be (%v), was (%v)", expected.ProductExists, actual.ProductExists)
+	}
+
+	if actual.FulfillableQuantity != expected.FulfillableQuantity {
+		t.Errorf("LineItem.FulfillableQuantity should be (%v), was (%v)", expected.FulfillableQuantity, actual.FulfillableQuantity)
+	}
+
+	if actual.Grams != expected.Grams {
+		t.Errorf("LineItem.Grams should be (%v), was (%v)", expected.Grams, actual.Grams)
+	}
+
+	if actual.FulfillmentStatus != expected.FulfillmentStatus {
+		t.Errorf("LineItem.FulfillmentStatus should be (%v), was (%v)", expected.FulfillmentStatus, actual.FulfillmentStatus)
+	}
+
+	testTaxLines(t, expected.TaxLines, actual.TaxLines)
+
+	if actual.OriginLocation == nil {
+		if actual.OriginLocation != expected.OriginLocation {
+			t.Errorf("LineItem.OriginLocation should be (%v), was (%v)", expected.OriginLocation, actual.OriginLocation)
+		}
+	} else {
+		if *actual.OriginLocation != *expected.OriginLocation {
+			t.Errorf("LineItem.OriginLocation should be (%v), was (%v)", expected.OriginLocation, actual.OriginLocation)
+		}
+	}
+
+	if actual.DestinationLocation == nil {
+		if actual.DestinationLocation != expected.DestinationLocation {
+			t.Errorf("LineItem.DestinationLocation should be (%v), was (%v)", expected.DestinationLocation, actual.DestinationLocation)
+		}
+	} else {
+		if *actual.DestinationLocation != *expected.DestinationLocation {
+			t.Errorf("LineItem.DestinationLocation should be (%v), was (%v)", expected.DestinationLocation, actual.DestinationLocation)
+		}
+	}
+
+	if actual.AppliedDiscount == nil {
+		if actual.AppliedDiscount != expected.AppliedDiscount {
+			t.Errorf("LineItem.AppliedDiscount should be (%v), was (%v)", expected.AppliedDiscount, actual.AppliedDiscount)
+		}
+	} else {
+		if *actual.AppliedDiscount != *expected.AppliedDiscount {
+			t.Errorf("LineItem.AppliedDiscount should be (%v), was (%v)", expected.AppliedDiscount, actual.AppliedDiscount)
+		}
+	}
+}
+
+func testProperties(t *testing.T, expected, actual []NoteAttribute) {
+	if len(expected) != len(actual) {
+		t.Errorf("LineItem.Properties expected len (%d) actual (%d)", len(expected), len(actual))
+	} else {
+		for i := 0; i < len(actual); i++ {
+			a := actual[i]
+			if a.Name != expected[i].Name {
+				t.Errorf("LineItem.Properties[%d].Name should be (%s), was (%s)", i, expected[i].Name, a.Name)
+			}
+			if a.Value != expected[i].Value {
+				t.Errorf("LineItem.Properties[%d].Value should be (%s), was (%s)", i, expected[i].Value, a.Value)
+			}
+		}
+	}
+}
+
+func testTaxLines(t *testing.T, expected, actual []TaxLine) {
+	if len(expected) != len(actual) {
+		t.Errorf("LineItem.TaxLines expected len (%d) actual (%d)", len(expected), len(actual))
+	} else {
+		for i := 0; i < len(actual); i++ {
+			a := actual[i]
+			e := expected[i]
+			if !a.Price.Equals(*e.Price) {
+				t.Errorf("LineItem.TaxLine[%d].Price should be (%s), was (%s)", i, e.Price, a.Price)
+			}
+			if !a.Rate.Equals(*e.Rate) {
+				t.Errorf("LineItem.TaxLine[%d].Rate should be (%s), was (%s)", i, e.Rate, a.Rate)
+			}
+			if a.Title != e.Title {
+				t.Errorf("LineItem.TaxLine[%d].Title should be (%s), was (%s)", i, e.Title, a.Title)
+			}
+		}
+	}
+}
+
+func propertiesEmptyStructLientItem() LineItem {
+	return LineItem{
+		Properties: []NoteAttribute{},
+	}
+}
+
+func propertiesStructLientItem() LineItem {
+	return LineItem{
+		Properties: []NoteAttribute{
+			NoteAttribute{
+				Name:  "property 1",
+				Value: float64(3),
+			},
+		},
+	}
+}
+
+func validLineItem() LineItem {
+	price := decimal.New(1234, -2)
+	totalDiscount := decimal.New(123, -2)
+	preTaxPrice := decimal.New(900, -2)
+	tl1Price := decimal.New(1350, -2)
+	tl1Rate := decimal.New(6, -2)
+	tl2Price := decimal.New(1250, -2)
+	tl2Rate := decimal.New(5, -2)
+	return LineItem{
+		ID:                         int64(254721536),
+		ProductID:                  int64(111475476),
+		VariantID:                  int64(1234),
+		Quantity:                   1,
+		Price:                      &price,
+		TotalDiscount:              &totalDiscount,
+		Title:                      "Soda Title",
+		VariantTitle:               "Test Variant",
+		Name:                       "Soda",
+		SKU:                        "sku-123",
+		Vendor:                     "Test Vendor",
+		GiftCard:                   true,
+		Taxable:                    true,
+		FulfillmentService:         "manual",
+		RequiresShipping:           true,
+		VariantInventoryManagement: "shopify",
+		PreTaxPrice:                &preTaxPrice,
+		Properties: []NoteAttribute{
+			NoteAttribute{
+				Name:  "note 1",
+				Value: "one",
+			},
+			NoteAttribute{
+				Name:  "note 2",
+				Value: float64(2),
+			},
+		},
+		ProductExists:       true,
+		FulfillableQuantity: 1,
+		Grams:               100,
+		FulfillmentStatus:   "partial",
+		TaxLines: []TaxLine{
+			TaxLine{
+				Title: "State tax",
+				Price: &tl1Price,
+				Rate:  &tl1Rate,
+			},
+			TaxLine{
+				Title: "Federal tax",
+				Price: &tl2Price,
+				Rate:  &tl2Rate,
+			},
+		},
+		OriginLocation: &Address{
+			ID:           123,
+			Address1:     "100 some street",
+			Address2:     "",
+			City:         "Winnipeg",
+			Company:      "Acme Corporation",
+			Country:      "Canada",
+			CountryCode:  "CA",
+			FirstName:    "Bob",
+			LastName:     "Smith",
+			Latitude:     49.811550,
+			Longitude:    -97.189480,
+			Name:         "test address",
+			Phone:        "8675309",
+			Province:     "Manitoba",
+			ProvinceCode: "MB",
+			Zip:          "R3Y 0L6",
+		},
+		DestinationLocation: &Address{
+			ID:           124,
+			Address1:     "200 some street",
+			Address2:     "",
+			City:         "Winnipeg",
+			Company:      "Acme Corporation",
+			Country:      "Canada",
+			CountryCode:  "CA",
+			FirstName:    "Bob",
+			LastName:     "Smith",
+			Latitude:     49.811550,
+			Longitude:    -97.189480,
+			Name:         "test address",
+			Phone:        "8675309",
+			Province:     "Manitoba",
+			ProvinceCode: "MB",
+			Zip:          "R3Y 0L6",
+		},
+		AppliedDiscount: &AppliedDiscount{
+			Title:       "test discount",
+			Description: "my test discount",
+			Value:       "0.05",
+			ValueType:   "percent",
+			Amount:      "25.00",
+		},
+	}
 }

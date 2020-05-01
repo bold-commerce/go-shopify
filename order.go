@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -184,6 +185,43 @@ type LineItem struct {
 	AppliedDiscount            *AppliedDiscount `json:"applied_discount,omitempty"`
 }
 
+// UnmarshalJSON custom unmarsaller for LineItem required to mitigate some older orders having LineItem.Properies
+// which are empty JSON objects rather than the expected array.
+func (li *LineItem) UnmarshalJSON(data []byte) error {
+	type alias LineItem
+	aux := &struct {
+		Properties json.RawMessage `json:"properties"`
+		*alias
+	}{alias: (*alias)(li)}
+
+	err := json.Unmarshal(data, &aux)
+	if err != nil {
+		return err
+	}
+	// if the first character is a '[' we unmarshal into an array
+	if len(aux.Properties) > 0 && aux.Properties[0] == '[' {
+		var p []NoteAttribute
+		err = json.Unmarshal(aux.Properties, &p)
+		if err != nil {
+			return err
+		}
+		li.Properties = p
+	} else { // else we unmarshal it into a struct
+		var p NoteAttribute
+		err = json.Unmarshal(aux.Properties, &p)
+		if err != nil {
+			return err
+		}
+		if p.Name == "" && p.Value == nil { // if the struct is empty we set properties to nil
+			li.Properties = nil
+		} else {
+			li.Properties = []NoteAttribute{p} // else we set them to an array with the property nested
+		}
+	}
+
+	return nil
+}
+
 type LineItemProperty struct {
 	Message string `json:"message"`
 }
@@ -310,6 +348,7 @@ func (s *OrderServiceOp) ListWithPagination(options interface{}) ([]Order, *Pagi
 
 	return resource.Orders, pagination, nil
 }
+
 // Count orders
 func (s *OrderServiceOp) Count(options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", ordersBasePath)
