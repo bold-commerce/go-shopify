@@ -407,6 +407,65 @@ func TestOrderUpdate(t *testing.T) {
 	}
 }
 
+func TestOrderCancel(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123456/cancel.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("order_with_transaction.json")))
+
+	order, err := client.Order.Cancel(123456, nil)
+	if err != nil {
+		t.Errorf("Order.Update returned error: %v", err)
+	}
+	// Check that dates are parsed
+	timezone, _ := time.LoadLocation("America/New_York")
+
+	d := time.Date(2016, time.May, 17, 4, 14, 36, 0, timezone)
+	if !d.Equal(*order.CancelledAt) {
+		t.Errorf("Order.CancelledAt returned %+v, expected %+v", order.CancelledAt, d)
+	}
+
+	orderTests(t, *order)
+}
+
+func TestOrderClose(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123456/close.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"order":{"closed_at":"2016-05-17T04:14:36-04:00"}}`))
+
+	order, err := client.Order.Close(123456)
+	if err != nil {
+		t.Errorf("Order.Update returned error: %v", err)
+	}
+	// Check that dates are parsed
+	timezone, _ := time.LoadLocation("America/New_York")
+
+	d := time.Date(2016, time.May, 17, 4, 14, 36, 0, timezone)
+	if !d.Equal(*order.ClosedAt) {
+		t.Errorf("Order.ClosedAt returned %+v, expected %+v", order.ClosedAt, d)
+	}
+}
+
+func TestOrderOpen(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123456/open.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"order":{"closed_at":null}}`))
+
+	order, err := client.Order.Open(123456)
+	if err != nil {
+		t.Errorf("Order.Update returned error: %v", err)
+	}
+
+	if order.ClosedAt != nil {
+		t.Errorf("Order.ClosedAt returned %+v, expected nil", order.ClosedAt)
+	}
+}
+
 func TestOrderListMetafields(t *testing.T) {
 	setup()
 	defer teardown()

@@ -22,6 +22,9 @@ type OrderService interface {
 	Get(int64, interface{}) (*Order, error)
 	Create(Order) (*Order, error)
 	Update(Order) (*Order, error)
+	Cancel(int64, interface{}) (*Order, error)
+	Close(int64) (*Order, error)
+	Open(int64) (*Order, error)
 
 	// MetafieldsService used for Order resource to communicate with Metafields resource
 	MetafieldsService
@@ -378,6 +381,30 @@ func (s *OrderServiceOp) Update(order Order) (*Order, error) {
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Put(path, wrappedData, resource)
+	return resource.Order, err
+}
+
+// Cancel order
+func (s *OrderServiceOp) Cancel(orderID int64, options interface{}) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/cancel.json", ordersBasePath, orderID)
+	resource := new(OrderResource)
+	err := s.client.Post(path, options, resource)
+	return resource.Order, err
+}
+
+// Close order
+func (s *OrderServiceOp) Close(orderID int64) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/close.json", ordersBasePath, orderID)
+	resource := new(OrderResource)
+	err := s.client.Post(path, nil, resource)
+	return resource.Order, err
+}
+
+// Open order
+func (s *OrderServiceOp) Open(orderID int64) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/open.json", ordersBasePath, orderID)
+	resource := new(OrderResource)
+	err := s.client.Post(path, nil, resource)
 	return resource.Order, err
 }
 
