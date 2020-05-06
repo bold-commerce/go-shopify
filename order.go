@@ -67,6 +67,17 @@ type OrderListOptions struct {
 	Order             string    `url:"order,omitempty"`
 }
 
+// A struct of all available order cancel options.
+// See: https://help.shopify.com/api/reference/order#index
+type OrderCancelOptions struct {
+	Amount   *decimal.Decimal `json:"amount,omitempty"`
+	Currency string           `json:"currency,omitempty"`
+	Restock  bool             `json:"restock,omitempty"`
+	Reason   string           `json:"reason,omitempty"`
+	Email    bool             `json:"email,omitempty"`
+	Refund   *Refund          `json:"refund,omitempty"`
+}
+
 // Order represents a Shopify order
 type Order struct {
 	ID                    int64            `json:"id,omitempty"`
