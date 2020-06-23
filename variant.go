@@ -17,8 +17,8 @@ type VariantService interface {
 	List(int64, interface{}) ([]Variant, error)
 	Count(int64, interface{}) (int, error)
 	Get(int64, interface{}) (*Variant, error)
-	Create(int64, Variant) (*Variant, error)
-	Update(Variant) (*Variant, error)
+	Create(int64, VariantCreateUpdate) (*VariantCreateUpdate, error)
+	Update(VariantCreateUpdate) (*VariantCreateUpdate, error)
 	Delete(int64, int64) error
 
 	// MetafieldsService used for Variant resource to communicate with Metafields resource
@@ -63,9 +63,43 @@ type Variant struct {
 	Metafields           []Metafield      `json:"metafields,omitempty"`
 }
 
+type VariantCreateUpdate struct {
+	ID                  int64            `json:"id,omitempty"`
+	ProductID           int64            `json:"product_id,omitempty"`
+	Title               string           `json:"title,omitempty"`
+	Sku                 string           `json:"sku,omitempty"`
+	Position            int              `json:"position,omitempty"`
+	Grams               int              `json:"grams,omitempty"`
+	InventoryPolicy     string           `json:"inventory_policy,omitempty"`
+	Price               *decimal.Decimal `json:"price,omitempty"`
+	CompareAtPrice      *decimal.Decimal `json:"compare_at_price,omitempty"`
+	FulfillmentService  string           `json:"fulfillment_service,omitempty"`
+	InventoryManagement string           `json:"inventory_management,omitempty"`
+	InventoryItemId     int64            `json:"inventory_item_id,omitempty"`
+	Option1             string           `json:"option1,omitempty"`
+	Option2             string           `json:"option2,omitempty"`
+	Option3             string           `json:"option3,omitempty"`
+	CreatedAt           *time.Time       `json:"created_at,omitempty"`
+	UpdatedAt           *time.Time       `json:"updated_at,omitempty"`
+	Taxable             bool             `json:"taxable,omitempty"`
+	TaxCode             string           `json:"tax_code,omitempty"`
+	Barcode             string           `json:"barcode,omitempty"`
+	ImageID             int64            `json:"image_id,omitempty"`
+	Weight              *decimal.Decimal `json:"weight,omitempty"`
+	WeightUnit          string           `json:"weight_unit,omitempty"`
+	RequireShipping     bool             `json:"requires_shipping,omitempty"`
+	AdminGraphqlAPIID   string           `json:"admin_graphql_api_id,omitempty"`
+	Metafields          []Metafield      `json:"metafields,omitempty"`
+}
+
 // VariantResource represents the result from the variants/X.json endpoint
 type VariantResource struct {
 	Variant *Variant `json:"variant"`
+}
+
+// VariantCreateUpdateResource represents the re from the variants/X.json endpoint
+type VariantCreateUpdateResource struct {
+	VariantCreateUpdate *VariantCreateUpdate `json:"variant"`
 }
 
 // VariantsResource represents the result from the products/X/variants.json endpoint
@@ -96,21 +130,21 @@ func (s *VariantServiceOp) Get(variantID int64, options interface{}) (*Variant, 
 }
 
 // Create a new variant
-func (s *VariantServiceOp) Create(productID int64, variant Variant) (*Variant, error) {
+func (s *VariantServiceOp) Create(productID int64, variant VariantCreateUpdate) (*VariantCreateUpdate, error) {
 	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
-	wrappedData := VariantResource{Variant: &variant}
-	resource := new(VariantResource)
+	wrappedData := VariantCreateUpdateResource{VariantCreateUpdate: &variant}
+	resource := new(VariantCreateUpdateResource)
 	err := s.client.Post(path, wrappedData, resource)
-	return resource.Variant, err
+	return resource.VariantCreateUpdate, err
 }
 
 // Update existing variant
-func (s *VariantServiceOp) Update(variant Variant) (*Variant, error) {
+func (s *VariantServiceOp) Update(variant VariantCreateUpdate) (*VariantCreateUpdate, error) {
 	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variant.ID)
-	wrappedData := VariantResource{Variant: &variant}
-	resource := new(VariantResource)
+	wrappedData := VariantCreateUpdateResource{VariantCreateUpdate: &variant}
+	resource := new(VariantCreateUpdateResource)
 	err := s.client.Put(path, wrappedData, resource)
-	return resource.Variant, err
+	return resource.VariantCreateUpdate, err
 }
 
 // Delete an existing variant

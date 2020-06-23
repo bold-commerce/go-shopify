@@ -10,7 +10,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func variantTests(t *testing.T, variant Variant) {
+func variantTests(t *testing.T, variant VariantCreateUpdate) {
 	// Check that the ID is assigned to the returned variant
 	expectedInt := int64(1)
 	if variant.ID != expectedInt {
@@ -34,7 +34,7 @@ func variantTests(t *testing.T, variant Variant) {
 	}
 }
 
-func variantWithMetafieldsTests(t *testing.T, variant Variant) {
+func variantWithMetafieldsTests(t *testing.T, variant VariantCreateUpdate) {
 	// Check that the ID is assigned to the returned variant
 	expectedInt := int64(2)
 	if variant.ID != expectedInt {
@@ -144,7 +144,7 @@ func TestVariantCreate(t *testing.T) {
 
 	price := decimal.NewFromFloat(1)
 
-	variant := Variant{
+	variant := VariantCreateUpdate{
 		Option1: "Yellow",
 		Price:   &price,
 	}
@@ -164,7 +164,7 @@ func TestVariantCreateWithMetafields(t *testing.T) {
 
 	price := decimal.NewFromFloat(2)
 
-	variant := Variant{
+	variant := VariantCreateUpdate{
 		Option1: "Blue",
 		Price:   &price,
 	}
@@ -182,7 +182,7 @@ func TestVariantUpdate(t *testing.T) {
 	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("variant.json")))
 
-	variant := Variant{
+	variant := VariantCreateUpdate{
 		ID:      1,
 		Option1: "Green",
 	}
@@ -203,7 +203,7 @@ func TestVariantWithMetafieldsUpdate(t *testing.T) {
 	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/2.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("variant_with_metafields.json")))
 
-	variant := Variant{
+	variant := VariantCreateUpdate{
 		ID:      2,
 		Option1: "Green",
 		Metafields: []Metafield{
@@ -413,7 +413,7 @@ func TestVariantCreateWithTaxCode(t *testing.T) {
 
 	price := decimal.NewFromFloat(1)
 
-	variant := Variant{
+	variant := VariantCreateUpdate{
 		Option1: "Yellow",
 		Price:   &price,
 		TaxCode: "P0000000",
@@ -425,7 +425,7 @@ func TestVariantCreateWithTaxCode(t *testing.T) {
 	variantTestsWithTaxCode(t, *result)
 }
 
-func variantTestsWithTaxCode(t *testing.T, variant Variant) {
+func variantTestsWithTaxCode(t *testing.T, variant VariantCreateUpdate) {
 	// Check that the ID is assigned to the returned variant
 	expectedInt := int64(1)
 	if variant.ID != expectedInt {
