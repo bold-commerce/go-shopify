@@ -276,6 +276,30 @@ type ShippingLines struct {
 	TaxLines                      []TaxLine        `json:"tax_lines,omitempty"`
 }
 
+// UnmarshalJSON custom unmarshaller for ShippingLines implemented to handle requested_fulfillment_service_id being
+// returned as json numbers or json nulls instead of json strings
+func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
+	type alias ShippingLines
+	aux := &struct {
+		*alias
+		RequestedFulfillmentServiceID interface{} `json:"requested_fulfillment_service_id"`
+	}{alias: (*alias)(sl)}
+
+	err := json.Unmarshal(data, &aux)
+	if err != nil {
+		return err
+	}
+
+	switch aux.RequestedFulfillmentServiceID.(type) {
+	case nil:
+		sl.RequestedFulfillmentServiceID = ""
+	default:
+		sl.RequestedFulfillmentServiceID = fmt.Sprintf("%v", aux.RequestedFulfillmentServiceID)
+	}
+
+	return nil
+}
+
 type TaxLine struct {
 	Title string           `json:"title,omitempty"`
 	Price *decimal.Decimal `json:"price,omitempty"`

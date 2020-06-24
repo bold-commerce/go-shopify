@@ -849,6 +849,72 @@ func TestLineItemUnmarshalJSONPropertiesObject(t *testing.T) {
 	testLineItem(t, expected, actual)
 }
 
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a JSON string
+func TestShippingLines_UnmarshallJSON(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := ShippingLines{}
+
+	err := actual.UnmarshalJSON(loadFixture("shippinglines/valid.json"))
+	if err != nil {
+		t.Errorf("ShippingLines.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := validShippingLines()
+
+	testShippingLines(t, expected, actual)
+}
+
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a JSON Number
+func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDNumber(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := ShippingLines{}
+
+	err := actual.UnmarshalJSON(loadFixture("shippinglines/requested_fulfillment_service_id_number.json"))
+	if err != nil {
+		t.Errorf("ShippingLines.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := validShippingLines()
+	expected.RequestedFulfillmentServiceID = "123456"
+
+	testShippingLines(t, expected, actual)
+}
+
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a JSON null
+func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDNull(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := ShippingLines{}
+
+	err := actual.UnmarshalJSON(loadFixture("shippinglines/requested_fulfillment_service_id_null.json"))
+	if err != nil {
+		t.Errorf("ShippingLines.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := validShippingLines()
+	expected.RequestedFulfillmentServiceID = ""
+
+	testShippingLines(t, expected, actual)
+}
+
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a malformed JSON
+func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDInvalid(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := ShippingLines{}
+
+	err := actual.UnmarshalJSON(loadFixture("shippinglines/requested_fulfillment_service_id_invalid.json"))
+	if err == nil || !strings.Contains(err.Error(), "invalid character '}'") {
+		t.Errorf("ShippingLines.UnmarshalJSON expected invalid character '}' %v", err)
+	}
+}
+
 func testLineItem(t *testing.T, expected, actual LineItem) {
 	if actual.ID != expected.ID {
 		t.Errorf("LineItem.ID should be (%v), was (%v)", expected.ID, actual.ID)
@@ -1023,6 +1089,46 @@ func testTaxLines(t *testing.T, expected, actual []TaxLine) {
 	}
 }
 
+func testShippingLines(t *testing.T, expected, actual ShippingLines) {
+	if actual.ID != expected.ID {
+		t.Errorf("ShippingLines.ID should be (%v), was (%v)", expected.ID, actual.ID)
+	}
+
+	if actual.Title != expected.Title {
+		t.Errorf("ShippingLines.Title should be (%v), was (%v)", expected.Title, actual.Title)
+	}
+
+	if !actual.Price.Equals(*expected.Price) {
+		t.Errorf("ShippingLines.Price should be (%v), was (%v)", expected.Price, actual.Price)
+	}
+
+	if actual.Code != expected.Code {
+		t.Errorf("ShippingLines.Code should be (%v), was (%v)", expected.Code, actual.Code)
+	}
+
+	if actual.Source != expected.Source {
+		t.Errorf("ShippingLines.Source should be (%v), was (%v)", expected.Source, actual.Source)
+	}
+
+	if actual.Phone != expected.Phone {
+		t.Errorf("ShippingLines.Phone should be (%v), was (%v)", expected.Phone, actual.Phone)
+	}
+
+	if actual.RequestedFulfillmentServiceID != expected.RequestedFulfillmentServiceID {
+		t.Errorf("ShippingLines.RequestedFulfillmentServiceID should be (%v), was (%v)", expected.RequestedFulfillmentServiceID, actual.RequestedFulfillmentServiceID)
+	}
+
+	if actual.DeliveryCategory != expected.DeliveryCategory {
+		t.Errorf("ShippingLines.DeliveryCategory should be (%v), was (%v)", expected.DeliveryCategory, actual.DeliveryCategory)
+	}
+
+	if actual.CarrierIdentifier != expected.CarrierIdentifier {
+		t.Errorf("ShippingLines.CarrierIdentifier should be (%v), was (%v)", expected.CarrierIdentifier, actual.CarrierIdentifier)
+	}
+
+	testTaxLines(t, expected.TaxLines, actual.TaxLines)
+}
+
 func propertiesEmptyStructLientItem() LineItem {
 	return LineItem{
 		Properties: []NoteAttribute{},
@@ -1134,6 +1240,38 @@ func validLineItem() LineItem {
 			Value:       "0.05",
 			ValueType:   "percent",
 			Amount:      "25.00",
+		},
+	}
+}
+
+func validShippingLines() ShippingLines {
+	price := decimal.New(400, -2)
+	tl1Price := decimal.New(1350, -2)
+	tl1Rate := decimal.New(6, -2)
+	tl2Price := decimal.New(1250, -2)
+	tl2Rate := decimal.New(5, -2)
+
+	return ShippingLines{
+		ID:                            int64(254721542),
+		Title:                         "Small Packet International Air",
+		Price:                         &price,
+		Code:                          "INT.TP",
+		Source:                        "canada_post",
+		Phone:                         "",
+		RequestedFulfillmentServiceID: "third_party_fulfillment_service_id",
+		DeliveryCategory:              "",
+		CarrierIdentifier:             "third_party_carrier_identifier",
+		TaxLines: []TaxLine{
+			{
+				Title: "State tax",
+				Price: &tl1Price,
+				Rate:  &tl1Rate,
+			},
+			{
+				Title: "Federal tax",
+				Price: &tl2Price,
+				Rate:  &tl2Rate,
+			},
 		},
 	}
 }
