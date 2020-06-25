@@ -212,8 +212,10 @@ func (li *LineItem) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	// if the first character is a '[' we unmarshal into an array
-	if len(aux.Properties) > 0 && aux.Properties[0] == '[' {
+	if len(aux.Properties) == 0 {
+		return nil
+	} else if len(aux.Properties) > 0 && aux.Properties[0] == '[' {
+		// if the first character is a '[' we unmarshal into an array
 		var p []NoteAttribute
 		err = json.Unmarshal(aux.Properties, &p)
 		if err != nil {

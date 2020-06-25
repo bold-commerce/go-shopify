@@ -849,6 +849,23 @@ func TestLineItemUnmarshalJSONPropertiesObject(t *testing.T) {
 	testLineItem(t, expected, actual)
 }
 
+// TestLineItemUnmarshalJSONPropertiesAbsent tests unmarshalling a LineItem from json which has no properties object
+func TestLineItemUnmarshalJSONPropertiesAbsent(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/properties_absent.json"))
+	if err != nil {
+		t.Errorf("LineItem.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := propertiesEmptyStructLientItem()
+
+	testLineItem(t, expected, actual)
+}
+
 // TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a JSON string
 func TestShippingLines_UnmarshallJSON(t *testing.T) {
 	setup()
