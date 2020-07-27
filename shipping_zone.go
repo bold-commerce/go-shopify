@@ -47,6 +47,7 @@ type ShippingProvince struct {
 	CountryID      int64            `json:"country_id,omitempty"`
 	ShippingZoneID int64            `json:"shipping_zone_id,omitempty"`
 	Name           string           `json:"name,omitempty"`
+	Code           string           `json:"code,omitempty"`
 	Tax            *decimal.Decimal `json:"tax,omitempty"`
 	TaxName        string           `json:"tax_name,omitempty"`
 	TaxType        string           `json:"tax_type,omitempty"`
