@@ -21,14 +21,20 @@
     "prerequisite_product_ids": [],
     "prerequisite_variant_ids": [],
     "prerequisite_collection_ids": [],
-    "prerequisite_saved_search_ids": [],
-    "prerequisite_customer_ids": [],
-    "prerequisite_subtotal_range": null,
-    "prerequisite_quantity_range": null,
-    "prerequisite_shipping_price_range": null,
+    "prerequisite_saved_search_ids": [1123452345, 43535363636],
+    "prerequisite_customer_ids": [384028349005, 3492039843],
+    "prerequisite_subtotal_range": {
+      "greater_than_or_equal_to": "40.0"
+    },
+    "prerequisite_quantity_range": {
+      "greater_than_or_equal_to": 2
+    },
+    "prerequisite_shipping_price_range": {
+      "less_than_or_equal_to": "10.0"
+    },
     "prerequisite_to_entitlement_quantity_ratio": {
-      "prerequisite_quantity": null,
-      "entitled_quantity": null
+      "prerequisite_quantity": 2,
+      "entitled_quantity": 1
     },
     "title": "some discount rule",
     "admin_graphql_api_id": "gid://shopify/PriceRule/1"
