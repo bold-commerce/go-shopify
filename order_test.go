@@ -815,6 +815,23 @@ func TestLineItemUnmarshalJSONInvalid2(t *testing.T) {
 	}
 }
 
+// TestLineItemUnmarshalJSONPropertiesOmitted tests unmarshalling a LineItem where the "properties" property is omitted
+func TestLineItemUnmarshalJSONPropertiesOmitted(t *testing.T) {
+	setup()
+	defer teardown()
+
+	actual := LineItem{}
+
+	err := actual.UnmarshalJSON(loadFixture("orderlineitems/properties_ommited.json"))
+	if err != nil {
+		t.Errorf("LineItem.UnmarshalJSON returned error: %v", err)
+	}
+
+	expected := propertiesEmptyStructLientItem()
+
+	testLineItem(t, expected, actual)
+}
+
 // TestLineItemUnmarshalJSONPropertiesEmptyObject tests unmarsalling a LineItem from json which has properties as an empty json object
 func TestLineItemUnmarshalJSONPropertiesEmptyObject(t *testing.T) {
 	setup()
