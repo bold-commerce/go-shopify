@@ -22,6 +22,9 @@ type OrderService interface {
 	Get(int64, interface{}) (*Order, error)
 	Create(Order) (*Order, error)
 	Update(Order) (*Order, error)
+	Cancel(int64, interface{}) (*Order, error)
+	Close(int64) (*Order, error)
+	Open(int64) (*Order, error)
 
 	// MetafieldsService used for Order resource to communicate with Metafields resource
 	MetafieldsService
@@ -62,6 +65,17 @@ type OrderListOptions struct {
 	ProcessedAtMin    time.Time `url:"processed_at_min,omitempty"`
 	ProcessedAtMax    time.Time `url:"processed_at_max,omitempty"`
 	Order             string    `url:"order,omitempty"`
+}
+
+// A struct of all available order cancel options.
+// See: https://help.shopify.com/api/reference/order#index
+type OrderCancelOptions struct {
+	Amount   *decimal.Decimal `json:"amount,omitempty"`
+	Currency string           `json:"currency,omitempty"`
+	Restock  bool             `json:"restock,omitempty"`
+	Reason   string           `json:"reason,omitempty"`
+	Email    bool             `json:"email,omitempty"`
+	Refund   *Refund          `json:"refund,omitempty"`
 }
 
 // Order represents a Shopify order
@@ -198,8 +212,10 @@ func (li *LineItem) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	// if the first character is a '[' we unmarshal into an array
-	if len(aux.Properties) > 0 && aux.Properties[0] == '[' {
+
+	if len(aux.Properties) == 0 {
+		return nil
+	} else if aux.Properties[0] == '[' { // if the first character is a '[' we unmarshal into an array
 		var p []NoteAttribute
 		err = json.Unmarshal(aux.Properties, &p)
 		if err != nil {
@@ -260,6 +276,30 @@ type ShippingLines struct {
 	DeliveryCategory              string           `json:"delivery_category,omitempty"`
 	CarrierIdentifier             string           `json:"carrier_identifier,omitempty"`
 	TaxLines                      []TaxLine        `json:"tax_lines,omitempty"`
+}
+
+// UnmarshalJSON custom unmarshaller for ShippingLines implemented to handle requested_fulfillment_service_id being
+// returned as json numbers or json nulls instead of json strings
+func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
+	type alias ShippingLines
+	aux := &struct {
+		*alias
+		RequestedFulfillmentServiceID interface{} `json:"requested_fulfillment_service_id"`
+	}{alias: (*alias)(sl)}
+
+	err := json.Unmarshal(data, &aux)
+	if err != nil {
+		return err
+	}
+
+	switch aux.RequestedFulfillmentServiceID.(type) {
+	case nil:
+		sl.RequestedFulfillmentServiceID = ""
+	default:
+		sl.RequestedFulfillmentServiceID = fmt.Sprintf("%v", aux.RequestedFulfillmentServiceID)
+	}
+
+	return nil
 }
 
 type TaxLine struct {
@@ -380,6 +420,30 @@ func (s *OrderServiceOp) Update(order Order) (*Order, error) {
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Put(path, wrappedData, resource)
+	return resource.Order, err
+}
+
+// Cancel order
+func (s *OrderServiceOp) Cancel(orderID int64, options interface{}) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/cancel.json", ordersBasePath, orderID)
+	resource := new(OrderResource)
+	err := s.client.Post(path, options, resource)
+	return resource.Order, err
+}
+
+// Close order
+func (s *OrderServiceOp) Close(orderID int64) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/close.json", ordersBasePath, orderID)
+	resource := new(OrderResource)
+	err := s.client.Post(path, nil, resource)
+	return resource.Order, err
+}
+
+// Open order
+func (s *OrderServiceOp) Open(orderID int64) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/open.json", ordersBasePath, orderID)
+	resource := new(OrderResource)
+	err := s.client.Post(path, nil, resource)
 	return resource.Order, err
 }
 

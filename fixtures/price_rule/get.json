@@ -1,0 +1,42 @@
+{
+  "price_rule": {
+    "id": 1,
+    "value_type": "percentage",
+    "value": "-10.0",
+    "customer_selection": "all",
+    "target_type": "line_item",
+    "target_selection": "all",
+    "allocation_method": "across",
+    "allocation_limit": null,
+    "once_per_customer": false,
+    "usage_limit": null,
+    "starts_at": "2020-07-05T22:40:32-04:00",
+    "ends_at": null,
+    "created_at": "2020-07-05T22:40:38-04:00",
+    "updated_at": "2020-07-07T21:49:39-04:00",
+    "entitled_product_ids": [],
+    "entitled_variant_ids": [],
+    "entitled_collection_ids": [],
+    "entitled_country_ids": [],
+    "prerequisite_product_ids": [],
+    "prerequisite_variant_ids": [],
+    "prerequisite_collection_ids": [],
+    "prerequisite_saved_search_ids": [1123452345, 43535363636],
+    "prerequisite_customer_ids": [384028349005, 3492039843],
+    "prerequisite_subtotal_range": {
+      "greater_than_or_equal_to": "40.0"
+    },
+    "prerequisite_quantity_range": {
+      "greater_than_or_equal_to": 2
+    },
+    "prerequisite_shipping_price_range": {
+      "less_than_or_equal_to": "10.0"
+    },
+    "prerequisite_to_entitlement_quantity_ratio": {
+      "prerequisite_quantity": 2,
+      "entitled_quantity": 1
+    },
+    "title": "some discount rule",
+    "admin_graphql_api_id": "gid://shopify/PriceRule/1"
+  }
+}

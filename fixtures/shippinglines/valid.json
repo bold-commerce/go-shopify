@@ -1,0 +1,42 @@
+{
+  "id": 254721542,
+  "code": "INT.TP",
+  "price": "4.00",
+  "price_set": {
+    "shop_money": {
+      "amount": "4.00",
+      "currency_code": "USD"
+    },
+    "presentment_money": {
+      "amount": "3.17",
+      "currency_code": "EUR"
+    }
+  },
+  "discounted_price": "4.00",
+  "discounted_price_set": {
+    "shop_money": {
+      "amount": "4.00",
+      "currency_code": "USD"
+    },
+    "presentment_money": {
+      "amount": "3.17",
+      "currency_code": "EUR"
+    }
+  },
+  "source": "canada_post",
+  "title": "Small Packet International Air",
+  "tax_lines": [
+    {
+      "price": 13.50,
+      "rate": 0.06,
+      "title": "State tax"
+    },
+    {
+      "price": 12.50,
+      "rate": 0.05,
+      "title": "Federal tax"
+    }
+  ],
+  "carrier_identifier": "third_party_carrier_identifier",
+  "requested_fulfillment_service_id": "third_party_fulfillment_service_id"
+}
