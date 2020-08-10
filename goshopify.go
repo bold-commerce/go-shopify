@@ -259,7 +259,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.Customer = &CustomerServiceOp{client: c}
 	c.CustomerAddress = &CustomerAddressServiceOp{client: c}
 	c.Order = &OrderServiceOp{client: c}
-	c.Fulfilment = &FulfillmentServiceOp{client: c}
+	c.Fulfillment = &FulfillmentServiceOp{client: c}
 	c.DraftOrder = &DraftOrderServiceOp{client: c}
 	c.Shop = &ShopServiceOp{client: c}
 	c.Webhook = &WebhookServiceOp{client: c}
