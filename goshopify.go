@@ -32,6 +32,9 @@ const (
 var (
 	// version regex match
 	apiVersionRegex = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
+
+	// MaxLoggedHTTPBodyBytes - limits the memory usage per logged request or response body to 32KiB
+	MaxLoggedHTTPBodyBytes int64 = 32000 // ~32KiB default to something more than reasonable, but expose it for configuration
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
@@ -87,7 +90,7 @@ type Client struct {
 	Customer                   CustomerService
 	CustomerAddress            CustomerAddressService
 	Order                      OrderService
-	Fulfillment		   FulfillmentService
+	Fulfillment                FulfillmentService
 	DraftOrder                 DraftOrderService
 	Shop                       ShopService
 	Webhook                    WebhookService
@@ -407,8 +410,13 @@ func (c *Client) logBody(body *io.ReadCloser, format string) {
 	if body == nil {
 		return
 	}
-	b, _ := ioutil.ReadAll(*body)
+
+	b, _ := ioutil.ReadAll(io.LimitReader(*body, MaxLoggedHTTPBodyBytes))
 	if len(b) > 0 {
+		if int64(len(b)) == MaxLoggedHTTPBodyBytes {
+			c.log.Warnf("WARNING: body truncation may have occurred, consider increasing the value of MaxLoggedHTTPBodyBytes")
+		}
+
 		c.log.Debugf(format, string(b))
 	}
 	*body = ioutil.NopCloser(bytes.NewBuffer(b))

@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -79,6 +80,7 @@ func TestDoGetHeadersDebug(t *testing.T) {
 	out := &bytes.Buffer{}
 	logger := &LeveledLogger{Level: LevelDebug, stderrOverride: err, stdoutOverride: out}
 
+	warnResExpectedStdErr := "[WARN] WARNING: body truncation may have occurred, consider increasing the value of MaxLoggedHTTPBodyBytes\n"
 	reqExpected := "[DEBUG] GET: //http:%2F%2Ftest.com/foo/1\n[DEBUG] SENT: request body\n"
 	resExpected := "[DEBUG] RECV 200: OK\n[DEBUG] RESP: response body\n"
 
@@ -94,11 +96,30 @@ func TestDoGetHeadersDebug(t *testing.T) {
 		t.Errorf("logRequest expected empty log output received \"%s\"", out.String())
 	}
 
-	client.logRequest(&http.Request{
+	bdy := ioutil.NopCloser(strings.NewReader(largeReqRespBody))
+	client.logBody(&bdy, "RESP: %s")
+	if err.String() != warnResExpectedStdErr {
+		t.Errorf("logBody expected \"%s\" but received \"%s\"", warnResExpectedStdErr, err)
+	}
+
+	if !strings.Contains(out.String(), `[DEBUG] RESP: {"orders":[{"id":123456,"email":"jon@doe.ca","closed_at":null,"created_at":"2016-05-17T04:14:36-00:00","updated_at":"2016-05-17T04:14:36-04:00",`) {
+		t.Errorf("logBody expected non-empty output, but received \"%s\"", out)
+	}
+
+	err.Reset()
+	out.Reset()
+
+	req := &http.Request{
 		Method: "GET",
 		URL:    &url.URL{Host: "http://test.com", Path: "/foo/1"},
 		Body:   ioutil.NopCloser(strings.NewReader("request body")),
-	})
+	}
+	client.logRequest(req)
+
+	_, rereadErr := req.Body.Read(make([]byte, 16))
+	if rereadErr != nil && rereadErr == io.EOF {
+		t.Errorf("could not re-read request body, may not have been reset")
+	}
 
 	if out.String() != reqExpected {
 		t.Errorf("doGetHeadersDebug expected stdout \"%s\" received \"%s\"", reqExpected, out)
@@ -112,13 +133,35 @@ func TestDoGetHeadersDebug(t *testing.T) {
 		t.Errorf("logResponse expected empty log output received \"%s\"", out.String())
 	}
 
-	client.logResponse(&http.Response{
+	resp := &http.Response{
 		Status:     http.StatusText(http.StatusOK),
 		StatusCode: http.StatusOK,
 		Body:       ioutil.NopCloser(strings.NewReader("response body")),
-	})
+	}
+	client.logResponse(resp)
+
+	_, rereadErr = resp.Body.Read(make([]byte, 16))
+	if rereadErr != nil && rereadErr == io.EOF {
+		t.Errorf("could not re-read response body, may not have been reset")
+	}
 
 	if out.String() != resExpected {
 		t.Errorf("doGetHeadersDebug expected stdout \"%s\" received \"%s\"", resExpected, out.String())
 	}
 }
+
+var largeReqRespBody = func() string {
+	b, err := ioutil.ReadFile("./fixtures/orders.json")
+	if err != nil {
+		panic(err)
+	}
+
+	sb := strings.Builder{}
+
+	// the output of a single orders.json file is ~3.4KB, so we'll do that 10x to trip up the limit
+	for i := 0; i < 10; i++ {
+		sb.WriteString(string(b))
+	}
+
+	return sb.String()
+}()
