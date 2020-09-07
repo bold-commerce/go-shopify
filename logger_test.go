@@ -150,6 +150,14 @@ func TestDoGetHeadersDebug(t *testing.T) {
 	}
 }
 
+func TestCheckMaxBodyBytes(t *testing.T) {
+	client := NewClient(app, "fooshop", "abcd")
+	client.checkMaxBodyBytes()
+	if client.maxBodyBytes != defaultMaxBodyBytes {
+		t.Errorf("checkMaxBodyBytes failed, expected client.maxBodyBytes to be set to the the default value of %d, but was set to %d", defaultMaxBodyBytes, client.maxBodyBytes)
+	}
+}
+
 var largeReqRespBody = func() string {
 	b, err := ioutil.ReadFile("./fixtures/orders.json")
 	if err != nil {
