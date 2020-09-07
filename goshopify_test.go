@@ -333,6 +333,11 @@ func TestDo(t *testing.T) {
 			t.Error("error creating request: ", err)
 		}
 
+		expected := defaultMaxBodyBytes
+		if client.maxBodyBytes != expected {
+			t.Errorf("NewClient maxBodyBytes = %d, expected %d", client.maxBodyBytes, expected)
+		}
+
 		err = client.Do(req, body)
 		if err != nil {
 			if e, ok := err.(*url.Error); ok {
