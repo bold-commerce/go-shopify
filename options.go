@@ -28,3 +28,9 @@ func WithLogger(logger LeveledLoggerInterface) Option {
 		c.log = logger
 	}
 }
+
+func WithMaxBodyBytes(maxBodyBytes int64) Option {
+	return func(c *Client) {
+		c.maxBodyBytes = maxBodyBytes
+	}
+}

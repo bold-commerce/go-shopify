@@ -27,14 +27,14 @@ const (
 	defaultApiPathPrefix = "admin"
 	defaultApiVersion    = "stable"
 	defaultHttpTimeout   = 10
+
+	// defaultMaxBodyBytes - default value for limiting memory usage per logged request or response body to 32KiB
+	defaultMaxBodyBytes int64 = 32000 // ~32KiB default to something more than reasonable, but expose it for configuration
 )
 
 var (
 	// version regex match
 	apiVersionRegex = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
-
-	// MaxLoggedHTTPBodyBytes - limits the memory usage per logged request or response body to 32KiB
-	MaxLoggedHTTPBodyBytes int64 = 32000 // ~32KiB default to something more than reasonable, but expose it for configuration
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
@@ -80,6 +80,9 @@ type Client struct {
 	// max number of retries, defaults to 0 for no retries see WithRetry option
 	retries  int
 	attempts int
+
+	// maximum bytes of request or response body that can be read in for logging, caps the amount of memory used per request or response
+	maxBodyBytes int64
 
 	RateLimits RateLimitInfo
 
@@ -248,12 +251,13 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 		Client: &http.Client{
 			Timeout: time.Second * defaultHttpTimeout,
 		},
-		log:        &LeveledLogger{},
-		app:        app,
-		baseURL:    baseURL,
-		token:      token,
-		apiVersion: defaultApiVersion,
-		pathPrefix: defaultApiPathPrefix,
+		log:          &LeveledLogger{},
+		app:          app,
+		baseURL:      baseURL,
+		token:        token,
+		apiVersion:   defaultApiVersion,
+		pathPrefix:   defaultApiPathPrefix,
+		maxBodyBytes: defaultMaxBodyBytes,
 	}
 
 	c.Product = &ProductServiceOp{client: c}
@@ -411,15 +415,23 @@ func (c *Client) logBody(body *io.ReadCloser, format string) {
 		return
 	}
 
-	b, _ := ioutil.ReadAll(io.LimitReader(*body, MaxLoggedHTTPBodyBytes))
+	c.checkMaxBodyBytes()
+
+	b, _ := ioutil.ReadAll(io.LimitReader(*body, c.maxBodyBytes))
 	if len(b) > 0 {
-		if int64(len(b)) == MaxLoggedHTTPBodyBytes {
+		if int64(len(b)) == c.maxBodyBytes {
 			c.log.Warnf("WARNING: body truncation may have occurred, consider increasing the value of MaxLoggedHTTPBodyBytes")
 		}
 
 		c.log.Debugf(format, string(b))
 	}
 	*body = ioutil.NopCloser(bytes.NewBuffer(b))
+}
+
+func (c *Client) checkMaxBodyBytes() {
+	if c.maxBodyBytes == 0 {
+		c.maxBodyBytes = defaultMaxBodyBytes
+	}
 }
 
 func wrapSpecificError(r *http.Response, err ResponseError) error {

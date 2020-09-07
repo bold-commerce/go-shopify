@@ -350,6 +350,14 @@ func TestDo(t *testing.T) {
 	}
 }
 
+func TestWithMaxBodyBytes(t *testing.T) {
+	testClient := NewClient(app, "fooshop", "abcd", WithMaxBodyBytes(128))
+	expected := int64(128)
+	if testClient.maxBodyBytes != expected {
+		t.Errorf("NewClient maxBodyBytes = %d, expected %d", testClient.maxBodyBytes, expected)
+	}
+}
+
 func TestRetry(t *testing.T) {
 	setup()
 	defer teardown()
