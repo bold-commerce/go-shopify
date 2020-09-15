@@ -22,6 +22,8 @@ import (
 
 const (
 	UserAgent = "goshopify/1.0.0"
+	// UnstableApiVersion Shopify API version for accessing unstable API features
+	UnstableApiVersion = "unstable"
 
 	// Shopify API version YYYY-MM - defaults to admin which uses the oldest stable version of the api
 	defaultApiPathPrefix = "admin"
@@ -48,6 +50,7 @@ type App struct {
 type RateLimitInfo struct {
 	RequestCount      int
 	BucketSize        int
+	GraphQLCost       *GraphQLCost
 	RetryAfterSeconds float64
 }
 
@@ -78,6 +81,9 @@ type Client struct {
 	retries  int
 	attempts int
 
+	// used to sleep between rate limited retries
+	sleep func(time.Duration)
+
 	RateLimits RateLimitInfo
 
 	// Services used for communicating with the API
@@ -87,7 +93,7 @@ type Client struct {
 	Customer                   CustomerService
 	CustomerAddress            CustomerAddressService
 	Order                      OrderService
-	Fulfillment		   FulfillmentService
+	Fulfillment                FulfillmentService
 	DraftOrder                 DraftOrderService
 	Shop                       ShopService
 	Webhook                    WebhookService
@@ -112,6 +118,7 @@ type Client struct {
 	PriceRule                  PriceRuleService
 	InventoryItem              InventoryItemService
 	ShippingZone               ShippingZoneService
+	GraphQL                    GraphQLService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -252,6 +259,9 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 		token:      token,
 		apiVersion: defaultApiVersion,
 		pathPrefix: defaultApiPathPrefix,
+		sleep: func(d time.Duration) {
+			time.Sleep(d)
+		},
 	}
 
 	c.Product = &ProductServiceOp{client: c}
@@ -285,6 +295,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.PriceRule = &PriceRuleServiceOp{client: c}
 	c.InventoryItem = &InventoryItemServiceOp{client: c}
 	c.ShippingZone = &ShippingZoneServiceOp{client: c}
+	c.GraphQL = &GraphQLServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {
@@ -339,7 +350,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 
 			wait := time.Duration(rateLimitErr.RetryAfter) * time.Second
 			c.log.Debugf("rate limited waiting %s", wait.String())
-			time.Sleep(wait)
+			c.sleep(wait)
 			retries--
 			continue
 		}

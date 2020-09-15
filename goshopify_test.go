@@ -48,7 +48,9 @@ func setup() {
 	}
 	client = NewClient(app, "fooshop", "abcd",
 		WithVersion(testApiVersion),
-		WithRetry(maxRetries))
+		WithRetry(maxRetries),
+		WithSleep(func(d time.Duration) {}),
+	)
 	httpmock.ActivateNonDefault(client.Client)
 }
 

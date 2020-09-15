@@ -1,6 +1,9 @@
 package goshopify
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // Option is used to configure client with options
 type Option func(c *Client)
@@ -9,7 +12,7 @@ type Option func(c *Client)
 func WithVersion(apiVersion string) Option {
 	return func(c *Client) {
 		pathPrefix := defaultApiPathPrefix
-		if len(apiVersion) > 0 && apiVersionRegex.MatchString(apiVersion) {
+		if len(apiVersion) > 0 && (apiVersionRegex.MatchString(apiVersion) || apiVersion == UnstableApiVersion) {
 			pathPrefix = fmt.Sprintf("admin/api/%s", apiVersion)
 		}
 		c.apiVersion = apiVersion
@@ -20,6 +23,12 @@ func WithVersion(apiVersion string) Option {
 func WithRetry(retries int) Option {
 	return func(c *Client) {
 		c.retries = retries
+	}
+}
+
+func WithSleep(sleep func(time.Duration)) Option {
+	return func(c *Client) {
+		c.sleep = sleep
 	}
 }
 
