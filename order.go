@@ -98,6 +98,7 @@ type Order struct {
 	TotalLineItemsPrice   *decimal.Decimal `json:"total_line_items_price,omitempty"`
 	TaxesIncluded         bool             `json:"taxes_included,omitempty"`
 	TotalTax              *decimal.Decimal `json:"total_tax,omitempty"`
+	TotalTipReceived      *decimal.Decimal `json:"total_tip_received,omitempty"`
 	TaxLines              []TaxLine        `json:"tax_lines,omitempty"`
 	TotalWeight           int              `json:"total_weight,omitempty"`
 	FinancialStatus       string           `json:"financial_status,omitempty"`
@@ -139,6 +140,7 @@ type Order struct {
 	SourceURL             string           `json:"source_url,omitempty"`
 	DeviceID              int64            `json:"device_id,omitempty"`
 	Phone                 string           `json:"phone,omitempty"`
+	PresentmentCurrency   string           `json:"presentment_currency,omitempty"`
 	LandingSiteRef        string           `json:"landing_site_ref,omitempty"`
 	CheckoutID            int64            `json:"checkout_id,omitempty"`
 	ContactEmail          string           `json:"contact_email,omitempty"`
