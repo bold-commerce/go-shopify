@@ -345,6 +345,7 @@ type Refund struct {
 	Id              int64            `json:"id,omitempty"`
 	OrderId         int64            `json:"order_id,omitempty"`
 	CreatedAt       *time.Time       `json:"created_at,omitempty"`
+	ProcessedAt     *time.Time       `json:"processed_at,omitempty"`
 	Note            string           `json:"note,omitempty"`
 	Restock         bool             `json:"restock,omitempty"`
 	UserId          int64            `json:"user_id,omitempty"`
