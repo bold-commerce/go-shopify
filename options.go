@@ -9,7 +9,7 @@ type Option func(c *Client)
 func WithVersion(apiVersion string) Option {
 	return func(c *Client) {
 		pathPrefix := defaultApiPathPrefix
-		if len(apiVersion) > 0 && apiVersionRegex.MatchString(apiVersion) {
+		if len(apiVersion) > 0 && (apiVersionRegex.MatchString(apiVersion) || apiVersion == UnstableApiVersion) {
 			pathPrefix = fmt.Sprintf("admin/api/%s", apiVersion)
 		}
 		c.apiVersion = apiVersion

@@ -53,3 +53,11 @@ func TestWithLogger(t *testing.T) {
 		t.Errorf("WithLogger expected logs to match %v != %v", c.log, logger)
 	}
 }
+
+func TestWithUnstableVersion(t *testing.T) {
+	c := NewClient(app, "fooshop", "abcd", WithVersion(UnstableApiVersion))
+	expected := fmt.Sprintf("admin/api/%s", UnstableApiVersion)
+	if c.pathPrefix != expected {
+		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
+	}
+}

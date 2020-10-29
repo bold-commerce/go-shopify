@@ -7,6 +7,16 @@ The new home of Conversio's Shopify Go library.
 [![Build Status](https://travis-ci.org/bold-commerce/go-shopify.svg?branch=master)](https://travis-ci.org/bold-commerce/go-shopify)
 [![codecov](https://codecov.io/gh/bold-commerce/go-shopify/branch/master/graph/badge.svg)](https://codecov.io/gh/bold-commerce/go-shopify) [![Join the chat at https://gitter.im/bold-commerce/go-shopify](https://badges.gitter.im/bold-commerce/go-shopify.svg)](https://gitter.im/bold-commerce/go-shopify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+## Supported Go Versions
+
+This library has been tested against the following versions of Go
+* 1.10
+* 1.11
+* 1.12
+* 1.13
+* 1.14
+* 1.15
+
 ## Install
 
 ```console

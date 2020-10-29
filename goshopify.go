@@ -22,6 +22,8 @@ import (
 
 const (
 	UserAgent = "goshopify/1.0.0"
+	// UnstableApiVersion Shopify API version for accessing unstable API features
+	UnstableApiVersion = "unstable"
 
 	// Shopify API version YYYY-MM - defaults to admin which uses the oldest stable version of the api
 	defaultApiPathPrefix = "admin"
@@ -112,6 +114,7 @@ type Client struct {
 	Page                       PageService
 	StorefrontAccessToken      StorefrontAccessTokenService
 	Collect                    CollectService
+	Collection                 CollectionService
 	Location                   LocationService
 	DiscountCode               DiscountCodeService
 	PriceRule                  PriceRuleService
@@ -285,6 +288,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.StorefrontAccessToken = &StorefrontAccessTokenServiceOp{client: c}
 	c.UsageCharge = &UsageChargeServiceOp{client: c}
 	c.Collect = &CollectServiceOp{client: c}
+	c.Collection = &CollectionServiceOp{client: c}
 	c.Location = &LocationServiceOp{client: c}
 	c.DiscountCode = &DiscountCodeServiceOp{client: c}
 	c.PriceRule = &PriceRuleServiceOp{client: c}
