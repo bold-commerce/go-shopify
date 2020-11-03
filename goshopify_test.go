@@ -739,6 +739,10 @@ func TestCheckResponseError(t *testing.T) {
 			ResponseError{Status: 400, Message: "order: order is wrong", Errors: []string{"order: order is wrong"}},
 		},
 		{
+			httpmock.NewStringResponse(400, `{"errors": { "collection_id": "collection_id is wrong" }}`),
+			ResponseError{Status: 400, Message: "collection_id: collection_id is wrong", Errors: []string{"collection_id: collection_id is wrong"}},
+		},
+		{
 			httpmock.NewStringResponse(400, `{error:bad request}`),
 			errors.New("invalid character 'e' looking for beginning of object key string"),
 		},
