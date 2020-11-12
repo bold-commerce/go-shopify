@@ -120,6 +120,7 @@ type Client struct {
 	PriceRule                  PriceRuleService
 	InventoryItem              InventoryItemService
 	ShippingZone               ShippingZoneService
+	ProductListing             ProductListingService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -294,6 +295,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.PriceRule = &PriceRuleServiceOp{client: c}
 	c.InventoryItem = &InventoryItemServiceOp{client: c}
 	c.ShippingZone = &ShippingZoneServiceOp{client: c}
+	c.ProductListing = &ProductListingServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {
@@ -529,9 +531,10 @@ func CheckResponseError(r *http.Response) error {
 		// A map, parse each error for each key in the map.
 		// json always serializes into map[string]interface{} for objects
 		for k, v := range shopifyError.Errors.(map[string]interface{}) {
+			switch reflect.TypeOf(v).Kind() {
 			// Check to make sure the interface is a slice
 			// json always serializes JSON arrays into []interface{}
-			if reflect.TypeOf(v).Kind() == reflect.Slice {
+			case reflect.Slice:
 				for _, elem := range v.([]interface{}) {
 					// If the primary message of the response error is not set, use
 					// any message.
@@ -541,6 +544,13 @@ func CheckResponseError(r *http.Response) error {
 					topicAndElem := fmt.Sprintf("%v: %v", k, elem)
 					responseError.Errors = append(responseError.Errors, topicAndElem)
 				}
+			case reflect.String:
+				elem := v.(string)
+				if responseError.Message == "" {
+					responseError.Message = fmt.Sprintf("%v: %v", k, elem)
+				}
+				topicAndElem := fmt.Sprintf("%v: %v", k, elem)
+				responseError.Errors = append(responseError.Errors, topicAndElem)
 			}
 		}
 	}
