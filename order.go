@@ -197,10 +197,10 @@ type LineItem struct {
 	OriginLocation             *Address              `json:"origin_location,omitempty"`
 	DestinationLocation        *Address              `json:"destination_location,omitempty"`
 	AppliedDiscount            *AppliedDiscount      `json:"applied_discount,omitempty"`
-	DiscoundAllocations        []DiscoundAllocations `json:"discount_allocations,omitempty"`
+	DiscountAllocations        []DiscountAllocations `json:"discount_allocations,omitempty"`
 }
 
-type DiscoundAllocations struct {
+type DiscountAllocations struct {
 	Amount                   *decimal.Decimal `json:"amount,omitempty"`
 	DiscountApplicationIndex int              `json:"discount_application_index,omitempty"`
 	AmountSet                AmountSet        `json:"amount_set,omitempty"`
