@@ -11,7 +11,7 @@ import (
 
 func MetafieldTests(t *testing.T, metafield Metafield) {
 	// Check that ID is assigned to the returned metafield
-	expectedInt := int64(721389482)
+	expectedInt := int64(1)
 	if metafield.ID != expectedInt {
 		t.Errorf("Metafield.ID returned %+v, expected %+v", metafield.ID, expectedInt)
 	}
@@ -76,14 +76,28 @@ func TestMetafieldGet(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/metafields/1.json", client.pathPrefix),
-		httpmock.NewStringResponder(200, `{"metafield": {"id":1}}`))
+		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield, err := client.Metafield.Get(1, nil)
 	if err != nil {
 		t.Errorf("Metafield.Get returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 1}
+	createdAt := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
+	updatedAt := time.Date(2016, time.January, 2, 0, 0, 0, 0, time.UTC)
+	expected := &Metafield{
+		ID:                1,
+		Key:               "app_key",
+		Value:             "app_value",
+		ValueType:         "string",
+		Namespace:         "affiliates",
+		Description:       "some amaaazing app's value",
+		OwnerId:           1,
+		CreatedAt:         &createdAt,
+		UpdatedAt:         &updatedAt,
+		OwnerResource:     "shop",
+		AdminGraphqlAPIID: "gid://shopify/Metafield/1",
+	}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Metafield.Get returned %+v, expected %+v", metafield, expected)
 	}
