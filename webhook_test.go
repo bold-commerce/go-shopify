@@ -35,6 +35,11 @@ func webhookTests(t *testing.T, webhook Webhook) {
 	if !reflect.DeepEqual(webhook.MetafieldNamespaces, expectedArr) {
 		t.Errorf("Webhook.Fields returned %+v, expected %+v", webhook.MetafieldNamespaces, expectedArr)
 	}
+
+	expectedStr = "2021-01"
+	if webhook.APIVersion != expectedStr {
+		t.Errorf("Webhook.APIVersion returned %+v, expected %+v", webhook.APIVersion, expectedStr)
+	}
 }
 
 func TestWebhookList(t *testing.T) {

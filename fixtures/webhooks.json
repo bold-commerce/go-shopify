@@ -12,7 +12,8 @@
       ],
       "metafield_namespaces": [
         "google", "inventory"
-      ]
+      ],
+      "api_version": "2021-01"
     }
   ]
 }
