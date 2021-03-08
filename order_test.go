@@ -171,6 +171,11 @@ func orderTests(t *testing.T, order Order) {
 		t.Errorf("Order.TotalPrice returned %+v, expected %+v", order.TotalPrice, p)
 	}
 
+	ctp := decimal.NewFromFloat(9.5)
+	if !ctp.Equals(*order.CurrentTotalPrice) {
+		t.Errorf("Order.CurrentTotalPrice returned %+v, expected %+v", order.CurrentTotalPrice, ctp)
+	}
+
 	// Check null prices, notice that prices are usually not empty.
 	if order.TotalTax != nil {
 		t.Errorf("Order.TotalTax returned %+v, expected %+v", order.TotalTax, nil)
