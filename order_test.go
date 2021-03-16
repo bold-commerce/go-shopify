@@ -1262,7 +1262,7 @@ func validLineItem() LineItem {
 		DiscountAllocations: []DiscountAllocations{
 			{
 				Amount: &discountAllocationAmount,
-				AmountSet: AmountSet{
+				AmountSet: &AmountSet{
 					ShopMoney: AmountSetEntry{
 						Amount:       &discountAllocationAmount,
 						CurrencyCode: "EUR",
@@ -1279,15 +1279,37 @@ func validLineItem() LineItem {
 
 func validShippingLines() ShippingLines {
 	price := decimal.New(400, -2)
+	eurPrice := decimal.New(317, -2)
 	tl1Price := decimal.New(1350, -2)
 	tl1Rate := decimal.New(6, -2)
 	tl2Price := decimal.New(1250, -2)
 	tl2Rate := decimal.New(5, -2)
 
 	return ShippingLines{
-		ID:                            int64(254721542),
-		Title:                         "Small Packet International Air",
-		Price:                         &price,
+		ID:    int64(254721542),
+		Title: "Small Packet International Air",
+		Price: &price,
+		PriceSet: &AmountSet{
+			ShopMoney: AmountSetEntry{
+				Amount:       &price,
+				CurrencyCode: "USD",
+			},
+			PresentmentMoney: AmountSetEntry{
+				Amount:       &eurPrice,
+				CurrencyCode: "EUR",
+			},
+		},
+		DiscountedPrice: &price,
+		DiscountedPriceSet: &AmountSet{
+			ShopMoney: AmountSetEntry{
+				Amount:       &price,
+				CurrencyCode: "USD",
+			},
+			PresentmentMoney: AmountSetEntry{
+				Amount:       &eurPrice,
+				CurrencyCode: "EUR",
+			},
+		},
 		Code:                          "INT.TP",
 		Source:                        "canada_post",
 		Phone:                         "",

@@ -203,7 +203,7 @@ type LineItem struct {
 type DiscountAllocations struct {
 	Amount                   *decimal.Decimal `json:"amount,omitempty"`
 	DiscountApplicationIndex int              `json:"discount_application_index,omitempty"`
-	AmountSet                AmountSet        `json:"amount_set,omitempty"`
+	AmountSet                *AmountSet       `json:"amount_set,omitempty"`
 }
 
 type AmountSet struct {
@@ -286,6 +286,9 @@ type ShippingLines struct {
 	ID                            int64            `json:"id,omitempty"`
 	Title                         string           `json:"title,omitempty"`
 	Price                         *decimal.Decimal `json:"price,omitempty"`
+	PriceSet                      *AmountSet       `json:"price_set,omitempty"`
+	DiscountedPrice               *decimal.Decimal `json:"discounted_price,omitempty"`
+	DiscountedPriceSet            *AmountSet       `json:"discounted_price_set,omitempty"`
 	Code                          string           `json:"code,omitempty"`
 	Source                        string           `json:"source,omitempty"`
 	Phone                         string           `json:"phone,omitempty"`
