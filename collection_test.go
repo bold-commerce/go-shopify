@@ -328,7 +328,6 @@ func TestListProductsWithPagination(t *testing.T) {
 		},
 		PreviousPageOptions: nil,
 	}
-	fmt.Println(fmt.Sprintf("NEXT page OPTIONS=%#v", page.NextPageOptions))
 	if !reflect.DeepEqual(page, expectedPage) {
 		t.Errorf("Collection.ListProductsWithPagination returned %+v, expected %+v", page, expectedPage)
 	}

@@ -84,6 +84,73 @@ type PriceRulesResource struct {
 	PriceRules []PriceRule `json:"price_rules"`
 }
 
+// SetPrerequisiteSubtotalRange sets or clears the subtotal range for which a cart must lie within to qualify for the price-rule
+func (pr *PriceRule) SetPrerequisiteSubtotalRange(greaterThanOrEqualTo *string) error {
+	if greaterThanOrEqualTo == nil {
+		pr.PrerequisiteSubtotalRange = nil
+	} else {
+		if !validateMoney(*greaterThanOrEqualTo) {
+			return fmt.Errorf("failed to parse value as Decimal, invalid value")
+		}
+
+		pr.PrerequisiteSubtotalRange = &prerequisiteSubtotalRange{
+			GreaterThanOrEqualTo: *greaterThanOrEqualTo,
+		}
+	}
+
+	return nil
+}
+
+// SetPrerequisiteQuantityRange sets or clears the quantity range for which a cart must lie within to qualify for the price-rule
+func (pr *PriceRule) SetPrerequisiteQuantityRange(greaterThanOrEqualTo *int) {
+	if greaterThanOrEqualTo == nil {
+		pr.PrerequisiteQuantityRange = nil
+	} else {
+		pr.PrerequisiteQuantityRange = &prerequisiteQuantityRange{
+			GreaterThanOrEqualTo: *greaterThanOrEqualTo,
+		}
+	}
+}
+
+// SetPrerequisiteShippingPriceRange sets or clears the shipping price range for which a cart must lie within to qualify for the price-rule
+func (pr *PriceRule) SetPrerequisiteShippingPriceRange(lessThanOrEqualTo *string) error {
+	if lessThanOrEqualTo == nil {
+		pr.PrerequisiteShippingPriceRange = nil
+	} else {
+		if !validateMoney(*lessThanOrEqualTo) {
+			return fmt.Errorf("failed to parse value as Decimal, invalid value")
+		}
+
+		pr.PrerequisiteShippingPriceRange = &prerequisiteShippingPriceRange{
+			LessThanOrEqualTo: *lessThanOrEqualTo,
+		}
+	}
+
+	return nil
+}
+
+// SetPrerequisiteToEntitlementQuantityRatio sets or clears the ratio between ordered items and entitled items (eg. buy X, get y free) for which a cart is eligible in the price-rule
+func (pr *PriceRule) SetPrerequisiteToEntitlementQuantityRatio(prerequisiteQuantity *int, entitledQuantity *int) {
+	if prerequisiteQuantity == nil && entitledQuantity == nil {
+		pr.PrerequisiteToEntitlementQuantityRatio = nil
+		return
+	}
+
+	var pQuant, eQuant int
+	if prerequisiteQuantity != nil {
+		pQuant = *prerequisiteQuantity
+	}
+
+	if entitledQuantity != nil {
+		eQuant = *entitledQuantity
+	}
+
+	pr.PrerequisiteToEntitlementQuantityRatio = &prerequisiteToEntitlementQuantityRatio{
+		PrerequisiteQuantity: pQuant,
+		EntitledQuantity: eQuant,
+	}
+}
+
 // Get retrieves a single price rules
 func (s *PriceRuleServiceOp) Get(priceRuleID int64) (*PriceRule, error) {
 	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
@@ -123,4 +190,9 @@ func (s *PriceRuleServiceOp) Delete(priceRuleID int64) error {
 	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
 	err := s.client.Delete(path)
 	return err
+}
+
+func validateMoney(v string) bool {
+	_, err := decimal.NewFromString(v)
+	return err == nil
 }
