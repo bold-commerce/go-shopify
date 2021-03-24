@@ -262,7 +262,6 @@ func TestProductListingPublish(t *testing.T) {
 	}
 
 	returnedProduct, err := client.ProductListing.Publish(product.ID)
-	fmt.Printf("%+v", returnedProduct)
 	if err != nil {
 		t.Errorf("ProductListing.Publish returned error: %v", err)
 	}

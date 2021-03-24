@@ -84,5 +84,20 @@
       "value": "0.05",
       "value_type": "percent",
       "amount": "25.00"
-    }
+    },
+    "discount_allocations": [
+        {
+          "amount": "5.5",
+          "amount_set": {
+            "shop_money": {
+              "amount": "5.5",
+              "currency_code": "EUR"
+            },
+            "presentment_money": {
+              "amount": "5.5",
+              "currency_code": "EUR"
+            }
+          }
+        }
+    ]
 }

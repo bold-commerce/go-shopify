@@ -1171,6 +1171,7 @@ func validLineItem() LineItem {
 	tl1Rate := decimal.New(6, -2)
 	tl2Price := decimal.New(1250, -2)
 	tl2Rate := decimal.New(5, -2)
+	discountAllocationAmount := decimal.New(55, -1)
 	return LineItem{
 		ID:                         int64(254721536),
 		ProductID:                  int64(111475476),
@@ -1257,6 +1258,21 @@ func validLineItem() LineItem {
 			Value:       "0.05",
 			ValueType:   "percent",
 			Amount:      "25.00",
+		},
+		DiscountAllocations: []DiscountAllocations{
+			{
+				Amount: &discountAllocationAmount,
+				AmountSet: AmountSet{
+					ShopMoney: AmountSetEntry{
+						Amount:       &discountAllocationAmount,
+						CurrencyCode: "EUR",
+					},
+					PresentmentMoney: AmountSetEntry{
+						Amount:       &discountAllocationAmount,
+						CurrencyCode: "EUR",
+					},
+				},
+			},
 		},
 	}
 }

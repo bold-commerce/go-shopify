@@ -49,6 +49,7 @@ type Metafield struct {
 	CreatedAt     *time.Time  `json:"created_at,omitempty"`
 	UpdatedAt     *time.Time  `json:"updated_at,omitempty"`
 	OwnerResource string      `json:"owner_resource,omitempty"`
+	AdminGraphqlAPIID string  `json:"admin_graphql_api_id,omitempty"`
 }
 
 // MetafieldResource represents the result from the metafields/X.json endpoint
