@@ -13,6 +13,9 @@ const collectsBasePath = "collects"
 type CollectService interface {
 	List(interface{}) ([]Collect, error)
 	Count(interface{}) (int, error)
+	Get(int64, interface{}) (*Collect, error)
+	Create(Collect) (*Collect, error)
+	Delete(int64) error
 }
 
 // CollectServiceOp handles communication with the collect related methods of
@@ -55,4 +58,26 @@ func (s *CollectServiceOp) List(options interface{}) ([]Collect, error) {
 func (s *CollectServiceOp) Count(options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", collectsBasePath)
 	return s.client.Count(path, options)
+}
+
+// Get individual collect
+func (s *CollectServiceOp) Get(collectID int64, options interface{}) (*Collect, error) {
+	path := fmt.Sprintf("%s/%d.json", collectsBasePath, collectID)
+	resource := new(CollectResource)
+	err := s.client.Get(path, resource, options)
+	return resource.Collect, err
+}
+
+// Create collects
+func (s *CollectServiceOp) Create(collect Collect) (*Collect, error) {
+	path := fmt.Sprintf("%s.json", collectsBasePath)
+	wrappedData := CollectResource{Collect: &collect}
+	resource := new(CollectResource)
+	err := s.client.Post(path, wrappedData, resource)
+	return resource.Collect, err
+}
+
+// Delete an existing collect
+func (s *CollectServiceOp) Delete(collectID int64) error {
+	return s.client.Delete(fmt.Sprintf("%s/%d.json", collectsBasePath, collectID))
 }
