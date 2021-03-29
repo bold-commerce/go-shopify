@@ -16,11 +16,11 @@ func collectTests(t *testing.T, collect Collect) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", 18091352323, collect.ID},
-		{"CollectionID", 241600835, collect.CollectionID},
-		{"ProductID", 6654094787, collect.ProductID},
-		{"Featured", false, collect.Featured},
-		{"SortValue", "0000000001", collect.SortValue},
+		{"ID", int64(18091352323), collect.ID},
+		{"CollectionID", int64(241600835), collect.CollectionID},
+		{"ProductID", int64(6654094787), collect.ProductID},
+		/* {"Featured", false, collect.Featured},
+		{"SortValue", "0000000001", collect.SortValue}, */
 	}
 
 	for _, c := range cases {
@@ -79,5 +79,56 @@ func TestCollectCount(t *testing.T) {
 	expected = 2
 	if cnt != expected {
 		t.Errorf("Collect.Count returned %d, expected %d", cnt, expected)
+	}
+}
+
+func TestCollectGet(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/1.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"collect": {"id":1}}`))
+
+	product, err := client.Collect.Get(1, nil)
+	if err != nil {
+		t.Errorf("Collect.Get returned error: %v", err)
+	}
+
+	expected := &Collect{ID: 1}
+	if !reflect.DeepEqual(product, expected) {
+		t.Errorf("Collect.Get returned %+v, expected %+v", product, expected)
+	}
+}
+
+func TestCollectCreate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("collect.json")))
+
+	collect := Collect{
+		CollectionID: 241600835,
+		ProductID:    6654094787,
+	}
+
+	returnedCollect, err := client.Collect.Create(collect)
+	if err != nil {
+		t.Errorf("Collect.Create returned error: %v", err)
+	}
+
+	collectTests(t, *returnedCollect)
+}
+
+func TestCollectDelete(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/1.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, "{}"))
+
+	err := client.Collect.Delete(1)
+	if err != nil {
+		t.Errorf("Collect.Delete returned error: %v", err)
 	}
 }
