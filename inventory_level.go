@@ -5,20 +5,17 @@ import (
 	"time"
 )
 
-const inventoryLevelBasePath = "inventory_levels"
-const inventoryLevelAdjustmentBasePath = "adjust"
-const inventoryLevelConnectBasePath = "connect"
-const inventoryLevelSetBasePath = "set"
+const inventoryLevelsBasePath = "inventory_levels"
 
 // InventoryLevelService is an interface for interacting with the
-// inventory level endpoints of the Shopify API
+// inventory items endpoints of the Shopify API
 // See https://help.shopify.com/en/api/reference/inventory/inventorylevel
 type InventoryLevelService interface {
-	Get(interface{}) ([]InventoryLevel, error)
-	Adjust(OptionsInventoryLevel) (InventoryLevel, error)
-	Delete(interface{}) error
-	Connect(OptionsInventoryLevel) (InventoryLevel, error)
-	Set(OptionsInventoryLevel) (InventoryLevel, error)
+	List(interface{}) ([]InventoryLevel, error)
+	Adjust(interface{}) (*InventoryLevel, error)
+	Delete(int64, int64) error
+	Connect(InventoryLevel) (*InventoryLevel, error)
+	Set(InventoryLevel) (*InventoryLevel, error)
 }
 
 // InventoryLevelServiceOp is the default implementation of the InventoryLevelService interface
@@ -26,77 +23,73 @@ type InventoryLevelServiceOp struct {
 	client *Client
 }
 
-// InventoryLevel represents a Shopify inventory Level
+// InventoryLevel represents a Shopify inventory level
 type InventoryLevel struct {
-	Available         int64      `json:"available,omitempty"`
 	InventoryItemID   int64      `json:"inventory_item_id,omitempty"`
 	LocationID        int64      `json:"location_id,omitempty"`
+	Available         int        `json:"available"`
+	CreatedAt         *time.Time `json:"created_at,omitempty"`
 	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
 	AdminGraphqlAPIID string     `json:"admin_graphql_api_id,omitempty"`
 }
 
-// OptionsInventoryLevel represents a adjusts requirement
-type OptionsInventoryLevel struct {
-	InventoryItemID       int64 `json:"inventory_item_id,omitempty"`
-	LocationID            int64 `json:"location_id,omitempty"`
-	AvailableAdjustment   int64 `json:"available_adjustment,omitempty"`
-	Available             int64 `json:"available,omitempty"`
-	DisconnectIfNecessary bool  `json:"disconnect_if_necessary,omitempty"`
-}
-
-// InventoryLevelResource is used for handling single item requests and responses
+// InventoryLevelResource is used for handling single level requests and responses
 type InventoryLevelResource struct {
-	InventoryLevel InventoryLevel `json:"inventory_level"`
+	InventoryLevel *InventoryLevel `json:"inventory_level"`
 }
 
-// InventoryLevelsResource is used for handling multiple level responsees
+// InventoryLevelsResource is used for handling multiple item responsees
 type InventoryLevelsResource struct {
 	InventoryLevels []InventoryLevel `json:"inventory_levels"`
 }
 
-// Get inventory leves by inventoryItemId and / or location_id
-func (s *InventoryLevelServiceOp) Get(options interface{}) ([]InventoryLevel, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, inventoryLevelBasePath)
+// InventoryLevelListOptions is used for get list
+type InventoryLevelListOptions struct {
+	InventoryItemIDs []int64   `url:"inventory_item_ids,omitempty,comma"`
+	LocationIDs      []int64   `url:"location_ids,omitempty,comma"`
+	Limit            int       `url:"limit,omitempty"`
+	UpdatedAtMin     time.Time `url:"updated_at_min,omitempty"`
+}
+
+// InventoryLevelAdjustOptions is used for Adjust inventory levels
+type InventoryLevelAdjustOptions struct {
+	InventoryItemID int64 `json:"inventory_item_id"`
+	LocationID      int64 `json:"location_id"`
+	Adjust          int   `json:"available_adjustment"`
+}
+
+// List inventory levels
+func (s *InventoryLevelServiceOp) List(options interface{}) ([]InventoryLevel, error) {
+	path := fmt.Sprintf("%s.json", inventoryLevelsBasePath)
 	resource := new(InventoryLevelsResource)
 	err := s.client.Get(path, resource, options)
 	return resource.InventoryLevels, err
 }
 
+// Delete an inventory level
+func (s *InventoryLevelServiceOp) Delete(itemID, locationID int64) error {
+	path := fmt.Sprintf("%s.json?inventory_item_id=%v&location_id=%v",
+		inventoryLevelsBasePath, itemID, locationID)
+	return s.client.Delete(path)
+}
+
+// Connect an inventory level
+func (s *InventoryLevelServiceOp) Connect(level InventoryLevel) (*InventoryLevel, error) {
+	return s.post(fmt.Sprintf("%s/connect.json", inventoryLevelsBasePath), level)
+}
+
+// Set an inventory level
+func (s *InventoryLevelServiceOp) Set(level InventoryLevel) (*InventoryLevel, error) {
+	return s.post(fmt.Sprintf("%s/set.json", inventoryLevelsBasePath), level)
+}
+
 // Adjust the inventory level of an inventory item at a single location
-// Parameters required from OptionsInventoryLevel {InventoryItemID, LocationID, AvailableAdjustment}
-func (s *InventoryLevelServiceOp) Adjust(o OptionsInventoryLevel) (InventoryLevel, error) {
-	path := fmt.Sprintf("%s/%s/%s.json", globalApiPathPrefix, inventoryLevelBasePath, inventoryLevelAdjustmentBasePath)
-	resource := new(InventoryLevelResource)
-	fmt.Println(path)
-	fmt.Println(o)
-	err := s.client.Post(path, o, resource)
-	return resource.InventoryLevel, err
+func (s *InventoryLevelServiceOp) Adjust(options interface{}) (*InventoryLevel, error) {
+	return s.post(fmt.Sprintf("%s/adjust.json", inventoryLevelsBasePath), options)
 }
 
-// Delete an inventory level of an inventory item at a location
-// options interface LIKE
-// optionsDelete := struct {
-//	 InventoryItemID int64 `url:"inventory_item_id,omitempty"`
-//	 LocationID      int64 `url:"location_id,omitempty"`
-// }{InventoryItemID: xxxxxxxxxxxxxx, LocationID: xxxxxxxxxxx}
-func (s *InventoryLevelServiceOp) Delete(options interface{}) error {
-	return s.client.DeleteWithOptions(fmt.Sprintf("%s/%s.json", globalApiPathPrefix, inventoryLevelBasePath), options)
-}
-
-// Connect an inventory item to a location by creating an inventory level at that location.
-func (s *InventoryLevelServiceOp) Connect(o OptionsInventoryLevel) (InventoryLevel, error) {
-	path := fmt.Sprintf("%s/%s/%s.json", globalApiPathPrefix, inventoryLevelBasePath, inventoryLevelConnectBasePath)
+func (s *InventoryLevelServiceOp) post(path string, options interface{}) (*InventoryLevel, error) {
 	resource := new(InventoryLevelResource)
-	err := s.client.Post(path, o, resource)
-	fmt.Println(path)
-	return resource.InventoryLevel, err
-}
-
-// Set the inventory level for an inventory item at a location
-func (s *InventoryLevelServiceOp) Set(o OptionsInventoryLevel) (InventoryLevel, error) {
-	path := fmt.Sprintf("%s/%s/%s.json", globalApiPathPrefix, inventoryLevelBasePath, inventoryLevelSetBasePath)
-	resource := new(InventoryLevelResource)
-	err := s.client.Post(path, o, resource)
-	fmt.Println(path)
+	err := s.client.Post(path, options, resource)
 	return resource.InventoryLevel, err
 }
