@@ -44,7 +44,7 @@ type DraftOrder struct {
 	ShippingAddress *Address         `json:"shipping_address,omitempty"`
 	BillingAddress  *Address         `json:"billing_address,omitempty"`
 	Note            string           `json:"note,omitempty"`
-	NoteAttributes  []NoteAttribute  `json:"note_attribute,omitempty"`
+	NoteAttributes  []NoteAttribute  `json:"note_attributes,omitempty"`
 	Email           string           `json:"email,omitempty"`
 	Currency        string           `json:"currency,omitempty"`
 	InvoiceSentAt   *time.Time       `json:"invoice_sent_at,omitempty"`
