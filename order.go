@@ -130,7 +130,6 @@ type Order struct {
 	Refunds               []Refund         `json:"refunds,omitempty"`
 	UserId                int64            `json:"user_id,omitempty"`
 	OrderStatusUrl        string           `json:"order_status_url,omitempty"`
-	Gateway               string           `json:"gateway,omitempty"`
 	Confirmed             bool             `json:"confirmed,omitempty"`
 	TotalPriceUSD         *decimal.Decimal `json:"total_price_usd,omitempty"`
 	CheckoutToken         string           `json:"checkout_token,omitempty"`
