@@ -68,7 +68,7 @@ type DraftOrder struct {
 
 // AppliedDiscount is the discount applied to the line item or the draft order object.
 type AppliedDiscount struct {
-	Title       string `json:"applied_discount,omitempty"`
+	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
 	Value       string `json:"value,omitempty"`
 	ValueType   string `json:"value_type,omitempty"`
