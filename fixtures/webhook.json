@@ -12,6 +12,9 @@
     "metafield_namespaces": [
       "google", "inventory"
     ],
+    "private_metafield_namespaces": [
+      "info-for", "my-app"
+    ],
     "api_version": "2021-01"
   }
 }
