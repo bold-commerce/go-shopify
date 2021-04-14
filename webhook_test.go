@@ -33,7 +33,17 @@ func webhookTests(t *testing.T, webhook Webhook) {
 
 	expectedArr = []string{"google", "inventory"}
 	if !reflect.DeepEqual(webhook.MetafieldNamespaces, expectedArr) {
-		t.Errorf("Webhook.Fields returned %+v, expected %+v", webhook.MetafieldNamespaces, expectedArr)
+		t.Errorf("Webhook.MetafieldNamespaces returned %+v, expected %+v", webhook.MetafieldNamespaces, expectedArr)
+	}
+
+	expectedArr = []string{"info-for", "my-app"}
+	if !reflect.DeepEqual(webhook.PrivateMetafieldNamespaces, expectedArr) {
+		t.Errorf("Webhook.PrivateMetafieldNamespaces returned %+v, expected %+v", webhook.PrivateMetafieldNamespaces, expectedArr)
+	}
+
+	expectedStr = "2020-01"
+	if webhook.APIVersion != expectedStr {
+		t.Errorf("Webhook.APIVersion returned %+v, expected %+v", webhook.APIVersion, expectedStr)
 	}
 }
 
