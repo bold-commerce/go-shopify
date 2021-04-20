@@ -56,6 +56,7 @@ type DraftOrder struct {
 	AppliedDiscount *AppliedDiscount `json:"applied_discount,omitempty"`
 	TaxesIncluded   bool             `json:"taxes_included,omitempty"`
 	TotalTax        string           `json:"total_tax,omitempty"`
+	TaxExempt       *bool            `json:"tax_exempt,omitempty"`
 	TotalPrice      string           `json:"total_price,omitempty"`
 	SubtotalPrice   *decimal.Decimal `json:"subtotal_price,omitempty"`
 	CompletedAt     *time.Time       `json:"completed_at,omitempty"`
