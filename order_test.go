@@ -1285,12 +1285,12 @@ func validShippingLines() ShippingLines {
 	tl2Rate := decimal.New(5, -2)
 
 	return ShippingLines{
-		ID:                            int64(254721542),
-		Title:                         "Small Packet International Air",
-		Price:                         &price,
-		Code:                          "INT.TP",
-		Source:                        "canada_post",
-		Phone:                         "",
+		ID:     int64(254721542),
+		Title:  "Small Packet International Air",
+		Price:  &price,
+		Code:   "INT.TP",
+		Source: "canada_post",
+		Phone:  "",
 		RequestedFulfillmentServiceID: "third_party_fulfillment_service_id",
 		DeliveryCategory:              "",
 		CarrierIdentifier:             "third_party_carrier_identifier",

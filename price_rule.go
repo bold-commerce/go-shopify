@@ -147,7 +147,7 @@ func (pr *PriceRule) SetPrerequisiteToEntitlementQuantityRatio(prerequisiteQuant
 
 	pr.PrerequisiteToEntitlementQuantityRatio = &prerequisiteToEntitlementQuantityRatio{
 		PrerequisiteQuantity: pQuant,
-		EntitledQuantity: eQuant,
+		EntitledQuantity:     eQuant,
 	}
 }
 

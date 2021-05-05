@@ -2,7 +2,6 @@ package goshopify
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -10,8 +9,10 @@ import (
 	"time"
 )
 
-const productsBasePath = "products"
-const productsResourceName = "products"
+const (
+	productsBasePath     = "products"
+	productsResourceName = "products"
+)
 
 // linkRegex is used to extract pagination links from product search results.
 var linkRegex = regexp.MustCompile(`^ *<([^>]+)>; rel="(previous|next)" *$`)
@@ -112,8 +113,6 @@ func (s *ProductServiceOp) List(options interface{}) ([]Product, error) {
 func (s *ProductServiceOp) ListWithPagination(options interface{}) ([]Product, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", productsBasePath)
 	resource := new(ProductsResource)
-	headers := http.Header{}
-
 	headers, err := s.client.createAndDoGetHeaders("GET", path, nil, options, resource)
 	if err != nil {
 		return nil, nil, err

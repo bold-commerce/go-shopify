@@ -3,14 +3,15 @@ package goshopify
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/shopspring/decimal"
 )
 
-const ordersBasePath = "orders"
-const ordersResourceName = "orders"
+const (
+	ordersBasePath     = "orders"
+	ordersResourceName = "orders"
+)
 
 // OrderService is an interface for interfacing with the orders endpoints of
 // the Shopify API.
@@ -388,8 +389,6 @@ func (s *OrderServiceOp) List(options interface{}) ([]Order, error) {
 func (s *OrderServiceOp) ListWithPagination(options interface{}) ([]Order, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", ordersBasePath)
 	resource := new(OrdersResource)
-	headers := http.Header{}
-
 	headers, err := s.client.createAndDoGetHeaders("GET", path, nil, options, resource)
 	if err != nil {
 		return nil, nil, err

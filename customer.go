@@ -7,14 +7,17 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const customersBasePath = "customers"
-const customersResourceName = "customers"
+const (
+	customersBasePath     = "customers"
+	customersResourceName = "customers"
+)
 
 // CustomerService is an interface for interfacing with the customers endpoints
 // of the Shopify API.
 // See: https://help.shopify.com/api/reference/customer
 type CustomerService interface {
 	List(interface{}) ([]Customer, error)
+	ListWithPagination(options interface{}) ([]Customer, *Pagination, error)
 	Count(interface{}) (int, error)
 	Get(int64, interface{}) (*Customer, error)
 	Search(interface{}) ([]Customer, error)
@@ -57,6 +60,10 @@ type Customer struct {
 	CreatedAt           *time.Time         `json:"created_at,omitempty"`
 	UpdatedAt           *time.Time         `json:"updated_at,omitempty"`
 	Metafields          []Metafield        `json:"metafields,omitempty"`
+
+	// used for create only
+	SendWelcomeEmail bool `json:"send_email_welcome"`
+	SendInviteEmail  bool `json:"send_email_invite"`
 }
 
 // Represents the result from the customers/X.json endpoint
@@ -89,6 +96,26 @@ func (s *CustomerServiceOp) List(options interface{}) ([]Customer, error) {
 	resource := new(CustomersResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Customers, err
+}
+
+// ListWithPagination lists customers and return pagination to retrieve next/previous results.
+func (s *CustomerServiceOp) ListWithPagination(options interface{}) ([]Customer, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", customersBasePath)
+	resource := new(CustomersResource)
+	headers, err := s.client.createAndDoGetHeaders("GET", path, nil, options, resource)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Extract pagination info from header
+	linkHeader := headers.Get("Link")
+
+	pagination, err := extractPagination(linkHeader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return resource.Customers, pagination, nil
 }
 
 // Count customers

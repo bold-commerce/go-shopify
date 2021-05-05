@@ -2,12 +2,13 @@ package goshopify
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 )
 
-const productListingBasePath = "product_listings"
-const productsListingResourceName = "product_listings"
+const (
+	productListingBasePath      = "product_listings"
+	productsListingResourceName = "product_listings"
+)
 
 // ProductListingService is an interface for interfacing with the product listing endpoints
 // of the Shopify API.
@@ -87,8 +88,6 @@ func (s *ProductListingServiceOp) List(options interface{}) ([]ProductListing, e
 func (s *ProductListingServiceOp) ListWithPagination(options interface{}) ([]ProductListing, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", productListingBasePath)
 	resource := new(ProductsListingsResource)
-	headers := http.Header{}
-
 	headers, err := s.client.createAndDoGetHeaders("GET", path, nil, options, resource)
 	if err != nil {
 		return nil, nil, err

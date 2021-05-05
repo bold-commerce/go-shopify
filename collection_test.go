@@ -46,7 +46,7 @@ func TestCollectionGet(t *testing.T) {
 	updatedAt, _ := time.Parse(time.RFC3339, "2020-07-23T15:12:12-04:00")
 	publishedAt, _ := time.Parse(time.RFC3339, "2020-06-23T14:22:47-04:00")
 
-	imageCreatedAt, _ :=time.Parse(time.RFC3339, "2020-02-27T15:01:45-05:00")
+	imageCreatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T15:01:45-05:00")
 	expected := &Collection{
 		ID:             25,
 		Handle:         "more-than-5",
@@ -58,10 +58,10 @@ func TestCollectionGet(t *testing.T) {
 		PublishedAt:    &publishedAt,
 		PublishedScope: "web",
 		Image: Image{
-			CreatedAt:  &imageCreatedAt,
-			Width:      1920,
-			Height:     1279,
-			Src:        "https://example/image.jpg",
+			CreatedAt: &imageCreatedAt,
+			Width:     1920,
+			Height:    1279,
+			Src:       "https://example/image.jpg",
 		},
 	}
 	if !reflect.DeepEqual(collection, expected) {
@@ -129,23 +129,23 @@ func TestCollectionListProducts(t *testing.T) {
 	createdAt, _ := time.Parse(time.RFC3339, "2020-07-23T15:12:10-04:00")
 	updatedAt, _ := time.Parse(time.RFC3339, "2020-07-23T15:13:26-04:00")
 	publishedAt, _ := time.Parse(time.RFC3339, "2020-07-23T15:12:11-04:00")
-	imageCreatedAt, _ :=time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
-	imageUpdatedAt, _ :=time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
+	imageCreatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
+	imageUpdatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
 
 	expected := []Product{
 		{
-			ID:                             632910392,
-			Title:                          "The Best Product",
-			BodyHTML:                       "<p>The best product available</p>",
-			Vendor:                         "local-vendor",
-			ProductType:                    "Best Products",
-			Handle:                         "the-best-product",
-			CreatedAt:                      &createdAt,
-			UpdatedAt:                      &updatedAt,
-			PublishedAt:                    &publishedAt,
-			PublishedScope:                 "web",
-			Tags:                           "Best",
-			Options:                        []ProductOption{
+			ID:             632910392,
+			Title:          "The Best Product",
+			BodyHTML:       "<p>The best product available</p>",
+			Vendor:         "local-vendor",
+			ProductType:    "Best Products",
+			Handle:         "the-best-product",
+			CreatedAt:      &createdAt,
+			UpdatedAt:      &updatedAt,
+			PublishedAt:    &publishedAt,
+			PublishedScope: "web",
+			Tags:           "Best",
+			Options: []ProductOption{
 				{
 					ID:        6519940513924,
 					ProductID: 632910392,
@@ -154,22 +154,22 @@ func TestCollectionListProducts(t *testing.T) {
 					Values:    nil,
 				},
 			},
-			Variants:                       nil,
-			Images:                         []Image{
+			Variants: nil,
+			Images: []Image{
 				{
 					ID:         14601766043780,
 					ProductID:  632910392,
 					Position:   1,
 					CreatedAt:  &imageCreatedAt,
-					UpdatedAt: &imageUpdatedAt,
+					UpdatedAt:  &imageUpdatedAt,
 					Width:      480,
 					Height:     720,
 					Src:        "https://example/image.jpg",
 					VariantIds: []int64{32434329944196, 32434531893380},
 				},
 			},
-			TemplateSuffix:                 "special",
-			AdminGraphqlAPIID:              "gid://shopify/Location/4688969785",
+			TemplateSuffix:    "special",
+			AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
 		},
 	}
 	if !reflect.DeepEqual(products, expected) {
@@ -264,23 +264,23 @@ func TestListProductsWithPagination(t *testing.T) {
 	createdAt, _ := time.Parse(time.RFC3339, "2020-07-23T15:12:10-04:00")
 	updatedAt, _ := time.Parse(time.RFC3339, "2020-07-23T15:13:26-04:00")
 	publishedAt, _ := time.Parse(time.RFC3339, "2020-07-23T15:12:11-04:00")
-	imageCreatedAt, _ :=time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
-	imageUpdatedAt, _ :=time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
+	imageCreatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
+	imageUpdatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T13:21:52-05:00")
 
 	expectedProducts := []Product{
 		{
-			ID:                             632910392,
-			Title:                          "The Best Product",
-			BodyHTML:                       "<p>The best product available</p>",
-			Vendor:                         "local-vendor",
-			ProductType:                    "Best Products",
-			Handle:                         "the-best-product",
-			CreatedAt:                      &createdAt,
-			UpdatedAt:                      &updatedAt,
-			PublishedAt:                    &publishedAt,
-			PublishedScope:                 "web",
-			Tags:                           "Best",
-			Options:                        []ProductOption{
+			ID:             632910392,
+			Title:          "The Best Product",
+			BodyHTML:       "<p>The best product available</p>",
+			Vendor:         "local-vendor",
+			ProductType:    "Best Products",
+			Handle:         "the-best-product",
+			CreatedAt:      &createdAt,
+			UpdatedAt:      &updatedAt,
+			PublishedAt:    &publishedAt,
+			PublishedScope: "web",
+			Tags:           "Best",
+			Options: []ProductOption{
 				{
 					ID:        6519940513924,
 					ProductID: 632910392,
@@ -289,22 +289,22 @@ func TestListProductsWithPagination(t *testing.T) {
 					Values:    nil,
 				},
 			},
-			Variants:                       nil,
-			Images:                         []Image{
+			Variants: nil,
+			Images: []Image{
 				{
 					ID:         14601766043780,
 					ProductID:  632910392,
 					Position:   1,
 					CreatedAt:  &imageCreatedAt,
-					UpdatedAt: &imageUpdatedAt,
+					UpdatedAt:  &imageUpdatedAt,
 					Width:      480,
 					Height:     720,
 					Src:        "https://example/image.jpg",
 					VariantIds: []int64{32434329944196, 32434531893380},
 				},
 			},
-			TemplateSuffix:                 "special",
-			AdminGraphqlAPIID:              "gid://shopify/Location/4688969785",
+			TemplateSuffix:    "special",
+			AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
 		},
 	}
 	if !reflect.DeepEqual(products, expectedProducts) {
@@ -312,7 +312,7 @@ func TestListProductsWithPagination(t *testing.T) {
 	}
 
 	expectedPage := &Pagination{
-		NextPageOptions:     &ListOptions{
+		NextPageOptions: &ListOptions{
 			PageInfo:     "pageInfoCode",
 			Page:         0,
 			Limit:        1,
