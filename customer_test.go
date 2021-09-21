@@ -44,6 +44,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 
 	cases := []struct {
 		body               string
+		httpcode           int
 		linkHeader         string
 		expectedCustomers  []Customer
 		expectedPagination *Pagination
@@ -52,6 +53,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		// Expect empty pagination when there is no link header
 		{
 			`{"customers": [{"id":1},{"id":2}]}`,
+			200,
 			"",
 			[]Customer{{ID: 1}, {ID: 2}},
 			new(Pagination),
@@ -60,6 +62,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		// Invalid link header responses
 		{
 			"{}",
+			200,
 			"invalid link",
 			[]Customer(nil),
 			nil,
@@ -67,6 +70,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		},
 		{
 			"{}",
+			200,
 			`<:invalid.url>; rel="next"`,
 			[]Customer(nil),
 			nil,
@@ -74,6 +78,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		},
 		{
 			"{}",
+			200,
 			`<http://valid.url?%invalid_query>; rel="next"`,
 			[]Customer(nil),
 			nil,
@@ -81,6 +86,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		},
 		{
 			"{}",
+			200,
 			`<http://valid.url>; rel="next"`,
 			[]Customer(nil),
 			nil,
@@ -88,6 +94,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		},
 		{
 			"{}",
+			200,
 			`<http://valid.url?page_info=foo&limit=invalid>; rel="next"`,
 			[]Customer(nil),
 			nil,
@@ -96,6 +103,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		// Valid link header responses
 		{
 			`{"customers": [{"id":1}]}`,
+			200,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
 			[]Customer{{ID: 1}},
 			&Pagination{
@@ -105,6 +113,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		},
 		{
 			`{"customers": [{"id":2}]}`,
+			200,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
 			[]Customer{{ID: 2}},
 			&Pagination{
@@ -113,10 +122,18 @@ func TestCustomerListWithPagination(t *testing.T) {
 			},
 			nil,
 		},
+		{
+			``,
+			500,
+			``,
+			nil,
+			nil,
+			errors.New("Unknown Error"),
+		},
 	}
 	for i, c := range cases {
 		response := &http.Response{
-			StatusCode: 200,
+			StatusCode: c.httpcode,
 			Body:       httpmock.NewRespBodyFromString(c.body),
 			Header: http.Header{
 				"Link": {c.linkHeader},
