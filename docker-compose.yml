@@ -6,4 +6,4 @@ services:
     build: .
     command: go test -v -cover ./...
     volumes:
-      - .:/go/src/github.com/bold-commerce/go-shopify
+      - .:/go/src/github.com/belong-inc/go-shopify
