@@ -1,4 +1,4 @@
-module github.com/bold-commerce/go-shopify/v3
+module github.com/belong-inc/go-shopify/v3
 
 go 1.17
 
