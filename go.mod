@@ -1,6 +1,6 @@
 module github.com/belong-inc/go-shopify/v3
 
-go 1.17
+go 1.16
 
 require (
 	github.com/google/go-querystring v1.0.0
