@@ -89,7 +89,8 @@ func TestMetafieldGet(t *testing.T) {
 		ID:                1,
 		Key:               "app_key",
 		Value:             "app_value",
-		Type:              "string",
+		ValueType:         "string",
+		Type:              "single_line_text_field",
 		Namespace:         "affiliates",
 		Description:       "some amaaazing app's value",
 		OwnerId:           1,
@@ -114,7 +115,8 @@ func TestMetafieldCreate(t *testing.T) {
 		Namespace: "inventory",
 		Key:       "warehouse",
 		Value:     "25",
-		Type:      "integer",
+		ValueType: "integer",
+		Type:      "single_line_text_field",
 	}
 
 	returnedMetafield, err := client.Metafield.Create(metafield)
@@ -133,9 +135,10 @@ func TestMetafieldUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:    1,
-		Value: "something new",
-		Type:  "string",
+		ID:        1,
+		Value:     "something new",
+		ValueType: "string",
+		Type:      "single_line_text_field",
 	}
 
 	returnedMetafield, err := client.Metafield.Update(metafield)

@@ -320,7 +320,8 @@ func TestVariantCreateMetafield(t *testing.T) {
 	metafield := Metafield{
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "string",
+		ValueType: "string",
+		Type:      "single_line_text_field",
 		Namespace: "affiliates",
 	}
 
@@ -343,7 +344,8 @@ func TestVariantUpdateMetafield(t *testing.T) {
 		ID:        2,
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "string",
+		ValueType: "string",
+		Type:      "single_line_text_field",
 		Namespace: "affiliates",
 	}
 

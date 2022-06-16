@@ -42,6 +42,7 @@ type Metafield struct {
 	ID                int64       `json:"id,omitempty"`
 	Key               string      `json:"key,omitempty"`
 	Value             interface{} `json:"value,omitempty"`
+	ValueType         string      `json:"value_type,omitempty"`
 	Type              string      `json:"type,omitempty"`
 	Namespace         string      `json:"namespace,omitempty"`
 	Description       string      `json:"description,omitempty"`
