@@ -90,6 +90,7 @@ func TestMetafieldGet(t *testing.T) {
 		Key:               "app_key",
 		Value:             "app_value",
 		ValueType:         "string",
+		Type:              "single_line_text_field",
 		Namespace:         "affiliates",
 		Description:       "some amaaazing app's value",
 		OwnerId:           1,
@@ -115,6 +116,7 @@ func TestMetafieldCreate(t *testing.T) {
 		Key:       "warehouse",
 		Value:     "25",
 		ValueType: "integer",
+		Type:      "single_line_text_field",
 	}
 
 	returnedMetafield, err := client.Metafield.Create(metafield)
@@ -136,6 +138,7 @@ func TestMetafieldUpdate(t *testing.T) {
 		ID:        1,
 		Value:     "something new",
 		ValueType: "string",
+		Type:      "single_line_text_field",
 	}
 
 	returnedMetafield, err := client.Metafield.Update(metafield)

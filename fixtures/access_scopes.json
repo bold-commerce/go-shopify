@@ -1,0 +1,10 @@
+{
+  "access_scopes": [
+    {
+      "handle": "scope_1"
+    },
+    {
+      "handle": "scope_2"
+    }
+  ]
+}
