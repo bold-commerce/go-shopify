@@ -283,16 +283,17 @@ type PaymentDetails struct {
 }
 
 type ShippingLines struct {
-	ID                            int64            `json:"id,omitempty"`
-	Title                         string           `json:"title,omitempty"`
-	Price                         *decimal.Decimal `json:"price,omitempty"`
-	Code                          string           `json:"code,omitempty"`
-	Source                        string           `json:"source,omitempty"`
-	Phone                         string           `json:"phone,omitempty"`
-	RequestedFulfillmentServiceID string           `json:"requested_fulfillment_service_id,omitempty"`
-	DeliveryCategory              string           `json:"delivery_category,omitempty"`
-	CarrierIdentifier             string           `json:"carrier_identifier,omitempty"`
-	TaxLines                      []TaxLine        `json:"tax_lines,omitempty"`
+	ID                            int64                 `json:"id,omitempty"`
+	Title                         string                `json:"title,omitempty"`
+	Price                         *decimal.Decimal      `json:"price,omitempty"`
+	Code                          string                `json:"code,omitempty"`
+	Source                        string                `json:"source,omitempty"`
+	Phone                         string                `json:"phone,omitempty"`
+	RequestedFulfillmentServiceID string                `json:"requested_fulfillment_service_id,omitempty"`
+	DeliveryCategory              string                `json:"delivery_category,omitempty"`
+	CarrierIdentifier             string                `json:"carrier_identifier,omitempty"`
+	TaxLines                      []TaxLine             `json:"tax_lines,omitempty"`
+	DiscountAllocations           []DiscountAllocations `json:"discount_allocations,omitempty"`
 }
 
 // UnmarshalJSON custom unmarshaller for ShippingLines implemented to handle requested_fulfillment_service_id being
