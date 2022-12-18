@@ -239,7 +239,7 @@ func (li *LineItem) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		li.Properties = p
-	} else { // else we unmarshal it into a struct
+	} else if (aux.Properties != nil) { // else we unmarshal it into a struct if set
 		var p NoteAttribute
 		err = json.Unmarshal(aux.Properties, &p)
 		if err != nil {
