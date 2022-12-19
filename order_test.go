@@ -1041,16 +1041,6 @@ func testLineItem(t *testing.T, expected, actual LineItem) {
 
 	testTaxLines(t, expected.TaxLines, actual.TaxLines)
 
-	if actual.OriginLocation == nil {
-		if actual.OriginLocation != expected.OriginLocation {
-			t.Errorf("LineItem.OriginLocation should be (%v), was (%v)", expected.OriginLocation, actual.OriginLocation)
-		}
-	} else {
-		if *actual.OriginLocation != *expected.OriginLocation {
-			t.Errorf("LineItem.OriginLocation should be (%v), was (%v)", expected.OriginLocation, actual.OriginLocation)
-		}
-	}
-
 	if actual.AppliedDiscount == nil {
 		if actual.AppliedDiscount != expected.AppliedDiscount {
 			t.Errorf("LineItem.AppliedDiscount should be (%v), was (%v)", expected.AppliedDiscount, actual.AppliedDiscount)
@@ -1207,24 +1197,6 @@ func validLineItem() LineItem {
 				Price: &tl2Price,
 				Rate:  &tl2Rate,
 			},
-		},
-		OriginLocation: &Address{
-			ID:           123,
-			Address1:     "100 some street",
-			Address2:     "",
-			City:         "Winnipeg",
-			Company:      "Acme Corporation",
-			Country:      "Canada",
-			CountryCode:  "CA",
-			FirstName:    "Bob",
-			LastName:     "Smith",
-			Latitude:     49.811550,
-			Longitude:    -97.189480,
-			Name:         "test address",
-			Phone:        "8675309",
-			Province:     "Manitoba",
-			ProvinceCode: "MB",
-			Zip:          "R3Y 0L6",
 		},
 		AppliedDiscount: &AppliedDiscount{
 			Title:       "test discount",
