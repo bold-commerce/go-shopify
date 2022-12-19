@@ -1051,16 +1051,6 @@ func testLineItem(t *testing.T, expected, actual LineItem) {
 		}
 	}
 
-	if actual.DestinationLocation == nil {
-		if actual.DestinationLocation != expected.DestinationLocation {
-			t.Errorf("LineItem.DestinationLocation should be (%v), was (%v)", expected.DestinationLocation, actual.DestinationLocation)
-		}
-	} else {
-		if *actual.DestinationLocation != *expected.DestinationLocation {
-			t.Errorf("LineItem.DestinationLocation should be (%v), was (%v)", expected.DestinationLocation, actual.DestinationLocation)
-		}
-	}
-
 	if actual.AppliedDiscount == nil {
 		if actual.AppliedDiscount != expected.AppliedDiscount {
 			t.Errorf("LineItem.AppliedDiscount should be (%v), was (%v)", expected.AppliedDiscount, actual.AppliedDiscount)
@@ -1221,24 +1211,6 @@ func validLineItem() LineItem {
 		OriginLocation: &Address{
 			ID:           123,
 			Address1:     "100 some street",
-			Address2:     "",
-			City:         "Winnipeg",
-			Company:      "Acme Corporation",
-			Country:      "Canada",
-			CountryCode:  "CA",
-			FirstName:    "Bob",
-			LastName:     "Smith",
-			Latitude:     49.811550,
-			Longitude:    -97.189480,
-			Name:         "test address",
-			Phone:        "8675309",
-			Province:     "Manitoba",
-			ProvinceCode: "MB",
-			Zip:          "R3Y 0L6",
-		},
-		DestinationLocation: &Address{
-			ID:           124,
-			Address1:     "200 some street",
 			Address2:     "",
 			City:         "Winnipeg",
 			Company:      "Acme Corporation",

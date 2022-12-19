@@ -60,24 +60,6 @@
       "province_code": "MB",
       "zip": "R3Y 0L6"
     },
-    "destination_location": {
-      "id": 124,
-      "address1": "200 some street",
-      "address2": "",
-      "city": "Winnipeg",
-      "company": "Acme Corporation",
-      "country": "Canada",
-      "country_code": "CA",
-      "first_name": "Bob",
-      "last_name": "Smith",
-      "latitude": 49.811550,
-      "longitude": -97.189480,
-      "name": "test address",
-      "phone": "8675309",
-      "province": "Manitoba",
-      "province_code": "MB",
-      "zip": "R3Y 0L6"
-    },
     "applied_discount": {
       "applied_discount": "test discount",
       "description": "my test discount",
