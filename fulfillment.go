@@ -104,7 +104,8 @@ func (s *FulfillmentServiceOp) Get(fulfillmentID int64, options interface{}) (*F
 
 // Create a new fulfillment
 func (s *FulfillmentServiceOp) Create(fulfillment Fulfillment) (*Fulfillment, error) {
-	prefix := FulfillmentPathPrefix(s.resource, s.resourceID)
+    // As of 2022-07 fulfillments need to be created using /fulfillments.json, not /orders/{order_id}/fulfilments.json
+	prefix := FulfillmentPathPrefix("", 0)
 	path := fmt.Sprintf("%s.json", prefix)
 	wrappedData := FulfillmentResource{Fulfillment: &fulfillment}
 	resource := new(FulfillmentResource)
