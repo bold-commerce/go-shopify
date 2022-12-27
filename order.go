@@ -31,6 +31,9 @@ type OrderService interface {
 
 	// FulfillmentsService used for Order resource to communicate with Fulfillments resource
 	FulfillmentsService
+
+	// FulfillmentOrdersService used for Order resource to communicate with FulfillmentOrders resource
+	FulfillmentOrdersService
 }
 
 // OrderServiceOp handles communication with the order related methods of the
@@ -237,7 +240,7 @@ func (li *LineItem) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		li.Properties = p
-	} else if (aux.Properties != nil) { // else we unmarshal it into a struct if set
+	} else if aux.Properties != nil { // else we unmarshal it into a struct if set
 		var p NoteAttribute
 		err = json.Unmarshal(aux.Properties, &p)
 		if err != nil {
@@ -543,4 +546,10 @@ func (s *OrderServiceOp) TransitionFulfillment(orderID int64, fulfillmentID int6
 func (s *OrderServiceOp) CancelFulfillment(orderID int64, fulfillmentID int64) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
 	return fulfillmentService.Cancel(fulfillmentID)
+}
+
+// List fulfillments for an order
+func (s *OrderServiceOp) ListFulfillmentOrders(orderID int64, options interface{}) ([]FulfillmentOrder, error) {
+	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+	return fulfillmentOrderService.List(options)
 }

@@ -29,20 +29,26 @@ func ShopBaseUrl(name string) string {
 	return fmt.Sprintf("https://%s", name)
 }
 
+// Return the prefix for an order path
+func OrderPathPrefix(prefix string, resource string, resourceID int64) string {
+	if resource != "" {
+		return fmt.Sprintf("%s/%d/%s", resource, resourceID, prefix)
+	}
+
+	return prefix
+}
+
 // Return the prefix for a metafield path
 func MetafieldPathPrefix(resource string, resourceID int64) string {
-	prefix := "metafields"
-	if resource != "" {
-		prefix = fmt.Sprintf("%s/%d/metafields", resource, resourceID)
-	}
-	return prefix
+	return OrderPathPrefix("metafields", resource, resourceID)
 }
 
 // Return the prefix for a fulfillment path
 func FulfillmentPathPrefix(resource string, resourceID int64) string {
-	prefix := "fulfillments"
-	if resource != "" {
-		prefix = fmt.Sprintf("%s/%d/fulfillments", resource, resourceID)
-	}
-	return prefix
+	return OrderPathPrefix("fulfillments", resource, resourceID)
+}
+
+// Return the prefix for a fulfillment order path
+func FulfillmentOrderPathPrefix(resource string, resourceID int64) string {
+	return OrderPathPrefix("fulfillment_orders", resource, resourceID)
 }

@@ -100,3 +100,21 @@ func TestFulfillmentPathPrefix(t *testing.T) {
 		}
 	}
 }
+
+func TestFulfillmentOrderPathPrefix(t *testing.T) {
+	cases := []struct {
+		resource   string
+		resourceID int64
+		expected   string
+	}{
+		{"", 0, "fulfillment_orders"},
+		{"orders", 123, "orders/123/fulfillment_orders"},
+	}
+
+	for _, c := range cases {
+		actual := FulfillmentOrderPathPrefix(c.resource, c.resourceID)
+		if actual != c.expected {
+			t.Errorf("FulfillmentOrderPathPrefix(%s, %d): expected %s, actual %s", c.resource, c.resourceID, c.expected, actual)
+		}
+	}
+}

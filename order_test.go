@@ -674,10 +674,11 @@ func TestOrderCreateFulfillment(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments.json", client.pathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillments.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillment := Fulfillment{
+		OrderID:        1,
 		LocationID:     905684977,
 		TrackingNumber: "123456789",
 		TrackingUrls: []string{
@@ -685,6 +686,18 @@ func TestOrderCreateFulfillment(t *testing.T) {
 			"https://anothershipper.corp/track.php?code=abc",
 		},
 		NotifyCustomer: true,
+        LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{
+            {
+                FulfillmentOrderID:        333,
+                FulfillmentOrderLineItems: []FulfillmentOrderLineItem{
+                    {
+                        ID:                 987,
+                        ShopID:             1, 
+                        FulfillmentOrderID: 123,
+                    },
+                },
+            },
+        },
 	}
 
 	returnedFulfillment, err := client.Order.CreateFulfillment(1, fulfillment)
@@ -1252,5 +1265,23 @@ func validShippingLines() ShippingLines {
 				Rate:  &tl2Rate,
 			},
 		},
+	}
+}
+
+func TestOrderListFulfillmentOrders(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillment_orders.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"fulfillment_orders": [{"id":1},{"id":2}]}`))
+
+	fulfillmentOrders, err := client.Order.ListFulfillmentOrders(1, nil)
+	if err != nil {
+		t.Errorf("Order.ListFulfillmentOrders() returned error: %v", err)
+	}
+
+	expected := []FulfillmentOrder{{ID: 1}, {ID: 2}}
+	if !reflect.DeepEqual(fulfillmentOrders, expected) {
+		t.Errorf("Order.ListFulfillmentOrders() returned %+v, expected %+v", fulfillmentOrders, expected)
 	}
 }
