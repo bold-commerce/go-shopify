@@ -43,22 +43,41 @@ type FulfillmentServiceOp struct {
 
 // Fulfillment represents a Shopify fulfillment.
 type Fulfillment struct {
-	ID              int64      `json:"id,omitempty"`
-	OrderID         int64      `json:"order_id,omitempty"`
-	LocationID      int64      `json:"location_id,omitempty"`
-	Status          string     `json:"status,omitempty"`
-	CreatedAt       *time.Time `json:"created_at,omitempty"`
-	Service         string     `json:"service,omitempty"`
-	UpdatedAt       *time.Time `json:"updated_at,omitempty"`
-	TrackingCompany string     `json:"tracking_company,omitempty"`
-	ShipmentStatus  string     `json:"shipment_status,omitempty"`
-	TrackingNumber  string     `json:"tracking_number,omitempty"`
-	TrackingNumbers []string   `json:"tracking_numbers,omitempty"`
-	TrackingUrl     string     `json:"tracking_url,omitempty"`
-	TrackingUrls    []string   `json:"tracking_urls,omitempty"`
-	Receipt         Receipt    `json:"receipt,omitempty"`
-	LineItems       []LineItem `json:"line_items,omitempty"`
-	NotifyCustomer  bool       `json:"notify_customer"`
+	ID                          int64                        `json:"id,omitempty"`
+	OrderID                     int64                        `json:"order_id,omitempty"`
+	LocationID                  int64                        `json:"location_id,omitempty"`
+	Status                      string                       `json:"status,omitempty"`
+	CreatedAt                   *time.Time                   `json:"created_at,omitempty"`
+	Service                     string                       `json:"service,omitempty"`
+	UpdatedAt                   *time.Time                   `json:"updated_at,omitempty"`
+	TrackingCompany             string                       `json:"tracking_company,omitempty"`
+	ShipmentStatus              string                       `json:"shipment_status,omitempty"`
+	TrackingNumber              string                       `json:"tracking_number,omitempty"`
+	TrackingNumbers             []string                     `json:"tracking_numbers,omitempty"`
+	TrackingUrl                 string                       `json:"tracking_url,omitempty"`
+	TrackingUrls                []string                     `json:"tracking_urls,omitempty"`
+	Receipt                     Receipt                      `json:"receipt,omitempty"`
+	LineItems                   []LineItem                   `json:"line_items,omitempty"`
+	NotifyCustomer              bool                         `json:"notify_customer"`
+
+	// Properties used when creating an fulfllment via the fulfillments endpoint in version 2022-07
+	LineItemsByFulfillmentOrder []LineItemByFulfillmentOrder `json:"line_items_by_fulfillment_order,omitempty"`
+}
+
+type LineItemByFulfillmentOrder struct {
+	FulfillmentOrderID        int64                      `json:"fulfillment_order_id"`
+	FulfillmentOrderLineItems []FulfillmentOrderLineItem `json:"fulfillment_order_line_items,omitempty"`
+}
+
+type FulfillmentOrderLineItem struct {
+	ID                  int64 `json:"id,omitempty"`
+	ShopID              int64 `json:"shop_id,omitempty"`
+	FulfillmentOrderID  int64 `json:"fulfillment_order_id,omitempty"`
+	Quantity            int   `json:"quantity,omitempty"`
+	LineItemID          int64 `json:"line_item_id,omitempty"`
+	InventoryItemID     int64 `json:"inventory_item_id,omitempty"`
+	FulfillableQuantity int   `json:"fulfillable_quantity,omitempty"`
+	VariantID           int64 `json:"variant_id,omitempty"`
 }
 
 // Receipt represents a Shopify receipt.
@@ -104,7 +123,7 @@ func (s *FulfillmentServiceOp) Get(fulfillmentID int64, options interface{}) (*F
 
 // Create a new fulfillment
 func (s *FulfillmentServiceOp) Create(fulfillment Fulfillment) (*Fulfillment, error) {
-    // As of 2022-07 fulfillments need to be created using /fulfillments.json, not /orders/{order_id}/fulfilments.json
+	// As of 2022-07 fulfillments need to be created using /fulfillments.json, not /orders/{order_id}/fulfillments.json
 	prefix := FulfillmentPathPrefix("", 0)
 	path := fmt.Sprintf("%s.json", prefix)
 	wrappedData := FulfillmentResource{Fulfillment: &fulfillment}

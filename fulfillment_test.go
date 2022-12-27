@@ -99,12 +99,13 @@ func TestFulfillmentCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments.json", client.pathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillments.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
 
 	fulfillment := Fulfillment{
+		OrderID:        123,
 		LocationID:     905684977,
 		TrackingNumber: "123456789",
 		TrackingUrls: []string{
@@ -112,6 +113,18 @@ func TestFulfillmentCreate(t *testing.T) {
 			"https://anothershipper.corp/track.php?code=abc",
 		},
 		NotifyCustomer: true,
+        LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{
+            {
+                FulfillmentOrderID:        333,
+                FulfillmentOrderLineItems: []FulfillmentOrderLineItem{
+                    {
+                        ID:                 987,
+                        ShopID:             1, 
+                        FulfillmentOrderID: 123,
+                    },
+                },
+            },
+        },
 	}
 
 	returnedFulfillment, err := fulfillmentService.Create(fulfillment)
