@@ -113,18 +113,18 @@ func TestFulfillmentCreate(t *testing.T) {
 			"https://anothershipper.corp/track.php?code=abc",
 		},
 		NotifyCustomer: true,
-        LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{
-            {
-                FulfillmentOrderID:        333,
-                FulfillmentOrderLineItems: []FulfillmentOrderLineItem{
-                    {
-                        ID:                 987,
-                        ShopID:             1, 
-                        FulfillmentOrderID: 123,
-                    },
-                },
-            },
-        },
+		LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{
+			{
+				FulfillmentOrderID: 333,
+				FulfillmentOrderLineItems: []FulfillmentOrderLineItem{
+					{
+						ID:                 987,
+						ShopID:             1,
+						FulfillmentOrderID: 123,
+					},
+				},
+			},
+		},
 	}
 
 	returnedFulfillment, err := fulfillmentService.Create(fulfillment)
