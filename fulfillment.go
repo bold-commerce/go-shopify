@@ -62,6 +62,13 @@ type Fulfillment struct {
 
 	// Properties used when creating an fulfllment via the fulfillments endpoint in version 2022-07
 	LineItemsByFulfillmentOrder []LineItemByFulfillmentOrder `json:"line_items_by_fulfillment_order,omitempty"`
+    TrackingInfo                TrackingInfo                 `json:"tracking_info,omitempty"`
+}
+
+type TrackingInfo struct {
+	Company string `json:"company,omitempty"`
+	Number  string `json:"number,omitempty"`
+	Url     string `json:"url,omitempty"`
 }
 
 type LineItemByFulfillmentOrder struct {
