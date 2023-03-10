@@ -35,6 +35,7 @@ type Webhook struct {
 	UpdatedAt           *time.Time `json:"updated_at,omitempty"`
 	Fields              []string   `json:"fields"`
 	MetafieldNamespaces []string   `json:"metafield_namespaces"`
+	ApiVersion          string     `json:"api_version"`
 }
 
 // WebhookOptions can be used for filtering webhooks on a List request.
