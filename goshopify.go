@@ -618,6 +618,25 @@ func (c *Client) Get(path string, resource, options interface{}) error {
 	return c.CreateAndDo("GET", path, nil, options, resource)
 }
 
+// GetWithPagination performs a GET request for the given path and saves the result in the
+// given resource and returns the pagination.
+func (c *Client) GetWithPagination(path string, resource, options interface{}) (*Pagination, error) {
+	headers, err := c.createAndDoGetHeaders("GET", path, nil, options, resource)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract pagination info from header
+	linkHeader := headers.Get("Link")
+
+	pagination, err := extractPagination(linkHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	return pagination, nil
+}
+
 // Post performs a POST request for the given path and saves the result in the
 // given resource.
 func (c *Client) Post(path string, data, resource interface{}) error {
