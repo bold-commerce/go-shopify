@@ -171,6 +171,11 @@ func orderTests(t *testing.T, order Order) {
 		t.Errorf("Order.TotalPrice returned %+v, expected %+v", order.TotalPrice, p)
 	}
 
+	ctp := decimal.NewFromFloat(9.5)
+	if !ctp.Equals(*order.CurrentTotalPrice) {
+		t.Errorf("Order.CurrentTotalPrice returned %+v, expected %+v", order.CurrentTotalPrice, ctp)
+	}
+
 	// Check null prices, notice that prices are usually not empty.
 	if order.TotalTax != nil {
 		t.Errorf("Order.TotalTax returned %+v, expected %+v", order.TotalTax, nil)
@@ -549,6 +554,7 @@ func TestOrderCreateMetafield(t *testing.T) {
 		Key:       "app_key",
 		Value:     "app_value",
 		ValueType: "string",
+		Type:      "single_line_text_field",
 		Namespace: "affiliates",
 	}
 
@@ -572,6 +578,7 @@ func TestOrderUpdateMetafield(t *testing.T) {
 		Key:       "app_key",
 		Value:     "app_value",
 		ValueType: "string",
+		Type:      "single_line_text_field",
 		Namespace: "affiliates",
 	}
 
@@ -1171,6 +1178,7 @@ func validLineItem() LineItem {
 	tl1Rate := decimal.New(6, -2)
 	tl2Price := decimal.New(1250, -2)
 	tl2Rate := decimal.New(5, -2)
+	discountAllocationAmount := decimal.New(55, -1)
 	return LineItem{
 		ID:                         int64(254721536),
 		ProductID:                  int64(111475476),
@@ -1258,20 +1266,57 @@ func validLineItem() LineItem {
 			ValueType:   "percent",
 			Amount:      "25.00",
 		},
+		DiscountAllocations: []DiscountAllocations{
+			{
+				Amount: &discountAllocationAmount,
+				AmountSet: &AmountSet{
+					ShopMoney: AmountSetEntry{
+						Amount:       &discountAllocationAmount,
+						CurrencyCode: "EUR",
+					},
+					PresentmentMoney: AmountSetEntry{
+						Amount:       &discountAllocationAmount,
+						CurrencyCode: "EUR",
+					},
+				},
+			},
+		},
 	}
 }
 
 func validShippingLines() ShippingLines {
 	price := decimal.New(400, -2)
+	eurPrice := decimal.New(317, -2)
 	tl1Price := decimal.New(1350, -2)
 	tl1Rate := decimal.New(6, -2)
 	tl2Price := decimal.New(1250, -2)
 	tl2Rate := decimal.New(5, -2)
 
 	return ShippingLines{
-		ID:                            int64(254721542),
-		Title:                         "Small Packet International Air",
-		Price:                         &price,
+		ID:    int64(254721542),
+		Title: "Small Packet International Air",
+		Price: &price,
+		PriceSet: &AmountSet{
+			ShopMoney: AmountSetEntry{
+				Amount:       &price,
+				CurrencyCode: "USD",
+			},
+			PresentmentMoney: AmountSetEntry{
+				Amount:       &eurPrice,
+				CurrencyCode: "EUR",
+			},
+		},
+		DiscountedPrice: &price,
+		DiscountedPriceSet: &AmountSet{
+			ShopMoney: AmountSetEntry{
+				Amount:       &price,
+				CurrencyCode: "USD",
+			},
+			PresentmentMoney: AmountSetEntry{
+				Amount:       &eurPrice,
+				CurrencyCode: "EUR",
+			},
+		},
 		Code:                          "INT.TP",
 		Source:                        "canada_post",
 		Phone:                         "",

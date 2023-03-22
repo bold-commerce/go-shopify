@@ -79,10 +79,25 @@
       "zip": "R3Y 0L6"
     },
     "applied_discount": {
-      "applied_discount": "test discount",
+      "title": "test discount",
       "description": "my test discount",
       "value": "0.05",
       "value_type": "percent",
       "amount": "25.00"
-    }
+    },
+    "discount_allocations": [
+        {
+          "amount": "5.5",
+          "amount_set": {
+            "shop_money": {
+              "amount": "5.5",
+              "currency_code": "EUR"
+            },
+            "presentment_money": {
+              "amount": "5.5",
+              "currency_code": "EUR"
+            }
+          }
+        }
+    ]
 }

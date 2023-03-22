@@ -106,6 +106,32 @@ func TestAppVerifyAuthorizationURL(t *testing.T) {
 	}
 }
 
+func TestSignature(t *testing.T) {
+	setup()
+	defer teardown()
+
+	// https://shopify.dev/tutorials/display-data-on-an-online-store-with-an-application-proxy-app-extension
+	queryString := "extra=1&extra=2&shop=shop-name.myshopify.com&path_prefix=%2Fapps%2Fawesome_reviews&timestamp=1317327555&signature=a9718877bea71c2484f91608a7eaea1532bdf71f5c56825065fa4ccabe549ef3"
+
+	urlOk, _ := url.Parse(fmt.Sprintf("http://example.com/proxied?%s", queryString))
+	urlNotOk, _ := url.Parse(fmt.Sprintf("http://example.com/proxied?%s&notok=true", queryString))
+
+	cases := []struct {
+		u        *url.URL
+		expected bool
+	}{
+		{urlOk, true},
+		{urlNotOk, false},
+	}
+
+	for _, c := range cases {
+		ok := app.VerifySignature(c.u)
+		if ok != c.expected {
+			t.Errorf("VerifySignature expected: |%v| but got: |%v|", c.expected, ok)
+		}
+	}
+}
+
 func TestVerifyWebhookRequest(t *testing.T) {
 	setup()
 	defer teardown()
