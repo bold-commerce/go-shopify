@@ -11,6 +11,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sort"
+	"strings"
 )
 
 const shopifyChecksumHeader = "X-Shopify-Hmac-Sha256"
@@ -147,4 +149,35 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	}
 
 	return HMACSame, nil
+}
+
+// Verifies an app proxy request, sent by Shopify.
+// When Shopify proxies HTTP requests to the proxy URL,
+// Shopify adds a signature paramter that is used to verify that the request was sent by Shopify.
+// https://shopify.dev/tutorials/display-dynamic-store-data-with-app-proxies
+func (app App) VerifySignature(u *url.URL) bool {
+	val := u.Query()
+	sig := val.Get("signature")
+	val.Del("signature")
+
+	keys := []string{}
+	for k, v := range val {
+		keys = append(keys, fmt.Sprintf("%s=%s", k, strings.Join(v, ",")))
+	}
+	sort.Strings(keys)
+
+	joined := strings.Join(keys, "")
+
+	return hmacSHA256([]byte(app.ApiSecret), []byte(joined), []byte(sig))
+}
+
+func hmacSHA256(key, body, expected []byte) bool {
+	mac := hmac.New(sha256.New, key)
+	mac.Write(body)
+	result := mac.Sum(nil)
+
+	dst := make([]byte, hex.EncodedLen(len(result)))
+	hex.Encode(dst, result)
+
+	return hmac.Equal(dst, expected)
 }

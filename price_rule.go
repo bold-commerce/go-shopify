@@ -90,7 +90,7 @@ func (pr *PriceRule) SetPrerequisiteSubtotalRange(greaterThanOrEqualTo *string) 
 		pr.PrerequisiteSubtotalRange = nil
 	} else {
 		if !validateMoney(*greaterThanOrEqualTo) {
-			return fmt.Errorf("failed to parse value as Decimal, invalid value")
+			return fmt.Errorf("failed to parse value as Decimal, invalid prerequisite subtotal range")
 		}
 
 		pr.PrerequisiteSubtotalRange = &prerequisiteSubtotalRange{
@@ -118,7 +118,7 @@ func (pr *PriceRule) SetPrerequisiteShippingPriceRange(lessThanOrEqualTo *string
 		pr.PrerequisiteShippingPriceRange = nil
 	} else {
 		if !validateMoney(*lessThanOrEqualTo) {
-			return fmt.Errorf("failed to parse value as Decimal, invalid value")
+			return fmt.Errorf("failed to parse value as Decimal, invalid prerequisite shipping price range")
 		}
 
 		pr.PrerequisiteShippingPriceRange = &prerequisiteShippingPriceRange{

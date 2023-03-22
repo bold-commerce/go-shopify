@@ -27,14 +27,16 @@ type WebhookServiceOp struct {
 
 // Webhook represents a Shopify webhook
 type Webhook struct {
-	ID                  int64      `json:"id"`
-	Address             string     `json:"address"`
-	Topic               string     `json:"topic"`
-	Format              string     `json:"format"`
-	CreatedAt           *time.Time `json:"created_at,omitempty"`
-	UpdatedAt           *time.Time `json:"updated_at,omitempty"`
-	Fields              []string   `json:"fields"`
-	MetafieldNamespaces []string   `json:"metafield_namespaces"`
+	ID                         int64      `json:"id"`
+	Address                    string     `json:"address"`
+	Topic                      string     `json:"topic"`
+	Format                     string     `json:"format"`
+	CreatedAt                  *time.Time `json:"created_at,omitempty"`
+	UpdatedAt                  *time.Time `json:"updated_at,omitempty"`
+	Fields                     []string   `json:"fields"`
+	MetafieldNamespaces        []string   `json:"metafield_namespaces"`
+	PrivateMetafieldNamespaces []string   `json:"private_metafield_namespaces"`
+	ApiVersion                 string     `json:"api_version"`
 }
 
 // WebhookOptions can be used for filtering webhooks on a List request.
