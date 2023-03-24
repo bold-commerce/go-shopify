@@ -96,15 +96,8 @@ func (s *CustomerServiceOp) List(options interface{}) ([]Customer, error) {
 func (s *CustomerServiceOp) ListWithPagination(options interface{}) ([]Customer, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", customersBasePath)
 	resource := new(CustomersResource)
-	headers, err := s.client.createAndDoGetHeaders("GET", path, nil, options, resource)
-	if err != nil {
-		return nil, nil, err
-	}
 
-	// Extract pagination info from header
-	linkHeader := headers.Get("Link")
-
-	pagination, err := extractPagination(linkHeader)
+	pagination, err := s.client.ListWithPagination(path, resource, options)
 	if err != nil {
 		return nil, nil, err
 	}

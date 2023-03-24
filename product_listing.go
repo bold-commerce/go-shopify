@@ -2,7 +2,6 @@ package goshopify
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 )
 
@@ -88,17 +87,8 @@ func (s *ProductListingServiceOp) List(options interface{}) ([]ProductListing, e
 func (s *ProductListingServiceOp) ListWithPagination(options interface{}) ([]ProductListing, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", productListingBasePath)
 	resource := new(ProductsListingsResource)
-	headers := http.Header{}
 
-	headers, err := s.client.createAndDoGetHeaders("GET", path, nil, options, resource)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// Extract pagination info from header
-	linkHeader := headers.Get("Link")
-
-	pagination, err := extractPagination(linkHeader)
+	pagination, err := s.client.ListWithPagination(path, resource, options)
 	if err != nil {
 		return nil, nil, err
 	}

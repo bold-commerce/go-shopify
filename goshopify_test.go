@@ -898,3 +898,40 @@ func TestDoRateLimit(t *testing.T) {
 		})
 	}
 }
+
+func TestListWithPagination(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/locations", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("locations.json")).
+			HeaderSet(http.Header{
+				"Link": {
+					fmt.Sprintf(
+						`<https://fooshop.myshopify.com/%s/locations.json?page_info=abc&limit=10>; rel="next", <https://fooshop.myshopify.com/%s/locations.json?page_info=123&limit=10>; rel="previous"`,
+						client.pathPrefix,
+						client.pathPrefix,
+					),
+				},
+			}))
+
+	var locations LocationsResource
+	pagination, err := client.ListWithPagination("locations", &locations, nil)
+	if err != nil {
+		t.Fatalf("Client.ListWithPagination returned error: %v", err)
+	}
+
+	if pagination == nil || pagination.NextPageOptions == nil || pagination.PreviousPageOptions == nil {
+		t.Fatalf("Expected pagination options but found at least one of them nil")
+	}
+
+	t.Logf("b: %#v \n", *pagination.NextPageOptions)
+
+	if pagination.NextPageOptions.PageInfo != "abc" {
+		t.Fatalf("Expected next page: %s   got: %s", "abc", pagination.NextPageOptions.PageInfo)
+	}
+	if pagination.PreviousPageOptions.PageInfo != "123" {
+		t.Fatalf("Expected prev page: %s   got: %s", "123", pagination.PreviousPageOptions.PageInfo)
+	}
+}
