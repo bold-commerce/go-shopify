@@ -2,10 +2,11 @@ package goshopify
 
 import (
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"net/http"
 	"reflect"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func TestFulfillmentServiceServiceOp_List(t *testing.T) {
@@ -27,19 +28,19 @@ func TestFulfillmentServiceServiceOp_List(t *testing.T) {
 
 	expected := []FulfillmentServiceData{
 		{
-			ID:                     1061774487,
+			Id:                     1061774487,
 			Name:                   "Jupiter Fulfillment",
 			Email:                  "aaa@gmail.com",
 			ServiceName:            "Jupiter Fulfillment",
 			Handle:                 "jupiter-fulfillment",
 			FulfillmentOrdersOptIn: false,
 			IncludePendingStock:    false,
-			ProviderID:             1234,
-			LocationID:             1072404542,
+			ProviderId:             1234,
+			LocationId:             1072404542,
 			CallbackURL:            "https://google.com/",
 			TrackingSupport:        false,
 			InventoryManagement:    false,
-			AdminGraphqlAPIID:      "gid://shopify/ApiFulfillmentService/1061774487",
+			AdminGraphqlApiId:      "gid://shopify/ApiFulfillmentService/1061774487",
 			PermitsSkuSharing:      false,
 		},
 	}
@@ -64,19 +65,19 @@ func TestFulfillmentServiceServiceOp_Get(t *testing.T) {
 	}
 
 	expected := &FulfillmentServiceData{
-		ID:                     1061774487,
+		Id:                     1061774487,
 		Name:                   "Jupiter Fulfillment",
 		Email:                  "aaa@gmail.com",
 		ServiceName:            "Jupiter Fulfillment",
 		Handle:                 "jupiter-fulfillment",
 		FulfillmentOrdersOptIn: false,
 		IncludePendingStock:    false,
-		ProviderID:             1234,
-		LocationID:             1072404542,
+		ProviderId:             1234,
+		LocationId:             1072404542,
 		CallbackURL:            "https://google.com/",
 		TrackingSupport:        false,
 		InventoryManagement:    false,
-		AdminGraphqlAPIID:      "gid://shopify/ApiFulfillmentService/1061774487",
+		AdminGraphqlApiId:      "gid://shopify/ApiFulfillmentService/1061774487",
 		PermitsSkuSharing:      false,
 	}
 	if !reflect.DeepEqual(fulfillmentService, expected) {
@@ -96,15 +97,14 @@ func TestFulfillmentServiceServiceOp_Create(t *testing.T) {
 
 	fulfillmentService, err := client.FulfillmentService.Create(FulfillmentServiceData{
 		Name:   "jupiter-fulfillment",
-		Format: FulfillmentServiceFormatJson,
 	})
 	if err != nil {
 		t.Errorf("FulfillmentService.Get returned error: %v", err)
 	}
 
 	expectedFulfillmentServiceID := int64(1061774487)
-	if fulfillmentService.ID != expectedFulfillmentServiceID {
-		t.Errorf("FulfillmentService.ID returned %+v, expected %+v", fulfillmentService.ID, expectedFulfillmentServiceID)
+	if fulfillmentService.Id != expectedFulfillmentServiceID {
+		t.Errorf("FulfillmentService.Id returned %+v, expected %+v", fulfillmentService.Id, expectedFulfillmentServiceID)
 	}
 }
 
@@ -127,19 +127,19 @@ func TestFulfillmentServiceServiceOp_Update(t *testing.T) {
 	}
 
 	expected := &FulfillmentServiceData{
-		ID:                     1061774487,
+		Id:                     1061774487,
 		Name:                   "Jupiter Fulfillment",
 		Email:                  "aaa@gmail.com",
 		ServiceName:            "Jupiter Fulfillment",
 		Handle:                 "jupiter-fulfillment",
 		FulfillmentOrdersOptIn: false,
 		IncludePendingStock:    false,
-		ProviderID:             1234,
-		LocationID:             1072404542,
+		ProviderId:             1234,
+		LocationId:             1072404542,
 		CallbackURL:            "https://google.com/",
 		TrackingSupport:        false,
 		InventoryManagement:    false,
-		AdminGraphqlAPIID:      "gid://shopify/ApiFulfillmentService/1061774487",
+		AdminGraphqlApiId:      "gid://shopify/ApiFulfillmentService/1061774487",
 		PermitsSkuSharing:      false,
 	}
 	if !reflect.DeepEqual(fulfillmentService, expected) {
