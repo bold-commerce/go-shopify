@@ -119,7 +119,7 @@ func TestFulfillmentServiceServiceOp_Update(t *testing.T) {
 	)
 
 	fulfillmentService, err := client.FulfillmentService.Update(FulfillmentServiceData{
-		ID:     1061774487,
+		Id:     1061774487,
 		Handle: "jupiter-fulfillment",
 	})
 	if err != nil {
