@@ -2,13 +2,8 @@ package goshopify
 
 import "fmt"
 
-type FulfillmentServiceFormat string
-
 const (
 	fulfillmentServiceBasePath = "fulfillment_services"
-
-	FulfillmentServiceFormatJson FulfillmentServiceFormat = "json"
-	FulfillmentServiceFormatXml  FulfillmentServiceFormat = "xml"
 )
 
 // FulfillmentServiceService is an interface for interfacing with the fulfillment service
@@ -23,21 +18,20 @@ type FulfillmentServiceService interface {
 }
 
 type FulfillmentServiceData struct {
-	ID                     int64                    `json:"id,omitempty"`
+	Id                     int64                    `json:"id,omitempty"`
 	Name                   string                   `json:"name,omitempty"`
 	Email                  string                   `json:"email,omitempty"`
 	ServiceName            string                   `json:"service_name,omitempty"`
 	Handle                 string                   `json:"handle,omitempty"`
 	FulfillmentOrdersOptIn bool                     `json:"fulfillment_orders_opt_in,omitempty"`
 	IncludePendingStock    bool                     `json:"include_pending_stock,omitempty"`
-	ProviderID             int64                    `json:"provider_id,omitempty"`
-	LocationID             int64                    `json:"location_id,omitempty"`
+	ProviderId             int64                    `json:"provider_id,omitempty"`
+	LocationId             int64                    `json:"location_id,omitempty"`
 	CallbackURL            string                   `json:"callback_url,omitempty"`
 	TrackingSupport        bool                     `json:"tracking_support,omitempty"`
 	InventoryManagement    bool                     `json:"inventory_management,omitempty"`
-	AdminGraphqlAPIID      string                   `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId      string                   `json:"admin_graphql_api_id,omitempty"`
 	PermitsSkuSharing      bool                     `json:"permits_sku_sharing,omitempty"`
-	Format                 FulfillmentServiceFormat `json:"format,omitempty"`
 	RequiresShippingMethod bool                     `json:"requires_shipping_method,omitempty"`
 }
 
@@ -86,7 +80,7 @@ func (s *FulfillmentServiceServiceOp) Create(fulfillmentService FulfillmentServi
 
 // Update Modify an existing FulfillmentServiceData
 func (s *FulfillmentServiceServiceOp) Update(fulfillmentService FulfillmentServiceData) (*FulfillmentServiceData, error) {
-	path := fmt.Sprintf("%s/%d.json", fulfillmentServiceBasePath, fulfillmentService.ID)
+	path := fmt.Sprintf("%s/%d.json", fulfillmentServiceBasePath, fulfillmentService.Id)
 	wrappedData := FulfillmentServiceResource{FulfillmentService: &fulfillmentService}
 	resource := new(FulfillmentServiceResource)
 	err := s.client.Put(path, wrappedData, resource)
