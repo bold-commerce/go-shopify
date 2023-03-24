@@ -116,6 +116,8 @@ type Client struct {
 	ShippingZone               ShippingZoneService
 	ProductListing             ProductListingService
 	AccessScopes               AccessScopesService
+	FulfillmentService         FulfillmentServiceService
+	CarrierService             CarrierServiceService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -291,6 +293,8 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.ShippingZone = &ShippingZoneServiceOp{client: c}
 	c.ProductListing = &ProductListingServiceOp{client: c}
 	c.AccessScopes = &AccessScopesServiceOp{client: c}
+	c.FulfillmentService = &FulfillmentServiceServiceOp{client: c}
+	c.CarrierService = &CarrierServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {
@@ -614,6 +618,25 @@ func (c *Client) createAndDoGetHeaders(method, relPath string, data, options, re
 // given resource.
 func (c *Client) Get(path string, resource, options interface{}) error {
 	return c.CreateAndDo("GET", path, nil, options, resource)
+}
+
+// GetWithPagination performs a GET request for the given path and saves the result in the
+// given resource and returns the pagination.
+func (c *Client) GetWithPagination(path string, resource, options interface{}) (*Pagination, error) {
+	headers, err := c.createAndDoGetHeaders("GET", path, nil, options, resource)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract pagination info from header
+	linkHeader := headers.Get("Link")
+
+	pagination, err := extractPagination(linkHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	return pagination, nil
 }
 
 // Post performs a POST request for the given path and saves the result in the

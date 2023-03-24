@@ -1,0 +1,14 @@
+{
+  "carrier_services": [
+    {
+      "id": 1,
+      "name": "Shipping Rate Provider",
+      "active": true,
+      "service_discovery": true,
+      "carrier_service_type": "api",
+      "admin_graphql_api_id": "gid://shopify/DeliveryCarrierService/1",
+      "format": "json",
+      "callback_url": "https://fooshop.example.com/shipping"
+    }
+  ]
+}

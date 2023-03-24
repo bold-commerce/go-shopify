@@ -93,6 +93,7 @@ type Order struct {
 	ShippingAddress       *Address         `json:"shipping_address,omitempty"`
 	Currency              string           `json:"currency,omitempty"`
 	TotalPrice            *decimal.Decimal `json:"total_price,omitempty"`
+	CurrentTotalPrice     *decimal.Decimal `json:"current_total_price,omitempty"`
 	SubtotalPrice         *decimal.Decimal `json:"subtotal_price,omitempty"`
 	TotalDiscounts        *decimal.Decimal `json:"total_discounts,omitempty"`
 	TotalLineItemsPrice   *decimal.Decimal `json:"total_line_items_price,omitempty"`
@@ -203,7 +204,7 @@ type LineItem struct {
 type DiscountAllocations struct {
 	Amount                   *decimal.Decimal `json:"amount,omitempty"`
 	DiscountApplicationIndex int              `json:"discount_application_index,omitempty"`
-	AmountSet                AmountSet        `json:"amount_set,omitempty"`
+	AmountSet                *AmountSet       `json:"amount_set,omitempty"`
 }
 
 type AmountSet struct {
@@ -286,6 +287,9 @@ type ShippingLines struct {
 	ID                            int64            `json:"id,omitempty"`
 	Title                         string           `json:"title,omitempty"`
 	Price                         *decimal.Decimal `json:"price,omitempty"`
+	PriceSet                      *AmountSet       `json:"price_set,omitempty"`
+	DiscountedPrice               *decimal.Decimal `json:"discounted_price,omitempty"`
+	DiscountedPriceSet            *AmountSet       `json:"discounted_price_set,omitempty"`
 	Code                          string           `json:"code,omitempty"`
 	Source                        string           `json:"source,omitempty"`
 	Phone                         string           `json:"phone,omitempty"`
