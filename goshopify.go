@@ -658,7 +658,7 @@ func (c *Client) Put(path string, data, resource interface{}) error {
 
 // Delete performs a DELETE request for the given path
 func (c *Client) Delete(path string) error {
-	return c.CreateAndDo("DELETE", path, nil, nil, nil)
+	return c.DeleteWithOptions(path, nil)
 }
 
 // DeleteWithOptions performs a DELETE request for the given path WithOptions
