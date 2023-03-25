@@ -19,8 +19,6 @@ func collectTests(t *testing.T, collect Collect) {
 		{"ID", int64(18091352323), collect.ID},
 		{"CollectionID", int64(241600835), collect.CollectionID},
 		{"ProductID", int64(6654094787), collect.ProductID},
-		/* {"Featured", false, collect.Featured},
-		{"SortValue", "0000000001", collect.SortValue}, */
 	}
 
 	for _, c := range cases {
