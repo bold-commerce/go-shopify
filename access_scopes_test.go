@@ -1,9 +1,9 @@
 package goshopify
 
 import (
-	"testing"
 	"fmt"
 	"reflect"
+	"testing"
 
 	"github.com/jarcoal/httpmock"
 )

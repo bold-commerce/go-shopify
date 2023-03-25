@@ -63,11 +63,12 @@ type ProductListingIDsResource struct {
 // Resource which create product_listing endpoint expects in request body
 // e.g.
 // PUT /admin/api/2020-07/product_listings/921728736.json
-// {
-//   "product_listing": {
-//     "product_id": 921728736
-//   }
-// }
+//
+//	{
+//	  "product_listing": {
+//	    "product_id": 921728736
+//	  }
+//	}
 type ProductListingPublishResource struct {
 	ProductListing struct {
 		ProductID int64 `json:"product_id"`

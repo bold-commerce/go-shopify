@@ -16,7 +16,7 @@ type AccessScopesResource struct {
 // AccessScopesServiceOp handles communication with the Access Scopes
 // related methods of the Shopify API
 type AccessScopesServiceOp struct {
-	client     *Client
+	client *Client
 }
 
 // List gets access scopes based on used oauth token
