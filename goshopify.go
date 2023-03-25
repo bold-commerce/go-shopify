@@ -448,9 +448,6 @@ func wrapSpecificError(r *http.Response, err ResponseError) error {
 		err.Message = http.StatusText(err.Status)
 	}
 
-	if err.Status == http.StatusUnprocessableEntity {
-		err.Message = http.StatusText(err.Status)
-	}
 	return err
 }
 

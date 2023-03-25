@@ -723,18 +723,6 @@ func TestCheckResponseError(t *testing.T) {
 			ResponseError{Status: 400, Message: "bad request"},
 		},
 		{
-			httpmock.NewStringResponse(500, `{"error": "terrible error"}`),
-			ResponseError{Status: 500, Message: "terrible error"},
-		},
-		{
-			httpmock.NewStringResponse(500, `{"errors": "This action requires read_customers scope"}`),
-			ResponseError{Status: 500, Message: "This action requires read_customers scope"},
-		},
-		{
-			httpmock.NewStringResponse(500, `{"errors": ["not", "very good"]}`),
-			ResponseError{Status: 500, Message: "not, very good", Errors: []string{"not", "very good"}},
-		},
-		{
 			httpmock.NewStringResponse(400, `{"errors": { "order": ["order is wrong"] }}`),
 			ResponseError{Status: 400, Message: "order: order is wrong", Errors: []string{"order: order is wrong"}},
 		},
@@ -750,12 +738,28 @@ func TestCheckResponseError(t *testing.T) {
 			&http.Response{StatusCode: 400, Body: errReader{}},
 			errors.New("test-error"),
 		},
+		{
+			httpmock.NewStringResponse(422, `{"error": "Unprocessable Entity - ok"}`),
+			ResponseError{Status: 422, Message: "Unprocessable Entity - ok"},
+		},
+		{
+			httpmock.NewStringResponse(500, `{"error": "terrible error"}`),
+			ResponseError{Status: 500, Message: "terrible error"},
+		},
+		{
+			httpmock.NewStringResponse(500, `{"errors": "This action requires read_customers scope"}`),
+			ResponseError{Status: 500, Message: "This action requires read_customers scope"},
+		},
+		{
+			httpmock.NewStringResponse(500, `{"errors": ["not", "very good"]}`),
+			ResponseError{Status: 500, Message: "not, very good", Errors: []string{"not", "very good"}},
+		},
 	}
 
 	for _, c := range cases {
 		actual := CheckResponseError(c.resp)
 		if fmt.Sprint(actual) != fmt.Sprint(c.expected) {
-			t.Errorf("CheckResponseError(): expected %v, actual %v", c.expected, actual)
+			t.Errorf("CheckResponseError(): expected [%v], actual [%v]", c.expected, actual)
 		}
 	}
 }
