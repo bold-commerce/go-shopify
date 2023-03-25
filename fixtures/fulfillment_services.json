@@ -1,0 +1,20 @@
+{
+  "fulfillment_services": [
+    {
+      "id": 1061774487,
+      "name": "Jupiter Fulfillment",
+      "email": "aaa@gmail.com",
+      "service_name": "Jupiter Fulfillment",
+      "handle": "jupiter-fulfillment",
+      "fulfillment_orders_opt_in": false,
+      "include_pending_stock": false,
+      "provider_id": 1234,
+      "location_id": 1072404542,
+      "callback_url": "https://google.com/",
+      "tracking_support": false,
+      "inventory_management": false,
+      "admin_graphql_api_id": "gid://shopify/ApiFulfillmentService/1061774487",
+      "permits_sku_sharing": false
+    }
+  ]
+}
