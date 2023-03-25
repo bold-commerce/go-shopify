@@ -96,7 +96,7 @@ func TestFulfillmentServiceServiceOp_Create(t *testing.T) {
 	)
 
 	fulfillmentService, err := client.FulfillmentService.Create(FulfillmentServiceData{
-		Name:   "jupiter-fulfillment",
+		Name: "jupiter-fulfillment",
 	})
 	if err != nil {
 		t.Errorf("FulfillmentService.Get returned error: %v", err)
