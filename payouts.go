@@ -2,7 +2,6 @@ package goshopify
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/shopspring/decimal"
 )
@@ -32,15 +31,15 @@ type PayoutListOptions struct {
 	LastID   int64        `url:"last_id,omitempty"`
 	SinceID  int64        `url:"since_id,omitempty"`
 	Status   PayoutStatus `url:"status,omitempty"`
-	DateMin  *time.Time   `url:"date_min,omitempty"`
-	DateMax  *time.Time   `url:"date_max,omitempty"`
-	Date     *time.Time   `url:"date,omitempty"`
+	DateMin  *OnlyDate    `url:"date_min,omitempty"`
+	DateMax  *OnlyDate    `url:"date_max,omitempty"`
+	Date     *OnlyDate    `url:"date,omitempty"`
 }
 
 // Payout represents a Shopify payout
 type Payout struct {
 	ID       int64            `json:"id,omitempty"`
-	Date     *time.Time       `json:"date,omitempty"`
+	Date     OnlyDate         `json:"date,omitempty"`
 	Currency string           `json:"currency,omitempty"`
 	Amount   *decimal.Decimal `json:"amount,omitempty"`
 	Status   PayoutStatus     `json:"status,omitempty"`

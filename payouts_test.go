@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/jarcoal/httpmock"
 )
@@ -15,16 +16,31 @@ func TestPayoutList(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/payouts.json", client.pathPrefix),
-		httpmock.NewStringResponder(200, `{"payouts": [{"id":1},{"id":2}]}`))
+		httpmock.NewStringResponder(200, `{"payouts": [{"id":1, "date":"2022-02-03"}]}`))
 
-	payouts, err := client.Payout.List(nil)
+	date1 := OnlyDate{time.Date(2022, 02, 03, 0, 0, 0, 0, time.Local)}
+	payouts, err := client.Payout.List(PayoutListOptions{Date: &date1})
 	if err != nil {
 		t.Errorf("Payouts.List returned error: %v", err)
 	}
 
-	expected := []Payout{{ID: 1}, {ID: 2}}
-	if !reflect.DeepEqual(payouts, expected) {
+	expected := []Payout{{ID: 1, Date: date1}}
+	if expected[0].Date.String() != payouts[0].Date.String() || expected[0].ID != payouts[0].ID {
 		t.Errorf("Payout.List returned %+v, expected %+v", payouts, expected)
+	}
+}
+
+func TestPayoutListIncorrectDate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/payouts.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"payouts": [{"id":1, "date":"20-02-2"}]}`))
+
+	date1 := OnlyDate{time.Date(2022, 02, 03, 0, 0, 0, 0, time.Local)}
+	_, err := client.Payout.List(PayoutListOptions{Date: &date1})
+	if err == nil {
+		t.Errorf("Payouts.List returned success, expected error: %v", err)
 	}
 }
 
@@ -166,14 +182,14 @@ func TestPayoutGet(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/payouts/1.json", client.pathPrefix),
-		httpmock.NewStringResponder(200, `{"payout": {"id":1}}`))
+		httpmock.NewStringResponder(200, `{"payout": {"id":1, "date":""}}`))
 
 	payout, err := client.Payout.Get(1, nil)
 	if err != nil {
 		t.Errorf("Payout.Get returned error: %v", err)
 	}
 
-	expected := &Payout{ID: 1}
+	expected := &Payout{ID: 1, Date: OnlyDate{time.Time{}}}
 	if !reflect.DeepEqual(payout, expected) {
 		t.Errorf("Payout.Get returned %+v, expected %+v", payout, expected)
 	}
