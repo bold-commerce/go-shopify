@@ -9,28 +9,29 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+	"github.com/shopspring/decimal"
 )
 
-func TestPayoutList(t *testing.T) {
+func TestPayoutsList(t *testing.T) {
 	setup()
 	defer teardown()
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/payouts.json", client.pathPrefix),
-		httpmock.NewStringResponder(200, `{"payouts": [{"id":1, "date":"2022-02-03"}]}`))
+		httpmock.NewBytesResponder(200, loadFixture("payouts_filtered.json")))
 
-	date1 := OnlyDate{time.Date(2022, 02, 03, 0, 0, 0, 0, time.Local)}
-	payouts, err := client.Payout.List(PayoutListOptions{Date: &date1})
+	date1 := OnlyDate{time.Date(2013, 11, 01, 0, 0, 0, 0, time.UTC)}
+	payouts, err := client.Payouts.List(PayoutsListOptions{Date: &date1})
 	if err != nil {
 		t.Errorf("Payouts.List returned error: %v", err)
 	}
 
-	expected := []Payout{{ID: 1, Date: date1}}
-	if expected[0].Date.String() != payouts[0].Date.String() || expected[0].ID != payouts[0].ID {
-		t.Errorf("Payout.List returned %+v, expected %+v", payouts, expected)
+	expected := []Payout{{Id: 854088011, Date: date1, Currency: "USD", Amount: decimal.NewFromFloat(43.12), Status: PayoutStatusScheduled}}
+	if !reflect.DeepEqual(payouts, expected) {
+		t.Errorf("Payouts.List returned %+v, expected %+v", payouts, expected)
 	}
 }
 
-func TestPayoutListIncorrectDate(t *testing.T) {
+func TestPayoutsListIncorrectDate(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -38,13 +39,13 @@ func TestPayoutListIncorrectDate(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"payouts": [{"id":1, "date":"20-02-2"}]}`))
 
 	date1 := OnlyDate{time.Date(2022, 02, 03, 0, 0, 0, 0, time.Local)}
-	_, err := client.Payout.List(PayoutListOptions{Date: &date1})
+	_, err := client.Payouts.List(PayoutsListOptions{Date: &date1})
 	if err == nil {
 		t.Errorf("Payouts.List returned success, expected error: %v", err)
 	}
 }
 
-func TestPayoutListError(t *testing.T) {
+func TestPayoutsListError(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -53,17 +54,17 @@ func TestPayoutListError(t *testing.T) {
 
 	expectedErrMessage := "Unknown Error"
 
-	payouts, err := client.Payout.List(nil)
+	payouts, err := client.Payouts.List(nil)
 	if payouts != nil {
-		t.Errorf("Payout.List returned payouts, expected nil: %v", err)
+		t.Errorf("Payouts.List returned payouts, expected nil: %v", err)
 	}
 
 	if err == nil || err.Error() != expectedErrMessage {
-		t.Errorf("Payout.List err returned %+v, expected %+v", err, expectedErrMessage)
+		t.Errorf("Payouts.List err returned %+v, expected %+v", err, expectedErrMessage)
 	}
 }
 
-func TestPayoutListWithPagination(t *testing.T) {
+func TestPayoutsListWithPagination(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -78,9 +79,12 @@ func TestPayoutListWithPagination(t *testing.T) {
 	}{
 		// Expect empty pagination when there is no link header
 		{
-			`{"payouts": [{"id":1},{"id":2}]}`,
+			string(loadFixture("payouts.json")),
 			"",
-			[]Payout{{ID: 1}, {ID: 2}},
+			[]Payout{
+				{Id: 854088011, Date: OnlyDate{time.Date(2013, 11, 1, 0, 0, 0, 0, time.UTC)}, Currency: "USD", Amount: decimal.NewFromFloat(43.12), Status: PayoutStatusScheduled},
+				{Id: 512467833, Date: OnlyDate{time.Date(2013, 11, 1, 0, 0, 0, 0, time.UTC)}, Currency: "USD", Amount: decimal.NewFromFloat(43.12), Status: PayoutStatusFailed},
+			},
 			new(Pagination),
 			nil,
 		},
@@ -124,7 +128,7 @@ func TestPayoutListWithPagination(t *testing.T) {
 		{
 			`{"payouts": [{"id":1}]}`,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
-			[]Payout{{ID: 1}},
+			[]Payout{{Id: 1}},
 			&Pagination{
 				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
 			},
@@ -133,7 +137,7 @@ func TestPayoutListWithPagination(t *testing.T) {
 		{
 			`{"payouts": [{"id":2}]}`,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
-			[]Payout{{ID: 2}},
+			[]Payout{{Id: 2}},
 			&Pagination{
 				NextPageOptions:     &ListOptions{PageInfo: "foo"},
 				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
@@ -152,14 +156,14 @@ func TestPayoutListWithPagination(t *testing.T) {
 
 		httpmock.RegisterResponder("GET", listURL, httpmock.ResponderFromResponse(response))
 
-		payouts, pagination, err := client.Payout.ListWithPagination(nil)
+		payouts, pagination, err := client.Payouts.ListWithPagination(nil)
 		if !reflect.DeepEqual(payouts, c.expectedPayouts) {
-			t.Errorf("test %d Payout.ListWithPagination payouts returned %+v, expected %+v", i, payouts, c.expectedPayouts)
+			t.Errorf("test %d Payouts.ListWithPagination payouts returned %+v, expected %+v", i, payouts, c.expectedPayouts)
 		}
 
 		if !reflect.DeepEqual(pagination, c.expectedPagination) {
 			t.Errorf(
-				"test %d Payout.ListWithPagination pagination returned %+v, expected %+v",
+				"test %d Payouts.ListWithPagination pagination returned %+v, expected %+v",
 				i,
 				pagination,
 				c.expectedPagination,
@@ -168,7 +172,7 @@ func TestPayoutListWithPagination(t *testing.T) {
 
 		if (c.expectedErr != nil || err != nil) && err.Error() != c.expectedErr.Error() {
 			t.Errorf(
-				"test %d Payout.ListWithPagination err returned %+v, expected %+v",
+				"test %d Payouts.ListWithPagination err returned %+v, expected %+v",
 				i,
 				err,
 				c.expectedErr,
@@ -177,20 +181,25 @@ func TestPayoutListWithPagination(t *testing.T) {
 	}
 }
 
-func TestPayoutGet(t *testing.T) {
+func TestPayoutsGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/payouts/1.json", client.pathPrefix),
-		httpmock.NewStringResponder(200, `{"payout": {"id":1, "date":""}}`))
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/payouts/623721858.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("payout.json")))
 
-	payout, err := client.Payout.Get(1, nil)
+	payout, err := client.Payouts.Get(623721858, nil)
 	if err != nil {
-		t.Errorf("Payout.Get returned error: %v", err)
+		t.Errorf("Payouts.Get returned error: %v", err)
 	}
 
-	expected := &Payout{ID: 1, Date: OnlyDate{time.Time{}}}
+	expected := &Payout{Id: 623721858,
+		Date:     OnlyDate{time.Date(2012, 11, 12, 0, 0, 0, 0, time.UTC)},
+		Status:   PayoutStatusPaid,
+		Currency: "USD",
+		Amount:   decimal.NewFromFloat(41.9),
+	}
 	if !reflect.DeepEqual(payout, expected) {
-		t.Errorf("Payout.Get returned %+v, expected %+v", payout, expected)
+		t.Errorf("Payouts.Get returned %+v, expected %+v", payout, expected)
 	}
 }

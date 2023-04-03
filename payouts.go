@@ -8,28 +8,28 @@ import (
 
 const payoutsBasePath = "shopify_payments/payouts"
 
-// PayoutService is an interface for interfacing with the payout endpoints of
+// PayoutsService is an interface for interfacing with the payouts endpoints of
 // the Shopify API.
-// See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/payout
-type PayoutService interface {
+// See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/payouts
+type PayoutsService interface {
 	List(interface{}) ([]Payout, error)
 	ListWithPagination(interface{}) ([]Payout, *Pagination, error)
 	Get(int64, interface{}) (*Payout, error)
 }
 
-// PayoutOp handles communication with the payout related methods of the
+// PayoutsServiceOp handles communication with the payout related methods of the
 // Shopify API.
-type PayoutServiceOp struct {
+type PayoutsServiceOp struct {
 	client *Client
 }
 
 // A struct for all available payout list options
-type PayoutListOptions struct {
+type PayoutsListOptions struct {
 	PageInfo string       `url:"page_info,omitempty"`
 	Limit    int          `url:"limit,omitempty"`
 	Fields   string       `url:"fields,omitempty"`
-	LastID   int64        `url:"last_id,omitempty"`
-	SinceID  int64        `url:"since_id,omitempty"`
+	LastId   int64        `url:"last_id,omitempty"`
+	SinceId  int64        `url:"since_id,omitempty"`
 	Status   PayoutStatus `url:"status,omitempty"`
 	DateMin  *OnlyDate    `url:"date_min,omitempty"`
 	DateMax  *OnlyDate    `url:"date_max,omitempty"`
@@ -38,11 +38,11 @@ type PayoutListOptions struct {
 
 // Payout represents a Shopify payout
 type Payout struct {
-	ID       int64            `json:"id,omitempty"`
-	Date     OnlyDate         `json:"date,omitempty"`
-	Currency string           `json:"currency,omitempty"`
-	Amount   *decimal.Decimal `json:"amount,omitempty"`
-	Status   PayoutStatus     `json:"status,omitempty"`
+	Id       int64           `json:"id,omitempty"`
+	Date     OnlyDate        `json:"date,omitempty"`
+	Currency string          `json:"currency,omitempty"`
+	Amount   decimal.Decimal `json:"amount,omitempty"`
+	Status   PayoutStatus    `json:"status,omitempty"`
 }
 
 type PayoutStatus string
@@ -66,7 +66,7 @@ type PayoutsResource struct {
 }
 
 // List payouts
-func (s *PayoutServiceOp) List(options interface{}) ([]Payout, error) {
+func (s *PayoutsServiceOp) List(options interface{}) ([]Payout, error) {
 	payouts, _, err := s.ListWithPagination(options)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (s *PayoutServiceOp) List(options interface{}) ([]Payout, error) {
 	return payouts, nil
 }
 
-func (s *PayoutServiceOp) ListWithPagination(options interface{}) ([]Payout, *Pagination, error) {
+func (s *PayoutsServiceOp) ListWithPagination(options interface{}) ([]Payout, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", payoutsBasePath)
 	resource := new(PayoutsResource)
 
@@ -87,8 +87,8 @@ func (s *PayoutServiceOp) ListWithPagination(options interface{}) ([]Payout, *Pa
 }
 
 // Get individual payout
-func (s *PayoutServiceOp) Get(payoutID int64, options interface{}) (*Payout, error) {
-	path := fmt.Sprintf("%s/%d.json", payoutsBasePath, payoutID)
+func (s *PayoutsServiceOp) Get(id int64, options interface{}) (*Payout, error) {
+	path := fmt.Sprintf("%s/%d.json", payoutsBasePath, id)
 	resource := new(PayoutResource)
 	err := s.client.Get(path, resource, options)
 	return resource.Payout, err

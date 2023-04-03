@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -63,7 +64,17 @@ func (c *OnlyDate) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	*c = OnlyDate{t} //set result using the pointer
+	*c = OnlyDate{t}
+	return nil
+}
+
+func (c *OnlyDate) MarshalJSON() ([]byte, error) {
+	return []byte(c.String()), nil
+}
+
+// It seems shopify accepts both the date with double-quotes and without them, so we just stick to the double-quotes for now.
+func (c *OnlyDate) EncodeValues(key string, v *url.Values) error {
+	v.Add(key, c.String())
 	return nil
 }
 
