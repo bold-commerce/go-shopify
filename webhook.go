@@ -36,7 +36,7 @@ type Webhook struct {
 	Fields                     []string   `json:"fields"`
 	MetafieldNamespaces        []string   `json:"metafield_namespaces"`
 	PrivateMetafieldNamespaces []string   `json:"private_metafield_namespaces"`
-	ApiVersion                 string     `json:"api_version"`
+	ApiVersion                 string     `json:"api_version,omitempty"`
 }
 
 // WebhookOptions can be used for filtering webhooks on a List request.
