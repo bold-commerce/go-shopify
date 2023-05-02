@@ -58,7 +58,7 @@ type Variant struct {
 	Weight               *decimal.Decimal `json:"weight,omitempty"`
 	WeightUnit           string           `json:"weight_unit,omitempty"`
 	OldInventoryQuantity int              `json:"old_inventory_quantity,omitempty"`
-	RequireShipping      bool             `json:"requires_shipping,omitempty"`
+	RequireShipping      bool             `json:"requires_shipping"`
 	AdminGraphqlAPIID    string           `json:"admin_graphql_api_id,omitempty"`
 	Metafields           []Metafield      `json:"metafields,omitempty"`
 }
