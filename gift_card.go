@@ -34,7 +34,7 @@ type GiftCard struct {
 	InitalValue    *decimal.Decimal `json:"initial_value,omitempty"`
 	Code           string           `json:"code,omitempty"`
 	Currency       string           `json:"currency,omitempty"`
-	CustomerID     CustomerID       `json:"customer_id,omitempty"`
+	CustomerID     *CustomerID      `json:"customer_id,omitempty"`
 	CreatedAt      *time.Time       `json:"created_at,omitempty"`
 	DisabledAt     *time.Time       `json:"disabled_at,omitempty"`
 	ExpiresOn      string           `json:"expires_on,omitempty"`

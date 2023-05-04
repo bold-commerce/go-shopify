@@ -102,3 +102,52 @@ func TestGiftCardUpdate(t *testing.T) {
 		t.Errorf("GiftCard.Update returned %+v, expected %+v", giftCard, expected)
 	}
 }
+
+func TestGiftCardDisable(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder(
+		"POST",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/gift_cards/1/disable.json", client.pathPrefix),
+		httpmock.NewBytesResponder(
+			200,
+			loadFixture("gift_card/get.json"),
+		),
+	)
+
+	giftCard, err := client.GiftCard.Disable(1)
+	if err != nil {
+		t.Errorf("GiftCard.Disable returned error: %v", err)
+	}
+
+	expected := []GiftCard{{ID: 1}}
+	if expected[0].ID != giftCard.ID {
+		t.Errorf("GiftCard.Disable returned %+v, expected %+v", giftCard, expected)
+	}
+}
+
+func TestGiftCardCount(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder(
+		"GET",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/gift_cards/count.json", client.pathPrefix),
+		httpmock.NewStringResponder(
+			200,
+			`{"count": 5}`,
+		),
+	)
+
+	cnt, err := client.GiftCard.Count(nil)
+	if err != nil {
+		t.Errorf("Blog.Count returned error: %v", err)
+	}
+
+	expected := 5
+	if cnt != expected {
+		t.Errorf("Blog.Count returned %d, expected %d", cnt, expected)
+	}
+
+}
