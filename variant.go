@@ -60,7 +60,7 @@ type Variant struct {
 	OldInventoryQuantity int              `json:"old_inventory_quantity,omitempty"`
 	RequireShipping      bool             `json:"requires_shipping"`
 	AdminGraphqlAPIID    string           `json:"admin_graphql_api_id,omitempty"`
-	Metafields           []Metafield      `json:"metafields,omitempty"`
+	Digital              Digital          `json:"digital,omitempty"`
 }
 
 // VariantResource represents the result from the variants/X.json endpoint
@@ -71,6 +71,27 @@ type VariantResource struct {
 // VariantsResource represents the result from the products/X/variants.json endpoint
 type VariantsResource struct {
 	Variants []Variant `json:"variants"`
+}
+
+// Digital sets the digital attributes of a variant
+type Digital struct {
+	HasOnlyDefaultVariant bool        `json:"has_only_default_variant"`
+	Attachment            Attachment  `json:"attachment"`
+	Media                 []MediaItem `json:"media"`
+}
+
+// Attachment sets the attachment attributes of a digital variant
+type Attachment struct {
+	Data        string `json:"data"`
+	Name        string `json:"name"`
+	ContentType string `json:"content_type"`
+}
+
+// MediaItem sets the media attributes of a digital variant
+type MediaItem struct {
+	MediaType string `json:"media_type"`
+	Position  int    `json:"position"`
+	Src       string `json:"src"`
 }
 
 // List variants
