@@ -60,6 +60,7 @@ type Variant struct {
 	OldInventoryQuantity int              `json:"old_inventory_quantity,omitempty"`
 	RequireShipping      bool             `json:"requires_shipping"`
 	AdminGraphqlAPIID    string           `json:"admin_graphql_api_id,omitempty"`
+	Metafields           []Metafield      `json:"metafields,omitempty"`
 	Digital              Digital          `json:"digital,omitempty"`
 }
 
