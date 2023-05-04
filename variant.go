@@ -77,8 +77,8 @@ type VariantsResource struct {
 // Digital sets the digital attributes of a variant
 type Digital struct {
 	HasOnlyDefaultVariant bool        `json:"has_only_default_variant"`
-	Attachment            Attachment  `json:"attachment"`
-	Media                 []MediaItem `json:"media"`
+	Attachment            *Attachment `json:"attachment,omitempty"`
+	Media                 []MediaItem `json:"media,omitempty"`
 }
 
 // Attachment sets the attachment attributes of a digital variant
