@@ -142,12 +142,12 @@ func TestGiftCardCount(t *testing.T) {
 
 	cnt, err := client.GiftCard.Count(nil)
 	if err != nil {
-		t.Errorf("Blog.Count returned error: %v", err)
+		t.Errorf("GiftCard.Count returned error: %v", err)
 	}
 
 	expected := 5
 	if cnt != expected {
-		t.Errorf("Blog.Count returned %d, expected %d", cnt, expected)
+		t.Errorf("GiftCard.Count returned %d, expected %d", cnt, expected)
 	}
 
 }
