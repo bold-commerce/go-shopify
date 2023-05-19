@@ -63,6 +63,16 @@ type Variant struct {
 	Metafields           []Metafield      `json:"metafields,omitempty"`
 }
 
+// VariantResource represents the result from the variants/X.json endpoint
+type VariantResource struct {
+	Variant *Variant `json:"variant"`
+}
+
+// VariantsResource represents the result from the products/X/variants.json endpoint
+type VariantsResource struct {
+	Variants []Variant `json:"variants"`
+}
+
 // List variants
 func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant, error) {
 	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
