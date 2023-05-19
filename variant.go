@@ -63,20 +63,6 @@ type Variant struct {
 	Metafields           []Metafield      `json:"metafields,omitempty"`
 }
 
-// Attachment sets the attachment attributes of a digital variant
-type Attachment struct {
-	Data        string `json:"data"`
-	Name        string `json:"name"`
-	ContentType string `json:"content_type"`
-}
-
-// MediaItem sets the media attributes of a digital variant
-type MediaItem struct {
-	MediaType string `json:"media_type"`
-	Position  int    `json:"position"`
-	Src       string `json:"src"`
-}
-
 // List variants
 func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant, error) {
 	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
