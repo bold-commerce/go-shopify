@@ -61,24 +61,6 @@ type Variant struct {
 	RequireShipping      bool             `json:"requires_shipping"`
 	AdminGraphqlAPIID    string           `json:"admin_graphql_api_id,omitempty"`
 	Metafields           []Metafield      `json:"metafields,omitempty"`
-	Digital              Digital          `json:"digital,omitempty"`
-}
-
-// VariantResource represents the result from the variants/X.json endpoint
-type VariantResource struct {
-	Variant *Variant `json:"variant"`
-}
-
-// VariantsResource represents the result from the products/X/variants.json endpoint
-type VariantsResource struct {
-	Variants []Variant `json:"variants"`
-}
-
-// Digital sets the digital attributes of a variant
-type Digital struct {
-	HasOnlyDefaultVariant bool        `json:"has_only_default_variant"`
-	Attachment            *Attachment `json:"attachment,omitempty"`
-	Media                 []MediaItem `json:"media,omitempty"`
 }
 
 // Attachment sets the attachment attributes of a digital variant
