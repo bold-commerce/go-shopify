@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -32,6 +33,28 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 	costFloat, _ := item.Cost.Float64()
 	if costFloat != expectedCost {
 		t.Errorf("InventoryItem.Cost (float) is %+v, expected %+v", costFloat, expectedCost)
+	}
+
+	expectedOrigin := "US"
+	if *item.CountryCodeOfOrigin != expectedOrigin {
+		t.Errorf("InventoryItem.CountryCodeOfOrigin returned %+v, expected %+v", item.CountryCodeOfOrigin, expectedOrigin)
+	}
+
+	//strings.Join is used to compare slices since package's go.mod is set to 1.13
+	//which predates the experimental slices package that has a Compare() func.
+	expectedCountryHSCodes := strings.Join([]string{"8471.70.40.35", "8471.70.50.35"}, ",")
+	if strings.Join(item.CountryHarmonizedSystemCodes, ",") != expectedCountryHSCodes {
+		t.Errorf("InventoryItem.CountryHarmonizedSystemCodes returned %+v, expected %+v", item.CountryHarmonizedSystemCodes, expectedCountryHSCodes)
+	}
+
+	expectedHSCode := "8471.70.40.35"
+	if *item.HarmonizedSystemCode != expectedHSCode {
+		t.Errorf("InventoryItem.HarmonizedSystemCode returned %+v, expected %+v", item.CountryHarmonizedSystemCodes, expectedHSCode)
+	}
+
+	expectedProvince := "ON"
+	if *item.ProvinceCodeOfOrigin != expectedProvince {
+		t.Errorf("InventoryItem.ProvinceCodeOfOrigin returned %+v, expected %+v", item.ProvinceCodeOfOrigin, expectedHSCode)
 	}
 }
 
