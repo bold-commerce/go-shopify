@@ -57,7 +57,7 @@ func TestAppGetAccessTokenError(t *testing.T) {
 	defer teardown()
 
 	// app.Client isn't specified so NewClient called
-	expectedError := errors.New("invalid_request")
+	expectedError := errors.New("application_cannot_be_found")
 
 	token, err := app.GetAccessToken("fooshop", "")
 
