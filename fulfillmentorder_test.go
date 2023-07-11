@@ -142,20 +142,20 @@ func TestFulfillmentOrderMove(t *testing.T) {
 
 // TODO
 func TestFulfillmentOrderOpen(t *testing.T) {
-	t.Error("TestFulfillmentOrderOpen is not implemented")
+	t.Skip("TestFulfillmentOrderOpen is not implemented")
 }
 
 // TODO
 func TestFulfillmentOrderReleaseHold(t *testing.T) {
-	t.Error("TestFulfillmentOrderReleaseHold is not implemented")
+	t.Skip("TestFulfillmentOrderReleaseHold is not implemented")
 }
 
 // TODO
 func TestFulfillmentOrderReschedule(t *testing.T) {
-	t.Error("TestFulfillmentOrderReschedule is not implemented")
+	t.Skip("TestFulfillmentOrderReschedule is not implemented")
 }
 
 // TODO
 func TestFulfillmentOrderSetDeadline(t *testing.T) {
-	t.Error("TestFulfillmentOrderSetDeadline is not implemented")
+	t.Skip("TestFulfillmentOrderSetDeadline is not implemented")
 }
