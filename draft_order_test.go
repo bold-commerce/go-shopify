@@ -360,7 +360,6 @@ func TestDraftOrderCreateMetafield(t *testing.T) {
 	metafield := Metafield{
 		Key:       "app_key",
 		Value:     "app_value",
-		ValueType: "string",
 		Namespace: "affiliates",
 	}
 
@@ -383,7 +382,6 @@ func TestDraftOrderUpdateMetafield(t *testing.T) {
 		ID:        2,
 		Key:       "app_key",
 		Value:     "app_value",
-		ValueType: "string",
 		Namespace: "affiliates",
 	}
 
