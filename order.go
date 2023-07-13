@@ -39,32 +39,125 @@ type OrderServiceOp struct {
 	client *Client
 }
 
+type orderStatus string
+
+// https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
+const (
+	//Show only open orders.
+	StatusOpen orderStatus = "open"
+
+	//Show only closed orders.
+	StatusClosed orderStatus = "closed"
+
+	//Show only cancelled orders.
+	StatusCancelled orderStatus = "cancelled"
+
+	//Show orders of any status, open, closed, cancellerd, or archived.
+	StatusAny orderStatus = "any"
+)
+
+type orderFulfillmentStatus string
+
+// https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
+const (
+	//Show orders that have been shipped.
+	FulfillmentStatusShipped orderFulfillmentStatus = "shipped"
+
+	//Show partially shipped orders.
+	FulfillmentStatusPartial orderFulfillmentStatus = "partial"
+
+	//Show orders that have not yet been shipped.
+	FulfillmentStatusUnshipped orderFulfillmentStatus = "unshipped"
+
+	//Show orders of any fulfillment status.
+	FulfillmentStatusAny orderFulfillmentStatus = "any"
+
+	//Returns orders with fulfillment_status of null or partial.
+	FulfillmentStatusUnfulfilled orderFulfillmentStatus = "unfulfilled"
+
+	//"fulfilled" used to be an acceptable value? Was it deprecated? It isn't noted
+	//in the Shopify docs at the provided URL, but it was used in tests and still
+	//seems to function.
+	FulfillmentStatusFulfilled orderFulfillmentStatus = "fulfilled"
+)
+
+type orderFinancialStatus string
+
+// https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
+const (
+	//Show only authorized orders.
+	FinancialStatusAuthorized orderFinancialStatus = "authorized"
+
+	//Show only pending orders.
+	FinancialStatusPending orderFinancialStatus = "pending"
+
+	//Show only paid orders.
+	FinancialStatusPaid orderFinancialStatus = "paid"
+
+	//Show only partially paid orders.
+	FinancialStatusPartiallyPaid orderFinancialStatus = "partially_paid"
+
+	//Show only refunded orders.
+	FinancialStatusRefunded orderFinancialStatus = "refunded"
+
+	//Show only voided orders.
+	FinancialStatusVoided orderFinancialStatus = "voided"
+
+	//Show only partially refunded orders.
+	FinancialStatusPartiallyRefunded orderFinancialStatus = "partially_refunded"
+
+	//Show orders of any financial status.
+	FinancialStatusAny orderFinancialStatus = "any"
+
+	//Show authorized and partially paid orders.
+	FinancialStatusUnpaid orderFinancialStatus = "unpaid"
+)
+
+type orderCancelReason string
+
+const (
+	//The customer canceled the order.
+	CancelReasonCustomer orderCancelReason = "customer"
+
+	//The order was fraudulent.
+	CancelReasonFraud orderCancelReason = "fraud"
+
+	//Items in the order were not in inventory.
+	CancelReasonInventory orderCancelReason = "inventory"
+
+	//The payment was declined.
+	CancelReasonDeclined orderCancelReason = "declined"
+
+	//Cancelled for some other reason.
+	CancelReasonOther orderCancelReason = "other"
+)
+
 // A struct for all available order count options
 type OrderCountOptions struct {
-	Page              int       `url:"page,omitempty"`
-	Limit             int       `url:"limit,omitempty"`
-	SinceID           int64     `url:"since_id,omitempty"`
-	CreatedAtMin      time.Time `url:"created_at_min,omitempty"`
-	CreatedAtMax      time.Time `url:"created_at_max,omitempty"`
-	UpdatedAtMin      time.Time `url:"updated_at_min,omitempty"`
-	UpdatedAtMax      time.Time `url:"updated_at_max,omitempty"`
-	Order             string    `url:"order,omitempty"`
-	Fields            string    `url:"fields,omitempty"`
-	Status            string    `url:"status,omitempty"`
-	FinancialStatus   string    `url:"financial_status,omitempty"`
-	FulfillmentStatus string    `url:"fulfillment_status,omitempty"`
+	Page              int                    `url:"page,omitempty"`
+	Limit             int                    `url:"limit,omitempty"`
+	SinceID           int64                  `url:"since_id,omitempty"`
+	CreatedAtMin      time.Time              `url:"created_at_min,omitempty"`
+	CreatedAtMax      time.Time              `url:"created_at_max,omitempty"`
+	UpdatedAtMin      time.Time              `url:"updated_at_min,omitempty"`
+	UpdatedAtMax      time.Time              `url:"updated_at_max,omitempty"`
+	Order             string                 `url:"order,omitempty"`
+	Fields            string                 `url:"fields,omitempty"`
+	Status            orderStatus            `url:"status,omitempty"`
+	FinancialStatus   orderFinancialStatus   `url:"financial_status,omitempty"`
+	FulfillmentStatus orderFulfillmentStatus `url:"fulfillment_status,omitempty"`
 }
 
 // A struct for all available order list options.
 // See: https://help.shopify.com/api/reference/order#index
 type OrderListOptions struct {
 	ListOptions
-	Status            string    `url:"status,omitempty"`
-	FinancialStatus   string    `url:"financial_status,omitempty"`
-	FulfillmentStatus string    `url:"fulfillment_status,omitempty"`
-	ProcessedAtMin    time.Time `url:"processed_at_min,omitempty"`
-	ProcessedAtMax    time.Time `url:"processed_at_max,omitempty"`
-	Order             string    `url:"order,omitempty"`
+	Status            orderStatus            `url:"status,omitempty"`
+	FinancialStatus   orderFinancialStatus   `url:"financial_status,omitempty"`
+	FulfillmentStatus orderFulfillmentStatus `url:"fulfillment_status,omitempty"`
+	ProcessedAtMin    time.Time              `url:"processed_at_min,omitempty"`
+	ProcessedAtMax    time.Time              `url:"processed_at_max,omitempty"`
+	Order             string                 `url:"order,omitempty"`
 }
 
 // A struct of all available order cancel options.
@@ -80,75 +173,75 @@ type OrderCancelOptions struct {
 
 // Order represents a Shopify order
 type Order struct {
-	ID                     int64            `json:"id,omitempty"`
-	Name                   string           `json:"name,omitempty"`
-	Email                  string           `json:"email,omitempty"`
-	CreatedAt              *time.Time       `json:"created_at,omitempty"`
-	UpdatedAt              *time.Time       `json:"updated_at,omitempty"`
-	CancelledAt            *time.Time       `json:"cancelled_at,omitempty"`
-	ClosedAt               *time.Time       `json:"closed_at,omitempty"`
-	ProcessedAt            *time.Time       `json:"processed_at,omitempty"`
-	Customer               *Customer        `json:"customer,omitempty"`
-	BillingAddress         *Address         `json:"billing_address,omitempty"`
-	ShippingAddress        *Address         `json:"shipping_address,omitempty"`
-	Currency               string           `json:"currency,omitempty"`
-	TotalPrice             *decimal.Decimal `json:"total_price,omitempty"`
-	CurrentTotalPrice      *decimal.Decimal `json:"current_total_price,omitempty"`
-	SubtotalPrice          *decimal.Decimal `json:"subtotal_price,omitempty"`
-	CurrentSubtotalPrice   *decimal.Decimal `json:"current_subtotal_price,omitempty"`
-	TotalDiscounts         *decimal.Decimal `json:"total_discounts,omitempty"`
-	CurrentTotalDiscounts  *decimal.Decimal `json:"current_total_discounts,omitempty"`
-	TotalLineItemsPrice    *decimal.Decimal `json:"total_line_items_price,omitempty"`
-	TaxesIncluded          bool             `json:"taxes_included,omitempty"`
-	TotalTax               *decimal.Decimal `json:"total_tax,omitempty"`
-	CurrentTotalTax        *decimal.Decimal `json:"current_total_tax,omitempty"`
-	TaxLines               []TaxLine        `json:"tax_lines,omitempty"`
-	TotalWeight            int              `json:"total_weight,omitempty"`
-	FinancialStatus        string           `json:"financial_status,omitempty"`
-	Fulfillments           []Fulfillment    `json:"fulfillments,omitempty"`
-	FulfillmentStatus      string           `json:"fulfillment_status,omitempty"`
-	Token                  string           `json:"token,omitempty"`
-	CartToken              string           `json:"cart_token,omitempty"`
-	Number                 int              `json:"number,omitempty"`
-	OrderNumber            int              `json:"order_number,omitempty"`
-	Note                   string           `json:"note,omitempty"`
-	Test                   bool             `json:"test,omitempty"`
-	BrowserIp              string           `json:"browser_ip,omitempty"`
-	BuyerAcceptsMarketing  bool             `json:"buyer_accepts_marketing,omitempty"`
-	CancelReason           string           `json:"cancel_reason,omitempty"`
-	NoteAttributes         []NoteAttribute  `json:"note_attributes,omitempty"`
-	DiscountCodes          []DiscountCode   `json:"discount_codes,omitempty"`
-	LineItems              []LineItem       `json:"line_items,omitempty"`
-	ShippingLines          []ShippingLines  `json:"shipping_lines,omitempty"`
-	Transactions           []Transaction    `json:"transactions,omitempty"`
-	AppID                  int              `json:"app_id,omitempty"`
-	CustomerLocale         string           `json:"customer_locale,omitempty"`
-	LandingSite            string           `json:"landing_site,omitempty"`
-	ReferringSite          string           `json:"referring_site,omitempty"`
-	SourceName             string           `json:"source_name,omitempty"`
-	ClientDetails          *ClientDetails   `json:"client_details,omitempty"`
-	Tags                   string           `json:"tags,omitempty"`
-	LocationId             int64            `json:"location_id,omitempty"`
-	PaymentGatewayNames    []string         `json:"payment_gateway_names,omitempty"`
-	ProcessingMethod       string           `json:"processing_method,omitempty"`
-	Refunds                []Refund         `json:"refunds,omitempty"`
-	UserId                 int64            `json:"user_id,omitempty"`
-	OrderStatusUrl         string           `json:"order_status_url,omitempty"`
-	Gateway                string           `json:"gateway,omitempty"`
-	Confirmed              bool             `json:"confirmed,omitempty"`
-	TotalPriceUSD          *decimal.Decimal `json:"total_price_usd,omitempty"`
-	CheckoutToken          string           `json:"checkout_token,omitempty"`
-	Reference              string           `json:"reference,omitempty"`
-	SourceIdentifier       string           `json:"source_identifier,omitempty"`
-	SourceURL              string           `json:"source_url,omitempty"`
-	DeviceID               int64            `json:"device_id,omitempty"`
-	Phone                  string           `json:"phone,omitempty"`
-	LandingSiteRef         string           `json:"landing_site_ref,omitempty"`
-	CheckoutID             int64            `json:"checkout_id,omitempty"`
-	ContactEmail           string           `json:"contact_email,omitempty"`
-	Metafields             []Metafield      `json:"metafields,omitempty"`
-	SendReceipt            bool             `json:"send_receipt,omitempty"`
-	SendFulfillmentReceipt bool             `json:"send_fulfillment_receipt,omitempty"`
+	ID                     int64                  `json:"id,omitempty"`
+	Name                   string                 `json:"name,omitempty"`
+	Email                  string                 `json:"email,omitempty"`
+	CreatedAt              *time.Time             `json:"created_at,omitempty"`
+	UpdatedAt              *time.Time             `json:"updated_at,omitempty"`
+	CancelledAt            *time.Time             `json:"cancelled_at,omitempty"`
+	ClosedAt               *time.Time             `json:"closed_at,omitempty"`
+	ProcessedAt            *time.Time             `json:"processed_at,omitempty"`
+	Customer               *Customer              `json:"customer,omitempty"`
+	BillingAddress         *Address               `json:"billing_address,omitempty"`
+	ShippingAddress        *Address               `json:"shipping_address,omitempty"`
+	Currency               string                 `json:"currency,omitempty"`
+	TotalPrice             *decimal.Decimal       `json:"total_price,omitempty"`
+	CurrentTotalPrice      *decimal.Decimal       `json:"current_total_price,omitempty"`
+	SubtotalPrice          *decimal.Decimal       `json:"subtotal_price,omitempty"`
+	CurrentSubtotalPrice   *decimal.Decimal       `json:"current_subtotal_price,omitempty"`
+	TotalDiscounts         *decimal.Decimal       `json:"total_discounts,omitempty"`
+	CurrentTotalDiscounts  *decimal.Decimal       `json:"current_total_discounts,omitempty"`
+	TotalLineItemsPrice    *decimal.Decimal       `json:"total_line_items_price,omitempty"`
+	TaxesIncluded          bool                   `json:"taxes_included,omitempty"`
+	TotalTax               *decimal.Decimal       `json:"total_tax,omitempty"`
+	CurrentTotalTax        *decimal.Decimal       `json:"current_total_tax,omitempty"`
+	TaxLines               []TaxLine              `json:"tax_lines,omitempty"`
+	TotalWeight            int                    `json:"total_weight,omitempty"`
+	FinancialStatus        orderFinancialStatus   `json:"financial_status,omitempty"`
+	Fulfillments           []Fulfillment          `json:"fulfillments,omitempty"`
+	FulfillmentStatus      orderFulfillmentStatus `json:"fulfillment_status,omitempty"`
+	Token                  string                 `json:"token,omitempty"`
+	CartToken              string                 `json:"cart_token,omitempty"`
+	Number                 int                    `json:"number,omitempty"`
+	OrderNumber            int                    `json:"order_number,omitempty"`
+	Note                   string                 `json:"note,omitempty"`
+	Test                   bool                   `json:"test,omitempty"`
+	BrowserIp              string                 `json:"browser_ip,omitempty"`
+	BuyerAcceptsMarketing  bool                   `json:"buyer_accepts_marketing,omitempty"`
+	CancelReason           orderCancelReason      `json:"cancel_reason,omitempty"`
+	NoteAttributes         []NoteAttribute        `json:"note_attributes,omitempty"`
+	DiscountCodes          []DiscountCode         `json:"discount_codes,omitempty"`
+	LineItems              []LineItem             `json:"line_items,omitempty"`
+	ShippingLines          []ShippingLines        `json:"shipping_lines,omitempty"`
+	Transactions           []Transaction          `json:"transactions,omitempty"`
+	AppID                  int                    `json:"app_id,omitempty"`
+	CustomerLocale         string                 `json:"customer_locale,omitempty"`
+	LandingSite            string                 `json:"landing_site,omitempty"`
+	ReferringSite          string                 `json:"referring_site,omitempty"`
+	SourceName             string                 `json:"source_name,omitempty"`
+	ClientDetails          *ClientDetails         `json:"client_details,omitempty"`
+	Tags                   string                 `json:"tags,omitempty"`
+	LocationId             int64                  `json:"location_id,omitempty"`
+	PaymentGatewayNames    []string               `json:"payment_gateway_names,omitempty"`
+	ProcessingMethod       string                 `json:"processing_method,omitempty"`
+	Refunds                []Refund               `json:"refunds,omitempty"`
+	UserId                 int64                  `json:"user_id,omitempty"`
+	OrderStatusUrl         string                 `json:"order_status_url,omitempty"`
+	Gateway                string                 `json:"gateway,omitempty"`
+	Confirmed              bool                   `json:"confirmed,omitempty"`
+	TotalPriceUSD          *decimal.Decimal       `json:"total_price_usd,omitempty"`
+	CheckoutToken          string                 `json:"checkout_token,omitempty"`
+	Reference              string                 `json:"reference,omitempty"`
+	SourceIdentifier       string                 `json:"source_identifier,omitempty"`
+	SourceURL              string                 `json:"source_url,omitempty"`
+	DeviceID               int64                  `json:"device_id,omitempty"`
+	Phone                  string                 `json:"phone,omitempty"`
+	LandingSiteRef         string                 `json:"landing_site_ref,omitempty"`
+	CheckoutID             int64                  `json:"checkout_id,omitempty"`
+	ContactEmail           string                 `json:"contact_email,omitempty"`
+	Metafields             []Metafield            `json:"metafields,omitempty"`
+	SendReceipt            bool                   `json:"send_receipt,omitempty"`
+	SendFulfillmentReceipt bool                   `json:"send_fulfillment_receipt,omitempty"`
 }
 
 type Address struct {
@@ -177,33 +270,33 @@ type DiscountCode struct {
 }
 
 type LineItem struct {
-	ID                         int64                 `json:"id,omitempty"`
-	ProductID                  int64                 `json:"product_id,omitempty"`
-	VariantID                  int64                 `json:"variant_id,omitempty"`
-	Quantity                   int                   `json:"quantity,omitempty"`
-	Price                      *decimal.Decimal      `json:"price,omitempty"`
-	TotalDiscount              *decimal.Decimal      `json:"total_discount,omitempty"`
-	Title                      string                `json:"title,omitempty"`
-	VariantTitle               string                `json:"variant_title,omitempty"`
-	Name                       string                `json:"name,omitempty"`
-	SKU                        string                `json:"sku,omitempty"`
-	Vendor                     string                `json:"vendor,omitempty"`
-	GiftCard                   bool                  `json:"gift_card,omitempty"`
-	Taxable                    bool                  `json:"taxable,omitempty"`
-	FulfillmentService         string                `json:"fulfillment_service,omitempty"`
-	RequiresShipping           bool                  `json:"requires_shipping,omitempty"`
-	VariantInventoryManagement string                `json:"variant_inventory_management,omitempty"`
-	PreTaxPrice                *decimal.Decimal      `json:"pre_tax_price,omitempty"`
-	Properties                 []NoteAttribute       `json:"properties,omitempty"`
-	ProductExists              bool                  `json:"product_exists,omitempty"`
-	FulfillableQuantity        int                   `json:"fulfillable_quantity,omitempty"`
-	Grams                      int                   `json:"grams,omitempty"`
-	FulfillmentStatus          string                `json:"fulfillment_status,omitempty"`
-	TaxLines                   []TaxLine             `json:"tax_lines,omitempty"`
-	OriginLocation             *Address              `json:"origin_location,omitempty"`
-	DestinationLocation        *Address              `json:"destination_location,omitempty"`
-	AppliedDiscount            *AppliedDiscount      `json:"applied_discount,omitempty"`
-	DiscountAllocations        []DiscountAllocations `json:"discount_allocations,omitempty"`
+	ID                         int64                  `json:"id,omitempty"`
+	ProductID                  int64                  `json:"product_id,omitempty"`
+	VariantID                  int64                  `json:"variant_id,omitempty"`
+	Quantity                   int                    `json:"quantity,omitempty"`
+	Price                      *decimal.Decimal       `json:"price,omitempty"`
+	TotalDiscount              *decimal.Decimal       `json:"total_discount,omitempty"`
+	Title                      string                 `json:"title,omitempty"`
+	VariantTitle               string                 `json:"variant_title,omitempty"`
+	Name                       string                 `json:"name,omitempty"`
+	SKU                        string                 `json:"sku,omitempty"`
+	Vendor                     string                 `json:"vendor,omitempty"`
+	GiftCard                   bool                   `json:"gift_card,omitempty"`
+	Taxable                    bool                   `json:"taxable,omitempty"`
+	FulfillmentService         string                 `json:"fulfillment_service,omitempty"`
+	RequiresShipping           bool                   `json:"requires_shipping,omitempty"`
+	VariantInventoryManagement string                 `json:"variant_inventory_management,omitempty"`
+	PreTaxPrice                *decimal.Decimal       `json:"pre_tax_price,omitempty"`
+	Properties                 []NoteAttribute        `json:"properties,omitempty"`
+	ProductExists              bool                   `json:"product_exists,omitempty"`
+	FulfillableQuantity        int                    `json:"fulfillable_quantity,omitempty"`
+	Grams                      int                    `json:"grams,omitempty"`
+	FulfillmentStatus          orderFulfillmentStatus `json:"fulfillment_status,omitempty"`
+	TaxLines                   []TaxLine              `json:"tax_lines,omitempty"`
+	OriginLocation             *Address               `json:"origin_location,omitempty"`
+	DestinationLocation        *Address               `json:"destination_location,omitempty"`
+	AppliedDiscount            *AppliedDiscount       `json:"applied_discount,omitempty"`
+	DiscountAllocations        []DiscountAllocations  `json:"discount_allocations,omitempty"`
 }
 
 type DiscountAllocations struct {
