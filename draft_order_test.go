@@ -139,7 +139,7 @@ func TestDraftOrderCount(t *testing.T) {
 		t.Errorf("DraftOrder.Count returned %d, expected %d", cnt, expected)
 	}
 
-	status := "open"
+	status := StatusOpen
 	cnt, err = client.DraftOrder.Count(DraftOrderCountOptions{Status: status})
 	if err != nil {
 		t.Errorf("DraftOrder.Count returned an error: %v", err)
@@ -186,7 +186,7 @@ func TestDraftOrderListOptions(t *testing.T) {
 
 	options := DraftOrderListOptions{
 		Limit:  250,
-		Status: "any",
+		Status: StatusAny,
 		Fields: "id,name",
 	}
 
