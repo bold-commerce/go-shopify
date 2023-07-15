@@ -4,7 +4,6 @@
     "namespace": "affiliates",
     "key": "app_key",
     "value": "app_value",
-    "value_type": "string",
     "type": "single_line_text_field",
     "description": "some amaaazing app's value",
     "owner_id": 1,

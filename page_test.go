@@ -223,7 +223,6 @@ func TestPageCreateMetafield(t *testing.T) {
 	metafield := Metafield{
 		Key:       "app_key",
 		Value:     "app_value",
-		ValueType: "string",
 		Type:      "single_line_text_field",
 		Namespace: "affiliates",
 	}
@@ -247,7 +246,6 @@ func TestPageUpdateMetafield(t *testing.T) {
 		ID:        2,
 		Key:       "app_key",
 		Value:     "app_value",
-		ValueType: "string",
 		Type:      "single_line_text_field",
 		Namespace: "affiliates",
 	}
