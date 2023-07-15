@@ -36,6 +36,7 @@ type Image struct {
 	Attachment string     `json:"attachment,omitempty"`
 	Filename   string     `json:"filename,omitempty"`
 	VariantIds []int64    `json:"variant_ids,omitempty"`
+	AdminGraphqlApiId     `json:"admin_graphql_api_id,omitempty"`
 }
 
 // ImageResource represents the result form the products/X/images/Y.json endpoint
