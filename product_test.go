@@ -392,7 +392,7 @@ func TestProductCreateMetafield(t *testing.T) {
 	metafield := Metafield{
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "MetafieldTypeSingleLineTextField_text_field",
+		Type:      MetafieldTypeSingleLineTextField,
 		Namespace: "affiliates",
 	}
 
@@ -415,7 +415,7 @@ func TestProductUpdateMetafield(t *testing.T) {
 		ID:        2,
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "MetafieldTypeSingleLineTextField_text_field",
+		Type:      MetafieldTypeSingleLineTextField,
 		Namespace: "affiliates",
 	}
 
