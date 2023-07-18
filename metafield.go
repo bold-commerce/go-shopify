@@ -78,7 +78,7 @@ const (
 	MetafieldTypeRichTextField metafieldType = "rich_text_field"
 
 	//A single line of text. Do not use for numbers or dates, use correct type instead!
-	MetafieldTypeSingleLineTextField metafieldType = "MetafieldTypeSingleLineTextField_text_field"
+	MetafieldTypeSingleLineTextField metafieldType = "single_line_text_field"
 
 	//https, http, mailto, sms, or tel.
 	MetafieldTypeURL metafieldType = "url"
