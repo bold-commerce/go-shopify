@@ -80,7 +80,7 @@ func TestDoGetHeadersDebug(t *testing.T) {
 	logger := &LeveledLogger{Level: LevelDebug, stderrOverride: err, stdoutOverride: out}
 
 	reqExpected := "[DEBUG] GET: //http:%2F%2Ftest.com/foo/1\n[DEBUG] SENT: request body\n"
-	resExpected := "[DEBUG] RECV 200: OK\n[DEBUG] RESP: response body\n"
+	resExpected := "[DEBUG] Shopify X-Request-Id: 00000000-0000-0000-0000-000000000000\n[DEBUG] RECV 200: OK\n[DEBUG] RESP: response body\n"
 
 	client := NewClient(app, "fooshop", "abcd", WithLogger(logger))
 
@@ -115,6 +115,7 @@ func TestDoGetHeadersDebug(t *testing.T) {
 	client.logResponse(&http.Response{
 		Status:     http.StatusText(http.StatusOK),
 		StatusCode: http.StatusOK,
+		Header: map[string][]string{"X-Request-Id": []string{"00000000-0000-0000-0000-000000000000"}},
 		Body:       ioutil.NopCloser(strings.NewReader("response body")),
 	})
 

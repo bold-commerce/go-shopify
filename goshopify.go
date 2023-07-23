@@ -418,6 +418,8 @@ func (c *Client) logResponse(res *http.Response) {
 	if res == nil {
 		return
 	}
+
+	c.log.Debugf("Shopify X-Request-Id: %s", res.Header.Get("X-Request-Id"))
 	c.log.Debugf("RECV %d: %s", res.StatusCode, res.Status)
 	c.logBody(&res.Body, "RESP: %s")
 }
