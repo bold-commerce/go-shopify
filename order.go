@@ -44,16 +44,16 @@ type orderStatus string
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
 const (
 	//Show only open orders.
-	StatusOpen orderStatus = "open"
+	OrderStatusOpen orderStatus = "open"
 
 	//Show only closed orders.
-	StatusClosed orderStatus = "closed"
+	OrderStatusClosed orderStatus = "closed"
 
 	//Show only cancelled orders.
-	StatusCancelled orderStatus = "cancelled"
+	OrderStatusCancelled orderStatus = "cancelled"
 
 	//Show orders of any status, open, closed, cancellerd, or archived.
-	StatusAny orderStatus = "any"
+	OrderStatusAny orderStatus = "any"
 )
 
 type orderFulfillmentStatus string
@@ -61,24 +61,24 @@ type orderFulfillmentStatus string
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
 const (
 	//Show orders that have been shipped.
-	FulfillmentStatusShipped orderFulfillmentStatus = "shipped"
+	OrderFulfillmentStatusShipped orderFulfillmentStatus = "shipped"
 
 	//Show partially shipped orders.
-	FulfillmentStatusPartial orderFulfillmentStatus = "partial"
+	OrderFulfillmentStatusPartial orderFulfillmentStatus = "partial"
 
 	//Show orders that have not yet been shipped.
-	FulfillmentStatusUnshipped orderFulfillmentStatus = "unshipped"
+	OrderFulfillmentStatusUnshipped orderFulfillmentStatus = "unshipped"
 
 	//Show orders of any fulfillment status.
-	FulfillmentStatusAny orderFulfillmentStatus = "any"
+	OrderFulfillmentStatusAny orderFulfillmentStatus = "any"
 
 	//Returns orders with fulfillment_status of null or partial.
-	FulfillmentStatusUnfulfilled orderFulfillmentStatus = "unfulfilled"
+	OrderFulfillmentStatusUnfulfilled orderFulfillmentStatus = "unfulfilled"
 
 	//"fulfilled" used to be an acceptable value? Was it deprecated? It isn't noted
 	//in the Shopify docs at the provided URL, but it was used in tests and still
 	//seems to function.
-	FulfillmentStatusFulfilled orderFulfillmentStatus = "fulfilled"
+	OrderFulfillmentStatusFulfilled orderFulfillmentStatus = "fulfilled"
 )
 
 type orderFinancialStatus string
@@ -86,50 +86,50 @@ type orderFinancialStatus string
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
 const (
 	//Show only authorized orders.
-	FinancialStatusAuthorized orderFinancialStatus = "authorized"
+	OrderFinancialStatusAuthorized orderFinancialStatus = "authorized"
 
 	//Show only pending orders.
-	FinancialStatusPending orderFinancialStatus = "pending"
+	OrderFinancialStatusPending orderFinancialStatus = "pending"
 
 	//Show only paid orders.
-	FinancialStatusPaid orderFinancialStatus = "paid"
+	OrderFinancialStatusPaid orderFinancialStatus = "paid"
 
 	//Show only partially paid orders.
-	FinancialStatusPartiallyPaid orderFinancialStatus = "partially_paid"
+	OrderFinancialStatusPartiallyPaid orderFinancialStatus = "partially_paid"
 
 	//Show only refunded orders.
-	FinancialStatusRefunded orderFinancialStatus = "refunded"
+	OrderFinancialStatusRefunded orderFinancialStatus = "refunded"
 
 	//Show only voided orders.
-	FinancialStatusVoided orderFinancialStatus = "voided"
+	OrderFinancialStatusVoided orderFinancialStatus = "voided"
 
 	//Show only partially refunded orders.
-	FinancialStatusPartiallyRefunded orderFinancialStatus = "partially_refunded"
+	OrderFinancialStatusPartiallyRefunded orderFinancialStatus = "partially_refunded"
 
 	//Show orders of any financial status.
-	FinancialStatusAny orderFinancialStatus = "any"
+	OrderFinancialStatusAny orderFinancialStatus = "any"
 
 	//Show authorized and partially paid orders.
-	FinancialStatusUnpaid orderFinancialStatus = "unpaid"
+	OrderFinancialStatusUnpaid orderFinancialStatus = "unpaid"
 )
 
 type orderCancelReason string
 
 const (
 	//The customer canceled the order.
-	CancelReasonCustomer orderCancelReason = "customer"
+	OrderCancelReasonCustomer orderCancelReason = "customer"
 
 	//The order was fraudulent.
-	CancelReasonFraud orderCancelReason = "fraud"
+	OrderCancelReasonFraud orderCancelReason = "fraud"
 
 	//Items in the order were not in inventory.
-	CancelReasonInventory orderCancelReason = "inventory"
+	OrderCancelReasonInventory orderCancelReason = "inventory"
 
 	//The payment was declined.
-	CancelReasonDeclined orderCancelReason = "declined"
+	OrderCancelReasonDeclined orderCancelReason = "declined"
 
 	//Cancelled for some other reason.
-	CancelReasonOther orderCancelReason = "other"
+	OrderCancelReasonOther orderCancelReason = "other"
 )
 
 // A struct for all available order count options

@@ -256,7 +256,7 @@ func TestOrderListOptions(t *testing.T) {
 			Fields: "id,name",
 		},
 
-		Status: StatusAny,
+		Status: OrderStatusAny,
 	}
 
 	orders, err := client.Order.List(options)
@@ -397,8 +397,8 @@ func TestOrderUpdate(t *testing.T) {
 
 	order := Order{
 		ID:                1,
-		FinancialStatus:   FinancialStatusPaid,
-		FulfillmentStatus: FulfillmentStatusFulfilled,
+		FinancialStatus:   OrderFinancialStatusPaid,
+		FulfillmentStatus: OrderFulfillmentStatusFulfilled,
 	}
 
 	o, err := client.Order.Update(order)
@@ -1221,7 +1221,7 @@ func validLineItem() LineItem {
 		ProductExists:       true,
 		FulfillableQuantity: 1,
 		Grams:               100,
-		FulfillmentStatus:   FulfillmentStatusPartial,
+		FulfillmentStatus:   OrderFulfillmentStatusPartial,
 		TaxLines: []TaxLine{
 			TaxLine{
 				Title: "State tax",
