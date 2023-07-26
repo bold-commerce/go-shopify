@@ -73,7 +73,7 @@ func TestDraftOrderCreate(t *testing.T) {
 
 	draftOrder := DraftOrder{
 		LineItems: []LineItem{
-			LineItem{
+			{
 				VariantID: 1,
 				Quantity:  1,
 			},
