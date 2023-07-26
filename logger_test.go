@@ -115,7 +115,7 @@ func TestDoGetHeadersDebug(t *testing.T) {
 	client.logResponse(&http.Response{
 		Status:     http.StatusText(http.StatusOK),
 		StatusCode: http.StatusOK,
-		Header: map[string][]string{"X-Request-Id": []string{"00000000-0000-0000-0000-000000000000"}},
+		Header:     map[string][]string{"X-Request-Id": {"00000000-0000-0000-0000-000000000000"}},
 		Body:       ioutil.NopCloser(strings.NewReader("response body")),
 	})
 

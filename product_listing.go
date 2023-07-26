@@ -6,7 +6,8 @@ import (
 )
 
 const productListingBasePath = "product_listings"
-const productsListingResourceName = "product_listings"
+
+// const productsListingResourceName = "product_listings"
 
 // ProductListingService is an interface for interfacing with the product listing endpoints
 // of the Shopify API.

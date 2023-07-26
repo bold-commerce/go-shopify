@@ -8,12 +8,12 @@ import (
 	"github.com/jarcoal/httpmock"
 )
 
-func assetTests(t *testing.T, asset Asset) {
-	expectedKey := "templates/index.liquid"
-	if asset.Key != expectedKey {
-		t.Errorf("Asset.Key returned %+v, expected %+v", asset.Key, expectedKey)
-	}
-}
+// func assetTests(t *testing.T, asset Asset) {
+// 	expectedKey := "templates/index.liquid"
+// 	if asset.Key != expectedKey {
+// 		t.Errorf("Asset.Key returned %+v, expected %+v", asset.Key, expectedKey)
+// 	}
+// }
 
 func TestAssetList(t *testing.T) {
 	setup()
