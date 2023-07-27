@@ -380,7 +380,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		return nil, respErr
 	}
 
-	c.logResponse(resp)
 	defer resp.Body.Close()
 
 	if c.apiVersion == defaultApiVersion && resp.Header.Get("X-Shopify-API-Version") != "" {
@@ -421,6 +420,8 @@ func (c *Client) logResponse(res *http.Response) {
 	if res == nil {
 		return
 	}
+
+	c.log.Debugf("Shopify X-Request-Id: %s", res.Header.Get("X-Request-Id"))
 	c.log.Debugf("RECV %d: %s", res.StatusCode, res.Status)
 	c.logBody(&res.Body, "RESP: %s")
 }

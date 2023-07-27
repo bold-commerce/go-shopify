@@ -31,36 +31,49 @@ type VariantServiceOp struct {
 	client *Client
 }
 
+type variantInventoryPolicy string
+
+// https://shopify.dev/docs/api/admin-rest/2023-07/resources/product-variant#resource-object
+const (
+	//Customers are not allowed to place orders for the product variant if it's out
+	//of stock. This is the default value.
+	VariantInventoryPolicyDeny variantInventoryPolicy = "deny"
+
+	//Customers are allowed to place orders for the product variant if it's out of
+	//stock.
+	VariantInventoryPolicyContinue variantInventoryPolicy = "continue"
+)
+
 // Variant represents a Shopify variant
 type Variant struct {
-	ID                   int64            `json:"id,omitempty"`
-	ProductID            int64            `json:"product_id,omitempty"`
-	Title                string           `json:"title,omitempty"`
-	Sku                  string           `json:"sku,omitempty"`
-	Position             int              `json:"position,omitempty"`
-	Grams                int              `json:"grams,omitempty"`
-	InventoryPolicy      string           `json:"inventory_policy,omitempty"`
-	Price                *decimal.Decimal `json:"price,omitempty"`
-	CompareAtPrice       *decimal.Decimal `json:"compare_at_price,omitempty"`
-	FulfillmentService   string           `json:"fulfillment_service,omitempty"`
-	InventoryManagement  string           `json:"inventory_management,omitempty"`
-	InventoryItemId      int64            `json:"inventory_item_id,omitempty"`
-	Option1              string           `json:"option1,omitempty"`
-	Option2              string           `json:"option2,omitempty"`
-	Option3              string           `json:"option3,omitempty"`
-	CreatedAt            *time.Time       `json:"created_at,omitempty"`
-	UpdatedAt            *time.Time       `json:"updated_at,omitempty"`
-	Taxable              bool             `json:"taxable,omitempty"`
-	TaxCode              string           `json:"tax_code,omitempty"`
-	Barcode              string           `json:"barcode,omitempty"`
-	ImageID              int64            `json:"image_id,omitempty"`
-	InventoryQuantity    int              `json:"inventory_quantity,omitempty"`
-	Weight               *decimal.Decimal `json:"weight,omitempty"`
-	WeightUnit           string           `json:"weight_unit,omitempty"`
-	OldInventoryQuantity int              `json:"old_inventory_quantity,omitempty"`
-	RequireShipping      bool             `json:"requires_shipping"`
-	AdminGraphqlAPIID    string           `json:"admin_graphql_api_id,omitempty"`
-	Metafields           []Metafield      `json:"metafields,omitempty"`
+	ID                   int64                  `json:"id,omitempty"`
+	ProductID            int64                  `json:"product_id,omitempty"`
+	Title                string                 `json:"title,omitempty"`
+	Sku                  string                 `json:"sku,omitempty"`
+	Position             int                    `json:"position,omitempty"`
+	Grams                int                    `json:"grams,omitempty"`
+	InventoryPolicy      variantInventoryPolicy `json:"inventory_policy,omitempty"`
+	Price                *decimal.Decimal       `json:"price,omitempty"`
+	CompareAtPrice       *decimal.Decimal       `json:"compare_at_price,omitempty"`
+	FulfillmentService   string                 `json:"fulfillment_service,omitempty"`
+	InventoryManagement  string                 `json:"inventory_management,omitempty"`
+	InventoryItemId      int64                  `json:"inventory_item_id,omitempty"`
+	Option1              string                 `json:"option1,omitempty"`
+	Option2              string                 `json:"option2,omitempty"`
+	Option3              string                 `json:"option3,omitempty"`
+	CreatedAt            *time.Time             `json:"created_at,omitempty"`
+	UpdatedAt            *time.Time             `json:"updated_at,omitempty"`
+	Taxable              bool                   `json:"taxable,omitempty"`
+	TaxCode              string                 `json:"tax_code,omitempty"`
+	Barcode              string                 `json:"barcode,omitempty"`
+	ImageID              int64                  `json:"image_id,omitempty"`
+	InventoryQuantity    int                    `json:"inventory_quantity,omitempty"`
+	Weight               *decimal.Decimal       `json:"weight,omitempty"`
+	WeightUnit           string                 `json:"weight_unit,omitempty"`
+	OldInventoryQuantity int                    `json:"old_inventory_quantity,omitempty"`
+	RequireShipping      bool                   `json:"requires_shipping"`
+	AdminGraphqlAPIID    string                 `json:"admin_graphql_api_id,omitempty"`
+	Metafields           []Metafield            `json:"metafields,omitempty"`
 }
 
 // VariantResource represents the result from the variants/X.json endpoint

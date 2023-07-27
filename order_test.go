@@ -256,7 +256,7 @@ func TestOrderListOptions(t *testing.T) {
 			Fields: "id,name",
 		},
 
-		Status: "any",
+		Status: OrderStatusAny,
 	}
 
 	orders, err := client.Order.List(options)
@@ -397,8 +397,8 @@ func TestOrderUpdate(t *testing.T) {
 
 	order := Order{
 		ID:                1,
-		FinancialStatus:   "paid",
-		FulfillmentStatus: "fulfilled",
+		FinancialStatus:   OrderFinancialStatusPaid,
+		FulfillmentStatus: OrderFulfillmentStatusFulfilled,
 	}
 
 	o, err := client.Order.Update(order)
@@ -553,7 +553,7 @@ func TestOrderCreateMetafield(t *testing.T) {
 	metafield := Metafield{
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "single_line_text_field",
+		Type:      MetafieldTypeSingleLineTextField,
 		Namespace: "affiliates",
 	}
 
@@ -576,7 +576,7 @@ func TestOrderUpdateMetafield(t *testing.T) {
 		ID:        2,
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "single_line_text_field",
+		Type:      MetafieldTypeSingleLineTextField,
 		Namespace: "affiliates",
 	}
 
@@ -1221,7 +1221,7 @@ func validLineItem() LineItem {
 		ProductExists:       true,
 		FulfillableQuantity: 1,
 		Grams:               100,
-		FulfillmentStatus:   "partial",
+		FulfillmentStatus:   OrderFulfillmentStatusPartial,
 		TaxLines: []TaxLine{
 			TaxLine{
 				Title: "State tax",

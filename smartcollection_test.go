@@ -240,7 +240,7 @@ func TestSmartCollectionCreateMetafield(t *testing.T) {
 	metafield := Metafield{
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "single_line_text_field",
+		Type:      MetafieldTypeSingleLineTextField,
 		Namespace: "affiliates",
 	}
 
@@ -263,7 +263,7 @@ func TestSmartCollectionUpdateMetafield(t *testing.T) {
 		ID:        2,
 		Key:       "app_key",
 		Value:     "app_value",
-		Type:      "single_line_text_field",
+		Type:      MetafieldTypeSingleLineTextField,
 		Namespace: "affiliates",
 	}
 

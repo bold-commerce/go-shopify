@@ -34,6 +34,24 @@ type ProductServiceOp struct {
 	client *Client
 }
 
+type productStatus string
+
+// https://shopify.dev/docs/api/admin-rest/2023-07/resources/product#resource-object
+const (
+	//The product is ready to sell and is available to customers on the online store,
+	//sales channels, and apps. By default, existing products are set to active.
+	ProductStatusActive productStatus = "active"
+
+	//The product is no longer being sold and isn't available to customers on sales
+	//channels and apps.
+	ProductStatusArchived productStatus = "archived"
+
+	//The product isn't ready to sell and is unavailable to customers on sales
+	//channels and apps. By default, duplicated and unarchived products are set to
+	//draft.
+	ProductStatucDraft productStatus = "draft"
+)
+
 // Product represents a Shopify product
 type Product struct {
 	ID                             int64           `json:"id,omitempty"`
@@ -47,7 +65,7 @@ type Product struct {
 	PublishedAt                    *time.Time      `json:"published_at,omitempty"`
 	PublishedScope                 string          `json:"published_scope,omitempty"`
 	Tags                           string          `json:"tags,omitempty"`
-	Status                         string          `json:"status,omitempty"`
+	Status                         productStatus   `json:"status,omitempty"`
 	Options                        []ProductOption `json:"options,omitempty"`
 	Variants                       []Variant       `json:"variants,omitempty"`
 	Image                          Image           `json:"image,omitempty"`
