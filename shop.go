@@ -13,7 +13,7 @@ const shopResourceName = ""
 type ShopService interface {
 	Get(options interface{}) (*Shop, error)
 
-	// MetafieldsService used for CustomCollection resource to communicate with Metafields resource
+	// MetafieldsService used for Shop resource to communicate with Metafields resource
 	MetafieldsService
 }
 
