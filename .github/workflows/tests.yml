@@ -21,4 +21,8 @@ jobs:
       - name: Test
         run: go test -coverprofile=coverage.txt -v ./...
       - name: Upload code coverage results
-        run: bash <(curl -s https://codecov.io/bash)
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          verbose: true
