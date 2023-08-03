@@ -22,7 +22,7 @@ func TestGraphQLQuery(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	err := client.GraphQL.Query("query {}", nil, &resp)
+	_, err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err != nil {
 		t.Errorf("GraphQL.Query returned error: %v", err)
@@ -47,7 +47,7 @@ func TestGraphQLQueryWithError(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	err := client.GraphQL.Query("query {}", nil, &resp)
+	_, err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err == nil {
 		t.Error("GraphQL.Query should return error!")
@@ -192,10 +192,10 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 			)
 
 			resp := MyStruct{}
-			err := client.GraphQL.Query("query {}", nil, &resp)
+			attempts, err := client.GraphQL.Query("query {}", nil, &resp)
 
-			if client.attempts != c.retries {
-				t.Errorf("GraphQL.Query attempts equal %d but expected %d", client.attempts, c.retries)
+			if attempts != c.retries {
+				t.Errorf("GraphQL.Query attempts equal %d but expected %d", attempts, c.retries)
 			}
 
 			if err != nil {
@@ -222,7 +222,7 @@ func TestGraphQLQueryWithMultipleErrors(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	err := client.GraphQL.Query("query {}", nil, &resp)
+	_, err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err == nil {
 		t.Error("GraphQL.Query should return error!")
@@ -261,7 +261,7 @@ func TestGraphQLQueryWithThrottledError(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	err := client.GraphQL.Query("query {}", nil, &resp)
+	_, err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err == nil {
 		t.Error("GraphQL.Query should return error!")

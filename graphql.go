@@ -9,7 +9,7 @@ import (
 // of the Shopify API
 // See https://shopify.dev/docs/admin-api/graphql/reference
 type GraphQLService interface {
-	Query(string, interface{}, interface{}) error
+	Query(string, interface{}, interface{}) (int, error)
 }
 
 // GraphQLServiceOp handles communication with the graphql endpoint of
@@ -64,7 +64,8 @@ type graphQLErrorLocation struct {
 
 // Query creates a graphql query against the Shopify API
 // the "data" portion of the response is unmarshalled into resp
-func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
+// Returns the number of attempts required to perform the request
+func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) (int, error) {
 	data := struct {
 		Query     string      `json:"query"`
 		Variables interface{} `json:"variables"`
@@ -99,7 +100,7 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 			for _, err := range gr.Errors {
 				if err.Extensions != nil && err.Extensions.Code == graphQLErrorCodeThrottled {
 					if attempts >= s.client.retries {
-						return RateLimitError{
+						return attempts, RateLimitError{
 							RetryAfter: int(math.Ceil(ra)),
 							ResponseError: ResponseError{
 								Status:  200,
@@ -125,7 +126,7 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 			err = re
 		}
 
-		return err
+		return attempts, err
 	}
 }
 
