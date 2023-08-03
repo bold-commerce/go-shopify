@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"math"
 	"time"
 )
 
@@ -42,12 +43,12 @@ type GraphQLThrottleStatus struct {
 }
 
 type graphQLError struct {
-	Message    string                 `json:"message"`
-	Extensions *graphQLErrorExtension `json:"extensions"`
-	Locations  []graphQLErrorLocation `json:"locations"`
+	Message    string                  `json:"message"`
+	Extensions *graphQLErrorExtensions `json:"extensions"`
+	Locations  []graphQLErrorLocation  `json:"locations"`
 }
 
-type graphQLErrorExtension struct {
+type graphQLErrorExtensions struct {
 	Code          string
 	Documentation string
 }
@@ -82,7 +83,6 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 		err := s.client.Post("graphql.json", data, &gr)
 		// internal attempts count towards outer total
 		attempts += s.client.attempts
-		s.client.attempts = attempts
 
 		var ra float64
 
@@ -100,7 +100,7 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 				if err.Extensions != nil && err.Extensions.Code == graphQLErrorCodeThrottled {
 					if attempts >= s.client.retries {
 						return RateLimitError{
-							RetryAfter: int(ra),
+							RetryAfter: int(math.Ceil(ra)),
 							ResponseError: ResponseError{
 								Status:  200,
 								Message: err.Message,
@@ -116,7 +116,7 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 			}
 
 			if doRetry {
-				wait := time.Duration(ra) * time.Second
+				wait := time.Duration(math.Ceil(ra)) * time.Second
 				s.client.log.Debugf("rate limited waiting %s", wait.String())
 				time.Sleep(wait)
 				continue
