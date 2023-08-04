@@ -9,7 +9,7 @@ import (
 // of the Shopify API
 // See https://shopify.dev/docs/admin-api/graphql/reference
 type GraphQLService interface {
-	Query(string, interface{}, interface{}) (int, error)
+	Query(string, interface{}, interface{}) error
 }
 
 // GraphQLServiceOp handles communication with the graphql endpoint of
@@ -19,12 +19,12 @@ type GraphQLServiceOp struct {
 }
 
 type graphQLResponse struct {
-	Data       interface{}       `json:"data"`
-	Errors     []graphQLError    `json:"errors"`
-	Extensions *graphQLExtension `json:"extensions"`
+	Data       interface{}        `json:"data"`
+	Errors     []graphQLError     `json:"errors"`
+	Extensions *graphQLExtensions `json:"extensions"`
 }
 
-type graphQLExtension struct {
+type graphQLExtensions struct {
 	Cost GraphQLCost `json:"cost"`
 }
 
@@ -64,8 +64,7 @@ type graphQLErrorLocation struct {
 
 // Query creates a graphql query against the Shopify API
 // the "data" portion of the response is unmarshalled into resp
-// Returns the number of attempts required to perform the request
-func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) (int, error) {
+func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 	data := struct {
 		Query     string      `json:"query"`
 		Variables interface{} `json:"variables"`
@@ -85,23 +84,23 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) (int, error) 
 		// internal attempts count towards outer total
 		attempts += s.client.attempts
 
-		var ra float64
+		var retryAfterSecs float64
 
 		if gr.Extensions != nil {
-			ra = gr.Extensions.Cost.RetryAfterSeconds()
+			retryAfterSecs = gr.Extensions.Cost.RetryAfterSeconds()
 			s.client.RateLimits.GraphQLCost = &gr.Extensions.Cost
-			s.client.RateLimits.RetryAfterSeconds = ra
+			s.client.RateLimits.RetryAfterSeconds = retryAfterSecs
 		}
 
 		if len(gr.Errors) > 0 {
-			re := ResponseError{Status: 200}
+			responseError := ResponseError{Status: 200}
 			var doRetry bool
 
 			for _, err := range gr.Errors {
 				if err.Extensions != nil && err.Extensions.Code == graphQLErrorCodeThrottled {
 					if attempts >= s.client.retries {
-						return attempts, RateLimitError{
-							RetryAfter: int(math.Ceil(ra)),
+						return RateLimitError{
+							RetryAfter: int(math.Ceil(retryAfterSecs)),
 							ResponseError: ResponseError{
 								Status:  200,
 								Message: err.Message,
@@ -113,20 +112,20 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) (int, error) 
 					doRetry = true
 				}
 
-				re.Errors = append(re.Errors, err.Message)
+				responseError.Errors = append(responseError.Errors, err.Message)
 			}
 
 			if doRetry {
-				wait := time.Duration(math.Ceil(ra)) * time.Second
+				wait := time.Duration(math.Ceil(retryAfterSecs)) * time.Second
 				s.client.log.Debugf("rate limited waiting %s", wait.String())
 				time.Sleep(wait)
 				continue
 			}
 
-			err = re
+			err = responseError
 		}
 
-		return attempts, err
+		return err
 	}
 }
 

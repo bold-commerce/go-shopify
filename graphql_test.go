@@ -22,7 +22,7 @@ func TestGraphQLQuery(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	_, err := client.GraphQL.Query("query {}", nil, &resp)
+	err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err != nil {
 		t.Errorf("GraphQL.Query returned error: %v", err)
@@ -47,7 +47,7 @@ func TestGraphQLQueryWithError(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	_, err := client.GraphQL.Query("query {}", nil, &resp)
+	err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err == nil {
 		t.Error("GraphQL.Query should return error!")
@@ -185,14 +185,24 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 			// used to track retries in case clojure
 			retries = c.retries
 
+			requestURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/graphql.json", client.pathPrefix)
+
 			httpmock.RegisterResponder(
 				"POST",
-				fmt.Sprintf("https://fooshop.myshopify.com/%s/graphql.json", client.pathPrefix),
+				requestURL,
 				c.responder,
 			)
 
 			resp := MyStruct{}
-			attempts, err := client.GraphQL.Query("query {}", nil, &resp)
+			err := client.GraphQL.Query("query {}", nil, &resp)
+
+			callCountInfo := httpmock.GetCallCountInfo()
+
+			attempts, ok := callCountInfo[fmt.Sprintf("POST %s", requestURL)]
+
+			if !ok {
+				attempts = 0
+			}
 
 			if attempts != c.retries {
 				t.Errorf("GraphQL.Query attempts equal %d but expected %d", attempts, c.retries)
@@ -222,7 +232,7 @@ func TestGraphQLQueryWithMultipleErrors(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	_, err := client.GraphQL.Query("query {}", nil, &resp)
+	err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err == nil {
 		t.Error("GraphQL.Query should return error!")
@@ -261,7 +271,7 @@ func TestGraphQLQueryWithThrottledError(t *testing.T) {
 	resp := struct {
 		Foo string `json:"foo"`
 	}{}
-	_, err := client.GraphQL.Query("query {}", nil, &resp)
+	err := client.GraphQL.Query("query {}", nil, &resp)
 
 	if err == nil {
 		t.Error("GraphQL.Query should return error!")
