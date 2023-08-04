@@ -81,8 +81,9 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 		}
 
 		err := s.client.Post("graphql.json", data, &gr)
+
 		// internal attempts count towards outer total
-		attempts += s.client.attempts
+		attempts += 1
 
 		var retryAfterSecs float64
 

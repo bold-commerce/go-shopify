@@ -198,11 +198,7 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 
 			callCountInfo := httpmock.GetCallCountInfo()
 
-			attempts, ok := callCountInfo[fmt.Sprintf("POST %s", requestURL)]
-
-			if !ok {
-				attempts = 0
-			}
+			attempts := callCountInfo[fmt.Sprintf("POST %s", requestURL)]
 
 			if attempts != c.retries {
 				t.Errorf("GraphQL.Query attempts equal %d but expected %d", attempts, c.retries)
