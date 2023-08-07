@@ -2,8 +2,6 @@ package goshopify
 
 import "fmt"
 
-// const customerAddressResourceName = "customer-addresses"
-
 // CustomerAddressService is an interface for interfacing with the customer address endpoints
 // of the Shopify API.
 // See: https://help.shopify.com/en/api/reference/customers/customer_address
