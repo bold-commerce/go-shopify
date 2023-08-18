@@ -50,6 +50,7 @@ type App struct {
 type RateLimitInfo struct {
 	RequestCount      int
 	BucketSize        int
+	GraphQLCost       *GraphQLCost
 	RetryAfterSeconds float64
 }
 
@@ -123,6 +124,7 @@ type Client struct {
 	Payouts                    PayoutsService
 	GiftCard                   GiftCardService
 	FulfillmentOrder           FulfillmentOrderService
+	GraphQL                    GraphQLService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -305,6 +307,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.Payouts = &PayoutsServiceOp{client: c}
 	c.GiftCard = &GiftCardServiceOp{client: c}
 	c.FulfillmentOrder = &FulfillmentOrderServiceOp{client: c}
+	c.GraphQL = &GraphQLServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {

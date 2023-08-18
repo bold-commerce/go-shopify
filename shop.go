@@ -4,11 +4,17 @@ import (
 	"time"
 )
 
+// The shop resource name is empty because it has no resource id
+const shopResourceName = ""
+
 // ShopService is an interface for interfacing with the shop endpoint of the
 // Shopify API.
 // See: https://help.shopify.com/api/reference/shop
 type ShopService interface {
 	Get(options interface{}) (*Shop, error)
+
+	// MetafieldsService used for Shop resource to communicate with Metafields resource
+	MetafieldsService
 }
 
 // ShopServiceOp handles communication with the shop related methods of the
@@ -80,4 +86,40 @@ func (s *ShopServiceOp) Get(options interface{}) (*Shop, error) {
 	resource := new(ShopResource)
 	err := s.client.Get("shop.json", resource, options)
 	return resource.Shop, err
+}
+
+// ListMetafields for a shop
+func (s *ShopServiceOp) ListMetafields(_ int64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
+	return metafieldService.List(options)
+}
+
+// CountMetafields for a shop
+func (s *ShopServiceOp) CountMetafields(_ int64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
+	return metafieldService.Count(options)
+}
+
+// GetMetafield for a shop
+func (s *ShopServiceOp) GetMetafield(_ int64, metafieldID int64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
+	return metafieldService.Get(metafieldID, options)
+}
+
+// CreateMetafield for a shop
+func (s *ShopServiceOp) CreateMetafield(_ int64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
+	return metafieldService.Create(metafield)
+}
+
+// UpdateMetafield for a shop
+func (s *ShopServiceOp) UpdateMetafield(_ int64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
+	return metafieldService.Update(metafield)
+}
+
+// DeleteMetafield for a shop
+func (s *ShopServiceOp) DeleteMetafield(_ int64, metafieldID int64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
+	return metafieldService.Delete(metafieldID)
 }
