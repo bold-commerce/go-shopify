@@ -122,7 +122,7 @@ type ShippingRate struct {
 	TotalPrice decimal.Decimal `json:"total_price"`
 
 	// Whether the customer must provide a phone number at checkout.
-	PhoneRequired bool `json:phone_required,omitempty"`
+	PhoneRequired bool `json:"phone_required,omitempty"`
 
 	// The earliest delivery date for the displayed rate.
 	MinDeliveryDate *time.Time `json:"min_delivery_date"` // "2013-04-12 14:48:45 -0400"
