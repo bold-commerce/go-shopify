@@ -6,6 +6,7 @@ import (
 	"github.com/jarcoal/httpmock"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func FulfillmentOrderTests(t *testing.T, fulfillmentOrder FulfillmentOrder) {
@@ -113,7 +114,6 @@ func TestFulfillmentOrderHold(t *testing.T) {
 	FulfillmentOrderTests(t, *returnedFulfillment)
 }
 
-// TODO
 func TestFulfillmentOrderMove(t *testing.T) {
 	setup()
 	defer teardown()
@@ -140,22 +140,78 @@ func TestFulfillmentOrderMove(t *testing.T) {
 	}
 }
 
-// TODO
 func TestFulfillmentOrderOpen(t *testing.T) {
-	t.Skip("TestFulfillmentOrderOpen is not implemented")
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/255858046/open.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("fulfillmentorder.json")))
+
+	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
+	fulfillmentId := int64(255858046)
+
+	result, err := fulfillmentOrderService.Open(fulfillmentId)
+	if err != nil {
+		t.Errorf("FulfillmentOrder.Open returned error: %v", err)
+	}
+
+	if result == nil || result.Id != fulfillmentId {
+		t.Errorf("Expected Id: %d   got: %d", result.Id, fulfillmentId)
+	}
 }
 
-// TODO
 func TestFulfillmentOrderReleaseHold(t *testing.T) {
-	t.Skip("TestFulfillmentOrderReleaseHold is not implemented")
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/255858046/release_hold.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("fulfillmentorder.json")))
+
+	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
+	fulfillmentId := int64(255858046)
+
+	result, err := fulfillmentOrderService.ReleaseHold(fulfillmentId)
+	if err != nil {
+		t.Errorf("FulfillmentOrder.ReleaseHold returned error: %v", err)
+	}
+
+	if result == nil || result.Id != fulfillmentId {
+		t.Errorf("Expected Id: %d   got: %d", result.Id, fulfillmentId)
+	}
 }
 
-// TODO
 func TestFulfillmentOrderReschedule(t *testing.T) {
-	t.Skip("TestFulfillmentOrderReschedule is not implemented")
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/255858046/reschedule.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("fulfillmentorder.json")))
+
+	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
+	fulfillmentId := int64(255858046)
+
+	result, err := fulfillmentOrderService.Reschedule(fulfillmentId)
+	if err != nil {
+		t.Errorf("FulfillmentOrder.Reschedule returned error: %v", err)
+	}
+
+	if result == nil || result.Id != fulfillmentId {
+		t.Errorf("Expected Id: %d   got: %d", result.Id, fulfillmentId)
+	}
 }
 
-// TODO
 func TestFulfillmentOrderSetDeadline(t *testing.T) {
-	t.Skip("TestFulfillmentOrderSetDeadline is not implemented")
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/set_fulfillment_orders_deadline.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, "{}"))
+
+	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
+	fulfillmentId := int64(255858046)
+	newDeadline := time.Now().Add(time.Hour * 24 * 7)
+	err := fulfillmentOrderService.SetDeadline([]int64{fulfillmentId}, newDeadline)
+	if err != nil {
+		t.Errorf("FulfillmentOrder.SetDeadline returned error: %v", err)
+	}
 }
