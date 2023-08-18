@@ -191,10 +191,9 @@ func (s *FulfillmentOrderServiceOp) Cancel(fulfillmentID int64) (*FulfillmentOrd
 
 // Close marks a fulfillment order as incomplete with an optional message
 func (s *FulfillmentOrderServiceOp) Close(fulfillmentID int64, message string) (*FulfillmentOrder, error) {
-	type closeRequest struct {
+	req := struct {
 		Message string `json:"message,omitempty"`
-	}
-	req := closeRequest{
+	}{
 		Message: message,
 	}
 	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
@@ -211,10 +210,9 @@ func (s *FulfillmentOrderServiceOp) Hold(fulfillmentID int64, notify bool, reaso
 		ReasonNotes    string                     `json:"reason_notes,omitempty"`
 		NotifyMerchant bool                       `json:"notify_merchant"`
 	}
-	type wrappedRequest struct {
+	req := struct {
 		FulfillmentHold holdRequest `json:"fulfillment_hold"`
-	}
-	req := wrappedRequest{
+	}{
 		FulfillmentHold: holdRequest{
 			Reason:         reason,
 			ReasonNotes:    notes,
@@ -257,12 +255,10 @@ func (s *FulfillmentOrderServiceOp) Reschedule(fulfillmentID int64) (*Fulfillmen
 
 // SetDeadline sets deadline for fulfillment orders
 func (s *FulfillmentOrderServiceOp) SetDeadline(fulfillmentIDs []int64, deadline time.Time) error {
-	type deadlineRequest struct {
+	req := struct {
 		FulfillmentOrderIds []int64   `json:"fulfillment_order_ids"`
 		FulfillmentDeadline time.Time `json:"fulfillment_deadline"`
-	}
-
-	req := deadlineRequest{
+	}{
 		FulfillmentOrderIds: fulfillmentIDs,
 		FulfillmentDeadline: deadline,
 	}
@@ -273,10 +269,9 @@ func (s *FulfillmentOrderServiceOp) SetDeadline(fulfillmentIDs []int64, deadline
 
 // Move moves a fulfillment order to a new location
 func (s *FulfillmentOrderServiceOp) Move(fulfillmentID int64, moveRequest FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error) {
-	type request struct {
+	wrappedRequest := struct {
 		FulfillmentOrder FulfillmentOrderMoveRequest `json:"fulfillment_order"`
-	}
-	wrappedRequest := request{
+	}{
 		FulfillmentOrder: moveRequest,
 	}
 

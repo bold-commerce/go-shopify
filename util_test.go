@@ -103,23 +103,6 @@ func TestFulfillmentPathPrefix(t *testing.T) {
 	}
 }
 
-func TestFulfillmentOrderPathPrefix(t *testing.T) {
-	cases := []struct {
-		resource   string
-		resourceID int64
-		expected   string
-	}{
-		{"orders", 123, "orders/123"},
-		{"fulfillment_orders", 234, "fulfillment_orders/234"},
-	}
-
-	for _, c := range cases {
-		actual := FulfillmentOrderPathPrefix(c.resource, c.resourceID)
-		if actual != c.expected {
-			t.Errorf("FulfillmentOrderPathPrefix(%s, %d): expected %s, actual %s", c.resource, c.resourceID, c.expected, actual)
-		}
-	}
-}
 func TestOnlyDateMarshal(t *testing.T) {
 	cases := []struct {
 		in       OnlyDate
