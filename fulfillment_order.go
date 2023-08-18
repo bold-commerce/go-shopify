@@ -18,7 +18,7 @@ type FulfillmentOrderService interface {
 	ReleaseHold(int64) (*FulfillmentOrder, error)
 	Reschedule(int64) (*FulfillmentOrder, error)
 	SetDeadline([]int64, time.Time) error
-	Move(int64, FulfillmentOrderMoveRequest, interface{}) (*FulfillmentOrderMoveResource, error)
+	Move(int64, FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error)
 }
 
 // FulfillmentOrderHoldReason represents the reason for a fulfillment hold
@@ -272,7 +272,7 @@ func (s *FulfillmentOrderServiceOp) SetDeadline(fulfillmentIDs []int64, deadline
 }
 
 // Move moves a fulfillment order to a new location
-func (s *FulfillmentOrderServiceOp) Move(fulfillmentID int64, moveRequest FulfillmentOrderMoveRequest, options interface{}) (*FulfillmentOrderMoveResource, error) {
+func (s *FulfillmentOrderServiceOp) Move(fulfillmentID int64, moveRequest FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error) {
 	type request struct {
 		FulfillmentOrder FulfillmentOrderMoveRequest `json:"fulfillment_order"`
 	}

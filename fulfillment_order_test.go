@@ -3,10 +3,11 @@ package goshopify
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func FulfillmentOrderTests(t *testing.T, fulfillmentOrder FulfillmentOrder) {
@@ -119,7 +120,7 @@ func TestFulfillmentOrderMove(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1046000818/move.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillmentorder_move.json")))
+		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order_move.json")))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 
@@ -130,7 +131,7 @@ func TestFulfillmentOrderMove(t *testing.T) {
 		},
 	}
 
-	result, err := fulfillmentOrderService.Move(1046000818, req, nil)
+	result, err := fulfillmentOrderService.Move(1046000818, req)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Move returned error: %v", err)
 	}
