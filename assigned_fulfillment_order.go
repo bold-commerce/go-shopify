@@ -10,7 +10,7 @@ const (
 // of the Shopify API.
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/assignedfulfillmentorder
 type AssignedFulfillmentOrderService interface {
-	Get(int64, interface{}) (*FulfillmentServiceData, error)
+	Get(interface{}) ([]AssignedFulfillmentOrder, error)
 }
 
 type AssignedFulfillmentOrder struct {
