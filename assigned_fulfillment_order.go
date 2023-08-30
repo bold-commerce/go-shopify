@@ -9,7 +9,7 @@ const (
 // AssignedFulfillmentService is an interface for interfacing with the assigned fulfillment orders
 // of the Shopify API.
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/assignedfulfillmentorder
-type AssignedFulfillmentService interface {
+type AssignedFulfillmentOrderService interface {
 	Get(int64, interface{}) (*FulfillmentServiceData, error)
 }
 
