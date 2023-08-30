@@ -51,7 +51,7 @@ type AssignedFulfillmentOrderLineItem struct {
 	FulfillableQuantity int64 `json:"fulfillable_quantity,omitempty"`
 }
 
-// AssignedFulfillmentOrderResource represents the result from the fulfillment_orders/<id>.json endpoint
+// AssignedFulfillmentOrderResource represents the result from the assigned_fulfillment_order.json endpoint
 type AssignedFulfillmentOrdersResource struct {
 	AssignedFulfillmentOrders []AssignedFulfillmentOrder `json:"fulfillment_orders,omitempty"`
 }
