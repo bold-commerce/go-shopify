@@ -26,10 +26,10 @@ type FulfillmentOrderHoldReason string
 
 const (
 	HoldReasonAwaitingPayment  FulfillmentOrderHoldReason = "awaiting_payment"
-	HoldReasonHighRiskOfFraud                             = "high_risk_of_fraud"
-	HoldReasonIncorrectAddress                            = "incorrect_address"
-	HoldReasonOutOfStock                                  = "inventory_out_of_stock"
-	HoldReasonOther                                       = "other"
+	HoldReasonHighRiskOfFraud  FulfillmentOrderHoldReason = "high_risk_of_fraud"
+	HoldReasonIncorrectAddress FulfillmentOrderHoldReason = "incorrect_address"
+	HoldReasonOutOfStock       FulfillmentOrderHoldReason = "inventory_out_of_stock"
+	HoldReasonOther            FulfillmentOrderHoldReason = "other"
 )
 
 // FulfillmentOrderServiceOp handles communication with the fulfillment order
