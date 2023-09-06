@@ -21,8 +21,8 @@
       "min_delivery_date_time": "2022-04-20T23:59:59-04:00",
       "max_delivery_date_time": "2022-04-28T23:59:59-04:00"
     },
-    "fulfill_at": "2021-01-01",
-    "fulfill_by": "2021-01-01",
+    "fulfill_at": "2021-01-01T07:00:00-04:00",
+    "fulfill_by": "2021-01-01T07:00:00-04:00",
     "fulfillment_holds": [
       {
         "reason": "incorrect_address",
