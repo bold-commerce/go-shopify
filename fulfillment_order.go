@@ -124,11 +124,10 @@ type FulfillmentOrder struct {
 	Id                  int64                               `json:"id,omitempty"`
 	AssignedLocation    FulfillmentOrderAssignedLocation    `json:"assigned_location,omitempty"`
 	AssignedLocationId  int64                               `json:"assigned_location_id,omitempty"`
-	CreatedAt           time.Time                           `json:"created_at,omitempty"`
 	DeliveryMethod      FulfillmentOrderDeliveryMethod      `json:"delivery_method,omitempty"`
 	Destination         FulfillmentOrderDestination         `json:"destination,omitempty"`
-	FulfillAt           OnlyDate                            `json:"fulfill_at,omitempty"`
-	FulfillBy           OnlyDate                            `json:"fulfill_by,omitempty"`
+	FulfillAt           *time.Time                          `json:"fulfill_at,omitempty"`
+	FulfillBy           *time.Time                          `json:"fulfill_by,omitempty"`
 	FulfillmentHolds    []FulfillmentOrderHold              `json:"fulfillment_holds,omitempty"`
 	InternationalDuties FulfillmentOrderInternationalDuties `json:"international_duties,omitempty"`
 	LineItems           []FulfillmentOrderLineItem          `json:"line_items,omitempty"`
@@ -138,7 +137,8 @@ type FulfillmentOrder struct {
 	ShopId              int64                               `json:"shop_id,omitempty"`
 	Status              string                              `json:"status,omitempty"`
 	SupportedActions    []string                            `json:"supported_actions,omitempty"`
-	UpdatedAt           time.Time                           `json:"updated_at,omitempty"`
+	CreatedAt           *time.Time                          `json:"created_at,omitempty"`
+	UpdatedAt           *time.Time                          `json:"updated_at,omitempty"`
 }
 
 // FulfillmentOrdersResource represents the result from the fulfillment_orders.json endpoint
