@@ -34,22 +34,23 @@ type ProductServiceOp struct {
 	client *Client
 }
 
-type productStatus string
+// ProductStatus represents a Shopify product status.
+type ProductStatus string
 
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/product#resource-object
 const (
 	//The product is ready to sell and is available to customers on the online store,
 	//sales channels, and apps. By default, existing products are set to active.
-	ProductStatusActive productStatus = "active"
+	ProductStatusActive ProductStatus = "active"
 
 	//The product is no longer being sold and isn't available to customers on sales
 	//channels and apps.
-	ProductStatusArchived productStatus = "archived"
+	ProductStatusArchived ProductStatus = "archived"
 
 	//The product isn't ready to sell and is unavailable to customers on sales
 	//channels and apps. By default, duplicated and unarchived products are set to
 	//draft.
-	ProductStatucDraft productStatus = "draft"
+	ProductStatucDraft ProductStatus = "draft"
 )
 
 // Product represents a Shopify product
@@ -65,7 +66,7 @@ type Product struct {
 	PublishedAt                    *time.Time      `json:"published_at,omitempty"`
 	PublishedScope                 string          `json:"published_scope,omitempty"`
 	Tags                           string          `json:"tags,omitempty"`
-	Status                         productStatus   `json:"status,omitempty"`
+	Status                         ProductStatus   `json:"status,omitempty"`
 	Options                        []ProductOption `json:"options,omitempty"`
 	Variants                       []Variant       `json:"variants,omitempty"`
 	Image                          Image           `json:"image,omitempty"`
@@ -88,14 +89,15 @@ type ProductOption struct {
 
 type ProductListOptions struct {
 	ListOptions
-	CollectionID          int64     `url:"collection_id,omitempty"`
-	ProductType           string    `url:"product_type,omitempty"`
-	Vendor                string    `url:"vendor,omitempty"`
-	Handle                string    `url:"handle,omitempty"`
-	PublishedAtMin        time.Time `url:"published_at_min,omitempty"`
-	PublishedAtMax        time.Time `url:"published_at_max,omitempty"`
-	PublishedStatus       string    `url:"published_status,omitempty"`
-	PresentmentCurrencies string    `url:"presentment_currencies,omitempty"`
+	CollectionID          int64           `url:"collection_id,omitempty"`
+	ProductType           string          `url:"product_type,omitempty"`
+	Vendor                string          `url:"vendor,omitempty"`
+	Handle                string          `url:"handle,omitempty"`
+	PublishedAtMin        time.Time       `url:"published_at_min,omitempty"`
+	PublishedAtMax        time.Time       `url:"published_at_max,omitempty"`
+	PublishedStatus       string          `url:"published_status,omitempty"`
+	PresentmentCurrencies string          `url:"presentment_currencies,omitempty"`
+	Status                []ProductStatus `url:"status,omitempty,comma"`
 }
 
 // Represents the result from the products/X.json endpoint
