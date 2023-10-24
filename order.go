@@ -134,12 +134,12 @@ const (
 	OrderCancelReasonOther orderCancelReason = "other"
 )
 
-type orderInventoryBehaviour string
+type OrderInventoryBehaviour string
 
 const (
-	OrderInventoryBehaviourBypass orderInventoryBehaviour = "bypass"
-	OrderInventoryBehaviourIgnore orderInventoryBehaviour = "decrement_ignoring_policy"
-	OrderInventoryBehaviourObey   orderInventoryBehaviour = "decrement_obeying_policy"
+	OrderInventoryBehaviourBypass OrderInventoryBehaviour = "bypass"
+	OrderInventoryBehaviourIgnore OrderInventoryBehaviour = "decrement_ignoring_policy"
+	OrderInventoryBehaviourObey   OrderInventoryBehaviour = "decrement_obeying_policy"
 )
 
 // A struct for all available order count options
@@ -254,7 +254,7 @@ type Order struct {
 	Metafields             []Metafield             `json:"metafields,omitempty"`
 	SendReceipt            bool                    `json:"send_receipt,omitempty"`
 	SendFulfillmentReceipt bool                    `json:"send_fulfillment_receipt,omitempty"`
-	InventoryBehaviour     orderInventoryBehaviour `json:"inventory_behaviour,omitempty"`
+	InventoryBehaviour     OrderInventoryBehaviour `json:"inventory_behaviour,omitempty"`
 }
 
 type Address struct {
