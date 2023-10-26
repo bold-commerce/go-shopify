@@ -62,6 +62,8 @@ type Fulfillment struct {
 	NotifyCustomer              bool                         `json:"notify_customer"`
 }
 
+// LineItemByFulfillmentOrder represents a Shopify line item for fulfillment.
+// https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillment#post-fulfillments
 type LineItemByFulfillmentOrder struct {
 	FulfillmentOrderID        int64      `json:"fulfillment_order_id,omitempty"`
 	FulfillmentOrderLineItems []LineItem `json:"fulfillment_order_line_items,omitempty"`
