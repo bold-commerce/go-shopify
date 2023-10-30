@@ -33,7 +33,7 @@ type Image struct {
 	Width             int        `json:"width,omitempty"`
 	Height            int        `json:"height,omitempty"`
 	Src               string     `json:"src,omitempty"`
-	Attachment        string     `json:"attachment,omitempty"`
+	Attachment        []byte     `json:"attachment,omitempty"`
 	Filename          string     `json:"filename,omitempty"`
 	VariantIds        []int64    `json:"variant_ids,omitempty"`
 	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
