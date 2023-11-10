@@ -66,8 +66,8 @@ type Fulfillment struct {
 // LineItemByFulfillmentOrder represents the FulfillmentOrders (and optionally the items) used to create a Fulfillment.
 // https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillment#post-fulfillments
 type LineItemByFulfillmentOrder struct {
-	FulfillmentOrderID        int64      `json:"fulfillment_order_id,omitempty"`
-	FulfillmentOrderLineItems []LineItem `json:"fulfillment_order_line_items,omitempty"`
+	FulfillmentOrderID        int64                              `json:"fulfillment_order_id,omitempty"`
+	FulfillmentOrderLineItems []FulfillmentOrderLineItemQuantity `json:"fulfillment_order_line_items,omitempty"`
 }
 
 // FulfillmentTrackingInfo represents the tracking information used to create a Fulfillment.
