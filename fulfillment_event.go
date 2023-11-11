@@ -39,12 +39,17 @@ type FulfillmentEvent struct {
 	Zip                 string  `json:"zip"`
 }
 
-type fulfillmentEventResource struct {
-	Event *FulfillmentEvent `json:"fulfillment_event"`
+type FulfillmentEventCreateRequest struct {
+	Event *FulfillmentEvent `json:"event"`
 }
 
-type fulfillmentEventsResource struct {
-	Events []FulfillmentEvent `json:"fulfillment_events"`
+type FulfillmentEventResource struct {
+	FulfillmentEvent *FulfillmentEvent `json:"fulfillment_event,omitempty"`
+	Event            *FulfillmentEvent `json:"event,omitempty"`
+}
+
+type FulfillmentEventsResource struct {
+	FulfillmentEvents []FulfillmentEvent `json:"fulfillment_events"`
 }
 
 // FulfillmentEventServiceOp handles communication with the fulfillment event related methods of the Shopify API.
@@ -52,29 +57,29 @@ type FulfillmentEventServiceOp struct {
 	client *Client
 }
 
-// List of all FulfillmentEvents for an order's fulfillment
+// List of all FulfillmentEvents for an order's fulfillment. The API returns the list under the 'fulfillment_events' key.
 func (s *FulfillmentEventServiceOp) List(orderID int64, fulfillmentID int64) ([]FulfillmentEvent, error) {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events.json", fulfillmentEventBasePath, orderID, fulfillmentID)
-	resource := new(fulfillmentEventsResource)
+	resource := new(FulfillmentEventsResource)
 	err := s.client.Get(path, resource, nil)
-	return resource.Events, err
+	return resource.FulfillmentEvents, err
 }
 
-// Get a single FulfillmentEvent
+// Get a single FulfillmentEvent. The API returns the event under the 'fulfillment_event' key.
 func (s *FulfillmentEventServiceOp) Get(orderID int64, fulfillmentID int64, eventID int64) (*FulfillmentEvent, error) {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events/%d.json", fulfillmentEventBasePath, orderID, fulfillmentID, eventID)
-	resource := new(fulfillmentEventResource)
+	resource := new(FulfillmentEventResource)
 	err := s.client.Get(path, resource, nil)
-	return resource.Event, err
+	return resource.FulfillmentEvent, err
 }
 
 // Create a new FulfillmentEvent
 func (s *FulfillmentEventServiceOp) Create(orderID int64, fulfillmentID int64, event FulfillmentEvent) (*FulfillmentEvent, error) {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events.json", fulfillmentEventBasePath, orderID, fulfillmentID)
-	wrappedData := fulfillmentEventResource{Event: &event}
-	resource := new(fulfillmentEventResource)
+	wrappedData := FulfillmentEventResource{Event: &event}
+	resource := new(FulfillmentEventResource)
 	err := s.client.Post(path, wrappedData, resource)
-	return resource.Event, err
+	return resource.FulfillmentEvent, err
 }
 
 // Delete an existing FulfillmentEvent
