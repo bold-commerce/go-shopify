@@ -127,6 +127,7 @@ type Client struct {
 	GraphQL                    GraphQLService
 	AssignedFulfillmentOrder   AssignedFulfillmentOrderService
 	FulfillmentEvent           FulfillmentEventService
+	FulfillmentRequest         FulfillmentRequestService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -312,6 +313,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 	c.GraphQL = &GraphQLServiceOp{client: c}
 	c.AssignedFulfillmentOrder = &AssignedFulfillmentOrderServiceOp{client: c}
 	c.FulfillmentEvent = &FulfillmentEventServiceOp{client: c}
+	c.FulfillmentRequest = &FulfillmentRequestServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {
