@@ -6,8 +6,7 @@ const (
 	fulfillmentServiceBasePath = "fulfillment_services"
 )
 
-// FulfillmentServiceService is an interface for interfacing with the fulfillment service
-// of the Shopify API.
+// FulfillmentServiceService is an interface for interfacing with the fulfillment service of the Shopify API.
 // https://help.shopify.com/api/reference/fulfillmentservice
 type FulfillmentServiceService interface {
 	List(interface{}) ([]FulfillmentServiceData, error)
@@ -33,6 +32,7 @@ type FulfillmentServiceData struct {
 	AdminGraphqlApiId      string `json:"admin_graphql_api_id,omitempty"`
 	PermitsSkuSharing      bool   `json:"permits_sku_sharing,omitempty"`
 	RequiresShippingMethod bool   `json:"requires_shipping_method,omitempty"`
+	Format                 string `json:"format,omitempty"`
 }
 
 type FulfillmentServiceResource struct {
