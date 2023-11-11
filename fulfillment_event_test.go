@@ -62,7 +62,6 @@ func TestFulfillmentEventServiceOp_Get(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
-		// https://your-development-store.myshopify.com/admin/api/2023-10/orders/450789469/fulfillments/255858046/events/944956394.json
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/%d/fulfillments/%d/events/%d.json", client.pathPrefix, orderID, fulfillmentID, eventID),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_event.json")),
 	)
