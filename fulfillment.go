@@ -63,19 +63,25 @@ type Fulfillment struct {
 	NotifyCustomer              bool                         `json:"notify_customer"`
 }
 
-// LineItemByFulfillmentOrder represents the FulfillmentOrders (and optionally the items) used to create a Fulfillment.
-// https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillment#post-fulfillments
-type LineItemByFulfillmentOrder struct {
-	FulfillmentOrderID        int64                              `json:"fulfillment_order_id,omitempty"`
-	FulfillmentOrderLineItems []FulfillmentOrderLineItemQuantity `json:"fulfillment_order_line_items,omitempty"`
-}
-
 // FulfillmentTrackingInfo represents the tracking information used to create a Fulfillment.
 // https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillment#post-fulfillments
 type FulfillmentTrackingInfo struct {
 	Company string `json:"company,omitempty"`
 	Number  string `json:"number,omitempty"`
 	Url     string `json:"url,omitempty"`
+}
+
+// LineItemByFulfillmentOrder represents the FulfillmentOrders (and optionally the items) used to create a Fulfillment.
+// https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillment#post-fulfillments
+type LineItemByFulfillmentOrder struct {
+	FulfillmentOrderID        int64                                    `json:"fulfillment_order_id,omitempty"`
+	FulfillmentOrderLineItems []LineItemByFulfillmentOrderItemQuantity `json:"fulfillment_order_line_items,omitempty"`
+}
+
+// LineItemByFulfillmentOrderItemQuantity represents the quantity to fulfill for one item.
+type LineItemByFulfillmentOrderItemQuantity struct {
+	Id       int64 `json:"id"`
+	Quantity int64 `json:"quantity"`
 }
 
 // Receipt represents a Shopify receipt.
