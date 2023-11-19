@@ -39,5 +39,5 @@
   ],
   "carrier_identifier": "third_party_carrier_identifier",
   "requested_fulfillment_service_id": "third_party_fulfillment_service_id",
-  "handle": "third_party_handle"
+  "handle": "test"
 }

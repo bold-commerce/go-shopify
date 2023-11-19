@@ -38,5 +38,6 @@
     }
   ],
   "carrier_identifier": "third_party_carrier_identifier",
-  "requested_fulfillment_service_id": null
+  "requested_fulfillment_service_id": null,
+  "handle": "test"
 }
