@@ -467,15 +467,35 @@ type ClientDetails struct {
 }
 
 type Refund struct {
-	Id              int64            `json:"id,omitempty"`
-	OrderId         int64            `json:"order_id,omitempty"`
-	CreatedAt       *time.Time       `json:"created_at,omitempty"`
-	Note            string           `json:"note,omitempty"`
-	Restock         bool             `json:"restock,omitempty"`
-	UserId          int64            `json:"user_id,omitempty"`
-	RefundLineItems []RefundLineItem `json:"refund_line_items,omitempty"`
-	Transactions    []Transaction    `json:"transactions,omitempty"`
+	Id               int64             `json:"id,omitempty"`
+	OrderId          int64             `json:"order_id,omitempty"`
+	CreatedAt        *time.Time        `json:"created_at,omitempty"`
+	Note             string            `json:"note,omitempty"`
+	Restock          bool              `json:"restock,omitempty"`
+	UserId           int64             `json:"user_id,omitempty"`
+	RefundLineItems  []RefundLineItem  `json:"refund_line_items,omitempty"`
+	Transactions     []Transaction     `json:"transactions,omitempty"`
+	OrderAdjustments []OrderAdjustment `json:"order_adjustments,omitempty"`
 }
+
+type OrderAdjustment struct {
+	Id           int64               `json:"id,omitempty"`
+	OrderId      int64               `json:"order_id,omitempty"`
+	RefundId     int64               `json:"refund_id,omitempty"`
+	Amount       *decimal.Decimal    `json:"amount,omitempty"`
+	TaxAmount    *decimal.Decimal    `json:"tax_amount,omitempty"`
+	Kind         OrderAdjustmentType `json:"kind,omitempty"`
+	Reason       string              `json:"reason,omitempty"`
+	AmountSet    *AmountSet          `json:"amount_set,omitempty"`
+	TaxAmountSet *AmountSet          `json:"tax_amount_set,omitempty"`
+}
+
+type OrderAdjustmentType string
+
+const (
+	OrderAdjustmentTypeShippingRefund    OrderAdjustmentType = "shipping_refund"
+	OrderAdjustmentTypeRefundDiscrepancy OrderAdjustmentType = "refund_discrepancy"
+)
 
 type RefundLineItem struct {
 	Id         int64            `json:"id,omitempty"`
