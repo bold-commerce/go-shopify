@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"reflect"
 	"regexp"
@@ -28,12 +29,12 @@ const (
 	// Shopify API version YYYY-MM - defaults to admin which uses the oldest stable version of the api
 	defaultApiPathPrefix = "admin"
 	defaultApiVersion    = "stable"
-	defaultHttpTimeout   = 10
 )
 
 var (
 	// version regex match
-	apiVersionRegex = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
+	apiVersionRegex    = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
+	defaultHttpTimeout = time.Duration(10)
 )
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
@@ -246,7 +247,18 @@ func (c *Client) NewRequest(method, relPath string, body, options interface{}) (
 // e.g. "theshop.myshopify.com", or simply "theshop"
 // a.NewClient(shopName, token, opts) is equivalent to NewClient(a, shopName, token, opts)
 func (app App) NewClient(shopName, token string, opts ...Option) *Client {
+	configureHttpTimeout()
 	return NewClient(app, shopName, token, opts...)
+}
+
+func configureHttpTimeout() {
+	httpTimeoutFromEnv := os.Getenv("GOSHOPIFY_DEFAULT_HTTP_TIMEOUT")
+	if httpTimeoutFromEnv != "" {
+		envHttpTimeoutAsInt, err := strconv.Atoi(httpTimeoutFromEnv)
+		if err == nil {
+			defaultHttpTimeout = time.Duration(envHttpTimeoutAsInt)
+		}
+	}
 }
 
 // Returns a new Shopify API client with an already authenticated shopname and
