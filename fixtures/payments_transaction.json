@@ -1,0 +1,16 @@
+{
+  "id": 54534554564,
+  "type": "charge",
+  "test": false,
+  "payout_id": 1234,
+  "payout_status": "scheduled",
+  "currency": "USD",
+  "amount": "102.53",
+  "fee": "3.07",
+  "net": "102.53",
+  "source_id": 1234,
+  "source_type": "charge",
+  "source_order_transaction_id": 12,
+  "source_order_id": 1,
+  "processed_at": "2018-03-23T16:32:45Z"
+}
