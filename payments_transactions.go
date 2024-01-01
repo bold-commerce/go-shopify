@@ -6,7 +6,7 @@ import (
 
 const paymentsTransactionsBasePath = "shopify_payments/balance/transactions"
 
-// PaymentsTransactionsService is an interface for interfacing with the PaymentsTransactions endpoints of
+// PaymentsTransactionsService is an interface for interfacing with the Transactions endpoints of
 // the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/transactions
 type PaymentsTransactionsService interface {
@@ -15,13 +15,13 @@ type PaymentsTransactionsService interface {
 	Get(int64, interface{}) (*PaymentsTransactions, error)
 }
 
-// PaymentsTransactionsServiceOp handles communication with the payout related methods of the
-// Shopify API.
+// PaymentsTransactionsServiceOp handles communication with the transactions related methods of
+// the Payment methods of Shopify API.
 type PaymentsTransactionsServiceOp struct {
 	client *Client
 }
 
-// A struct for all available payout list options
+// A struct for all available PaymentsTransactions list options
 type PaymentsTransactionsListOptions struct {
 	PageInfo     string       `url:"page_info,omitempty"`
 	Limit        int          `url:"limit,omitempty"`
@@ -35,7 +35,7 @@ type PaymentsTransactionsListOptions struct {
 	ProcessedAt  *OnlyDate    `json:"processed_at,omitempty"`
 }
 
-// PaymentsTransactions represents a Shopify payout
+// PaymentsTransactions represents a Shopify Transactions
 type PaymentsTransactions struct {
 	ID                       int64                     `json:"id,omitempty"`
 	Type                     PaymentsTransactionsTypes `json:"type,omitempty"`
@@ -99,7 +99,7 @@ func (s *PaymentsTransactionsServiceOp) ListWithPagination(options interface{}) 
 	return resource.PaymentsTransactions, pagination, nil
 }
 
-// Get individual payout
+// Get individual PaymentsTransactions
 func (s *PaymentsTransactionsServiceOp) Get(payoutID int64, options interface{}) (*PaymentsTransactions, error) {
 	path := fmt.Sprintf("%s/%d.json", paymentsTransactionsBasePath, payoutID)
 	resource := new(PaymentsTransactionResource)
