@@ -32,25 +32,25 @@ type PaymentsTransactionsListOptions struct {
 	PayoutStatus PayoutStatus `url:"payout_status,omitempty"`
 	DateMin      *OnlyDate    `url:"date_min,omitempty"`
 	DateMax      *OnlyDate    `url:"date_max,omitempty"`
-	Date         *OnlyDate    `url:"date,omitempty"`
+	ProcessedAt  *OnlyDate    `json:"processed_at,omitempty"`
 }
 
 // PaymentsTransactions represents a Shopify payout
 type PaymentsTransactions struct {
-	ID                       int64                     `json:"id"`
-	Type                     PaymentsTransactionsTypes `json:"type"`
-	Test                     bool                      `json:"test"`
-	PayoutID                 int                       `json:"payout_id"`
-	PayoutStatus             PayoutStatus              `json:"payout_status"`
-	Currency                 string                    `json:"currency"`
-	Amount                   string                    `json:"amount"`
-	Fee                      string                    `json:"fee"`
-	Net                      string                    `json:"net"`
-	SourceID                 int                       `json:"source_id"`
-	SourceType               string                    `json:"source_type"`
-	SourceOrderTransactionID int                       `json:"source_order_transaction_id"`
-	SourceOrderID            int                       `json:"source_order_id"`
-	ProcessedAt              OnlyDate                  `json:"processed_at"`
+	ID                       int64                     `json:"id,omitempty"`
+	Type                     PaymentsTransactionsTypes `json:"type,omitempty"`
+	Test                     bool                      `json:"test,omitempty"`
+	PayoutID                 int                       `json:"payout_id,omitempty"`
+	PayoutStatus             PayoutStatus              `json:"payout_status,omitempty"`
+	Currency                 string                    `json:"currency,omitempty"`
+	Amount                   string                    `json:"amount,omitempty"`
+	Fee                      string                    `json:"fee,omitempty"`
+	Net                      string                    `json:"net,omitempty"`
+	SourceID                 int                       `json:"source_id,omitempty"`
+	SourceType               string                    `json:"source_type,omitempty"`
+	SourceOrderTransactionID int                       `json:"source_order_transaction_id,omitempty"`
+	SourceOrderID            int                       `json:"source_order_id,omitempty"`
+	ProcessedAt              OnlyDate                  `json:"processed_at,omitempty"`
 }
 
 type PaymentsTransactionsTypes string
