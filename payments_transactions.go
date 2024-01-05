@@ -37,19 +37,19 @@ type PaymentsTransactionsListOptions struct {
 
 // PaymentsTransactions represents a Shopify Transactions
 type PaymentsTransactions struct {
-	ID                       int64                     `json:"id,omitempty"`
+	Id                       int64                     `json:"id,omitempty"`
 	Type                     PaymentsTransactionsTypes `json:"type,omitempty"`
 	Test                     bool                      `json:"test,omitempty"`
-	PayoutID                 int                       `json:"payout_id,omitempty"`
+	PayoutId                 int                       `json:"payout_id,omitempty"`
 	PayoutStatus             PayoutStatus              `json:"payout_status,omitempty"`
 	Currency                 string                    `json:"currency,omitempty"`
 	Amount                   string                    `json:"amount,omitempty"`
 	Fee                      string                    `json:"fee,omitempty"`
 	Net                      string                    `json:"net,omitempty"`
-	SourceID                 int                       `json:"source_id,omitempty"`
+	SourceId                 int                       `json:"source_id,omitempty"`
 	SourceType               string                    `json:"source_type,omitempty"`
-	SourceOrderTransactionID int                       `json:"source_order_transaction_id,omitempty"`
-	SourceOrderID            int                       `json:"source_order_id,omitempty"`
+	SourceOrderTransactionId int                       `json:"source_order_transaction_id,omitempty"`
+	SourceOrderId            int                       `json:"source_order_id,omitempty"`
 	ProcessedAt              OnlyDate                  `json:"processed_at,omitempty"`
 }
 

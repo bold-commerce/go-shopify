@@ -3,11 +3,12 @@ package goshopify
 import (
 	"errors"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"net/http"
 	"reflect"
 	"runtime"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func TestOrderRiskListError(t *testing.T) {
@@ -52,7 +53,7 @@ func TestOrderRiskListWithPagination(t *testing.T) {
 		{
 			`{"risks": [{"id":1},{"id":2}]}`,
 			"",
-			[]OrderRisk{{ID: 1}, {ID: 2}},
+			[]OrderRisk{{Id: 1}, {Id: 2}},
 			new(Pagination),
 			nil,
 		},
@@ -96,7 +97,7 @@ func TestOrderRiskListWithPagination(t *testing.T) {
 		{
 			`{"risks": [{"id":1}]}`,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
-			[]OrderRisk{{ID: 1}},
+			[]OrderRisk{{Id: 1}},
 			&Pagination{
 				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
 			},
@@ -105,7 +106,7 @@ func TestOrderRiskListWithPagination(t *testing.T) {
 		{
 			`{"risks": [{"id":2}]}`,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
-			[]OrderRisk{{ID: 2}},
+			[]OrderRisk{{Id: 2}},
 			&Pagination{
 				NextPageOptions:     &ListOptions{PageInfo: "foo"},
 				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
@@ -163,9 +164,9 @@ func TestOrderRiskList(t *testing.T) {
 
 	expected := []OrderRisk{
 		{
-			ID:              284138680,
-			CheckoutID:      0,
-			OrderID:         450789469,
+			Id:              284138680,
+			CheckoutId:      0,
+			OrderId:         450789469,
 			CauseCancel:     true,
 			Display:         true,
 			MerchantMessage: "This order was placed from a proxy IP",
@@ -175,9 +176,9 @@ func TestOrderRiskList(t *testing.T) {
 			Recommendation:  OrderRecommendationCancel,
 		},
 		{
-			ID:              1029151489,
-			CheckoutID:      901414060,
-			OrderID:         450789469,
+			Id:              1029151489,
+			CheckoutId:      901414060,
+			OrderId:         450789469,
 			CauseCancel:     true,
 			Display:         true,
 			MerchantMessage: "This order came from an anonymous proxy",
@@ -221,9 +222,9 @@ func TestOrderRiskListOptions(t *testing.T) {
 	}
 	expected := []OrderRisk{
 		{
-			ID:              284138680,
-			CheckoutID:      0,
-			OrderID:         450789469,
+			Id:              284138680,
+			CheckoutId:      0,
+			OrderId:         450789469,
 			CauseCancel:     true,
 			Display:         true,
 			MerchantMessage: "This order was placed from a proxy IP",
@@ -233,9 +234,9 @@ func TestOrderRiskListOptions(t *testing.T) {
 			Recommendation:  OrderRecommendationCancel,
 		},
 		{
-			ID:              1029151489,
-			CheckoutID:      901414060,
-			OrderID:         450789469,
+			Id:              1029151489,
+			CheckoutId:      901414060,
+			OrderId:         450789469,
 			CauseCancel:     true,
 			Display:         true,
 			MerchantMessage: "This order came from an anonymous proxy",
@@ -263,9 +264,9 @@ func TestOrderRiskGet(t *testing.T) {
 		t.Errorf("OrderRisk.List returned error: %v", err)
 	}
 	expected := &OrderRisk{
-		ID:              284138680,
-		CheckoutID:      0,
-		OrderID:         450789469,
+		Id:              284138680,
+		CheckoutId:      0,
+		OrderId:         450789469,
 		CauseCancel:     true,
 		Display:         true,
 		MerchantMessage: "This order was placed from a proxy IP",
@@ -287,7 +288,7 @@ func TestOrderRiskCreate(t *testing.T) {
 		httpmock.NewStringResponder(201, `{"risk":{"id": 1}}`))
 
 	orderRisk := OrderRisk{
-		ID: 1,
+		Id: 1,
 	}
 
 	o, err := client.OrderRisk.Create(450789469, orderRisk)
@@ -295,9 +296,9 @@ func TestOrderRiskCreate(t *testing.T) {
 		t.Errorf("OrderRisk.Create returned error: %v", err)
 	}
 
-	expected := Order{ID: 1}
-	if o.ID != expected.ID {
-		t.Errorf("OrderRisk.Create returned id %d, expected %d", o.ID, expected.ID)
+	expected := OrderRisk{Id: 1}
+	if o.Id != expected.Id {
+		t.Errorf("OrderRisk.Create returned id %d, expected %d", o.Id, expected.Id)
 	}
 }
 
@@ -309,8 +310,8 @@ func TestOrderRiskUpdate(t *testing.T) {
 		httpmock.NewStringResponder(201, `{"risk":{"id": 1,"order_id": 2}}`))
 
 	orderRisk := OrderRisk{
-		ID:             1,
-		OrderID:        2,
+		Id:             1,
+		OrderId:        2,
 		Recommendation: OrderRecommendationAccept,
 	}
 
@@ -319,9 +320,9 @@ func TestOrderRiskUpdate(t *testing.T) {
 		t.Errorf("Order.Update returned error: %v", err)
 	}
 
-	expected := OrderRisk{ID: 1, OrderID: 2, Recommendation: OrderRecommendationAccept}
-	if o.ID != expected.ID && o.OrderID != expected.OrderID && o.Recommendation == expected.Recommendation {
-		t.Errorf("Order.Update returned id %d, expected %d, expected %d", o.ID, expected.ID, expected.OrderID)
+	expected := OrderRisk{Id: 1, OrderId: 2, Recommendation: OrderRecommendationAccept}
+	if o.Id != expected.Id && o.OrderId != expected.OrderId && o.Recommendation == expected.Recommendation {
+		t.Errorf("Order.Update returned id %d, expected %d, expected %d", o.Id, expected.Id, expected.OrderId)
 	}
 }
 

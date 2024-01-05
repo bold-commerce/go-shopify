@@ -55,9 +55,9 @@ type OrderRiskListOptions struct {
 
 // OrderRisk represents a Shopify order risk
 type OrderRisk struct {
-	ID              int64                   `json:"id,omitempty"`
-	CheckoutID      int64                   `json:"checkout_id,omitempty"`
-	OrderID         int64                   `json:"order_id,omitempty"`
+	Id              int64                   `json:"id,omitempty"`
+	CheckoutId      int64                   `json:"checkout_id,omitempty"`
+	OrderId         int64                   `json:"order_id,omitempty"`
 	CauseCancel     bool                    `json:"cause_cancel,omitempty"`
 	Display         bool                    `json:"display,omitempty"`
 	MerchantMessage string                  `json:"merchant_message,omitempty"`

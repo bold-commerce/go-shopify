@@ -3,11 +3,12 @@ package goshopify
 import (
 	"errors"
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"net/http"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func TestPaymentsTransactionsList(t *testing.T) {
@@ -24,51 +25,51 @@ func TestPaymentsTransactionsList(t *testing.T) {
 
 	expected := []PaymentsTransactions{
 		{
-			ID:                       699519475,
+			Id:                       699519475,
 			Type:                     PaymentsTransactionsDebit,
 			Test:                     false,
-			PayoutID:                 623721858,
+			PayoutId:                 623721858,
 			PayoutStatus:             PayoutStatusPaid,
 			Currency:                 "USD",
 			Amount:                   "-50.00",
 			Fee:                      "0.00",
 			Net:                      "-50.00",
-			SourceID:                 460709370,
+			SourceId:                 460709370,
 			SourceType:               "adjustment",
-			SourceOrderID:            0,
-			SourceOrderTransactionID: 0,
+			SourceOrderId:            0,
+			SourceOrderTransactionId: 0,
 			ProcessedAt:              date1,
 		},
 		{
-			ID:                       77412310,
+			Id:                       77412310,
 			Type:                     PaymentsTransactionsCredit,
 			Test:                     false,
-			PayoutID:                 623721858,
+			PayoutId:                 623721858,
 			PayoutStatus:             PayoutStatusPaid,
 			Currency:                 "USD",
 			Amount:                   "50.00",
 			Fee:                      "0.00",
 			Net:                      "50.00",
-			SourceID:                 374511569,
+			SourceId:                 374511569,
 			SourceType:               "Payments::Balance::AdjustmentReversal",
-			SourceOrderID:            0,
-			SourceOrderTransactionID: 0,
+			SourceOrderId:            0,
+			SourceOrderTransactionId: 0,
 			ProcessedAt:              date1,
 		},
 		{
-			ID:                       1006917261,
+			Id:                       1006917261,
 			Type:                     PaymentsTransactionsRefund,
 			Test:                     false,
-			PayoutID:                 623721858,
+			PayoutId:                 623721858,
 			PayoutStatus:             PayoutStatusPaid,
 			Currency:                 "USD",
 			Amount:                   "-3.45",
 			Fee:                      "0.00",
 			Net:                      "-3.45",
-			SourceID:                 1006917261,
+			SourceId:                 1006917261,
 			SourceType:               "Payments::Refund",
-			SourceOrderID:            217130470,
-			SourceOrderTransactionID: 1006917261,
+			SourceOrderId:            217130470,
+			SourceOrderTransactionId: 1006917261,
 			ProcessedAt:              date1,
 		},
 	}
@@ -130,51 +131,51 @@ func TestPaymentsTransactionsListWithPagination(t *testing.T) {
 			"",
 			[]PaymentsTransactions{
 				{
-					ID:                       699519475,
+					Id:                       699519475,
 					Type:                     PaymentsTransactionsDebit,
 					Test:                     false,
-					PayoutID:                 623721858,
+					PayoutId:                 623721858,
 					PayoutStatus:             PayoutStatusPaid,
 					Currency:                 "USD",
 					Amount:                   "-50.00",
 					Fee:                      "0.00",
 					Net:                      "-50.00",
-					SourceID:                 460709370,
+					SourceId:                 460709370,
 					SourceType:               "adjustment",
-					SourceOrderID:            0,
-					SourceOrderTransactionID: 0,
+					SourceOrderId:            0,
+					SourceOrderTransactionId: 0,
 					ProcessedAt:              date1,
 				},
 				{
-					ID:                       77412310,
+					Id:                       77412310,
 					Type:                     PaymentsTransactionsCredit,
 					Test:                     false,
-					PayoutID:                 623721858,
+					PayoutId:                 623721858,
 					PayoutStatus:             PayoutStatusPaid,
 					Currency:                 "USD",
 					Amount:                   "50.00",
 					Fee:                      "0.00",
 					Net:                      "50.00",
-					SourceID:                 374511569,
+					SourceId:                 374511569,
 					SourceType:               "Payments::Balance::AdjustmentReversal",
-					SourceOrderID:            0,
-					SourceOrderTransactionID: 0,
+					SourceOrderId:            0,
+					SourceOrderTransactionId: 0,
 					ProcessedAt:              date1,
 				},
 				{
-					ID:                       1006917261,
+					Id:                       1006917261,
 					Type:                     PaymentsTransactionsRefund,
 					Test:                     false,
-					PayoutID:                 623721858,
+					PayoutId:                 623721858,
 					PayoutStatus:             PayoutStatusPaid,
 					Currency:                 "USD",
 					Amount:                   "-3.45",
 					Fee:                      "0.00",
 					Net:                      "-3.45",
-					SourceID:                 1006917261,
+					SourceId:                 1006917261,
 					SourceType:               "Payments::Refund",
-					SourceOrderID:            217130470,
-					SourceOrderTransactionID: 1006917261,
+					SourceOrderId:            217130470,
+					SourceOrderTransactionId: 1006917261,
 					ProcessedAt:              date1,
 				},
 			},
@@ -221,7 +222,7 @@ func TestPaymentsTransactionsListWithPagination(t *testing.T) {
 		{
 			`{"transactions": [{"id":1}]}`,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
-			[]PaymentsTransactions{{ID: 1}},
+			[]PaymentsTransactions{{Id: 1}},
 			&Pagination{
 				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
 			},
@@ -230,7 +231,7 @@ func TestPaymentsTransactionsListWithPagination(t *testing.T) {
 		{
 			`{"transactions": [{"id":2}]}`,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
-			[]PaymentsTransactions{{ID: 2}},
+			[]PaymentsTransactions{{Id: 2}},
 			&Pagination{
 				NextPageOptions:     &ListOptions{PageInfo: "foo"},
 				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
@@ -288,19 +289,19 @@ func TestPaymentsTransactionsGet(t *testing.T) {
 	date1 := OnlyDate{time.Date(2013, 11, 01, 0, 0, 0, 0, time.UTC)}
 
 	expected := &PaymentsTransactions{
-		ID:                       699519475,
+		Id:                       699519475,
 		Type:                     PaymentsTransactionsDebit,
 		Test:                     false,
-		PayoutID:                 623721858,
+		PayoutId:                 623721858,
 		PayoutStatus:             PayoutStatusPaid,
 		Currency:                 "USD",
 		Amount:                   "-50.00",
 		Fee:                      "0.00",
 		Net:                      "-50.00",
-		SourceID:                 460709370,
+		SourceId:                 460709370,
 		SourceType:               "adjustment",
-		SourceOrderID:            0,
-		SourceOrderTransactionID: 0,
+		SourceOrderId:            0,
+		SourceOrderTransactionId: 0,
 		ProcessedAt:              date1,
 	}
 	if !reflect.DeepEqual(paymentsTransactions, expected) {
