@@ -344,8 +344,19 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	c.attempts = 0
 	c.logRequest(req)
 
+	// copy request body so it can be re-used
+	var body []byte
+	if req.Body != nil {
+		body, err = ioutil.ReadAll(req.Body)
+		defer req.Body.Close()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	for {
 		c.attempts++
+		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 		resp, err = c.Client.Do(req)
 		c.logResponse(resp)
 		if err != nil {
