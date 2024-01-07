@@ -236,11 +236,9 @@ type Order struct {
 	Tags                   string                  `json:"tags,omitempty"`
 	LocationId             int64                   `json:"location_id,omitempty"`
 	PaymentGatewayNames    []string                `json:"payment_gateway_names,omitempty"`
-	ProcessingMethod       string                  `json:"processing_method,omitempty"`
 	Refunds                []Refund                `json:"refunds,omitempty"`
 	UserId                 int64                   `json:"user_id,omitempty"`
 	OrderStatusUrl         string                  `json:"order_status_url,omitempty"`
-	Gateway                string                  `json:"gateway,omitempty"`
 	Confirmed              bool                    `json:"confirmed,omitempty"`
 	CheckoutToken          string                  `json:"checkout_token,omitempty"`
 	Reference              string                  `json:"reference,omitempty"`
