@@ -3,6 +3,7 @@ package goshopify
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,10 +32,8 @@ const (
 	defaultHttpTimeout   = 10
 )
 
-var (
-	// version regex match
-	apiVersionRegex = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
-)
+// version regex match
+var apiVersionRegex = regexp.MustCompile(`^[0-9]{4}-[0-9]{2}$`)
 
 // App represents basic app settings such as Api key, secret, scope, and redirect url.
 // See oauth.go for OAuth related helper functions.
@@ -193,7 +192,7 @@ type RateLimitError struct {
 // be resolved to the BaseURL of the Client. Relative URLS should always be
 // specified without a preceding slash. If specified, the value pointed to by
 // body is JSON encoded and included as the request body.
-func (c *Client) NewRequest(method, relPath string, body, options interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(ctx context.Context, method, relPath string, body, options interface{}) (*http.Request, error) {
 	rel, err := url.Parse(relPath)
 	if err != nil {
 		return nil, err
@@ -232,14 +231,18 @@ func (c *Client) NewRequest(method, relPath string, body, options interface{}) (
 		return nil, err
 	}
 
+	req = req.WithContext(ctx)
+
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("User-Agent", UserAgent)
+
 	if c.token != "" {
 		req.Header.Add("X-Shopify-Access-Token", c.token)
 	} else if c.app.Password != "" {
 		req.SetBasicAuth(c.app.ApiKey, c.app.Password)
 	}
+
 	return req, nil
 }
 
@@ -570,7 +573,6 @@ func CheckResponseError(r *http.Response) error {
 
 // General list options that can be used for most collections of entities.
 type ListOptions struct {
-
 	// PageInfo is used with new pagination search.
 	PageInfo string `url:"page_info,omitempty"`
 
@@ -597,11 +599,11 @@ type CountOptions struct {
 	UpdatedAtMax time.Time `url:"updated_at_max,omitempty"`
 }
 
-func (c *Client) Count(path string, options interface{}) (int, error) {
+func (c *Client) Count(ctx context.Context, path string, options interface{}) (int, error) {
 	resource := struct {
 		Count int `json:"count"`
 	}{}
-	err := c.Get(path, &resource, options)
+	err := c.Get(ctx, path, &resource, options)
 	return resource.Count, err
 }
 
@@ -614,8 +616,8 @@ func (c *Client) Count(path string, options interface{}) (int, error) {
 // The options argument is used for specifying request options such as search
 // parameters like created_at_min
 // Any data returned from Shopify will be marshalled into resource argument.
-func (c *Client) CreateAndDo(method, relPath string, data, options, resource interface{}) error {
-	_, err := c.createAndDoGetHeaders(method, relPath, data, options, resource)
+func (c *Client) CreateAndDo(ctx context.Context, method, relPath string, data, options, resource interface{}) error {
+	_, err := c.createAndDoGetHeaders(ctx, method, relPath, data, options, resource)
 	if err != nil {
 		return err
 	}
@@ -623,14 +625,14 @@ func (c *Client) CreateAndDo(method, relPath string, data, options, resource int
 }
 
 // createAndDoGetHeaders creates an executes a request while returning the response headers.
-func (c *Client) createAndDoGetHeaders(method, relPath string, data, options, resource interface{}) (http.Header, error) {
+func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath string, data, options, resource interface{}) (http.Header, error) {
 	if strings.HasPrefix(relPath, "/") {
 		// make sure it's a relative path
 		relPath = strings.TrimLeft(relPath, "/")
 	}
 
 	relPath = path.Join(c.pathPrefix, relPath)
-	req, err := c.NewRequest(method, relPath, data, options)
+	req, err := c.NewRequest(ctx, method, relPath, data, options)
 	if err != nil {
 		return nil, err
 	}
@@ -640,14 +642,14 @@ func (c *Client) createAndDoGetHeaders(method, relPath string, data, options, re
 
 // Get performs a GET request for the given path and saves the result in the
 // given resource.
-func (c *Client) Get(path string, resource, options interface{}) error {
-	return c.CreateAndDo("GET", path, nil, options, resource)
+func (c *Client) Get(ctx context.Context, path string, resource, options interface{}) error {
+	return c.CreateAndDo(ctx, "GET", path, nil, options, resource)
 }
 
 // ListWithPagination performs a GET request for the given path and saves the result in the
 // given resource and returns the pagination.
-func (c *Client) ListWithPagination(path string, resource, options interface{}) (*Pagination, error) {
-	headers, err := c.createAndDoGetHeaders("GET", path, nil, options, resource)
+func (c *Client) ListWithPagination(ctx context.Context, path string, resource, options interface{}) (*Pagination, error) {
+	headers, err := c.createAndDoGetHeaders(ctx, "GET", path, nil, options, resource)
 	if err != nil {
 		return nil, err
 	}
@@ -730,22 +732,22 @@ func extractPagination(linkHeader string) (*Pagination, error) {
 
 // Post performs a POST request for the given path and saves the result in the
 // given resource.
-func (c *Client) Post(path string, data, resource interface{}) error {
-	return c.CreateAndDo("POST", path, data, nil, resource)
+func (c *Client) Post(ctx context.Context, path string, data, resource interface{}) error {
+	return c.CreateAndDo(ctx, "POST", path, data, nil, resource)
 }
 
 // Put performs a PUT request for the given path and saves the result in the
 // given resource.
-func (c *Client) Put(path string, data, resource interface{}) error {
-	return c.CreateAndDo("PUT", path, data, nil, resource)
+func (c *Client) Put(ctx context.Context, path string, data, resource interface{}) error {
+	return c.CreateAndDo(ctx, "PUT", path, data, nil, resource)
 }
 
 // Delete performs a DELETE request for the given path
-func (c *Client) Delete(path string) error {
-	return c.DeleteWithOptions(path, nil)
+func (c *Client) Delete(ctx context.Context, path string) error {
+	return c.DeleteWithOptions(ctx, path, nil)
 }
 
 // DeleteWithOptions performs a DELETE request for the given path WithOptions
-func (c *Client) DeleteWithOptions(path string, options interface{}) error {
-	return c.CreateAndDo("DELETE", path, nil, options, nil)
+func (c *Client) DeleteWithOptions(ctx context.Context, path string, options interface{}) error {
+	return c.CreateAndDo(ctx, "DELETE", path, nil, options, nil)
 }
