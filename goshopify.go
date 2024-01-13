@@ -4,6 +4,7 @@ package goshopify
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -439,7 +440,10 @@ func (c *Client) logBody(body *io.ReadCloser, format string) {
 	if body == nil {
 		return
 	}
-	b, _ := ioutil.ReadAll(*body)
+	b, err := ioutil.ReadAll(*body)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return
+	}
 	if len(b) > 0 {
 		c.log.Debugf(format, string(b))
 	}
