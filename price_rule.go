@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,11 +14,11 @@ const priceRulesBasePath = "price_rules"
 // of the Shopify API.
 // See: https://shopify.dev/docs/admin-api/rest/reference/discounts/pricerule
 type PriceRuleService interface {
-	Get(int64) (*PriceRule, error)
-	Create(PriceRule) (*PriceRule, error)
-	Update(PriceRule) (*PriceRule, error)
-	List() ([]PriceRule, error)
-	Delete(int64) error
+	Get(context.Context, int64) (*PriceRule, error)
+	Create(context.Context, PriceRule) (*PriceRule, error)
+	Update(context.Context, PriceRule) (*PriceRule, error)
+	List(context.Context) ([]PriceRule, error)
+	Delete(context.Context, int64) error
 }
 
 // PriceRuleServiceOp handles communication with the price rule related methods of the Shopify API.
@@ -152,43 +153,43 @@ func (pr *PriceRule) SetPrerequisiteToEntitlementQuantityRatio(prerequisiteQuant
 }
 
 // Get retrieves a single price rules
-func (s *PriceRuleServiceOp) Get(priceRuleID int64) (*PriceRule, error) {
+func (s *PriceRuleServiceOp) Get(ctx context.Context, priceRuleID int64) (*PriceRule, error) {
 	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
 	resource := new(PriceRuleResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.PriceRule, err
 }
 
 // List retrieves a list of price rules
-func (s *PriceRuleServiceOp) List() ([]PriceRule, error) {
+func (s *PriceRuleServiceOp) List(ctx context.Context) ([]PriceRule, error) {
 	path := fmt.Sprintf("%s.json", priceRulesBasePath)
 	resource := new(PriceRulesResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.PriceRules, err
 }
 
 // Create creates a price rule
-func (s *PriceRuleServiceOp) Create(pr PriceRule) (*PriceRule, error) {
+func (s *PriceRuleServiceOp) Create(ctx context.Context, pr PriceRule) (*PriceRule, error) {
 	path := fmt.Sprintf("%s.json", priceRulesBasePath)
 	resource := new(PriceRuleResource)
 	wrappedData := PriceRuleResource{PriceRule: &pr}
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.PriceRule, err
 }
 
 // Update updates an existing a price rule
-func (s *PriceRuleServiceOp) Update(pr PriceRule) (*PriceRule, error) {
+func (s *PriceRuleServiceOp) Update(ctx context.Context, pr PriceRule) (*PriceRule, error) {
 	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, pr.ID)
 	resource := new(PriceRuleResource)
 	wrappedData := PriceRuleResource{PriceRule: &pr}
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.PriceRule, err
 }
 
 // Delete deletes a price rule
-func (s *PriceRuleServiceOp) Delete(priceRuleID int64) error {
+func (s *PriceRuleServiceOp) Delete(ctx context.Context, priceRuleID int64) error {
 	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
-	err := s.client.Delete(path)
+	err := s.client.Delete(ctx, path)
 	return err
 }
 

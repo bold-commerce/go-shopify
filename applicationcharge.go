@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,10 +14,10 @@ const applicationChargesBasePath = "application_charges"
 // ApplicationCharge endpoints of the Shopify API.
 // See https://help.shopify.com/api/reference/billing/applicationcharge
 type ApplicationChargeService interface {
-	Create(ApplicationCharge) (*ApplicationCharge, error)
-	Get(int64, interface{}) (*ApplicationCharge, error)
-	List(interface{}) ([]ApplicationCharge, error)
-	Activate(ApplicationCharge) (*ApplicationCharge, error)
+	Create(context.Context, ApplicationCharge) (*ApplicationCharge, error)
+	Get(context.Context, int64, interface{}) (*ApplicationCharge, error)
+	List(context.Context, interface{}) ([]ApplicationCharge, error)
+	Activate(context.Context, ApplicationCharge) (*ApplicationCharge, error)
 }
 
 type ApplicationChargeServiceOp struct {
@@ -51,29 +52,29 @@ type ApplicationChargesResource struct {
 }
 
 // Create creates new application charge.
-func (a ApplicationChargeServiceOp) Create(charge ApplicationCharge) (*ApplicationCharge, error) {
+func (a ApplicationChargeServiceOp) Create(ctx context.Context, charge ApplicationCharge) (*ApplicationCharge, error) {
 	path := fmt.Sprintf("%s.json", applicationChargesBasePath)
 	resource := &ApplicationChargeResource{}
-	return resource.Charge, a.client.Post(path, ApplicationChargeResource{Charge: &charge}, resource)
+	return resource.Charge, a.client.Post(ctx, path, ApplicationChargeResource{Charge: &charge}, resource)
 }
 
 // Get gets individual application charge.
-func (a ApplicationChargeServiceOp) Get(chargeID int64, options interface{}) (*ApplicationCharge, error) {
+func (a ApplicationChargeServiceOp) Get(ctx context.Context, chargeID int64, options interface{}) (*ApplicationCharge, error) {
 	path := fmt.Sprintf("%s/%d.json", applicationChargesBasePath, chargeID)
 	resource := &ApplicationChargeResource{}
-	return resource.Charge, a.client.Get(path, resource, options)
+	return resource.Charge, a.client.Get(ctx, path, resource, options)
 }
 
 // List gets all application charges.
-func (a ApplicationChargeServiceOp) List(options interface{}) ([]ApplicationCharge, error) {
+func (a ApplicationChargeServiceOp) List(ctx context.Context, options interface{}) ([]ApplicationCharge, error) {
 	path := fmt.Sprintf("%s.json", applicationChargesBasePath)
 	resource := &ApplicationChargesResource{}
-	return resource.Charges, a.client.Get(path, resource, options)
+	return resource.Charges, a.client.Get(ctx, path, resource, options)
 }
 
 // Activate activates application charge.
-func (a ApplicationChargeServiceOp) Activate(charge ApplicationCharge) (*ApplicationCharge, error) {
+func (a ApplicationChargeServiceOp) Activate(ctx context.Context, charge ApplicationCharge) (*ApplicationCharge, error) {
 	path := fmt.Sprintf("%s/%d/activate.json", applicationChargesBasePath, charge.ID)
 	resource := &ApplicationChargeResource{}
-	return resource.Charge, a.client.Post(path, ApplicationChargeResource{Charge: &charge}, resource)
+	return resource.Charge, a.client.Post(ctx, path, ApplicationChargeResource{Charge: &charge}, resource)
 }

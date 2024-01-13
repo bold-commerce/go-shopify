@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -21,7 +22,7 @@ func TestAssetList(t *testing.T) {
 		),
 	)
 
-	assets, err := client.Asset.List(1, nil)
+	assets, err := client.Asset.List(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Asset.List returned error: %v", err)
 	}
@@ -49,7 +50,7 @@ func TestAssetGet(t *testing.T) {
 		),
 	)
 
-	asset, err := client.Asset.Get(1, "foo/bar.liquid")
+	asset, err := client.Asset.Get(context.Background(), 1, "foo/bar.liquid")
 	if err != nil {
 		t.Errorf("Asset.Get returned error: %v", err)
 	}
@@ -78,7 +79,7 @@ func TestAssetUpdate(t *testing.T) {
 		Value: "content",
 	}
 
-	returnedAsset, err := client.Asset.Update(1, asset)
+	returnedAsset, err := client.Asset.Update(context.Background(), 1, asset)
 	if err != nil {
 		t.Errorf("Asset.Update returned error: %v", err)
 	}
@@ -99,7 +100,7 @@ func TestAssetDelete(t *testing.T) {
 		httpmock.NewStringResponder(200, "{}"),
 	)
 
-	err := client.Asset.Delete(1, "foo/bar.liquid")
+	err := client.Asset.Delete(context.Background(), 1, "foo/bar.liquid")
 	if err != nil {
 		t.Errorf("Asset.Delete returned error: %v", err)
 	}

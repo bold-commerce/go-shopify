@@ -1,6 +1,9 @@
 package goshopify
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 const (
 	assignedFulfillmentOrderBasePath = "assigned_fulfillment_orders"
@@ -10,7 +13,7 @@ const (
 // of the Shopify API.
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/assignedfulfillmentorder
 type AssignedFulfillmentOrderService interface {
-	Get(interface{}) ([]AssignedFulfillmentOrder, error)
+	Get(context.Context, interface{}) ([]AssignedFulfillmentOrder, error)
 }
 
 type AssignedFulfillmentOrder struct {
@@ -68,9 +71,9 @@ type AssignedFulfillmentOrderServiceOp struct {
 }
 
 // Gets a list of all the fulfillment orders that are assigned to an app at the shop level
-func (s *AssignedFulfillmentOrderServiceOp) Get(options interface{}) ([]AssignedFulfillmentOrder, error) {
+func (s *AssignedFulfillmentOrderServiceOp) Get(ctx context.Context, options interface{}) ([]AssignedFulfillmentOrder, error) {
 	path := fmt.Sprintf("%s.json", assignedFulfillmentOrderBasePath)
 	resource := new(AssignedFulfillmentOrdersResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.AssignedFulfillmentOrders, err
 }

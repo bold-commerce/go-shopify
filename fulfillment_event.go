@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -12,10 +13,10 @@ const (
 // of the Shopify API.
 // https://help.shopify.com/api/reference/fulfillmentevent
 type FulfillmentEventService interface {
-	List(orderID int64, fulfillmentID int64) ([]FulfillmentEvent, error)
-	Get(orderID int64, fulfillmentID int64, eventID int64) (*FulfillmentEvent, error)
-	Create(orderID int64, fulfillmentID int64, event FulfillmentEvent) (*FulfillmentEvent, error)
-	Delete(orderID int64, fulfillmentID int64, eventID int64) error
+	List(ctx context.Context, orderID int64, fulfillmentID int64) ([]FulfillmentEvent, error)
+	Get(ctx context.Context, orderID int64, fulfillmentID int64, eventID int64) (*FulfillmentEvent, error)
+	Create(ctx context.Context, orderID int64, fulfillmentID int64, event FulfillmentEvent) (*FulfillmentEvent, error)
+	Delete(ctx context.Context, orderID int64, fulfillmentID int64, eventID int64) error
 }
 
 // FulfillmentEvent represents a Shopify fulfillment event.
@@ -58,32 +59,32 @@ type FulfillmentEventServiceOp struct {
 }
 
 // List of all FulfillmentEvents for an order's fulfillment. The API returns the list under the 'fulfillment_events' key.
-func (s *FulfillmentEventServiceOp) List(orderID int64, fulfillmentID int64) ([]FulfillmentEvent, error) {
+func (s *FulfillmentEventServiceOp) List(ctx context.Context, orderID int64, fulfillmentID int64) ([]FulfillmentEvent, error) {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events.json", fulfillmentEventBasePath, orderID, fulfillmentID)
 	resource := new(FulfillmentEventsResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.FulfillmentEvents, err
 }
 
 // Get a single FulfillmentEvent. The API returns the event under the 'fulfillment_event' key.
-func (s *FulfillmentEventServiceOp) Get(orderID int64, fulfillmentID int64, eventID int64) (*FulfillmentEvent, error) {
+func (s *FulfillmentEventServiceOp) Get(ctx context.Context, orderID int64, fulfillmentID int64, eventID int64) (*FulfillmentEvent, error) {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events/%d.json", fulfillmentEventBasePath, orderID, fulfillmentID, eventID)
 	resource := new(FulfillmentEventResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.FulfillmentEvent, err
 }
 
 // Create a new FulfillmentEvent
-func (s *FulfillmentEventServiceOp) Create(orderID int64, fulfillmentID int64, event FulfillmentEvent) (*FulfillmentEvent, error) {
+func (s *FulfillmentEventServiceOp) Create(ctx context.Context, orderID int64, fulfillmentID int64, event FulfillmentEvent) (*FulfillmentEvent, error) {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events.json", fulfillmentEventBasePath, orderID, fulfillmentID)
 	wrappedData := FulfillmentEventResource{Event: &event}
 	resource := new(FulfillmentEventResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.FulfillmentEvent, err
 }
 
 // Delete an existing FulfillmentEvent
-func (s *FulfillmentEventServiceOp) Delete(orderID int64, fulfillmentID int64, eventID int64) error {
+func (s *FulfillmentEventServiceOp) Delete(ctx context.Context, orderID int64, fulfillmentID int64, eventID int64) error {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events/%d.json", fulfillmentEventBasePath, orderID, fulfillmentID, eventID)
-	return s.client.Delete(path)
+	return s.client.Delete(ctx, path)
 }

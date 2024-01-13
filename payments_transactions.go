@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -10,9 +11,9 @@ const paymentsTransactionsBasePath = "shopify_payments/balance/transactions"
 // the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/transactions
 type PaymentsTransactionsService interface {
-	List(interface{}) ([]PaymentsTransactions, error)
-	ListWithPagination(interface{}) ([]PaymentsTransactions, *Pagination, error)
-	Get(int64, interface{}) (*PaymentsTransactions, error)
+	List(context.Context, interface{}) ([]PaymentsTransactions, error)
+	ListWithPagination(context.Context, interface{}) ([]PaymentsTransactions, *Pagination, error)
+	Get(context.Context, int64, interface{}) (*PaymentsTransactions, error)
 }
 
 // PaymentsTransactionsServiceOp handles communication with the transactions related methods of
@@ -79,19 +80,19 @@ type PaymentsTransactionsResource struct {
 }
 
 // List PaymentsTransactions
-func (s *PaymentsTransactionsServiceOp) List(options interface{}) ([]PaymentsTransactions, error) {
-	PaymentsTransactions, _, err := s.ListWithPagination(options)
+func (s *PaymentsTransactionsServiceOp) List(ctx context.Context, options interface{}) ([]PaymentsTransactions, error) {
+	PaymentsTransactions, _, err := s.ListWithPagination(ctx, options)
 	if err != nil {
 		return nil, err
 	}
 	return PaymentsTransactions, nil
 }
 
-func (s *PaymentsTransactionsServiceOp) ListWithPagination(options interface{}) ([]PaymentsTransactions, *Pagination, error) {
+func (s *PaymentsTransactionsServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]PaymentsTransactions, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", paymentsTransactionsBasePath)
 	resource := new(PaymentsTransactionsResource)
 
-	pagination, err := s.client.ListWithPagination(path, resource, options)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -100,9 +101,9 @@ func (s *PaymentsTransactionsServiceOp) ListWithPagination(options interface{}) 
 }
 
 // Get individual PaymentsTransactions
-func (s *PaymentsTransactionsServiceOp) Get(payoutID int64, options interface{}) (*PaymentsTransactions, error) {
+func (s *PaymentsTransactionsServiceOp) Get(ctx context.Context, payoutID int64, options interface{}) (*PaymentsTransactions, error) {
 	path := fmt.Sprintf("%s/%d.json", paymentsTransactionsBasePath, payoutID)
 	resource := new(PaymentsTransactionResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.PaymentsTransaction, err
 }

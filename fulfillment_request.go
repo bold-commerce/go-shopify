@@ -1,6 +1,9 @@
 package goshopify
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 const (
 	fulfillmentRequestBasePath = "fulfillment_orders"
@@ -9,9 +12,9 @@ const (
 // FulfillmentRequestService is an interface for interfacing with the fulfillment request endpoints of the Shopify API.
 // https://shopify.dev/docs/api/admin-rest/2023-10/resources/fulfillmentrequest
 type FulfillmentRequestService interface {
-	Send(int64, FulfillmentRequest) (*FulfillmentOrder, error)
-	Accept(int64, FulfillmentRequest) (*FulfillmentOrder, error)
-	Reject(int64, FulfillmentRequest) (*FulfillmentOrder, error)
+	Send(context.Context, int64, FulfillmentRequest) (*FulfillmentOrder, error)
+	Accept(context.Context, int64, FulfillmentRequest) (*FulfillmentOrder, error)
+	Reject(context.Context, int64, FulfillmentRequest) (*FulfillmentOrder, error)
 }
 
 type FulfillmentRequest struct {
@@ -43,28 +46,28 @@ type FulfillmentRequestServiceOp struct {
 }
 
 // Send sends a fulfillment request to the fulfillment service of a fulfillment order.
-func (s *FulfillmentRequestServiceOp) Send(fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
+func (s *FulfillmentRequestServiceOp) Send(ctx context.Context, fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
 	path := fmt.Sprintf("%s/%d/fulfillment_request.json", fulfillmentRequestBasePath, fulfillmentOrderID)
 	wrappedData := FulfillmentRequestResource{FulfillmentRequest: request}
 	resource := new(FulfillmentRequestResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.OriginalFulfillmentOrder, err
 }
 
 // Accept accepts a fulfillment request sent to a fulfillment service for a fulfillment order.
-func (s *FulfillmentRequestServiceOp) Accept(fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
+func (s *FulfillmentRequestServiceOp) Accept(ctx context.Context, fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
 	path := fmt.Sprintf("%s/%d/fulfillment_request/accept.json", fulfillmentRequestBasePath, fulfillmentOrderID)
 	wrappedData := map[string]interface{}{"fulfillment_request": request}
 	resource := new(FulfillmentRequestResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.FulfillmentOrder, err
 }
 
 // Reject rejects a fulfillment request sent to a fulfillment service for a fulfillment order.
-func (s *FulfillmentRequestServiceOp) Reject(fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
+func (s *FulfillmentRequestServiceOp) Reject(ctx context.Context, fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
 	path := fmt.Sprintf("%s/%d/fulfillment_request/reject.json", fulfillmentRequestBasePath, fulfillmentOrderID)
 	wrappedData := map[string]interface{}{"fulfillment_request": request}
 	resource := new(FulfillmentRequestResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.FulfillmentOrder, err
 }

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -11,13 +12,13 @@ const productListingBasePath = "product_listings"
 // of the Shopify API.
 // See: https://shopify.dev/docs/admin-api/rest/reference/sales-channels/productlisting
 type ProductListingService interface {
-	List(interface{}) ([]ProductListing, error)
-	ListWithPagination(interface{}) ([]ProductListing, *Pagination, error)
-	Count(interface{}) (int, error)
-	Get(int64, interface{}) (*ProductListing, error)
-	GetProductIDs(interface{}) ([]int64, error)
-	Publish(int64) (*ProductListing, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]ProductListing, error)
+	ListWithPagination(context.Context, interface{}) ([]ProductListing, *Pagination, error)
+	Count(context.Context, interface{}) (int, error)
+	Get(context.Context, int64, interface{}) (*ProductListing, error)
+	GetProductIDs(context.Context, interface{}) ([]int64, error)
+	Publish(context.Context, int64) (*ProductListing, error)
+	Delete(context.Context, int64) error
 }
 
 // ProductListingServiceOp handles communication with the product related methods of
@@ -74,8 +75,8 @@ type ProductListingPublishResource struct {
 }
 
 // List products
-func (s *ProductListingServiceOp) List(options interface{}) ([]ProductListing, error) {
-	products, _, err := s.ListWithPagination(options)
+func (s *ProductListingServiceOp) List(ctx context.Context, options interface{}) ([]ProductListing, error) {
+	products, _, err := s.ListWithPagination(ctx, options)
 	if err != nil {
 		return nil, err
 	}
@@ -83,11 +84,11 @@ func (s *ProductListingServiceOp) List(options interface{}) ([]ProductListing, e
 }
 
 // ListWithPagination lists products and return pagination to retrieve next/previous results.
-func (s *ProductListingServiceOp) ListWithPagination(options interface{}) ([]ProductListing, *Pagination, error) {
+func (s *ProductListingServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]ProductListing, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", productListingBasePath)
 	resource := new(ProductsListingsResource)
 
-	pagination, err := s.client.ListWithPagination(path, resource, options)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -96,38 +97,38 @@ func (s *ProductListingServiceOp) ListWithPagination(options interface{}) ([]Pro
 }
 
 // Count products listings published to your sales channel app
-func (s *ProductListingServiceOp) Count(options interface{}) (int, error) {
+func (s *ProductListingServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", productListingBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }
 
 // Get individual product_listing by product ID
-func (s *ProductListingServiceOp) Get(productID int64, options interface{}) (*ProductListing, error) {
+func (s *ProductListingServiceOp) Get(ctx context.Context, productID int64, options interface{}) (*ProductListing, error) {
 	path := fmt.Sprintf("%s/%d.json", productListingBasePath, productID)
 	resource := new(ProductListingResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.ProductListing, err
 }
 
 // GetProductIDs lists all product IDs that are published to your sales channel
-func (s *ProductListingServiceOp) GetProductIDs(options interface{}) ([]int64, error) {
+func (s *ProductListingServiceOp) GetProductIDs(ctx context.Context, options interface{}) ([]int64, error) {
 	path := fmt.Sprintf("%s/product_ids.json", productListingBasePath)
 	resource := new(ProductListingIDsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.ProductIDs, err
 }
 
 // Publish an existing product listing to your sales channel app
-func (s *ProductListingServiceOp) Publish(productID int64) (*ProductListing, error) {
+func (s *ProductListingServiceOp) Publish(ctx context.Context, productID int64) (*ProductListing, error) {
 	path := fmt.Sprintf("%s/%v.json", productListingBasePath, productID)
 	wrappedData := new(ProductListingPublishResource)
 	wrappedData.ProductListing.ProductID = productID
 	resource := new(ProductListingResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.ProductListing, err
 }
 
 // Delete unpublishes an existing product from your sales channel app.
-func (s *ProductListingServiceOp) Delete(productID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d.json", productListingBasePath, productID))
+func (s *ProductListingServiceOp) Delete(ctx context.Context, productID int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", productListingBasePath, productID))
 }

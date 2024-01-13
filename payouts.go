@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/shopspring/decimal"
@@ -12,9 +13,9 @@ const payoutsBasePath = "shopify_payments/payouts"
 // the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/payouts
 type PayoutsService interface {
-	List(interface{}) ([]Payout, error)
-	ListWithPagination(interface{}) ([]Payout, *Pagination, error)
-	Get(int64, interface{}) (*Payout, error)
+	List(context.Context, interface{}) ([]Payout, error)
+	ListWithPagination(context.Context, interface{}) ([]Payout, *Pagination, error)
+	Get(context.Context, int64, interface{}) (*Payout, error)
 }
 
 // PayoutsServiceOp handles communication with the payout related methods of the
@@ -66,19 +67,19 @@ type PayoutsResource struct {
 }
 
 // List payouts
-func (s *PayoutsServiceOp) List(options interface{}) ([]Payout, error) {
-	payouts, _, err := s.ListWithPagination(options)
+func (s *PayoutsServiceOp) List(ctx context.Context, options interface{}) ([]Payout, error) {
+	payouts, _, err := s.ListWithPagination(ctx, options)
 	if err != nil {
 		return nil, err
 	}
 	return payouts, nil
 }
 
-func (s *PayoutsServiceOp) ListWithPagination(options interface{}) ([]Payout, *Pagination, error) {
+func (s *PayoutsServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Payout, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", payoutsBasePath)
 	resource := new(PayoutsResource)
 
-	pagination, err := s.client.ListWithPagination(path, resource, options)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -87,9 +88,9 @@ func (s *PayoutsServiceOp) ListWithPagination(options interface{}) ([]Payout, *P
 }
 
 // Get individual payout
-func (s *PayoutsServiceOp) Get(id int64, options interface{}) (*Payout, error) {
+func (s *PayoutsServiceOp) Get(ctx context.Context, id int64, options interface{}) (*Payout, error) {
 	path := fmt.Sprintf("%s/%d.json", payoutsBasePath, id)
 	resource := new(PayoutResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Payout, err
 }

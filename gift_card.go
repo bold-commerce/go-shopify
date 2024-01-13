@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,12 +14,12 @@ const giftCardsBasePath = "gift_cards"
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/2023-04/resources/gift-card
 type GiftCardService interface {
-	Get(int64) (*GiftCard, error)
-	Create(GiftCard) (*GiftCard, error)
-	Update(GiftCard) (*GiftCard, error)
-	List() ([]GiftCard, error)
-	Disable(int64) (*GiftCard, error)
-	Count(interface{}) (int, error)
+	Get(context.Context, int64) (*GiftCard, error)
+	Create(context.Context, GiftCard) (*GiftCard, error)
+	Update(context.Context, GiftCard) (*GiftCard, error)
+	List(context.Context) ([]GiftCard, error)
+	Disable(context.Context, int64) (*GiftCard, error)
+	Count(context.Context, interface{}) (int, error)
 }
 
 // giftCardServiceOp handles communication with the gift card related methods of the Shopify API.
@@ -62,50 +63,50 @@ type GiftCardsResource struct {
 }
 
 // Get retrieves a single gift cards
-func (s *GiftCardServiceOp) Get(giftCardID int64) (*GiftCard, error) {
+func (s *GiftCardServiceOp) Get(ctx context.Context, giftCardID int64) (*GiftCard, error) {
 	path := fmt.Sprintf("%s/%d.json", giftCardsBasePath, giftCardID)
 	resource := new(GiftCardResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.GiftCard, err
 }
 
 // List retrieves a list of gift cards
-func (s *GiftCardServiceOp) List() ([]GiftCard, error) {
+func (s *GiftCardServiceOp) List(ctx context.Context) ([]GiftCard, error) {
 	path := fmt.Sprintf("%s.json", giftCardsBasePath)
 	resource := new(GiftCardsResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.GiftCards, err
 }
 
 // Create creates a gift card
-func (s *GiftCardServiceOp) Create(pr GiftCard) (*GiftCard, error) {
+func (s *GiftCardServiceOp) Create(ctx context.Context, pr GiftCard) (*GiftCard, error) {
 	path := fmt.Sprintf("%s.json", giftCardsBasePath)
 	resource := new(GiftCardResource)
 	wrappedData := GiftCardResource{GiftCard: &pr}
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.GiftCard, err
 }
 
 // Update updates an existing a gift card
-func (s *GiftCardServiceOp) Update(pr GiftCard) (*GiftCard, error) {
+func (s *GiftCardServiceOp) Update(ctx context.Context, pr GiftCard) (*GiftCard, error) {
 	path := fmt.Sprintf("%s/%d.json", giftCardsBasePath, pr.ID)
 	resource := new(GiftCardResource)
 	wrappedData := GiftCardResource{GiftCard: &pr}
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.GiftCard, err
 }
 
 // Disable disables an existing a gift card
-func (s *GiftCardServiceOp) Disable(giftCardID int64) (*GiftCard, error) {
+func (s *GiftCardServiceOp) Disable(ctx context.Context, giftCardID int64) (*GiftCard, error) {
 	path := fmt.Sprintf("%s/%d/disable.json", giftCardsBasePath, giftCardID)
 	resource := new(GiftCardResource)
 	wrappedData := GiftCardResource{GiftCard: &GiftCard{ID: giftCardID}}
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.GiftCard, err
 }
 
 // Count retrieves the number of gift cards
-func (s *GiftCardServiceOp) Count(options interface{}) (int, error) {
+func (s *GiftCardServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", giftCardsBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }

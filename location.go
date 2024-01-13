@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -12,11 +13,11 @@ const locationsBasePath = "locations"
 // See: https://help.shopify.com/en/api/reference/inventory/location
 type LocationService interface {
 	// Retrieves a list of locations
-	List(options interface{}) ([]Location, error)
+	List(ctx context.Context, options interface{}) ([]Location, error)
 	// Retrieves a single location by its ID
-	Get(ID int64, options interface{}) (*Location, error)
+	Get(ctx context.Context, id int64, options interface{}) (*Location, error)
 	// Retrieves a count of locations
-	Count(options interface{}) (int, error)
+	Count(ctx context.Context, options interface{}) (int, error)
 }
 
 type Location struct {
@@ -80,23 +81,23 @@ type LocationServiceOp struct {
 	client *Client
 }
 
-func (s *LocationServiceOp) List(options interface{}) ([]Location, error) {
+func (s *LocationServiceOp) List(ctx context.Context, options interface{}) ([]Location, error) {
 	path := fmt.Sprintf("%s.json", locationsBasePath)
 	resource := new(LocationsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Locations, err
 }
 
-func (s *LocationServiceOp) Get(ID int64, options interface{}) (*Location, error) {
-	path := fmt.Sprintf("%s/%d.json", locationsBasePath, ID)
+func (s *LocationServiceOp) Get(ctx context.Context, id int64, options interface{}) (*Location, error) {
+	path := fmt.Sprintf("%s/%d.json", locationsBasePath, id)
 	resource := new(LocationResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Location, err
 }
 
-func (s *LocationServiceOp) Count(options interface{}) (int, error) {
+func (s *LocationServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", locationsBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }
 
 // Represents the result from the locations/X.json endpoint

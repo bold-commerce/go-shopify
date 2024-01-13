@@ -1,22 +1,25 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 )
 
-const ordersRiskBasePath = "orders"
-const ordersRiskResourceName = "risks"
+const (
+	ordersRiskBasePath     = "orders"
+	ordersRiskResourceName = "risks"
+)
 
 // OrderRiskService is an interface for interfacing with the orders Risk endpoints of
 // the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/2023-10/resources/order-risk
 type OrderRiskService interface {
-	List(int64, interface{}) ([]OrderRisk, error)
-	ListWithPagination(int64, interface{}) ([]OrderRisk, *Pagination, error)
-	Get(int64, int64, interface{}) (*OrderRisk, error)
-	Create(int64, OrderRisk) (*OrderRisk, error)
-	Update(int64, int64, OrderRisk) (*OrderRisk, error)
-	Delete(int64, int64) error
+	List(context.Context, int64, interface{}) ([]OrderRisk, error)
+	ListWithPagination(context.Context, int64, interface{}) ([]OrderRisk, *Pagination, error)
+	Get(context.Context, int64, int64, interface{}) (*OrderRisk, error)
+	Create(context.Context, int64, OrderRisk) (*OrderRisk, error)
+	Update(context.Context, int64, int64, OrderRisk) (*OrderRisk, error)
+	Delete(context.Context, int64, int64) error
 }
 
 // OrderRiskServiceOp handles communication with the order related methods of the
@@ -37,13 +40,13 @@ type OrdersRisksResource struct {
 type orderRiskRecommendation string
 
 const (
-	//order is fraudulent.
+	// order is fraudulent.
 	OrderRecommendationCancel orderRiskRecommendation = "cancel"
 
-	//medium level of risk that this order is fraudulent.
+	// medium level of risk that this order is fraudulent.
 	OrderRecommendationInvestigate orderRiskRecommendation = "investigate"
 
-	//level of risk that this order is fraudulent.
+	// level of risk that this order is fraudulent.
 	OrderRecommendationAccept orderRiskRecommendation = "accept"
 )
 
@@ -68,19 +71,19 @@ type OrderRisk struct {
 }
 
 // List OrderRisk
-func (s *OrderRiskServiceOp) List(orderId int64, options interface{}) ([]OrderRisk, error) {
-	orders, _, err := s.ListWithPagination(orderId, options)
+func (s *OrderRiskServiceOp) List(ctx context.Context, orderId int64, options interface{}) ([]OrderRisk, error) {
+	orders, _, err := s.ListWithPagination(ctx, orderId, options)
 	if err != nil {
 		return nil, err
 	}
 	return orders, nil
 }
 
-func (s *OrderRiskServiceOp) ListWithPagination(orderId int64, options interface{}) ([]OrderRisk, *Pagination, error) {
+func (s *OrderRiskServiceOp) ListWithPagination(ctx context.Context, orderId int64, options interface{}) ([]OrderRisk, *Pagination, error) {
 	path := fmt.Sprintf("%s/%d/%s.json", ordersRiskBasePath, orderId, ordersRiskResourceName)
 	resource := new(OrdersRisksResource)
 
-	pagination, err := s.client.ListWithPagination(path, resource, options)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -89,34 +92,34 @@ func (s *OrderRiskServiceOp) ListWithPagination(orderId int64, options interface
 }
 
 // Get individual order
-func (s *OrderRiskServiceOp) Get(orderID int64, riskID int64, options interface{}) (*OrderRisk, error) {
+func (s *OrderRiskServiceOp) Get(ctx context.Context, orderID int64, riskID int64, options interface{}) (*OrderRisk, error) {
 	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderID, ordersRiskResourceName, riskID)
 	resource := new(OrderRiskResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.OrderRisk, err
 }
 
 // Create order
-func (s *OrderRiskServiceOp) Create(orderID int64, orderRisk OrderRisk) (*OrderRisk, error) {
+func (s *OrderRiskServiceOp) Create(ctx context.Context, orderID int64, orderRisk OrderRisk) (*OrderRisk, error) {
 	path := fmt.Sprintf("%s/%d/%s.json", ordersRiskBasePath, orderID, ordersRiskResourceName)
 	wrappedData := OrderRiskResource{OrderRisk: &orderRisk}
 	resource := new(OrderRiskResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.OrderRisk, err
 }
 
 // Update order
-func (s *OrderRiskServiceOp) Update(orderID int64, riskID int64, orderRisk OrderRisk) (*OrderRisk, error) {
+func (s *OrderRiskServiceOp) Update(ctx context.Context, orderID int64, riskID int64, orderRisk OrderRisk) (*OrderRisk, error) {
 	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderID, ordersRiskResourceName, riskID)
 	wrappedData := OrderRiskResource{OrderRisk: &orderRisk}
 	resource := new(OrderRiskResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.OrderRisk, err
 }
 
 // Delete order
-func (s *OrderRiskServiceOp) Delete(orderID int64, riskID int64) error {
+func (s *OrderRiskServiceOp) Delete(ctx context.Context, orderID int64, riskID int64) error {
 	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderID, ordersRiskResourceName, riskID)
-	err := s.client.Delete(path)
+	err := s.client.Delete(ctx, path)
 	return err
 }

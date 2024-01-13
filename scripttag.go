@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -11,12 +12,12 @@ const scriptTagsBasePath = "script_tags"
 // of the Shopify API.
 // See: https://help.shopify.com/api/reference/scripttag
 type ScriptTagService interface {
-	List(interface{}) ([]ScriptTag, error)
-	Count(interface{}) (int, error)
-	Get(int64, interface{}) (*ScriptTag, error)
-	Create(ScriptTag) (*ScriptTag, error)
-	Update(ScriptTag) (*ScriptTag, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]ScriptTag, error)
+	Count(context.Context, interface{}) (int, error)
+	Get(context.Context, int64, interface{}) (*ScriptTag, error)
+	Create(context.Context, ScriptTag) (*ScriptTag, error)
+	Update(context.Context, ScriptTag) (*ScriptTag, error)
+	Delete(context.Context, int64) error
 }
 
 // ScriptTagServiceOp handles communication with the shop related methods of the
@@ -61,46 +62,46 @@ type ScriptTagResource struct {
 }
 
 // List script tags
-func (s *ScriptTagServiceOp) List(options interface{}) ([]ScriptTag, error) {
+func (s *ScriptTagServiceOp) List(ctx context.Context, options interface{}) ([]ScriptTag, error) {
 	path := fmt.Sprintf("%s.json", scriptTagsBasePath)
 	resource := &ScriptTagsResource{}
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.ScriptTags, err
 }
 
 // Count script tags
-func (s *ScriptTagServiceOp) Count(options interface{}) (int, error) {
+func (s *ScriptTagServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", scriptTagsBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }
 
 // Get individual script tag
-func (s *ScriptTagServiceOp) Get(tagID int64, options interface{}) (*ScriptTag, error) {
+func (s *ScriptTagServiceOp) Get(ctx context.Context, tagID int64, options interface{}) (*ScriptTag, error) {
 	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagID)
 	resource := &ScriptTagResource{}
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.ScriptTag, err
 }
 
 // Create a new script tag
-func (s *ScriptTagServiceOp) Create(tag ScriptTag) (*ScriptTag, error) {
+func (s *ScriptTagServiceOp) Create(ctx context.Context, tag ScriptTag) (*ScriptTag, error) {
 	path := fmt.Sprintf("%s.json", scriptTagsBasePath)
 	wrappedData := ScriptTagResource{ScriptTag: &tag}
 	resource := &ScriptTagResource{}
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.ScriptTag, err
 }
 
 // Update an existing script tag
-func (s *ScriptTagServiceOp) Update(tag ScriptTag) (*ScriptTag, error) {
+func (s *ScriptTagServiceOp) Update(ctx context.Context, tag ScriptTag) (*ScriptTag, error) {
 	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tag.ID)
 	wrappedData := ScriptTagResource{ScriptTag: &tag}
 	resource := &ScriptTagResource{}
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.ScriptTag, err
 }
 
 // Delete an existing script tag
-func (s *ScriptTagServiceOp) Delete(tagID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagID))
+func (s *ScriptTagServiceOp) Delete(ctx context.Context, tagID int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagID))
 }

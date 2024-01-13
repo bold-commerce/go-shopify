@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -11,12 +12,12 @@ const webhooksBasePath = "webhooks"
 // the Shopify API.
 // See: https://help.shopify.com/api/reference/webhook
 type WebhookService interface {
-	List(interface{}) ([]Webhook, error)
-	Count(interface{}) (int, error)
-	Get(int64, interface{}) (*Webhook, error)
-	Create(Webhook) (*Webhook, error)
-	Update(Webhook) (*Webhook, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]Webhook, error)
+	Count(context.Context, interface{}) (int, error)
+	Get(context.Context, int64, interface{}) (*Webhook, error)
+	Create(context.Context, Webhook) (*Webhook, error)
+	Update(context.Context, Webhook) (*Webhook, error)
+	Delete(context.Context, int64) error
 }
 
 // WebhookServiceOp handles communication with the webhook-related methods of
@@ -56,46 +57,46 @@ type WebhooksResource struct {
 }
 
 // List webhooks
-func (s *WebhookServiceOp) List(options interface{}) ([]Webhook, error) {
+func (s *WebhookServiceOp) List(ctx context.Context, options interface{}) ([]Webhook, error) {
 	path := fmt.Sprintf("%s.json", webhooksBasePath)
 	resource := new(WebhooksResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Webhooks, err
 }
 
 // Count webhooks
-func (s *WebhookServiceOp) Count(options interface{}) (int, error) {
+func (s *WebhookServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", webhooksBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }
 
 // Get individual webhook
-func (s *WebhookServiceOp) Get(webhookdID int64, options interface{}) (*Webhook, error) {
+func (s *WebhookServiceOp) Get(ctx context.Context, webhookdID int64, options interface{}) (*Webhook, error) {
 	path := fmt.Sprintf("%s/%d.json", webhooksBasePath, webhookdID)
 	resource := new(WebhookResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Webhook, err
 }
 
 // Create a new webhook
-func (s *WebhookServiceOp) Create(webhook Webhook) (*Webhook, error) {
+func (s *WebhookServiceOp) Create(ctx context.Context, webhook Webhook) (*Webhook, error) {
 	path := fmt.Sprintf("%s.json", webhooksBasePath)
 	wrappedData := WebhookResource{Webhook: &webhook}
 	resource := new(WebhookResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Webhook, err
 }
 
 // Update an existing webhook.
-func (s *WebhookServiceOp) Update(webhook Webhook) (*Webhook, error) {
+func (s *WebhookServiceOp) Update(ctx context.Context, webhook Webhook) (*Webhook, error) {
 	path := fmt.Sprintf("%s/%d.json", webhooksBasePath, webhook.ID)
 	wrappedData := WebhookResource{Webhook: &webhook}
 	resource := new(WebhookResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Webhook, err
 }
 
 // Delete an existing webhooks
-func (s *WebhookServiceOp) Delete(ID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d.json", webhooksBasePath, ID))
+func (s *WebhookServiceOp) Delete(ctx context.Context, ID int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", webhooksBasePath, ID))
 }

@@ -1,16 +1,19 @@
 package goshopify
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 // CustomerAddressService is an interface for interfacing with the customer address endpoints
 // of the Shopify API.
 // See: https://help.shopify.com/en/api/reference/customers/customer_address
 type CustomerAddressService interface {
-	List(int64, interface{}) ([]CustomerAddress, error)
-	Get(int64, int64, interface{}) (*CustomerAddress, error)
-	Create(int64, CustomerAddress) (*CustomerAddress, error)
-	Update(int64, CustomerAddress) (*CustomerAddress, error)
-	Delete(int64, int64) error
+	List(context.Context, int64, interface{}) ([]CustomerAddress, error)
+	Get(context.Context, int64, int64, interface{}) (*CustomerAddress, error)
+	Create(context.Context, int64, CustomerAddress) (*CustomerAddress, error)
+	Update(context.Context, int64, CustomerAddress) (*CustomerAddress, error)
+	Delete(context.Context, int64, int64) error
 }
 
 // CustomerAddressServiceOp handles communication with the customer address related methods of
@@ -51,40 +54,40 @@ type CustomerAddressesResource struct {
 }
 
 // List addresses
-func (s *CustomerAddressServiceOp) List(customerID int64, options interface{}) ([]CustomerAddress, error) {
+func (s *CustomerAddressServiceOp) List(ctx context.Context, customerID int64, options interface{}) ([]CustomerAddress, error) {
 	path := fmt.Sprintf("%s/%d/addresses.json", customersBasePath, customerID)
 	resource := new(CustomerAddressesResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Addresses, err
 }
 
 // Get address
-func (s *CustomerAddressServiceOp) Get(customerID, addressID int64, options interface{}) (*CustomerAddress, error) {
+func (s *CustomerAddressServiceOp) Get(ctx context.Context, customerID, addressID int64, options interface{}) (*CustomerAddress, error) {
 	path := fmt.Sprintf("%s/%d/addresses/%d.json", customersBasePath, customerID, addressID)
 	resource := new(CustomerAddressResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Address, err
 }
 
 // Create a new address for given customer
-func (s *CustomerAddressServiceOp) Create(customerID int64, address CustomerAddress) (*CustomerAddress, error) {
+func (s *CustomerAddressServiceOp) Create(ctx context.Context, customerID int64, address CustomerAddress) (*CustomerAddress, error) {
 	path := fmt.Sprintf("%s/%d/addresses.json", customersBasePath, customerID)
 	wrappedData := CustomerAddressResource{Address: &address}
 	resource := new(CustomerAddressResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Address, err
 }
 
 // Create a new address for given customer
-func (s *CustomerAddressServiceOp) Update(customerID int64, address CustomerAddress) (*CustomerAddress, error) {
+func (s *CustomerAddressServiceOp) Update(ctx context.Context, customerID int64, address CustomerAddress) (*CustomerAddress, error) {
 	path := fmt.Sprintf("%s/%d/addresses/%d.json", customersBasePath, customerID, address.ID)
 	wrappedData := CustomerAddressResource{Address: &address}
 	resource := new(CustomerAddressResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Address, err
 }
 
 // Delete an existing address
-func (s *CustomerAddressServiceOp) Delete(customerID, addressID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d/addresses/%d.json", customersBasePath, customerID, addressID))
+func (s *CustomerAddressServiceOp) Delete(ctx context.Context, customerID, addressID int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d/addresses/%d.json", customersBasePath, customerID, addressID))
 }

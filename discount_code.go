@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -11,11 +12,11 @@ const discountCodeBasePath = "price_rules/%d/discount_codes"
 // of the Shopify API.
 // See: https://help.shopify.com/en/api/reference/discounts/PriceRuleDiscountCode
 type DiscountCodeService interface {
-	Create(int64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)
-	Update(int64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)
-	List(int64) ([]PriceRuleDiscountCode, error)
-	Get(int64, int64) (*PriceRuleDiscountCode, error)
-	Delete(int64, int64) error
+	Create(context.Context, int64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)
+	Update(context.Context, int64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)
+	List(context.Context, int64) ([]PriceRuleDiscountCode, error)
+	Get(context.Context, int64, int64) (*PriceRuleDiscountCode, error)
+	Delete(context.Context, int64, int64) error
 }
 
 // DiscountCodeServiceOp handles communication with the discount code
@@ -45,40 +46,40 @@ type DiscountCodeResource struct {
 }
 
 // Create a discount code
-func (s *DiscountCodeServiceOp) Create(priceRuleID int64, dc PriceRuleDiscountCode) (*PriceRuleDiscountCode, error) {
+func (s *DiscountCodeServiceOp) Create(ctx context.Context, priceRuleID int64, dc PriceRuleDiscountCode) (*PriceRuleDiscountCode, error) {
 	path := fmt.Sprintf(discountCodeBasePath+".json", priceRuleID)
 	wrappedData := DiscountCodeResource{PriceRuleDiscountCode: &dc}
 	resource := new(DiscountCodeResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.PriceRuleDiscountCode, err
 }
 
 // Update an existing discount code
-func (s *DiscountCodeServiceOp) Update(priceRuleID int64, dc PriceRuleDiscountCode) (*PriceRuleDiscountCode, error) {
+func (s *DiscountCodeServiceOp) Update(ctx context.Context, priceRuleID int64, dc PriceRuleDiscountCode) (*PriceRuleDiscountCode, error) {
 	path := fmt.Sprintf(discountCodeBasePath+"/%d.json", priceRuleID, dc.ID)
 	wrappedData := DiscountCodeResource{PriceRuleDiscountCode: &dc}
 	resource := new(DiscountCodeResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.PriceRuleDiscountCode, err
 }
 
 // List of discount codes
-func (s *DiscountCodeServiceOp) List(priceRuleID int64) ([]PriceRuleDiscountCode, error) {
+func (s *DiscountCodeServiceOp) List(ctx context.Context, priceRuleID int64) ([]PriceRuleDiscountCode, error) {
 	path := fmt.Sprintf(discountCodeBasePath+".json", priceRuleID)
 	resource := new(DiscountCodesResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.DiscountCodes, err
 }
 
 // Get a single discount code
-func (s *DiscountCodeServiceOp) Get(priceRuleID int64, discountCodeID int64) (*PriceRuleDiscountCode, error) {
+func (s *DiscountCodeServiceOp) Get(ctx context.Context, priceRuleID int64, discountCodeID int64) (*PriceRuleDiscountCode, error) {
 	path := fmt.Sprintf(discountCodeBasePath+"/%d.json", priceRuleID, discountCodeID)
 	resource := new(DiscountCodeResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.PriceRuleDiscountCode, err
 }
 
 // Delete a discount code
-func (s *DiscountCodeServiceOp) Delete(priceRuleID int64, discountCodeID int64) error {
-	return s.client.Delete(fmt.Sprintf(discountCodeBasePath+"/%d.json", priceRuleID, discountCodeID))
+func (s *DiscountCodeServiceOp) Delete(ctx context.Context, priceRuleID int64, discountCodeID int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf(discountCodeBasePath+"/%d.json", priceRuleID, discountCodeID))
 }

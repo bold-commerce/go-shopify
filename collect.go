@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -11,11 +12,11 @@ const collectsBasePath = "collects"
 // of the Shopify API.
 // See: https://help.shopify.com/api/reference/products/collect
 type CollectService interface {
-	List(interface{}) ([]Collect, error)
-	Count(interface{}) (int, error)
-	Get(int64, interface{}) (*Collect, error)
-	Create(Collect) (*Collect, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]Collect, error)
+	Count(context.Context, interface{}) (int, error)
+	Get(context.Context, int64, interface{}) (*Collect, error)
+	Create(context.Context, Collect) (*Collect, error)
+	Delete(context.Context, int64) error
 }
 
 // CollectServiceOp handles communication with the collect related methods of
@@ -47,37 +48,37 @@ type CollectsResource struct {
 }
 
 // List collects
-func (s *CollectServiceOp) List(options interface{}) ([]Collect, error) {
+func (s *CollectServiceOp) List(ctx context.Context, options interface{}) ([]Collect, error) {
 	path := fmt.Sprintf("%s.json", collectsBasePath)
 	resource := new(CollectsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Collects, err
 }
 
 // Count collects
-func (s *CollectServiceOp) Count(options interface{}) (int, error) {
+func (s *CollectServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", collectsBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }
 
 // Get individual collect
-func (s *CollectServiceOp) Get(collectID int64, options interface{}) (*Collect, error) {
+func (s *CollectServiceOp) Get(ctx context.Context, collectID int64, options interface{}) (*Collect, error) {
 	path := fmt.Sprintf("%s/%d.json", collectsBasePath, collectID)
 	resource := new(CollectResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Collect, err
 }
 
 // Create collects
-func (s *CollectServiceOp) Create(collect Collect) (*Collect, error) {
+func (s *CollectServiceOp) Create(ctx context.Context, collect Collect) (*Collect, error) {
 	path := fmt.Sprintf("%s.json", collectsBasePath)
 	wrappedData := CollectResource{Collect: &collect}
 	resource := new(CollectResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Collect, err
 }
 
 // Delete an existing collect
-func (s *CollectServiceOp) Delete(collectID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d.json", collectsBasePath, collectID))
+func (s *CollectServiceOp) Delete(ctx context.Context, collectID int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", collectsBasePath, collectID))
 }

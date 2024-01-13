@@ -1,6 +1,9 @@
 package goshopify
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 const (
 	fulfillmentServiceBasePath = "fulfillment_services"
@@ -9,11 +12,11 @@ const (
 // FulfillmentServiceService is an interface for interfacing with the fulfillment service of the Shopify API.
 // https://help.shopify.com/api/reference/fulfillmentservice
 type FulfillmentServiceService interface {
-	List(interface{}) ([]FulfillmentServiceData, error)
-	Get(int64, interface{}) (*FulfillmentServiceData, error)
-	Create(FulfillmentServiceData) (*FulfillmentServiceData, error)
-	Update(FulfillmentServiceData) (*FulfillmentServiceData, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]FulfillmentServiceData, error)
+	Get(context.Context, int64, interface{}) (*FulfillmentServiceData, error)
+	Create(context.Context, FulfillmentServiceData) (*FulfillmentServiceData, error)
+	Update(context.Context, FulfillmentServiceData) (*FulfillmentServiceData, error)
+	Delete(context.Context, int64) error
 }
 
 type FulfillmentServiceData struct {
@@ -54,41 +57,41 @@ type FulfillmentServiceServiceOp struct {
 }
 
 // List Receive a list of all FulfillmentServiceData
-func (s *FulfillmentServiceServiceOp) List(options interface{}) ([]FulfillmentServiceData, error) {
+func (s *FulfillmentServiceServiceOp) List(ctx context.Context, options interface{}) ([]FulfillmentServiceData, error) {
 	path := fmt.Sprintf("%s.json", fulfillmentServiceBasePath)
 	resource := new(FulfillmentServicesResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.FulfillmentServices, err
 }
 
 // Get Receive a single FulfillmentServiceData
-func (s *FulfillmentServiceServiceOp) Get(fulfillmentServiceId int64, options interface{}) (*FulfillmentServiceData, error) {
+func (s *FulfillmentServiceServiceOp) Get(ctx context.Context, fulfillmentServiceId int64, options interface{}) (*FulfillmentServiceData, error) {
 	path := fmt.Sprintf("%s/%d.json", fulfillmentServiceBasePath, fulfillmentServiceId)
 	resource := new(FulfillmentServiceResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.FulfillmentService, err
 }
 
 // Create Create a new FulfillmentServiceData
-func (s *FulfillmentServiceServiceOp) Create(fulfillmentService FulfillmentServiceData) (*FulfillmentServiceData, error) {
+func (s *FulfillmentServiceServiceOp) Create(ctx context.Context, fulfillmentService FulfillmentServiceData) (*FulfillmentServiceData, error) {
 	path := fmt.Sprintf("%s.json", fulfillmentServiceBasePath)
 	wrappedData := FulfillmentServiceResource{FulfillmentService: &fulfillmentService}
 	resource := new(FulfillmentServiceResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.FulfillmentService, err
 }
 
 // Update Modify an existing FulfillmentServiceData
-func (s *FulfillmentServiceServiceOp) Update(fulfillmentService FulfillmentServiceData) (*FulfillmentServiceData, error) {
+func (s *FulfillmentServiceServiceOp) Update(ctx context.Context, fulfillmentService FulfillmentServiceData) (*FulfillmentServiceData, error) {
 	path := fmt.Sprintf("%s/%d.json", fulfillmentServiceBasePath, fulfillmentService.Id)
 	wrappedData := FulfillmentServiceResource{FulfillmentService: &fulfillmentService}
 	resource := new(FulfillmentServiceResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.FulfillmentService, err
 }
 
 // Delete Remove an existing FulfillmentServiceData
-func (s *FulfillmentServiceServiceOp) Delete(fulfillmentServiceId int64) error {
+func (s *FulfillmentServiceServiceOp) Delete(ctx context.Context, fulfillmentServiceId int64) error {
 	path := fmt.Sprintf("%s/%d.json", fulfillmentServiceBasePath, fulfillmentServiceId)
-	return s.client.Delete(path)
+	return s.client.Delete(ctx, path)
 }

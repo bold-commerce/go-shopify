@@ -1,23 +1,26 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
 
-const pagesBasePath = "pages"
-const pagesResourceName = "pages"
+const (
+	pagesBasePath     = "pages"
+	pagesResourceName = "pages"
+)
 
 // PagesPageService is an interface for interacting with the pages
 // endpoints of the Shopify API.
 // See https://help.shopify.com/api/reference/online_store/page
 type PageService interface {
-	List(interface{}) ([]Page, error)
-	Count(interface{}) (int, error)
-	Get(int64, interface{}) (*Page, error)
-	Create(Page) (*Page, error)
-	Update(Page) (*Page, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]Page, error)
+	Count(context.Context, interface{}) (int, error)
+	Get(context.Context, int64, interface{}) (*Page, error)
+	Create(context.Context, Page) (*Page, error)
+	Update(context.Context, Page) (*Page, error)
+	Delete(context.Context, int64) error
 
 	// MetafieldsService used for Pages resource to communicate with Metafields
 	// resource
@@ -56,82 +59,82 @@ type PagesResource struct {
 }
 
 // List pages
-func (s *PageServiceOp) List(options interface{}) ([]Page, error) {
+func (s *PageServiceOp) List(ctx context.Context, options interface{}) ([]Page, error) {
 	path := fmt.Sprintf("%s.json", pagesBasePath)
 	resource := new(PagesResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Pages, err
 }
 
 // Count pages
-func (s *PageServiceOp) Count(options interface{}) (int, error) {
+func (s *PageServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", pagesBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }
 
 // Get individual page
-func (s *PageServiceOp) Get(pageID int64, options interface{}) (*Page, error) {
+func (s *PageServiceOp) Get(ctx context.Context, pageID int64, options interface{}) (*Page, error) {
 	path := fmt.Sprintf("%s/%d.json", pagesBasePath, pageID)
 	resource := new(PageResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Page, err
 }
 
 // Create a new page
-func (s *PageServiceOp) Create(page Page) (*Page, error) {
+func (s *PageServiceOp) Create(ctx context.Context, page Page) (*Page, error) {
 	path := fmt.Sprintf("%s.json", pagesBasePath)
 	wrappedData := PageResource{Page: &page}
 	resource := new(PageResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Page, err
 }
 
 // Update an existing page
-func (s *PageServiceOp) Update(page Page) (*Page, error) {
+func (s *PageServiceOp) Update(ctx context.Context, page Page) (*Page, error) {
 	path := fmt.Sprintf("%s/%d.json", pagesBasePath, page.ID)
 	wrappedData := PageResource{Page: &page}
 	resource := new(PageResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Page, err
 }
 
 // Delete an existing page.
-func (s *PageServiceOp) Delete(pageID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d.json", pagesBasePath, pageID))
+func (s *PageServiceOp) Delete(ctx context.Context, pageID int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", pagesBasePath, pageID))
 }
 
 // List metafields for a page
-func (s *PageServiceOp) ListMetafields(pageID int64, options interface{}) ([]Metafield, error) {
+func (s *PageServiceOp) ListMetafields(ctx context.Context, pageID int64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
-	return metafieldService.List(options)
+	return metafieldService.List(ctx, options)
 }
 
 // Count metafields for a page
-func (s *PageServiceOp) CountMetafields(pageID int64, options interface{}) (int, error) {
+func (s *PageServiceOp) CountMetafields(ctx context.Context, pageID int64, options interface{}) (int, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
-	return metafieldService.Count(options)
+	return metafieldService.Count(ctx, options)
 }
 
 // Get individual metafield for a page
-func (s *PageServiceOp) GetMetafield(pageID int64, metafieldID int64, options interface{}) (*Metafield, error) {
+func (s *PageServiceOp) GetMetafield(ctx context.Context, pageID int64, metafieldID int64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
-	return metafieldService.Get(metafieldID, options)
+	return metafieldService.Get(ctx, metafieldID, options)
 }
 
 // Create a new metafield for a page
-func (s *PageServiceOp) CreateMetafield(pageID int64, metafield Metafield) (*Metafield, error) {
+func (s *PageServiceOp) CreateMetafield(ctx context.Context, pageID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
-	return metafieldService.Create(metafield)
+	return metafieldService.Create(ctx, metafield)
 }
 
 // Update an existing metafield for a page
-func (s *PageServiceOp) UpdateMetafield(pageID int64, metafield Metafield) (*Metafield, error) {
+func (s *PageServiceOp) UpdateMetafield(ctx context.Context, pageID int64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
-	return metafieldService.Update(metafield)
+	return metafieldService.Update(ctx, metafield)
 }
 
 // Delete an existing metafield for a page
-func (s *PageServiceOp) DeleteMetafield(pageID int64, metafieldID int64) error {
+func (s *PageServiceOp) DeleteMetafield(ctx context.Context, pageID int64, metafieldID int64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceID: pageID}
-	return metafieldService.Delete(metafieldID)
+	return metafieldService.Delete(ctx, metafieldID)
 }

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -21,7 +22,7 @@ func TestBlogList(t *testing.T) {
 		),
 	)
 
-	blogs, err := client.Blog.List(nil)
+	blogs, err := client.Blog.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Blog.List returned error: %v", err)
 	}
@@ -30,7 +31,6 @@ func TestBlogList(t *testing.T) {
 	if !reflect.DeepEqual(blogs, expected) {
 		t.Errorf("Blog.List returned %+v, expected %+v", blogs, expected)
 	}
-
 }
 
 func TestBlogCount(t *testing.T) {
@@ -46,7 +46,7 @@ func TestBlogCount(t *testing.T) {
 		),
 	)
 
-	cnt, err := client.Blog.Count(nil)
+	cnt, err := client.Blog.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Blog.Count returned error: %v", err)
 	}
@@ -55,7 +55,6 @@ func TestBlogCount(t *testing.T) {
 	if cnt != expected {
 		t.Errorf("Blog.Count returned %d, expected %d", cnt, expected)
 	}
-
 }
 
 func TestBlogGet(t *testing.T) {
@@ -71,7 +70,7 @@ func TestBlogGet(t *testing.T) {
 		),
 	)
 
-	blog, err := client.Blog.Get(1, nil)
+	blog, err := client.Blog.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Blog.Get returned error: %v", err)
 	}
@@ -80,7 +79,6 @@ func TestBlogGet(t *testing.T) {
 	if !reflect.DeepEqual(blog, expected) {
 		t.Errorf("Blog.Get returned %+v, expected %+v", blog, expected)
 	}
-
 }
 
 func TestBlogCreate(t *testing.T) {
@@ -100,7 +98,7 @@ func TestBlogCreate(t *testing.T) {
 		Title: "Mah Blog",
 	}
 
-	returnedBlog, err := client.Blog.Create(blog)
+	returnedBlog, err := client.Blog.Create(context.Background(), blog)
 	if err != nil {
 		t.Errorf("Blog.Create returned error: %v", err)
 	}
@@ -109,7 +107,6 @@ func TestBlogCreate(t *testing.T) {
 	if returnedBlog.ID != expectedInt {
 		t.Errorf("Blog.ID returned %+v, expected %+v", returnedBlog.ID, expectedInt)
 	}
-
 }
 
 func TestBlogUpdate(t *testing.T) {
@@ -130,7 +127,7 @@ func TestBlogUpdate(t *testing.T) {
 		Title: "Mah Blog",
 	}
 
-	returnedBlog, err := client.Blog.Update(blog)
+	returnedBlog, err := client.Blog.Update(context.Background(), blog)
 	if err != nil {
 		t.Errorf("Blog.Update returned error: %v", err)
 	}
@@ -148,7 +145,7 @@ func TestBlogDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/blogs/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Blog.Delete(1)
+	err := client.Blog.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Blog.Delete returned error: %v", err)
 	}

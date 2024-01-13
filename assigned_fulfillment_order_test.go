@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -25,7 +26,7 @@ func TestAssignedFulfillmentOrderGet(t *testing.T) {
 
 	assignedFulfillmentOrderService := &AssignedFulfillmentOrderServiceOp{client: client}
 
-	assignedFulfillmentOrders, err := assignedFulfillmentOrderService.Get(nil)
+	assignedFulfillmentOrders, err := assignedFulfillmentOrderService.Get(context.Background(), nil)
 	if err != nil {
 		t.Errorf("AssignedFulfillmentOrder.List returned error: %v", err)
 	}

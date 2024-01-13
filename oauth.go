@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -35,7 +36,7 @@ func (app App) AuthorizeUrl(shopName string, state string) string {
 	return shopUrl.String()
 }
 
-func (app App) GetAccessToken(shopName string, code string) (string, error) {
+func (app App) GetAccessToken(ctx context.Context, shopName string, code string) (string, error) {
 	type Token struct {
 		Token string `json:"access_token"`
 	}
@@ -55,7 +56,7 @@ func (app App) GetAccessToken(shopName string, code string) (string, error) {
 		client = NewClient(app, shopName, "")
 	}
 
-	req, err := client.NewRequest("POST", accessTokenRelPath, data, nil)
+	req, err := client.NewRequest(ctx, "POST", accessTokenRelPath, data, nil)
 	if err != nil {
 		return "", err
 	}

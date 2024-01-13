@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,11 +14,11 @@ const carrierBasePath = "carrier_services"
 // of the Shopify API.
 // See: https://shopify.dev/docs/admin-api/rest/reference/shipping-and-fulfillment/carrierservice
 type CarrierServiceService interface {
-	List() ([]CarrierService, error)
-	Get(int64) (*CarrierService, error)
-	Create(CarrierService) (*CarrierService, error)
-	Update(CarrierService) (*CarrierService, error)
-	Delete(int64) error
+	List(context.Context) ([]CarrierService, error)
+	Get(context.Context, int64) (*CarrierService, error)
+	Create(context.Context, CarrierService) (*CarrierService, error)
+	Update(context.Context, CarrierService) (*CarrierService, error)
+	Delete(context.Context, int64) error
 }
 
 // CarrierServiceOp handles communication with the product related methods of
@@ -132,44 +133,44 @@ type ShippingRate struct {
 }
 
 // List carrier services
-func (s *CarrierServiceOp) List() ([]CarrierService, error) {
+func (s *CarrierServiceOp) List(ctx context.Context) ([]CarrierService, error) {
 	path := fmt.Sprintf("%s.json", carrierBasePath)
 	resource := new(ListCarrierResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.CarrierServices, err
 }
 
 // Get individual carrier resource by carrier resource ID
-func (s *CarrierServiceOp) Get(id int64) (*CarrierService, error) {
+func (s *CarrierServiceOp) Get(ctx context.Context, id int64) (*CarrierService, error) {
 	path := fmt.Sprintf("%s/%d.json", carrierBasePath, id)
 	resource := new(SingleCarrierResource)
-	err := s.client.Get(path, resource, nil)
+	err := s.client.Get(ctx, path, resource, nil)
 	return resource.CarrierService, err
 }
 
 // Create a carrier service
-func (s *CarrierServiceOp) Create(carrier CarrierService) (*CarrierService, error) {
+func (s *CarrierServiceOp) Create(ctx context.Context, carrier CarrierService) (*CarrierService, error) {
 	path := fmt.Sprintf("%s.json", carrierBasePath)
 	body := SingleCarrierResource{
 		CarrierService: &carrier,
 	}
 	resource := new(SingleCarrierResource)
-	err := s.client.Post(path, body, resource)
+	err := s.client.Post(ctx, path, body, resource)
 	return resource.CarrierService, err
 }
 
 // Update a carrier service
-func (s *CarrierServiceOp) Update(carrier CarrierService) (*CarrierService, error) {
+func (s *CarrierServiceOp) Update(ctx context.Context, carrier CarrierService) (*CarrierService, error) {
 	path := fmt.Sprintf("%s/%d.json", carrierBasePath, carrier.Id)
 	body := SingleCarrierResource{
 		CarrierService: &carrier,
 	}
 	resource := new(SingleCarrierResource)
-	err := s.client.Put(path, body, resource)
+	err := s.client.Put(ctx, path, body, resource)
 	return resource.CarrierService, err
 }
 
 // Delete a carrier service
-func (s *CarrierServiceOp) Delete(id int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d.json", carrierBasePath, id))
+func (s *CarrierServiceOp) Delete(ctx context.Context, id int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", carrierBasePath, id))
 }

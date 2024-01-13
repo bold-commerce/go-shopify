@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,7 +14,7 @@ const abandonedCheckoutsBasePath = "checkouts"
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/abandoned-checkouts
 type AbandonedCheckoutService interface {
-	List(interface{}) ([]AbandonedCheckout, error)
+	List(context.Context, interface{}) ([]AbandonedCheckout, error)
 }
 
 // AbandonedCheckoutServiceOp handles communication with the checkout related methods of
@@ -83,9 +84,9 @@ type SmsMarketingConsent struct {
 }
 
 // Get abandoned checkout list
-func (s *AbandonedCheckoutServiceOp) List(options interface{}) ([]AbandonedCheckout, error) {
+func (s *AbandonedCheckoutServiceOp) List(ctx context.Context, options interface{}) ([]AbandonedCheckout, error) {
 	path := fmt.Sprintf("/%s.json", abandonedCheckoutsBasePath)
 	resource := new(AbandonedCheckoutsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.AbandonedCheckouts, err
 }

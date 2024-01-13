@@ -1,6 +1,8 @@
 package goshopify
 
 import (
+	"context"
+
 	"github.com/shopspring/decimal"
 )
 
@@ -8,7 +10,7 @@ import (
 // of the Shopify API.
 // See: https://help.shopify.com/api/reference/store-properties/shippingzone
 type ShippingZoneService interface {
-	List() ([]ShippingZone, error)
+	List(context.Context) ([]ShippingZone, error)
 }
 
 // ShippingZoneServiceOp handles communication with the shipping zone related methods
@@ -90,8 +92,8 @@ type ShippingZonesResource struct {
 }
 
 // List shipping zones
-func (s *ShippingZoneServiceOp) List() ([]ShippingZone, error) {
+func (s *ShippingZoneServiceOp) List(ctx context.Context) ([]ShippingZone, error) {
 	resource := new(ShippingZonesResource)
-	err := s.client.Get("shipping_zones.json", resource, nil)
+	err := s.client.Get(ctx, "shipping_zones.json", resource, nil)
 	return resource.ShippingZones, err
 }

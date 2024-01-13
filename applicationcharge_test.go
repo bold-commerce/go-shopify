@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -63,7 +64,7 @@ func TestApplicationChargeServiceOp_Create(t *testing.T) {
 		ReturnURL: "http://super-duper.shopifyapps.com",
 	}
 
-	returnedCharge, err := client.ApplicationCharge.Create(charge)
+	returnedCharge, err := client.ApplicationCharge.Create(context.Background(), charge)
 	if err != nil {
 		t.Errorf("ApplicationCharge.Create returned an error: %v", err)
 	}
@@ -81,7 +82,7 @@ func TestApplicationChargeServiceOp_Get(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"application_charge": {"id":1}}`),
 	)
 
-	charge, err := client.ApplicationCharge.Get(1, nil)
+	charge, err := client.ApplicationCharge.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("ApplicationCharge.Get returned an error: %v", err)
 	}
@@ -102,7 +103,7 @@ func TestApplicationChargeServiceOp_List(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"application_charges": [{"id":1},{"id":2}]}`),
 	)
 
-	charges, err := client.ApplicationCharge.List(nil)
+	charges, err := client.ApplicationCharge.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("ApplicationCharge.List returned an error: %v", err)
 	}
@@ -131,7 +132,7 @@ func TestApplicationChargeServiceOp_Activate(t *testing.T) {
 		Status: "accepted",
 	}
 
-	returnedCharge, err := client.ApplicationCharge.Activate(charge)
+	returnedCharge, err := client.ApplicationCharge.Activate(context.Background(), charge)
 	if err != nil {
 		t.Errorf("ApplicationCharge.Activate returned an error: %v", err)
 	}

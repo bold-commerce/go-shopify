@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -11,11 +12,11 @@ const inventoryLevelsBasePath = "inventory_levels"
 // inventory items endpoints of the Shopify API
 // See https://help.shopify.com/en/api/reference/inventory/inventorylevel
 type InventoryLevelService interface {
-	List(interface{}) ([]InventoryLevel, error)
-	Adjust(interface{}) (*InventoryLevel, error)
-	Delete(int64, int64) error
-	Connect(InventoryLevel) (*InventoryLevel, error)
-	Set(InventoryLevel) (*InventoryLevel, error)
+	List(context.Context, interface{}) ([]InventoryLevel, error)
+	Adjust(context.Context, interface{}) (*InventoryLevel, error)
+	Delete(context.Context, int64, int64) error
+	Connect(context.Context, InventoryLevel) (*InventoryLevel, error)
+	Set(context.Context, InventoryLevel) (*InventoryLevel, error)
 }
 
 // InventoryLevelServiceOp is the default implementation of the InventoryLevelService interface
@@ -59,37 +60,37 @@ type InventoryLevelAdjustOptions struct {
 }
 
 // List inventory levels
-func (s *InventoryLevelServiceOp) List(options interface{}) ([]InventoryLevel, error) {
+func (s *InventoryLevelServiceOp) List(ctx context.Context, options interface{}) ([]InventoryLevel, error) {
 	path := fmt.Sprintf("%s.json", inventoryLevelsBasePath)
 	resource := new(InventoryLevelsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.InventoryLevels, err
 }
 
 // Delete an inventory level
-func (s *InventoryLevelServiceOp) Delete(itemId, locationId int64) error {
+func (s *InventoryLevelServiceOp) Delete(ctx context.Context, itemId, locationId int64) error {
 	path := fmt.Sprintf("%s.json?inventory_item_id=%v&location_id=%v",
 		inventoryLevelsBasePath, itemId, locationId)
-	return s.client.Delete(path)
+	return s.client.Delete(ctx, path)
 }
 
 // Connect an inventory level
-func (s *InventoryLevelServiceOp) Connect(level InventoryLevel) (*InventoryLevel, error) {
-	return s.post(fmt.Sprintf("%s/connect.json", inventoryLevelsBasePath), level)
+func (s *InventoryLevelServiceOp) Connect(ctx context.Context, level InventoryLevel) (*InventoryLevel, error) {
+	return s.post(ctx, fmt.Sprintf("%s/connect.json", inventoryLevelsBasePath), level)
 }
 
 // Set an inventory level
-func (s *InventoryLevelServiceOp) Set(level InventoryLevel) (*InventoryLevel, error) {
-	return s.post(fmt.Sprintf("%s/set.json", inventoryLevelsBasePath), level)
+func (s *InventoryLevelServiceOp) Set(ctx context.Context, level InventoryLevel) (*InventoryLevel, error) {
+	return s.post(ctx, fmt.Sprintf("%s/set.json", inventoryLevelsBasePath), level)
 }
 
 // Adjust the inventory level of an inventory item at a single location
-func (s *InventoryLevelServiceOp) Adjust(options interface{}) (*InventoryLevel, error) {
-	return s.post(fmt.Sprintf("%s/adjust.json", inventoryLevelsBasePath), options)
+func (s *InventoryLevelServiceOp) Adjust(ctx context.Context, options interface{}) (*InventoryLevel, error) {
+	return s.post(ctx, fmt.Sprintf("%s/adjust.json", inventoryLevelsBasePath), options)
 }
 
-func (s *InventoryLevelServiceOp) post(path string, options interface{}) (*InventoryLevel, error) {
+func (s *InventoryLevelServiceOp) post(ctx context.Context, path string, options interface{}) (*InventoryLevel, error) {
 	resource := new(InventoryLevelResource)
-	err := s.client.Post(path, options, resource)
+	err := s.client.Post(ctx, path, options, resource)
 	return resource.InventoryLevel, err
 }
