@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -21,7 +22,7 @@ func TestFulfillmentRequestServiceOp_Send(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_send.json")),
 	)
 
-	result, err := client.FulfillmentRequest.Send(fulfillmentOrderID, FulfillmentRequest{Message: message})
+	result, err := client.FulfillmentRequest.Send(context.Background(), fulfillmentOrderID, FulfillmentRequest{Message: message})
 	if err != nil {
 		t.Errorf("FulfillmentRequest.Send returned error: %v", err)
 	}
@@ -99,7 +100,7 @@ func TestFulfillmentRequestServiceOp_Accept(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_accept.json")),
 	)
 
-	result, err := client.FulfillmentRequest.Accept(fulfillmentOrderID, FulfillmentRequest{Message: message})
+	result, err := client.FulfillmentRequest.Accept(context.Background(), fulfillmentOrderID, FulfillmentRequest{Message: message})
 	if err != nil {
 		t.Errorf("FulfillmentRequest.Accept returned error: %v", err)
 	}
@@ -176,7 +177,7 @@ func TestFulfillmentRequestServiceOp_Reject(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_reject.json")),
 	)
 
-	result, err := client.FulfillmentRequest.Reject(fulfillmentOrderID, FulfillmentRequest{Message: rejectionMessage})
+	result, err := client.FulfillmentRequest.Reject(context.Background(), fulfillmentOrderID, FulfillmentRequest{Message: rejectionMessage})
 	if err != nil {
 		t.Errorf("FulfillmentRequest.Reject returned error: %v", err)
 	}

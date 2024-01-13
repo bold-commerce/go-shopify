@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -21,7 +22,7 @@ func TestFulfillmentEventServiceOp_List(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_events.json")),
 	)
 
-	fulfillmentEvents, err := client.FulfillmentEvent.List(orderID, fulfillmentID)
+	fulfillmentEvents, err := client.FulfillmentEvent.List(context.Background(), orderID, fulfillmentID)
 	if err != nil {
 		t.Errorf("FulfillmentEvent.List returned error: %v", err)
 	}
@@ -66,7 +67,7 @@ func TestFulfillmentEventServiceOp_Get(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_event.json")),
 	)
 
-	fulfillmentEvent, err := client.FulfillmentEvent.Get(orderID, fulfillmentID, eventID)
+	fulfillmentEvent, err := client.FulfillmentEvent.Get(context.Background(), orderID, fulfillmentID, eventID)
 	if err != nil {
 		t.Errorf("FulfillmentEvent.Get returned error: %v", err)
 	}
@@ -127,7 +128,7 @@ func TestFulfillmentEventServiceOp_Create(t *testing.T) {
 		EstimatedDeliveryAt: "",
 		OrderID:             450789469,
 	}
-	createdEvent, err := client.FulfillmentEvent.Create(orderID, fulfillmentID, event)
+	createdEvent, err := client.FulfillmentEvent.Create(context.Background(), orderID, fulfillmentID, event)
 	if err != nil {
 		t.Errorf("FulfillmentEvent.Create returned error: %v", err)
 	}
@@ -170,7 +171,7 @@ func TestFulfillmentEventServiceOp_Delete(t *testing.T) {
 		httpmock.NewStringResponder(200, ""),
 	)
 
-	err := client.FulfillmentEvent.Delete(orderID, fulfillmentID, eventID)
+	err := client.FulfillmentEvent.Delete(context.Background(), orderID, fulfillmentID, eventID)
 	if err != nil {
 		t.Errorf("FulfillmentEvent.Delete returned error: %v", err)
 	}

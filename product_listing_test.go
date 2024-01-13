@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -27,7 +28,7 @@ func TestProductListingList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"product_listings": [{"product_id":1},{"product_id":2}]}`))
 
-	products, err := client.ProductListing.List(nil)
+	products, err := client.ProductListing.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("ProductListing.List returned error: %v", err)
 	}
@@ -47,7 +48,7 @@ func TestProductListingListError(t *testing.T) {
 
 	expectedErrMessage := "Unknown Error"
 
-	products, err := client.ProductListing.List(nil)
+	products, err := client.ProductListing.List(context.Background(), nil)
 	if products != nil {
 		t.Errorf("ProductListing.List returned products, expected nil: %v", err)
 	}
@@ -152,7 +153,7 @@ func TestProductListingListWithPagination(t *testing.T) {
 
 		httpmock.RegisterResponder("GET", listURL, httpmock.ResponderFromResponse(response))
 
-		products, pagination, err := client.ProductListing.ListWithPagination(nil)
+		products, pagination, err := client.ProductListing.ListWithPagination(context.Background(), nil)
 		if !reflect.DeepEqual(products, c.expectedProducts) {
 			t.Errorf("test %d ProductListing.ListWithPagination products returned %+v, expected %+v", i, products, c.expectedProducts)
 		}
@@ -191,7 +192,7 @@ func TestProductListingsCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.ProductListing.Count(nil)
+	cnt, err := client.ProductListing.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Product.Count returned error: %v", err)
 	}
@@ -202,7 +203,7 @@ func TestProductListingsCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.ProductListing.Count(CountOptions{CreatedAtMin: date})
+	cnt, err = client.ProductListing.Count(context.Background(), CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Product.Count returned error: %v", err)
 	}
@@ -220,7 +221,7 @@ func TestProductListingGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"product_listing": {"product_id":1}}`))
 
-	product, err := client.ProductListing.Get(1, nil)
+	product, err := client.ProductListing.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("ProductListing.Get returned error: %v", err)
 	}
@@ -238,7 +239,7 @@ func TestProductListingGetProductIDs(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings/product_ids.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"product_ids": [1,2,3]}`))
 
-	productIDs, err := client.ProductListing.GetProductIDs(nil)
+	productIDs, err := client.ProductListing.GetProductIDs(context.Background(), nil)
 	if err != nil {
 		t.Errorf("ProductListing.Get returned error: %v", err)
 	}
@@ -261,7 +262,7 @@ func TestProductListingPublish(t *testing.T) {
 		ProductType: "Cult Products",
 	}
 
-	returnedProduct, err := client.ProductListing.Publish(product.ID)
+	returnedProduct, err := client.ProductListing.Publish(context.Background(), product.ID)
 	if err != nil {
 		t.Errorf("ProductListing.Publish returned error: %v", err)
 	}
@@ -276,7 +277,7 @@ func TestProductListingDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.ProductListing.Delete(1)
+	err := client.ProductListing.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("ProductListing.Delete returned error: %v", err)
 	}

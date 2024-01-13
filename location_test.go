@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -16,7 +17,7 @@ func TestLocationServiceOp_List(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("locations.json")))
 
-	products, err := client.Location.List(nil)
+	products, err := client.Location.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Location.List returned error: %v", err)
 	}
@@ -54,7 +55,7 @@ func TestLocationServiceOp_Get(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/4688969785.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("location.json")))
 
-	product, err := client.Location.Get(4688969785, nil)
+	product, err := client.Location.Get(context.Background(), 4688969785, nil)
 	if err != nil {
 		t.Errorf("Location.Get returned error: %v", err)
 	}
@@ -92,7 +93,7 @@ func TestLocationServiceOp_Count(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/count.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	cnt, err := client.Location.Count(nil)
+	cnt, err := client.Location.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Location.Count returned error: %v", err)
 	}

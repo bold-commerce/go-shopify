@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -60,8 +61,8 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 // parsed focusing on testing *time.Time fields, which in principle (see #91),
 // may not be parsed properly.
 func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
-	charge RecurringApplicationCharge) {
-
+	charge RecurringApplicationCharge,
+) {
 	var nilTest *bool
 
 	cases := []struct {
@@ -123,7 +124,7 @@ func TestRecurringApplicationChargeServiceOp_Create(t *testing.T) {
 		ReturnURL: "http://super-duper.shopifyapps.com",
 	}
 
-	returnedCharge, err := client.RecurringApplicationCharge.Create(charge)
+	returnedCharge, err := client.RecurringApplicationCharge.Create(context.Background(), charge)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Create returned an error: %v", err)
 	}
@@ -141,7 +142,7 @@ func TestRecurringApplicationChargeServiceOp_Get(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"recurring_application_charge": {"id":1}}`),
 	)
 
-	charge, err := client.RecurringApplicationCharge.Get(1, nil)
+	charge, err := client.RecurringApplicationCharge.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Get returned an error: %v", err)
 	}
@@ -166,7 +167,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsAffected(t *testing.T) 
 		),
 	)
 
-	charge, err := client.RecurringApplicationCharge.Get(1029266948, nil)
+	charge, err := client.RecurringApplicationCharge.Get(context.Background(), 1029266948, nil)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Get returned an error: %v", err)
 	}
@@ -198,7 +199,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsBad(t *testing.T) {
 			),
 		)
 
-		if _, err := client.RecurringApplicationCharge.Get(1029266948, nil); err == nil {
+		if _, err := client.RecurringApplicationCharge.Get(context.Background(), 1029266948, nil); err == nil {
 			t.Errorf("RecurringApplicationCharge.Get should have returned an error")
 		}
 
@@ -216,7 +217,7 @@ func TestRecurringApplicationChargeServiceOp_List(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"recurring_application_charges": [{"id":1},{"id":2}]}`),
 	)
 
-	charges, err := client.RecurringApplicationCharge.List(nil)
+	charges, err := client.RecurringApplicationCharge.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.List returned an error: %v", err)
 	}
@@ -244,7 +245,7 @@ func TestRecurringApplicationChargeServiceOp_Activate(t *testing.T) {
 		Status: "accepted",
 	}
 
-	returnedCharge, err := client.RecurringApplicationCharge.Activate(charge)
+	returnedCharge, err := client.RecurringApplicationCharge.Activate(context.Background(), charge)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Activate returned an error: %v", err)
 	}
@@ -265,7 +266,7 @@ func TestRecurringApplicationChargeServiceOp_Delete(t *testing.T) {
 		httpmock.NewStringResponder(200, "{}"),
 	)
 
-	if err := client.RecurringApplicationCharge.Delete(1); err != nil {
+	if err := client.RecurringApplicationCharge.Delete(context.Background(), 1); err != nil {
 		t.Errorf("RecurringApplicationCharge.Delete returned an error: %v", err)
 	}
 }
@@ -283,7 +284,7 @@ func TestRecurringApplicationChargeServiceOp_Update(t *testing.T) {
 		),
 	)
 
-	charge, err := client.RecurringApplicationCharge.Update(455696195, 100)
+	charge, err := client.RecurringApplicationCharge.Update(context.Background(), 455696195, 100)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Update returned an error: %v", err)
 	}

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -134,7 +135,7 @@ func TestTransactionList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/transactions.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("transactions.json")))
 
-	transactions, err := client.Transaction.List(1, nil)
+	transactions, err := client.Transaction.List(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Transaction.List returned error: %v", err)
 	}
@@ -151,7 +152,7 @@ func TestTransactionCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/transactions/count.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Transaction.Count(1, nil)
+	cnt, err := client.Transaction.Count(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Transaction.Count returned error: %v", err)
 	}
@@ -169,7 +170,7 @@ func TestTransactionGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/transactions/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("transaction.json")))
 
-	transaction, err := client.Transaction.Get(1, 1, nil)
+	transaction, err := client.Transaction.Get(context.Background(), 1, 1, nil)
 	if err != nil {
 		t.Errorf("Transaction.Get returned error: %v", err)
 	}
@@ -189,7 +190,7 @@ func TestTransactionCreate(t *testing.T) {
 	transaction := Transaction{
 		Amount: &amount,
 	}
-	result, err := client.Transaction.Create(1, transaction)
+	result, err := client.Transaction.Create(context.Background(), 1, transaction)
 	if err != nil {
 		t.Errorf("Transaction.Create returned error: %+v", err)
 	}

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -9,7 +10,6 @@ import (
 )
 
 func collectTests(t *testing.T, collect Collect) {
-
 	// Test a few fields
 	cases := []struct {
 		field    string
@@ -37,7 +37,7 @@ func TestCollectList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"collects": [{"id":1},{"id":2}]}`))
 
-	collects, err := client.Collect.List(nil)
+	collects, err := client.Collect.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Collect.List returned error: %v", err)
 	}
@@ -61,7 +61,7 @@ func TestCollectCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Collect.Count(nil)
+	cnt, err := client.Collect.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Collect.Count returned error: %v", err)
 	}
@@ -71,7 +71,7 @@ func TestCollectCount(t *testing.T) {
 		t.Errorf("Collect.Count returned %d, expected %d", cnt, expected)
 	}
 
-	cnt, err = client.Collect.Count(ListOptions{SinceID: 123})
+	cnt, err = client.Collect.Count(context.Background(), ListOptions{SinceID: 123})
 	if err != nil {
 		t.Errorf("Collect.Count returned error: %v", err)
 	}
@@ -89,7 +89,7 @@ func TestCollectGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"collect": {"id":1}}`))
 
-	product, err := client.Collect.Get(1, nil)
+	product, err := client.Collect.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Collect.Get returned error: %v", err)
 	}
@@ -112,7 +112,7 @@ func TestCollectCreate(t *testing.T) {
 		ProductID:    6654094787,
 	}
 
-	returnedCollect, err := client.Collect.Create(collect)
+	returnedCollect, err := client.Collect.Create(context.Background(), collect)
 	if err != nil {
 		t.Errorf("Collect.Create returned error: %v", err)
 	}
@@ -127,7 +127,7 @@ func TestCollectDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/collects/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Collect.Delete(1)
+	err := client.Collect.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Collect.Delete returned error: %v", err)
 	}

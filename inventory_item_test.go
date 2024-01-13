@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -40,8 +41,8 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 		t.Errorf("InventoryItem.CountryCodeOfOrigin returned %+v, expected %+v", item.CountryCodeOfOrigin, expectedOrigin)
 	}
 
-	//strings.Join is used to compare slices since package's go.mod is set to 1.13
-	//which predates the experimental slices package that has a Compare() func.
+	// strings.Join is used to compare slices since package's go.mod is set to 1.13
+	// which predates the experimental slices package that has a Compare() func.
 	expectedCountryHSCodes := strings.Join([]string{"8471.70.40.35", "8471.70.50.35"}, ",")
 	if strings.Join(item.CountryHarmonizedSystemCodes, ",") != expectedCountryHSCodes {
 		t.Errorf("InventoryItem.CountryHarmonizedSystemCodes returned %+v, expected %+v", item.CountryHarmonizedSystemCodes, expectedCountryHSCodes)
@@ -72,7 +73,7 @@ func TestInventoryItemsList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("inventory_items.json")))
 
-	items, err := client.InventoryItem.List(nil)
+	items, err := client.InventoryItem.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("InventoryItems.List returned error: %v", err)
 	}
@@ -98,7 +99,7 @@ func TestInventoryItemsListWithIDs(t *testing.T) {
 		IDs: []int64{1, 2},
 	}
 
-	items, err := client.InventoryItem.List(options)
+	items, err := client.InventoryItem.List(context.Background(), options)
 	if err != nil {
 		t.Errorf("InventoryItems.List returned error: %v", err)
 	}
@@ -113,13 +114,14 @@ func TestInventoryItemGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("inventory_item.json")))
 
-	item, err := client.InventoryItem.Get(1, nil)
+	item, err := client.InventoryItem.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("InventoryItem.Get returned error: %v", err)
 	}
 
 	inventoryItemTests(t, item)
 }
+
 func TestInventoryItemUpdate(t *testing.T) {
 	setup()
 	defer teardown()
@@ -131,7 +133,7 @@ func TestInventoryItemUpdate(t *testing.T) {
 		ID: 1,
 	}
 
-	updatedItem, err := client.InventoryItem.Update(item)
+	updatedItem, err := client.InventoryItem.Update(context.Background(), item)
 	if err != nil {
 		t.Errorf("InentoryItem.Update returned error: %v", err)
 	}

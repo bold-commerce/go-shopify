@@ -47,7 +47,7 @@ func TestAssignedFulfillmentOrderGet(t *testing.T) {
 
 // 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 
-// 	fulfillment, err := fulfillmentOrderService.Get(255858046, nil)
+// 	fulfillment, err := fulfillmentOrderService.Get(context.Background(), 255858046, nil)
 // 	if err != nil {
 // 		t.Errorf("FulfillmentOrder.Get returned error: %v", err)
 // 	}

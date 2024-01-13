@@ -12,7 +12,7 @@ const shopResourceName = ""
 // Shopify API.
 // See: https://help.shopify.com/api/reference/shop
 type ShopService interface {
-	Get(options interface{}) (*Shop, error)
+	Get(ctx context.Context, options interface{}) (*Shop, error)
 
 	// MetafieldsService used for Shop resource to communicate with Metafields resource
 	MetafieldsService

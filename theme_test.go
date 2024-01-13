@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -49,7 +50,7 @@ func TestThemeList(t *testing.T) {
 		),
 	)
 
-	themes, err := client.Theme.List(nil)
+	themes, err := client.Theme.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Theme.List returned error: %v", err)
 	}
@@ -59,7 +60,7 @@ func TestThemeList(t *testing.T) {
 		t.Errorf("Theme.List returned %+v, expected %+v", themes, expected)
 	}
 
-	themes, err = client.Theme.List(ThemeListOptions{Role: "main"})
+	themes, err = client.Theme.List(context.Background(), ThemeListOptions{Role: "main"})
 	if err != nil {
 		t.Errorf("Theme.List returned error: %v", err)
 	}
@@ -78,7 +79,7 @@ func TestThemeGet(t *testing.T) {
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/%s/1.json", client.pathPrefix, themesBasePath),
 		httpmock.NewBytesResponder(200, loadFixture("theme.json")))
 
-	theme, err := client.Theme.Get(1, nil)
+	theme, err := client.Theme.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Theme.Get returned error: %v", err)
 	}
@@ -122,7 +123,7 @@ func TestThemeUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("theme.json")))
 
 	theme := getTheme()
-	expectation, err := client.Theme.Update(theme)
+	expectation, err := client.Theme.Update(context.Background(), theme)
 	if err != nil {
 		t.Errorf("Theme.Update returned error: %v", err)
 	}
@@ -142,7 +143,7 @@ func TestThemeCreate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("theme.json")))
 
 	theme := getTheme()
-	expectation, err := client.Theme.Create(theme)
+	expectation, err := client.Theme.Create(context.Background(), theme)
 	if err != nil {
 		t.Errorf("Theme.Create returned error: %v", err)
 	}
@@ -161,7 +162,7 @@ func TestThemeDelete(t *testing.T) {
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/%s/1.json", client.pathPrefix, themesBasePath),
 		httpmock.NewStringResponder(200, ""))
 
-	err := client.Theme.Delete(1)
+	err := client.Theme.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Theme.Delete returned error: %v", err)
 	}

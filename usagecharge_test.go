@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -52,8 +53,8 @@ func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
 	if !usageCharge.RiskLevel.Equal(*expected.RiskLevel) {
 		t.Errorf("UsageCharge.RiskLevel returned %v, expected %v", usageCharge.RiskLevel, expected.RiskLevel)
 	}
-
 }
+
 func TestUsageChargeServiceOp_Create(t *testing.T) {
 	setup()
 	defer teardown()
@@ -72,12 +73,11 @@ func TestUsageChargeServiceOp_Create(t *testing.T) {
 		Price:       &p,
 	}
 
-	returnedCharge, err := client.UsageCharge.Create(455696195, charge)
+	returnedCharge, err := client.UsageCharge.Create(context.Background(), 455696195, charge)
 	if err != nil {
 		t.Errorf("UsageCharge.Create returned an error: %v", err)
 	}
 	usageChargeTests(t, *returnedCharge)
-
 }
 
 func TestUsageChargeServiceOp_Get(t *testing.T) {
@@ -92,7 +92,7 @@ func TestUsageChargeServiceOp_Get(t *testing.T) {
 		),
 	)
 
-	charge, err := client.UsageCharge.Get(455696195, 1034618210, nil)
+	charge, err := client.UsageCharge.Get(context.Background(), 455696195, 1034618210, nil)
 	if err != nil {
 		t.Errorf("UsageCharge.Get returned an error: %v", err)
 	}
@@ -112,7 +112,7 @@ func TestUsageChargeServiceOp_List(t *testing.T) {
 		),
 	)
 
-	charges, err := client.UsageCharge.List(455696195, nil)
+	charges, err := client.UsageCharge.List(context.Background(), 455696195, nil)
 	if err != nil {
 		t.Errorf("UsageCharge.List returned an error: %v", err)
 	}
@@ -126,7 +126,6 @@ func TestUsageChargeServiceOp_List(t *testing.T) {
 }
 
 func TestUsageChargeServiceOp_GetBadFields(t *testing.T) {
-
 	setup()
 	defer teardown()
 
@@ -138,7 +137,7 @@ func TestUsageChargeServiceOp_GetBadFields(t *testing.T) {
 		),
 	)
 
-	if _, err := client.UsageCharge.Get(455696195, 1034618210, nil); err == nil {
+	if _, err := client.UsageCharge.Get(context.Background(), 455696195, 1034618210, nil); err == nil {
 		t.Errorf("UsageCharge.Get should have returned an error")
 	}
 
@@ -149,8 +148,7 @@ func TestUsageChargeServiceOp_GetBadFields(t *testing.T) {
 			200, `{"usage_charge":{"billing_on":"2018-14-01"}}`,
 		),
 	)
-	if _, err := client.UsageCharge.Get(455696195, 1034618210, nil); err == nil {
+	if _, err := client.UsageCharge.Get(context.Background(), 455696195, 1034618210, nil); err == nil {
 		t.Errorf("UsageCharge.Get should have returned an error")
 	}
-
 }

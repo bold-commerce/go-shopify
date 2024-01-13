@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -24,7 +25,7 @@ func TestPageList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"pages": [{"id":1},{"id":2}]}`))
 
-	pages, err := client.Page.List(nil)
+	pages, err := client.Page.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Page.List returned error: %v", err)
 	}
@@ -49,7 +50,7 @@ func TestPageCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Page.Count(nil)
+	cnt, err := client.Page.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Page.Count returned error: %v", err)
 	}
@@ -60,7 +61,7 @@ func TestPageCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Page.Count(CountOptions{CreatedAtMin: date})
+	cnt, err = client.Page.Count(context.Background(), CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Page.Count returned error: %v", err)
 	}
@@ -78,7 +79,7 @@ func TestPageGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"page": {"id":1}}`))
 
-	page, err := client.Page.Get(1, nil)
+	page, err := client.Page.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Page.Get returned error: %v", err)
 	}
@@ -101,7 +102,7 @@ func TestPageCreate(t *testing.T) {
 		BodyHTML: "<strong>NOT FOUND!<\\/strong>",
 	}
 
-	returnedPage, err := client.Page.Create(page)
+	returnedPage, err := client.Page.Create(context.Background(), page)
 	if err != nil {
 		t.Errorf("Page.Create returned error: %v", err)
 	}
@@ -120,7 +121,7 @@ func TestPageUpdate(t *testing.T) {
 		ID: 1,
 	}
 
-	returnedPage, err := client.Page.Update(page)
+	returnedPage, err := client.Page.Update(context.Background(), page)
 	if err != nil {
 		t.Errorf("Page.Update returned error: %v", err)
 	}
@@ -135,7 +136,7 @@ func TestPageDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Page.Delete(1)
+	err := client.Page.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Page.Delete returned error: %v", err)
 	}
@@ -148,7 +149,7 @@ func TestPageListMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages/1/metafields.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafields": [{"id":1},{"id":2}]}`))
 
-	metafields, err := client.Page.ListMetafields(1, nil)
+	metafields, err := client.Page.ListMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Page.ListMetafields() returned error: %v", err)
 	}
@@ -173,7 +174,7 @@ func TestPageCountMetafields(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Page.CountMetafields(1, nil)
+	cnt, err := client.Page.CountMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Page.CountMetafields() returned error: %v", err)
 	}
@@ -184,7 +185,7 @@ func TestPageCountMetafields(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Page.CountMetafields(1, CountOptions{CreatedAtMin: date})
+	cnt, err = client.Page.CountMetafields(context.Background(), 1, CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Page.CountMetafields() returned error: %v", err)
 	}
@@ -202,7 +203,7 @@ func TestPageGetMetafield(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages/1/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafield": {"id":2}}`))
 
-	metafield, err := client.Page.GetMetafield(1, 2, nil)
+	metafield, err := client.Page.GetMetafield(context.Background(), 1, 2, nil)
 	if err != nil {
 		t.Errorf("Page.GetMetafield() returned error: %v", err)
 	}
@@ -227,7 +228,7 @@ func TestPageCreateMetafield(t *testing.T) {
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Page.CreateMetafield(1, metafield)
+	returnedMetafield, err := client.Page.CreateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Page.CreateMetafield() returned error: %v", err)
 	}
@@ -250,7 +251,7 @@ func TestPageUpdateMetafield(t *testing.T) {
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Page.UpdateMetafield(1, metafield)
+	returnedMetafield, err := client.Page.UpdateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Page.UpdateMetafield() returned error: %v", err)
 	}
@@ -265,7 +266,7 @@ func TestPageDeleteMetafield(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages/1/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Page.DeleteMetafield(1, 2)
+	err := client.Page.DeleteMetafield(context.Background(), 1, 2)
 	if err != nil {
 		t.Errorf("Page.DeleteMetafield() returned error: %v", err)
 	}

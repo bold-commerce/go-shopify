@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -27,7 +28,7 @@ func TestProductList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2}]}`))
 
-	products, err := client.Product.List(nil)
+	products, err := client.Product.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Product.List returned error: %v", err)
 	}
@@ -51,7 +52,7 @@ func TestProductListFilterByIds(t *testing.T) {
 
 	listOptions := ListOptions{IDs: []int64{1, 2, 3}}
 
-	products, err := client.Product.List(listOptions)
+	products, err := client.Product.List(context.Background(), listOptions)
 	if err != nil {
 		t.Errorf("Product.List returned error: %v", err)
 	}
@@ -71,7 +72,7 @@ func TestProductListError(t *testing.T) {
 
 	expectedErrMessage := "Unknown Error"
 
-	products, err := client.Product.List(nil)
+	products, err := client.Product.List(context.Background(), nil)
 	if products != nil {
 		t.Errorf("Product.List returned products, expected nil: %v", err)
 	}
@@ -176,7 +177,7 @@ func TestProductListWithPagination(t *testing.T) {
 
 		httpmock.RegisterResponder("GET", listURL, httpmock.ResponderFromResponse(response))
 
-		products, pagination, err := client.Product.ListWithPagination(nil)
+		products, pagination, err := client.Product.ListWithPagination(context.Background(), nil)
 		if !reflect.DeepEqual(products, c.expectedProducts) {
 			t.Errorf("test %d Product.ListWithPagination products returned %+v, expected %+v", i, products, c.expectedProducts)
 		}
@@ -215,7 +216,7 @@ func TestProductCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Product.Count(nil)
+	cnt, err := client.Product.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Product.Count returned error: %v", err)
 	}
@@ -226,7 +227,7 @@ func TestProductCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Product.Count(CountOptions{CreatedAtMin: date})
+	cnt, err = client.Product.Count(context.Background(), CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Product.Count returned error: %v", err)
 	}
@@ -244,7 +245,7 @@ func TestProductGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"product": {"id":1}}`))
 
-	product, err := client.Product.Get(1, nil)
+	product, err := client.Product.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Product.Get returned error: %v", err)
 	}
@@ -269,7 +270,7 @@ func TestProductCreate(t *testing.T) {
 		ProductType: "Snowboard",
 	}
 
-	returnedProduct, err := client.Product.Create(product)
+	returnedProduct, err := client.Product.Create(context.Background(), product)
 	if err != nil {
 		t.Errorf("Product.Create returned error: %v", err)
 	}
@@ -289,7 +290,7 @@ func TestProductUpdate(t *testing.T) {
 		ProductType: "Skateboard",
 	}
 
-	returnedProduct, err := client.Product.Update(product)
+	returnedProduct, err := client.Product.Update(context.Background(), product)
 	if err != nil {
 		t.Errorf("Product.Update returned error: %v", err)
 	}
@@ -304,7 +305,7 @@ func TestProductDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Product.Delete(1)
+	err := client.Product.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Product.Delete returned error: %v", err)
 	}
@@ -317,7 +318,7 @@ func TestProductListMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/metafields.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafields": [{"id":1},{"id":2}]}`))
 
-	metafields, err := client.Product.ListMetafields(1, nil)
+	metafields, err := client.Product.ListMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Product.ListMetafields() returned error: %v", err)
 	}
@@ -342,7 +343,7 @@ func TestProductCountMetafields(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Product.CountMetafields(1, nil)
+	cnt, err := client.Product.CountMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Product.CountMetafields() returned error: %v", err)
 	}
@@ -353,7 +354,7 @@ func TestProductCountMetafields(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Product.CountMetafields(1, CountOptions{CreatedAtMin: date})
+	cnt, err = client.Product.CountMetafields(context.Background(), 1, CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Product.CountMetafields() returned error: %v", err)
 	}
@@ -371,7 +372,7 @@ func TestProductGetMetafield(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafield": {"id":2}}`))
 
-	metafield, err := client.Product.GetMetafield(1, 2, nil)
+	metafield, err := client.Product.GetMetafield(context.Background(), 1, 2, nil)
 	if err != nil {
 		t.Errorf("Product.GetMetafield() returned error: %v", err)
 	}
@@ -396,7 +397,7 @@ func TestProductCreateMetafield(t *testing.T) {
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Product.CreateMetafield(1, metafield)
+	returnedMetafield, err := client.Product.CreateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Product.CreateMetafield() returned error: %v", err)
 	}
@@ -419,7 +420,7 @@ func TestProductUpdateMetafield(t *testing.T) {
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Product.UpdateMetafield(1, metafield)
+	returnedMetafield, err := client.Product.UpdateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Product.UpdateMetafield() returned error: %v", err)
 	}
@@ -434,7 +435,7 @@ func TestProductDeleteMetafield(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Product.DeleteMetafield(1, 2)
+	err := client.Product.DeleteMetafield(context.Background(), 1, 2)
 	if err != nil {
 		t.Errorf("Product.DeleteMetafield() returned error: %v", err)
 	}

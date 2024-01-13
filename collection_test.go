@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -38,7 +39,7 @@ func TestCollectionGet(t *testing.T) {
 				}
 			}`))
 
-	collection, err := client.Collection.Get(1, nil)
+	collection, err := client.Collection.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Collection.Get returned error: %v", err)
 	}
@@ -121,7 +122,7 @@ func TestCollectionListProducts(t *testing.T) {
 				]
 			}`))
 
-	products, err := client.Collection.ListProducts(1, nil)
+	products, err := client.Collection.ListProducts(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Collection.ListProducts returned error: %v", err)
 	}
@@ -176,6 +177,7 @@ func TestCollectionListProducts(t *testing.T) {
 		t.Errorf("Collection.ListProducts returned %+v, expected %+v", products, expected)
 	}
 }
+
 func TestCollectionListProductsError(t *testing.T) {
 	setup()
 	defer teardown()
@@ -188,7 +190,7 @@ func TestCollectionListProductsError(t *testing.T) {
 						some invalid json
 			}`))
 
-	products, err := client.Collection.ListProducts(1, nil)
+	products, err := client.Collection.ListProducts(context.Background(), 1, nil)
 
 	if len(products) > 0 {
 		t.Errorf("Collection.ListProducts returned products %v, expected no products to be returned", products)
@@ -199,6 +201,7 @@ func TestCollectionListProductsError(t *testing.T) {
 		t.Errorf("Collection.ListProducts err returned %v, expected %v", err, expectedError)
 	}
 }
+
 func TestListProductsWithPagination(t *testing.T) {
 	setup()
 	defer teardown()
@@ -256,7 +259,7 @@ func TestListProductsWithPagination(t *testing.T) {
 			},
 		}))
 
-	products, page, err := client.Collection.ListProductsWithPagination(1, nil)
+	products, page, err := client.Collection.ListProductsWithPagination(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Collection.ListProductsWithPagination returned error: %v", err)
 	}
@@ -345,7 +348,7 @@ func TestCollectionListProductsWithPaginationRequestError(t *testing.T) {
 						some invalid json
 			}`))
 
-	products, pagination, err := client.Collection.ListProductsWithPagination(1, nil)
+	products, pagination, err := client.Collection.ListProductsWithPagination(context.Background(), 1, nil)
 
 	if len(products) > 0 {
 		t.Errorf("Collection.ListProductsWithPagination returned products %v, expected no products to be returned", products)
@@ -376,7 +379,7 @@ func TestCollectionListProductsWithPaginationExtractionError(t *testing.T) {
 			},
 		}))
 
-	products, pagination, err := client.Collection.ListProductsWithPagination(1, nil)
+	products, pagination, err := client.Collection.ListProductsWithPagination(context.Background(), 1, nil)
 	if len(products) > 0 {
 		t.Errorf("Collection.ListProductsWithPagination returned products %v, expected no products to be returned", products)
 	}

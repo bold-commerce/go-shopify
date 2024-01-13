@@ -24,14 +24,14 @@ type FulfillmentService interface {
 // to interface with the fulfillment endpoints of the Shopify API.
 // https://help.shopify.com/api/reference/fulfillment
 type FulfillmentsService interface {
-	ListFulfillments(int64, interface{}) ([]Fulfillment, error)
-	CountFulfillments(int64, interface{}) (int, error)
-	GetFulfillment(int64, int64, interface{}) (*Fulfillment, error)
-	CreateFulfillment(int64, Fulfillment) (*Fulfillment, error)
-	UpdateFulfillment(int64, Fulfillment) (*Fulfillment, error)
-	CompleteFulfillment(int64, int64) (*Fulfillment, error)
-	TransitionFulfillment(int64, int64) (*Fulfillment, error)
-	CancelFulfillment(int64, int64) (*Fulfillment, error)
+	ListFulfillments(context.Context, int64, interface{}) ([]Fulfillment, error)
+	CountFulfillments(context.Context, int64, interface{}) (int, error)
+	GetFulfillment(context.Context, int64, int64, interface{}) (*Fulfillment, error)
+	CreateFulfillment(context.Context, int64, Fulfillment) (*Fulfillment, error)
+	UpdateFulfillment(context.Context, int64, Fulfillment) (*Fulfillment, error)
+	CompleteFulfillment(context.Context, int64, int64) (*Fulfillment, error)
+	TransitionFulfillment(context.Context, int64, int64) (*Fulfillment, error)
+	CancelFulfillment(context.Context, int64, int64) (*Fulfillment, error)
 }
 
 // FulfillmentServiceOp handles communication with the fulfillment

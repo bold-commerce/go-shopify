@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -26,7 +27,7 @@ func TestFulfillmentList(t *testing.T) {
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
 
-	fulfillments, err := fulfillmentService.List(nil)
+	fulfillments, err := fulfillmentService.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Fulfillment.List returned error: %v", err)
 	}
@@ -53,7 +54,7 @@ func TestFulfillmentCount(t *testing.T) {
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
 
-	cnt, err := fulfillmentService.Count(nil)
+	cnt, err := fulfillmentService.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Fulfillment.Count returned error: %v", err)
 	}
@@ -64,7 +65,7 @@ func TestFulfillmentCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = fulfillmentService.Count(CountOptions{CreatedAtMin: date})
+	cnt, err = fulfillmentService.Count(context.Background(), CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Fulfillment.Count returned error: %v", err)
 	}
@@ -84,7 +85,7 @@ func TestFulfillmentGet(t *testing.T) {
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
 
-	fulfillment, err := fulfillmentService.Get(1, nil)
+	fulfillment, err := fulfillmentService.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Fulfillment.Get returned error: %v", err)
 	}
@@ -114,7 +115,7 @@ func TestFulfillmentCreate(t *testing.T) {
 		NotifyCustomer: true,
 	}
 
-	returnedFulfillment, err := fulfillmentService.Create(fulfillment)
+	returnedFulfillment, err := fulfillmentService.Create(context.Background(), fulfillment)
 	if err != nil {
 		t.Errorf("Fulfillment.Create returned error: %v", err)
 	}
@@ -136,7 +137,7 @@ func TestFulfillmentUpdate(t *testing.T) {
 		TrackingNumber: "987654321",
 	}
 
-	returnedFulfillment, err := fulfillmentService.Update(fulfillment)
+	returnedFulfillment, err := fulfillmentService.Update(context.Background(), fulfillment)
 	if err != nil {
 		t.Errorf("Fulfillment.Update returned error: %v", err)
 	}
@@ -153,7 +154,7 @@ func TestFulfillmentComplete(t *testing.T) {
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
 
-	returnedFulfillment, err := fulfillmentService.Complete(1)
+	returnedFulfillment, err := fulfillmentService.Complete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Fulfillment.Complete returned error: %v", err)
 	}
@@ -170,7 +171,7 @@ func TestFulfillmentTransition(t *testing.T) {
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
 
-	returnedFulfillment, err := fulfillmentService.Transition(1)
+	returnedFulfillment, err := fulfillmentService.Transition(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Fulfillment.Transition returned error: %v", err)
 	}
@@ -187,7 +188,7 @@ func TestFulfillmentCancel(t *testing.T) {
 
 	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
 
-	returnedFulfillment, err := fulfillmentService.Cancel(1)
+	returnedFulfillment, err := fulfillmentService.Cancel(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Fulfillment.Cancel returned error: %v", err)
 	}

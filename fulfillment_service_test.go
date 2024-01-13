@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -21,7 +22,7 @@ func TestFulfillmentServiceServiceOp_List(t *testing.T) {
 
 	options := FulfillmentServiceOptions{Scope: "all"}
 
-	fulfillmentServices, err := client.FulfillmentService.List(options)
+	fulfillmentServices, err := client.FulfillmentService.List(context.Background(), options)
 	if err != nil {
 		t.Errorf("fulfillmentService.List returned error: %v", err)
 	}
@@ -59,7 +60,7 @@ func TestFulfillmentServiceServiceOp_Get(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_service.json")),
 	)
 
-	fulfillmentService, err := client.FulfillmentService.Get(1061774487, nil)
+	fulfillmentService, err := client.FulfillmentService.Get(context.Background(), 1061774487, nil)
 	if err != nil {
 		t.Errorf("FulfillmentService.Get returned error: %v", err)
 	}
@@ -95,7 +96,7 @@ func TestFulfillmentServiceServiceOp_Create(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_service.json")),
 	)
 
-	fulfillmentService, err := client.FulfillmentService.Create(FulfillmentServiceData{
+	fulfillmentService, err := client.FulfillmentService.Create(context.Background(), FulfillmentServiceData{
 		Name: "jupiter-fulfillment",
 	})
 	if err != nil {
@@ -118,7 +119,7 @@ func TestFulfillmentServiceServiceOp_Update(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_service.json")),
 	)
 
-	fulfillmentService, err := client.FulfillmentService.Update(FulfillmentServiceData{
+	fulfillmentService, err := client.FulfillmentService.Update(context.Background(), FulfillmentServiceData{
 		Id:     1061774487,
 		Handle: "jupiter-fulfillment",
 	})
@@ -157,7 +158,7 @@ func TestFulfillmentServiceServiceOp_Delete(t *testing.T) {
 		httpmock.NewStringResponder(200, ""),
 	)
 
-	if err := client.FulfillmentService.Delete(1061774487); err != nil {
+	if err := client.FulfillmentService.Delete(context.Background(), 1061774487); err != nil {
 		t.Errorf("FulfillmentService.Delete returned error: %v", err)
 	}
 }

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -20,7 +21,7 @@ func TestCustomerList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"customers": [{"id":1},{"id":2}]}`))
 
-	customers, err := client.Customer.List(nil)
+	customers, err := client.Customer.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Customer.List returned error: %v", err)
 	}
@@ -126,7 +127,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 
 		httpmock.RegisterResponder("GET", listURL, httpmock.ResponderFromResponse(response))
 
-		customers, pagination, err := client.Customer.ListWithPagination(nil)
+		customers, pagination, err := client.Customer.ListWithPagination(context.Background(), nil)
 		if !reflect.DeepEqual(customers, c.expectedCustomers) {
 			t.Errorf("test %d Customer.ListWithPagination customers returned %+v, expected %+v", i, customers, c.expectedCustomers)
 		}
@@ -165,7 +166,7 @@ func TestCustomerCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Customer.Count(nil)
+	cnt, err := client.Customer.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Customer.Count returned error: %v", err)
 	}
@@ -176,7 +177,7 @@ func TestCustomerCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Customer.Count(CountOptions{CreatedAtMin: date})
+	cnt, err = client.Customer.Count(context.Background(), CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Customer.Count returned error: %v", err)
 	}
@@ -194,7 +195,7 @@ func TestCustomerSearch(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/search.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"customers": [{"id":1},{"id":2}]}`))
 
-	customers, err := client.Customer.Search(nil)
+	customers, err := client.Customer.Search(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Customer.Search returned error: %v", err)
 	}
@@ -212,15 +213,17 @@ func TestCustomerGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("customer.json")))
 
-	customer, err := client.Customer.Get(1, nil)
+	customer, err := client.Customer.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Customer.Get returned error: %v", err)
 	}
 
-	address1 := &CustomerAddress{ID: 1, CustomerID: 1, FirstName: "Test", LastName: "Citizen", Company: "",
+	address1 := &CustomerAddress{
+		ID: 1, CustomerID: 1, FirstName: "Test", LastName: "Citizen", Company: "",
 		Address1: "1 Smith St", Address2: "", City: "BRISBANE", Province: "Queensland", Country: "Australia",
 		Zip: "4000", Phone: "1111 111 111", Name: "Test Citizen", ProvinceCode: "QLD", CountryCode: "AU",
-		CountryName: "Australia", Default: true}
+		CountryName: "Australia", Default: true,
+	}
 	createdAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	updatedAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	totalSpent := decimal.NewFromFloat(278.60)
@@ -365,7 +368,7 @@ func TestCustomerUpdate(t *testing.T) {
 		Tags: "new",
 	}
 
-	returnedCustomer, err := client.Customer.Update(customer)
+	returnedCustomer, err := client.Customer.Update(context.Background(), customer)
 	if err != nil {
 		t.Errorf("Customer.Update returned error: %v", err)
 	}
@@ -388,7 +391,7 @@ func TestCustomerCreate(t *testing.T) {
 		Tags: "new",
 	}
 
-	returnedCustomer, err := client.Customer.Create(customer)
+	returnedCustomer, err := client.Customer.Create(context.Background(), customer)
 	if err != nil {
 		t.Errorf("Customer.Create returned error: %v", err)
 	}
@@ -406,7 +409,7 @@ func TestCustomerDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, ""))
 
-	err := client.Customer.Delete(1)
+	err := client.Customer.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Customer.Delete returned error: %v", err)
 	}
@@ -419,7 +422,7 @@ func TestCustomerListMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/metafields.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafields": [{"id":1},{"id":2}]}`))
 
-	metafields, err := client.Customer.ListMetafields(1, nil)
+	metafields, err := client.Customer.ListMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Customer.ListMetafields() returned error: %v", err)
 	}
@@ -444,7 +447,7 @@ func TestCustomerCountMetafields(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Customer.CountMetafields(1, nil)
+	cnt, err := client.Customer.CountMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Customer.CountMetafields() returned error: %v", err)
 	}
@@ -455,7 +458,7 @@ func TestCustomerCountMetafields(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Customer.CountMetafields(1, CountOptions{CreatedAtMin: date})
+	cnt, err = client.Customer.CountMetafields(context.Background(), 1, CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Customer.CountMetafields() returned error: %v", err)
 	}
@@ -473,7 +476,7 @@ func TestCustomerGetMetafield(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafield": {"id":2}}`))
 
-	metafield, err := client.Customer.GetMetafield(1, 2, nil)
+	metafield, err := client.Customer.GetMetafield(context.Background(), 1, 2, nil)
 	if err != nil {
 		t.Errorf("Customer.GetMetafield() returned error: %v", err)
 	}
@@ -498,7 +501,7 @@ func TestCustomerCreateMetafield(t *testing.T) {
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Customer.CreateMetafield(1, metafield)
+	returnedMetafield, err := client.Customer.CreateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Customer.CreateMetafield() returned error: %v", err)
 	}
@@ -521,7 +524,7 @@ func TestCustomerUpdateMetafield(t *testing.T) {
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Customer.UpdateMetafield(1, metafield)
+	returnedMetafield, err := client.Customer.UpdateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Customer.UpdateMetafield() returned error: %v", err)
 	}
@@ -536,7 +539,7 @@ func TestCustomerDeleteMetafield(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/customers/1/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Customer.DeleteMetafield(1, 2)
+	err := client.Customer.DeleteMetafield(context.Background(), 1, 2)
 	if err != nil {
 		t.Errorf("Customer.DeleteMetafield() returned error: %v", err)
 	}
@@ -559,7 +562,7 @@ func TestCustomerListOrders(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("orders.json")),
 	)
 
-	orders, err := client.Customer.ListOrders(1, nil)
+	orders, err := client.Customer.ListOrders(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Customer.ListOrders returned error: %v", err)
 	}
@@ -569,7 +572,7 @@ func TestCustomerListOrders(t *testing.T) {
 		t.Errorf("Customer.ListOrders got %v orders, expected: 1", len(orders))
 	}
 
-	orders, err = client.Customer.ListOrders(1, OrderListOptions{Status: "any"})
+	orders, err = client.Customer.ListOrders(context.Background(), 1, OrderListOptions{Status: "any"})
 	if err != nil {
 		t.Errorf("Customer.ListOrders returned error: %v", err)
 	}
@@ -593,7 +596,7 @@ func TestCustomerListTags(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("customer_tags.json")),
 	)
 
-	tags, err := client.Customer.ListTags(nil)
+	tags, err := client.Customer.ListTags(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Customer.ListTags returned error: %v", err)
 	}

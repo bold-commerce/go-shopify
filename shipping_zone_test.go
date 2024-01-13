@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -10,7 +11,6 @@ import (
 
 // shippingZoneTests tests if fields are properly parsed.
 func shippingZoneTests(t *testing.T, zone ShippingZone) {
-
 	cases := []struct {
 		field    string
 		expected interface{}
@@ -53,7 +53,7 @@ func TestShippingZoneListError(t *testing.T) {
 
 	expectedErrMessage := "Unknown Error"
 
-	shippingZones, err := client.ShippingZone.List()
+	shippingZones, err := client.ShippingZone.List(context.Background())
 	if shippingZones != nil {
 		t.Errorf("ShippingZone.List returned shippingZones, expected nil: %v", err)
 	}
@@ -62,6 +62,7 @@ func TestShippingZoneListError(t *testing.T) {
 		t.Errorf("ShippingZone.List err returned %+v, expected %+v", err, expectedErrMessage)
 	}
 }
+
 func TestShippingZoneList(t *testing.T) {
 	setup()
 	defer teardown()
@@ -69,7 +70,7 @@ func TestShippingZoneList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shipping_zones.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("shipping_zones.json")))
 
-	shippingZones, err := client.ShippingZone.List()
+	shippingZones, err := client.ShippingZone.List(context.Background())
 	if err != nil {
 		t.Errorf("ShippingZone.List returned error: %v", err)
 	}
