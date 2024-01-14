@@ -1,0 +1,52 @@
+{
+  "transactions": [
+    {
+      "id": 699519475,
+      "type": "debit",
+      "test": false,
+      "payout_id": 623721858,
+      "payout_status": "paid",
+      "currency": "USD",
+      "amount": "-50.00",
+      "fee": "0.00",
+      "net": "-50.00",
+      "source_id": 460709370,
+      "source_type": "adjustment",
+      "source_order_id": null,
+      "source_order_transaction_id": null,
+      "processed_at": "2013-11-01"
+    },
+    {
+      "id": 77412310,
+      "type": "credit",
+      "test": false,
+      "payout_id": 623721858,
+      "payout_status": "paid",
+      "currency": "USD",
+      "amount": "50.00",
+      "fee": "0.00",
+      "net": "50.00",
+      "source_id": 374511569,
+      "source_type": "Payments::Balance::AdjustmentReversal",
+      "source_order_id": null,
+      "source_order_transaction_id": null,
+      "processed_at": "2013-11-01"
+    },
+    {
+      "id": 1006917261,
+      "type": "refund",
+      "test": false,
+      "payout_id": 623721858,
+      "payout_status": "paid",
+      "currency": "USD",
+      "amount": "-3.45",
+      "fee": "0.00",
+      "net": "-3.45",
+      "source_id": 1006917261,
+      "source_type": "Payments::Refund",
+      "source_order_id": 217130470,
+      "source_order_transaction_id": 1006917261,
+      "processed_at": "2013-11-01"
+    }
+  ]
+}
