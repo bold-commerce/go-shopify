@@ -77,6 +77,17 @@ type Variant struct {
 	RequireShipping      bool                   `json:"requires_shipping"`
 	AdminGraphqlAPIID    string                 `json:"admin_graphql_api_id,omitempty"`
 	Metafields           []Metafield            `json:"metafields,omitempty"`
+	PresentmentPrices    []presentmentPrices    `json:"presentment_prices,omitempty"`
+}
+
+type presentmentPrices struct {
+	Price          *presentmentPrice `json:"price,omitempty"`
+	CompareAtPrice *presentmentPrice `json:"compare_at_price,omitempty"`
+}
+
+type presentmentPrice struct {
+	Amount       string `json:"amount,omitempty"`
+	CurrencyCode string `json:"currency_code,omitempty"`
 }
 
 // VariantResource represents the result from the variants/X.json endpoint
