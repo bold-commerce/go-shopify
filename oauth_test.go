@@ -71,7 +71,7 @@ func TestAppGetAccessTokenError(t *testing.T) {
 	setup()
 	defer teardown()
 
-	// app.Client isn't specified so NewClient called
+	// app.Client isn't specified so MustNewClient called
 	expectedError := errors.New("application_cannot_be_found")
 
 	token, err := app.GetAccessToken(context.Background(), "fooshop", "")
@@ -166,7 +166,7 @@ func TestVerifyWebhookRequest(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
+		testClient := MustNewClient(App{}, "", "")
 		req, err := testClient.NewRequest(context.Background(), "GET", "", c.message, nil)
 		if err != nil {
 			t.Fatalf("Webhook.verify err = %v, expected true", err)
@@ -218,7 +218,7 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
+		testClient := MustNewClient(App{}, "", "")
 
 		// We actually want to test nil body's, not ""
 		if c.message == "" {

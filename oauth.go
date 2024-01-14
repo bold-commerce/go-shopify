@@ -56,7 +56,7 @@ func (app App) GetAccessToken(ctx context.Context, shopName string, code string)
 
 	client := app.Client
 	if client == nil {
-		client = NewClient(app, shopName, "")
+		client = MustNewClient(app, shopName, "")
 	}
 
 	req, err := client.NewRequest(ctx, "POST", accessTokenRelPath, data, nil)

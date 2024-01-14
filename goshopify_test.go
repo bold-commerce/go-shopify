@@ -49,7 +49,7 @@ func setup() {
 		Scope:       "read_products",
 		Password:    "privateapppassword",
 	}
-	client = NewClient(app, "fooshop", "abcd",
+	client = MustNewClient(app, "fooshop", "abcd",
 		WithVersion(testApiVersion),
 		WithRetry(maxRetries))
 	httpmock.ActivateNonDefault(client.Client)
@@ -68,34 +68,34 @@ func loadFixture(filename string) []byte {
 }
 
 func TestNewClient(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
 func TestNewClientWithNoToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
 func TestAppNewClient(t *testing.T) {
-	testClient := app.NewClient("fooshop", "abcd", WithVersion(testApiVersion))
+	testClient, _ := app.NewClient("fooshop", "abcd", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
 func TestAppNewClientWithNoToken(t *testing.T) {
-	testClient := app.NewClient("fooshop", "", WithVersion(testApiVersion))
+	testClient, _ := app.NewClient("fooshop", "", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
@@ -113,13 +113,13 @@ func TestBadShopNamePanic(t *testing.T) {
 			"foo, shop, stuff commas",
 		} {
 			tried = shopName
-			_ = NewClient(app, shopName, "abcd", WithVersion(testApiVersion))
+			_ = MustNewClient(app, shopName, "abcd", WithVersion(testApiVersion))
 		}
 	}()
 }
 
 func TestNewRequest(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -162,7 +162,7 @@ func TestNewRequest(t *testing.T) {
 }
 
 func TestNewRequestForPrivateApp(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "", WithVersion(testApiVersion))
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -219,7 +219,7 @@ func TestNewRequestForPrivateApp(t *testing.T) {
 }
 
 func TestNewRequestMissingToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "", WithVersion(testApiVersion))
 
 	req, _ := testClient.NewRequest(context.Background(), "GET", "/foo", nil, nil)
 
@@ -231,7 +231,7 @@ func TestNewRequestMissingToken(t *testing.T) {
 }
 
 func TestNewRequestError(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 
 	cases := []struct {
 		method  string
@@ -505,7 +505,7 @@ func TestRetryPost(t *testing.T) {
 		},
 	}
 
-	testClient := NewClient(app, "fooshop", "abcd", WithRetry(2))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithRetry(2))
 	httpmock.ActivateNonDefault(testClient.Client)
 	shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", u)
 	httpmock.RegisterResponder("POST", shopUrl, responder)
@@ -530,7 +530,7 @@ func TestClientDoAutoApiVersion(t *testing.T) {
 	}
 	expected := testApiVersion
 
-	testClient := NewClient(app, "fooshop", "abcd")
+	testClient := MustNewClient(app, "fooshop", "abcd")
 	httpmock.ActivateNonDefault(testClient.Client)
 	shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", u)
 	httpmock.RegisterResponder("GET", shopUrl, responder)
