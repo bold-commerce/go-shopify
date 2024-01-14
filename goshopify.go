@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -350,8 +351,19 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	c.attempts = 0
 	c.logRequest(req)
 
+	// copy request body so it can be re-used
+	var body []byte
+	if req.Body != nil {
+		body, err = ioutil.ReadAll(req.Body)
+		defer req.Body.Close()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	for {
 		c.attempts++
+		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 		resp, err = c.Client.Do(req)
 		c.logResponse(resp)
 		if err != nil {
@@ -446,7 +458,10 @@ func (c *Client) logBody(body *io.ReadCloser, format string) {
 	if body == nil {
 		return
 	}
-	b, _ := ioutil.ReadAll(*body)
+	b, err := ioutil.ReadAll(*body)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return
+	}
 	if len(b) > 0 {
 		c.log.Debugf(format, string(b))
 	}

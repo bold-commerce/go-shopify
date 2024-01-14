@@ -31,8 +31,10 @@ var (
 // errReader can be used to simulate a failed call to response.Body.Read
 type errReader struct{}
 
+var testErr = errors.New("test-error")
+
 func (errReader) Read([]byte) (int, error) {
-	return 0, errors.New("test-error")
+	return 0, testErr
 }
 
 func (errReader) Close() error {
@@ -351,6 +353,24 @@ func TestDo(t *testing.T) {
 	}
 }
 
+func TestDoErrBody(t *testing.T) {
+	shopUrl := "https://fooshop.myshopify.com"
+	httpmock.RegisterResponder("GET", shopUrl, httpmock.NewStringResponder(200, ""))
+
+	req, err := http.NewRequest("GET", shopUrl, errReader{})
+	if err != nil {
+		t.Error("error creating request: ", err)
+	}
+
+	err = client.Do(req, nil)
+	if err == nil {
+		t.Errorf("Do(): expected error test-error, actual nil")
+	}
+	if !errors.Is(err, testErr) {
+		t.Errorf("Do(): expected ResponseDecodingError, actual %#v", err)
+	}
+}
+
 func TestRetry(t *testing.T) {
 	setup()
 	defer teardown()
@@ -460,6 +480,44 @@ func TestRetry(t *testing.T) {
 		} else if err == nil && !reflect.DeepEqual(body, c.expected) {
 			t.Errorf("Do(): expected %#v, actual %#v", c.expected, body)
 		}
+	}
+}
+
+func TestRetryPost(t *testing.T) {
+	u := "foo/1"
+	responder := func(req *http.Request) (*http.Response, error) {
+		resp := httpmock.NewStringResponse(http.StatusTooManyRequests, `{"errors":"Exceeded 2 calls per second for api client. Reduce request rates to resume uninterrupted service."}`)
+		resp.Header.Add("Retry-After", "2.0")
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			return nil, err
+		}
+		if len(body) == 0 {
+			return nil, errors.New("empty body")
+		}
+		return resp, nil
+	}
+	expected := RateLimitError{
+		RetryAfter: 2,
+		ResponseError: ResponseError{
+			Status:  429,
+			Message: "Exceeded 2 calls per second for api client. Reduce request rates to resume uninterrupted service.",
+		},
+	}
+
+	testClient := NewClient(app, "fooshop", "abcd", WithRetry(2))
+	httpmock.ActivateNonDefault(testClient.Client)
+	shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", u)
+	httpmock.RegisterResponder("POST", shopUrl, responder)
+
+	testBody := []byte(`{"foo": "bar"}`)
+	req, err := testClient.NewRequest("POST", u, testBody, nil)
+	if err != nil {
+		t.Errorf("TestRetryPost(): errored %s", err)
+	}
+	err = testClient.Do(req, nil)
+	if !reflect.DeepEqual(err, expected) {
+		t.Errorf("Do(): expected error %#v, actual %#v", expected, err)
 	}
 }
 
@@ -736,7 +794,7 @@ func TestCheckResponseError(t *testing.T) {
 		},
 		{
 			&http.Response{StatusCode: 400, Body: errReader{}},
-			errors.New("test-error"),
+			testErr,
 		},
 		{
 			httpmock.NewStringResponse(422, `{"error": "Unprocessable Entity - ok"}`),
