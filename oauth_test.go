@@ -18,17 +18,32 @@ func TestAppAuthorizeUrl(t *testing.T) {
 	defer teardown()
 
 	cases := []struct {
-		shopName string
-		nonce    string
-		expected string
+		shopName    string
+		nonce       string
+		expected    string
+		errExpected string
 	}{
-		{"fooshop", "thenonce", "https://fooshop.myshopify.com/admin/oauth/authorize?client_id=apikey&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&scope=read_products&state=thenonce"},
+		{
+			"fooshop",
+			"thenonce",
+			"https://fooshop.myshopify.com/admin/oauth/authorize?client_id=apikey&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&scope=read_products&state=thenonce",
+			"",
+		},
+		{
+			"foo^^shop",
+			"thenonce",
+			"",
+			`parse "https://foo^^shop.myshopify.com": invalid character "^" in host name`,
+		},
 	}
 
 	for _, c := range cases {
-		actual := app.AuthorizeUrl(c.shopName, c.nonce)
+		actual, err := app.AuthorizeUrl(c.shopName, c.nonce)
+		if (c.errExpected == "" && err != nil) || (c.errExpected != "" && err.Error() != c.errExpected) {
+			t.Fatalf("App.AuthorizeUrl(): err expected %s, err actual %s", c.errExpected, err)
+		}
 		if actual != c.expected {
-			t.Errorf("App.AuthorizeUrl(): expected %s, actual %s", c.expected, actual)
+			t.Fatalf("App.AuthorizeUrl(): expected %s, actual %s", c.expected, actual)
 		}
 	}
 }
