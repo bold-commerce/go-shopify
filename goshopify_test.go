@@ -30,8 +30,10 @@ var (
 // errReader can be used to simulate a failed call to response.Body.Read
 type errReader struct{}
 
+var testErr = errors.New("test-error")
+
 func (errReader) Read([]byte) (int, error) {
-	return 0, errors.New("test-error")
+	return 0, testErr
 }
 
 func (errReader) Close() error {
@@ -363,8 +365,7 @@ func TestDoErrBody(t *testing.T) {
 	if err == nil {
 		t.Errorf("Do(): expected error test-error, actual nil")
 	}
-	testErr := errors.New("test-error")
-	if !errors.As(err, &testErr) {
+	if !errors.Is(err, testErr) {
 		t.Errorf("Do(): expected ResponseDecodingError, actual %#v", err)
 	}
 }
@@ -793,7 +794,7 @@ func TestCheckResponseError(t *testing.T) {
 		},
 		{
 			&http.Response{StatusCode: 400, Body: errReader{}},
-			errors.New("test-error"),
+			testErr,
 		},
 		{
 			httpmock.NewStringResponse(422, `{"error": "Unprocessable Entity - ok"}`),
