@@ -511,7 +511,7 @@ func TestRetryPost(t *testing.T) {
 	httpmock.RegisterResponder("POST", shopUrl, responder)
 
 	testBody := []byte(`{"foo": "bar"}`)
-	req, err := testClient.NewRequest("POST", u, testBody, nil)
+	req, err := testClient.NewRequest(context.Background(), "POST", u, testBody, nil)
 	if err != nil {
 		t.Errorf("TestRetryPost(): errored %s", err)
 	}
