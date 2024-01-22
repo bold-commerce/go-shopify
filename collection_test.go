@@ -319,7 +319,6 @@ func TestListProductsWithPagination(t *testing.T) {
 			PageInfo:     "pageInfoCode",
 			Page:         0,
 			Limit:        1,
-			SinceID:      0,
 			CreatedAtMin: time.Time{},
 			CreatedAtMax: time.Time{},
 			UpdatedAtMin: time.Time{},

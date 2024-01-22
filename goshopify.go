@@ -607,7 +607,7 @@ type ListOptions struct {
 	// It is the deprecated way to do pagination.
 	Page         int       `url:"page,omitempty"`
 	Limit        int       `url:"limit,omitempty"`
-	SinceID      int64     `url:"since_id,omitempty"`
+	SinceId      *uint64   `url:"since_id,omitempty"`
 	CreatedAtMin time.Time `url:"created_at_min,omitempty"`
 	CreatedAtMax time.Time `url:"created_at_max,omitempty"`
 	UpdatedAtMin time.Time `url:"updated_at_min,omitempty"`

@@ -71,7 +71,8 @@ func TestCollectCount(t *testing.T) {
 		t.Errorf("Collect.Count returned %d, expected %d", cnt, expected)
 	}
 
-	cnt, err = client.Collect.Count(context.Background(), ListOptions{SinceID: 123})
+	sinceId := uint64(123)
+	cnt, err = client.Collect.Count(context.Background(), ListOptions{SinceId: &sinceId})
 	if err != nil {
 		t.Errorf("Collect.Count returned error: %v", err)
 	}
