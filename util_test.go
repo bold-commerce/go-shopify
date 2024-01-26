@@ -70,7 +70,7 @@ func TestShopBaseUrl(t *testing.T) {
 func TestMetafieldPathPrefix(t *testing.T) {
 	cases := []struct {
 		resource   string
-		resourceID int64
+		resourceId int64
 		expected   string
 	}{
 		{"", 0, "metafields"},
@@ -78,9 +78,9 @@ func TestMetafieldPathPrefix(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual := MetafieldPathPrefix(c.resource, c.resourceID)
+		actual := MetafieldPathPrefix(c.resource, c.resourceId)
 		if actual != c.expected {
-			t.Errorf("MetafieldPathPrefix(%s, %d): expected %s, actual %s", c.resource, c.resourceID, c.expected, actual)
+			t.Errorf("MetafieldPathPrefix(%s, %d): expected %s, actual %s", c.resource, c.resourceId, c.expected, actual)
 		}
 	}
 }
@@ -88,7 +88,7 @@ func TestMetafieldPathPrefix(t *testing.T) {
 func TestFulfillmentPathPrefix(t *testing.T) {
 	cases := []struct {
 		resource   string
-		resourceID int64
+		resourceId int64
 		expected   string
 	}{
 		{"", 0, "fulfillments"},
@@ -96,9 +96,9 @@ func TestFulfillmentPathPrefix(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual := FulfillmentPathPrefix(c.resource, c.resourceID)
+		actual := FulfillmentPathPrefix(c.resource, c.resourceId)
 		if actual != c.expected {
-			t.Errorf("FulfillmentPathPrefix(%s, %d): expected %s, actual %s", c.resource, c.resourceID, c.expected, actual)
+			t.Errorf("FulfillmentPathPrefix(%s, %d): expected %s, actual %s", c.resource, c.resourceId, c.expected, actual)
 		}
 	}
 }

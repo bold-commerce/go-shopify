@@ -26,7 +26,7 @@ func TestLocationServiceOp_List(t *testing.T) {
 	updated, _ := time.Parse(time.RFC3339, "2018-02-19T16:19:00-05:00")
 
 	expected := []Location{{
-		ID:                4688969785,
+		Id:                4688969785,
 		Name:              "Bajkowa",
 		Address1:          "Bajkowa",
 		Address2:          "",
@@ -40,7 +40,7 @@ func TestLocationServiceOp_List(t *testing.T) {
 		CountryName:       "Poland",
 		Legacy:            false,
 		Active:            true,
-		AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+		AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 	}}
 
 	if !reflect.DeepEqual(products, expected) {
@@ -64,7 +64,7 @@ func TestLocationServiceOp_Get(t *testing.T) {
 	updated, _ := time.Parse(time.RFC3339, "2018-02-19T16:19:00-05:00")
 
 	expected := &Location{
-		ID:                4688969785,
+		Id:                4688969785,
 		Name:              "Bajkowa",
 		Address1:          "Bajkowa",
 		Address2:          "",
@@ -78,7 +78,7 @@ func TestLocationServiceOp_Get(t *testing.T) {
 		CountryName:       "Poland",
 		Legacy:            false,
 		Active:            true,
-		AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+		AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 	}
 
 	if !reflect.DeepEqual(product, expected) {

@@ -26,7 +26,7 @@ type ShopServiceOp struct {
 
 // Shop represents a Shopify shop
 type Shop struct {
-	ID                              int64      `json:"id"`
+	Id                              int64      `json:"id"`
 	Name                            string     `json:"name"`
 	ShopOwner                       string     `json:"shop_owner"`
 	Email                           string     `json:"email"`
@@ -102,9 +102,9 @@ func (s *ShopServiceOp) CountMetafields(ctx context.Context, _ int64, options in
 }
 
 // GetMetafield for a shop
-func (s *ShopServiceOp) GetMetafield(ctx context.Context, _ int64, metafieldID int64, options interface{}) (*Metafield, error) {
+func (s *ShopServiceOp) GetMetafield(ctx context.Context, _ int64, metafieldId int64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
-	return metafieldService.Get(ctx, metafieldID, options)
+	return metafieldService.Get(ctx, metafieldId, options)
 }
 
 // CreateMetafield for a shop
@@ -120,7 +120,7 @@ func (s *ShopServiceOp) UpdateMetafield(ctx context.Context, _ int64, metafield 
 }
 
 // DeleteMetafield for a shop
-func (s *ShopServiceOp) DeleteMetafield(ctx context.Context, _ int64, metafieldID int64) error {
+func (s *ShopServiceOp) DeleteMetafield(ctx context.Context, _ int64, metafieldId int64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
-	return metafieldService.Delete(ctx, metafieldID)
+	return metafieldService.Delete(ctx, metafieldId)
 }

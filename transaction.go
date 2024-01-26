@@ -32,30 +32,30 @@ type TransactionsResource struct {
 }
 
 // List transactions
-func (s *TransactionServiceOp) List(ctx context.Context, orderID int64, options interface{}) ([]Transaction, error) {
-	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderID)
+func (s *TransactionServiceOp) List(ctx context.Context, orderId int64, options interface{}) ([]Transaction, error) {
+	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderId)
 	resource := new(TransactionsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Transactions, err
 }
 
 // Count transactions
-func (s *TransactionServiceOp) Count(ctx context.Context, orderID int64, options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%d/transactions/count.json", ordersBasePath, orderID)
+func (s *TransactionServiceOp) Count(ctx context.Context, orderId int64, options interface{}) (int, error) {
+	path := fmt.Sprintf("%s/%d/transactions/count.json", ordersBasePath, orderId)
 	return s.client.Count(ctx, path, options)
 }
 
 // Get individual transaction
-func (s *TransactionServiceOp) Get(ctx context.Context, orderID int64, transactionID int64, options interface{}) (*Transaction, error) {
-	path := fmt.Sprintf("%s/%d/transactions/%d.json", ordersBasePath, orderID, transactionID)
+func (s *TransactionServiceOp) Get(ctx context.Context, orderId int64, transactionId int64, options interface{}) (*Transaction, error) {
+	path := fmt.Sprintf("%s/%d/transactions/%d.json", ordersBasePath, orderId, transactionId)
 	resource := new(TransactionResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Transaction, err
 }
 
 // Create a new transaction
-func (s *TransactionServiceOp) Create(ctx context.Context, orderID int64, transaction Transaction) (*Transaction, error) {
-	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderID)
+func (s *TransactionServiceOp) Create(ctx context.Context, orderId int64, transaction Transaction) (*Transaction, error) {
+	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderId)
 	wrappedData := TransactionResource{Transaction: &transaction}
 	resource := new(TransactionResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)

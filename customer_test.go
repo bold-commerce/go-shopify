@@ -26,7 +26,7 @@ func TestCustomerList(t *testing.T) {
 		t.Errorf("Customer.List returned error: %v", err)
 	}
 
-	expected := []Customer{{ID: 1}, {ID: 2}}
+	expected := []Customer{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(customers, expected) {
 		t.Errorf("Customer.List returned %+v, expected %+v", customers, expected)
 	}
@@ -55,7 +55,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		{
 			`{"customers": [{"id":1},{"id":2}]}`,
 			"",
-			[]Customer{{ID: 1}, {ID: 2}},
+			[]Customer{{Id: 1}, {Id: 2}},
 			new(Pagination),
 			nil,
 		},
@@ -99,7 +99,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		{
 			`{"customers": [{"id":1}]}`,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
-			[]Customer{{ID: 1}},
+			[]Customer{{Id: 1}},
 			&Pagination{
 				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
 			},
@@ -108,7 +108,7 @@ func TestCustomerListWithPagination(t *testing.T) {
 		{
 			`{"customers": [{"id":2}]}`,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
-			[]Customer{{ID: 2}},
+			[]Customer{{Id: 2}},
 			&Pagination{
 				NextPageOptions:     &ListOptions{PageInfo: "foo"},
 				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
@@ -200,7 +200,7 @@ func TestCustomerSearch(t *testing.T) {
 		t.Errorf("Customer.Search returned error: %v", err)
 	}
 
-	expected := []Customer{{ID: 1}, {ID: 2}}
+	expected := []Customer{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(customers, expected) {
 		t.Errorf("Customer.Search returned %+v, expected %+v", customers, expected)
 	}
@@ -219,7 +219,7 @@ func TestCustomerGet(t *testing.T) {
 	}
 
 	address1 := &CustomerAddress{
-		ID: 1, CustomerID: 1, FirstName: "Test", LastName: "Citizen", Company: "",
+		Id: 1, CustomerId: 1, FirstName: "Test", LastName: "Citizen", Company: "",
 		Address1: "1 Smith St", Address2: "", City: "BRISBANE", Province: "Queensland", Country: "Australia",
 		Zip: "4000", Phone: "1111 111 111", Name: "Test Citizen", ProvinceCode: "QLD", CountryCode: "AU",
 		CountryName: "Australia", Default: true,
@@ -241,7 +241,7 @@ func TestCustomerGet(t *testing.T) {
 	}
 
 	expectation := &Customer{
-		ID:                        1,
+		Id:                        1,
 		Email:                     "test@example.com",
 		FirstName:                 "Test",
 		LastName:                  "Citizen",
@@ -263,8 +263,8 @@ func TestCustomerGet(t *testing.T) {
 		UpdatedAt:                 &updatedAt,
 	}
 
-	if customer.ID != expectation.ID {
-		t.Errorf("Customer.ID returned %+v, expected %+v", customer.ID, expectation.ID)
+	if customer.Id != expectation.Id {
+		t.Errorf("Customer.Id returned %+v, expected %+v", customer.Id, expectation.Id)
 	}
 	if customer.Email != expectation.Email {
 		t.Errorf("Customer.Email returned %+v, expected %+v", customer.Email, expectation.Email)
@@ -311,11 +311,11 @@ func TestCustomerGet(t *testing.T) {
 	if customer.DefaultAddress == nil {
 		t.Errorf("Customer.Address is nil, expected not nil")
 	} else {
-		if customer.DefaultAddress.ID != expectation.DefaultAddress.ID {
-			t.Errorf("Customer.DefaultAddress.ID returned %+v, expected %+v", customer.DefaultAddress.ID, expectation.DefaultAddress.ID)
+		if customer.DefaultAddress.Id != expectation.DefaultAddress.Id {
+			t.Errorf("Customer.DefaultAddress.Id returned %+v, expected %+v", customer.DefaultAddress.Id, expectation.DefaultAddress.Id)
 		}
-		if customer.DefaultAddress.CustomerID != expectation.DefaultAddress.CustomerID {
-			t.Errorf("Customer.DefaultAddress.CustomerID returned %+v, expected %+v", customer.DefaultAddress.CustomerID, expectation.DefaultAddress.CustomerID)
+		if customer.DefaultAddress.CustomerId != expectation.DefaultAddress.CustomerId {
+			t.Errorf("Customer.DefaultAddress.CustomerId returned %+v, expected %+v", customer.DefaultAddress.CustomerId, expectation.DefaultAddress.CustomerId)
 		}
 		if customer.DefaultAddress.FirstName != expectation.DefaultAddress.FirstName {
 			t.Errorf("Customer.DefaultAddress.FirstName returned %+v, expected %+v", customer.DefaultAddress.FirstName, expectation.DefaultAddress.FirstName)
@@ -354,7 +354,7 @@ func TestCustomerGet(t *testing.T) {
 			t.Errorf("Customer.DefaultAddress.ProvinceCode returned %+v, expected %+v", customer.DefaultAddress.ProvinceCode, expectation.DefaultAddress.ProvinceCode)
 		}
 		if customer.DefaultAddress.CountryCode != expectation.DefaultAddress.CountryCode {
-			t.Errorf("Customer.DefaultAddress.ID returned %+v, expected %+v", customer.DefaultAddress.ID, expectation.DefaultAddress.ID)
+			t.Errorf("Customer.DefaultAddress.Id returned %+v, expected %+v", customer.DefaultAddress.Id, expectation.DefaultAddress.Id)
 		}
 		if customer.DefaultAddress.CountryCode != expectation.DefaultAddress.CountryCode {
 			t.Errorf("Customer.DefaultAddress.CountryCode returned %+v, expected %+v", customer.DefaultAddress.CountryCode, expectation.DefaultAddress.CountryCode)
@@ -411,7 +411,7 @@ func TestCustomerUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("customer.json")))
 
 	customer := Customer{
-		ID:   1,
+		Id:   1,
 		Tags: "new",
 	}
 
@@ -420,9 +420,9 @@ func TestCustomerUpdate(t *testing.T) {
 		t.Errorf("Customer.Update returned error: %v", err)
 	}
 
-	expectedCustomerID := int64(1)
-	if returnedCustomer.ID != expectedCustomerID {
-		t.Errorf("Customer.ID returned %+v expected %+v", returnedCustomer.ID, expectedCustomerID)
+	expectedCustomerId := int64(1)
+	if returnedCustomer.Id != expectedCustomerId {
+		t.Errorf("Customer.Id returned %+v expected %+v", returnedCustomer.Id, expectedCustomerId)
 	}
 }
 
@@ -434,7 +434,7 @@ func TestCustomerCreate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("customer.json")))
 
 	customer := Customer{
-		ID:   1,
+		Id:   1,
 		Tags: "new",
 	}
 
@@ -443,9 +443,9 @@ func TestCustomerCreate(t *testing.T) {
 		t.Errorf("Customer.Create returned error: %v", err)
 	}
 
-	expectedCustomerID := int64(1)
-	if returnedCustomer.ID != expectedCustomerID {
-		t.Errorf("Customer.ID returned %+v expected %+v", returnedCustomer.ID, expectedCustomerID)
+	expectedCustomerId := int64(1)
+	if returnedCustomer.Id != expectedCustomerId {
+		t.Errorf("Customer.Id returned %+v expected %+v", returnedCustomer.Id, expectedCustomerId)
 	}
 }
 
@@ -474,7 +474,7 @@ func TestCustomerListMetafields(t *testing.T) {
 		t.Errorf("Customer.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Customer.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -528,7 +528,7 @@ func TestCustomerGetMetafield(t *testing.T) {
 		t.Errorf("Customer.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Customer.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -564,7 +564,7 @@ func TestCustomerUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,

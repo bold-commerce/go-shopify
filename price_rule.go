@@ -28,7 +28,7 @@ type PriceRuleServiceOp struct {
 
 // PriceRule represents a Shopify discount rule
 type PriceRule struct {
-	ID                                     int64                                   `json:"id,omitempty"`
+	Id                                     int64                                   `json:"id,omitempty"`
 	Title                                  string                                  `json:"title,omitempty"`
 	ValueType                              string                                  `json:"value_type,omitempty"`
 	Value                                  *decimal.Decimal                        `json:"value,omitempty"`
@@ -153,8 +153,8 @@ func (pr *PriceRule) SetPrerequisiteToEntitlementQuantityRatio(prerequisiteQuant
 }
 
 // Get retrieves a single price rules
-func (s *PriceRuleServiceOp) Get(ctx context.Context, priceRuleID int64) (*PriceRule, error) {
-	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
+func (s *PriceRuleServiceOp) Get(ctx context.Context, priceRuleId int64) (*PriceRule, error) {
+	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleId)
 	resource := new(PriceRuleResource)
 	err := s.client.Get(ctx, path, resource, nil)
 	return resource.PriceRule, err
@@ -179,7 +179,7 @@ func (s *PriceRuleServiceOp) Create(ctx context.Context, pr PriceRule) (*PriceRu
 
 // Update updates an existing a price rule
 func (s *PriceRuleServiceOp) Update(ctx context.Context, pr PriceRule) (*PriceRule, error) {
-	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, pr.ID)
+	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, pr.Id)
 	resource := new(PriceRuleResource)
 	wrappedData := PriceRuleResource{PriceRule: &pr}
 	err := s.client.Put(ctx, path, wrappedData, resource)
@@ -187,8 +187,8 @@ func (s *PriceRuleServiceOp) Update(ctx context.Context, pr PriceRule) (*PriceRu
 }
 
 // Delete deletes a price rule
-func (s *PriceRuleServiceOp) Delete(ctx context.Context, priceRuleID int64) error {
-	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
+func (s *PriceRuleServiceOp) Delete(ctx context.Context, priceRuleId int64) error {
+	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleId)
 	err := s.client.Delete(ctx, path)
 	return err
 }

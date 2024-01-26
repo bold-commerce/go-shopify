@@ -33,7 +33,7 @@ type UsageCharge struct {
 	BillingOn        *time.Time       `json:"billing_on,omitempty"`
 	CreatedAt        *time.Time       `json:"created_at,omitempty"`
 	Description      string           `json:"description,omitempty"`
-	ID               int64            `json:"id,omitempty"`
+	Id               int64            `json:"id,omitempty"`
 	Price            *decimal.Decimal `json:"price,omitempty"`
 	RiskLevel        *decimal.Decimal `json:"risk_level,omitempty"`
 }
@@ -71,10 +71,10 @@ type UsageChargesResource struct {
 }
 
 // Create creates new usage charge given a recurring charge. *required fields: price and description
-func (r *UsageChargeServiceOp) Create(ctx context.Context, chargeID int64, usageCharge UsageCharge) (
+func (r *UsageChargeServiceOp) Create(ctx context.Context, chargeId int64, usageCharge UsageCharge) (
 	*UsageCharge, error,
 ) {
-	path := fmt.Sprintf("%s/%d/%s.json", recurringApplicationChargesBasePath, chargeID, usageChargesPath)
+	path := fmt.Sprintf("%s/%d/%s.json", recurringApplicationChargesBasePath, chargeId, usageChargesPath)
 	wrappedData := UsageChargeResource{Charge: &usageCharge}
 	resource := &UsageChargeResource{}
 	err := r.client.Post(ctx, path, wrappedData, resource)
@@ -82,20 +82,20 @@ func (r *UsageChargeServiceOp) Create(ctx context.Context, chargeID int64, usage
 }
 
 // Get gets individual usage charge.
-func (r *UsageChargeServiceOp) Get(ctx context.Context, chargeID int64, usageChargeID int64, options interface{}) (
+func (r *UsageChargeServiceOp) Get(ctx context.Context, chargeId int64, usageChargeId int64, options interface{}) (
 	*UsageCharge, error,
 ) {
-	path := fmt.Sprintf("%s/%d/%s/%d.json", recurringApplicationChargesBasePath, chargeID, usageChargesPath, usageChargeID)
+	path := fmt.Sprintf("%s/%d/%s/%d.json", recurringApplicationChargesBasePath, chargeId, usageChargesPath, usageChargeId)
 	resource := &UsageChargeResource{}
 	err := r.client.Get(ctx, path, resource, options)
 	return resource.Charge, err
 }
 
 // List gets all usage charges associated with the recurring charge.
-func (r *UsageChargeServiceOp) List(ctx context.Context, chargeID int64, options interface{}) (
+func (r *UsageChargeServiceOp) List(ctx context.Context, chargeId int64, options interface{}) (
 	[]UsageCharge, error,
 ) {
-	path := fmt.Sprintf("%s/%d/%s.json", recurringApplicationChargesBasePath, chargeID, usageChargesPath)
+	path := fmt.Sprintf("%s/%d/%s.json", recurringApplicationChargesBasePath, chargeId, usageChargesPath)
 	resource := &UsageChargesResource{}
 	err := r.client.Get(ctx, path, resource, options)
 	return resource.Charges, err

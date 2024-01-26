@@ -22,9 +22,9 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(1029266948), charge.ID},
+		{"Id", int64(1029266948), charge.Id},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientID", int64(755357713), charge.APIClientID},
+		{"APIClientId", int64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -70,9 +70,9 @@ func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(1029266948), charge.ID},
+		{"Id", int64(1029266948), charge.Id},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientID", int64(755357713), charge.APIClientID},
+		{"APIClientId", int64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -147,7 +147,7 @@ func TestRecurringApplicationChargeServiceOp_Get(t *testing.T) {
 		t.Errorf("RecurringApplicationCharge.Get returned an error: %v", err)
 	}
 
-	expected := &RecurringApplicationCharge{ID: 1}
+	expected := &RecurringApplicationCharge{Id: 1}
 	if !reflect.DeepEqual(charge, expected) {
 		t.Errorf("RecurringApplicationCharge.Get returned %+v, expected %+v", charge, expected)
 	}
@@ -222,7 +222,7 @@ func TestRecurringApplicationChargeServiceOp_List(t *testing.T) {
 		t.Errorf("RecurringApplicationCharge.List returned an error: %v", err)
 	}
 
-	expected := []RecurringApplicationCharge{{ID: 1}, {ID: 2}}
+	expected := []RecurringApplicationCharge{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(charges, expected) {
 		t.Errorf("RecurringApplicationCharge.List returned %+v, expected %+v", charges, expected)
 	}
@@ -241,7 +241,7 @@ func TestRecurringApplicationChargeServiceOp_Activate(t *testing.T) {
 	)
 
 	charge := RecurringApplicationCharge{
-		ID:     455696195,
+		Id:     455696195,
 		Status: "accepted",
 	}
 
@@ -250,7 +250,7 @@ func TestRecurringApplicationChargeServiceOp_Activate(t *testing.T) {
 		t.Errorf("RecurringApplicationCharge.Activate returned an error: %v", err)
 	}
 
-	expected := &RecurringApplicationCharge{ID: 455696195, Status: "active"}
+	expected := &RecurringApplicationCharge{Id: 455696195, Status: "active"}
 	if !reflect.DeepEqual(returnedCharge, expected) {
 		t.Errorf("RecurringApplicationCharge.Activate returned %+v, expected %+v", charge, expected)
 	}
@@ -290,7 +290,7 @@ func TestRecurringApplicationChargeServiceOp_Update(t *testing.T) {
 	}
 
 	ca := decimal.NewFromFloat(100.00)
-	expected := &RecurringApplicationCharge{ID: 455696195, CappedAmount: &ca}
+	expected := &RecurringApplicationCharge{Id: 455696195, CappedAmount: &ca}
 	if expected.CappedAmount.String() != charge.CappedAmount.String() {
 		t.Errorf("RecurringApplicationCharge.Update returned %+v, expected %+v", charge, expected)
 	}

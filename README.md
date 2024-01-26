@@ -187,7 +187,7 @@ For example, let's say you want to fetch webhooks. There's a helper function
 ```go
 // Declare a model for the webhook
 type Webhook struct {
-    ID int         `json:"id"`
+    Id int         `json:"id"`
     Address string `json:"address"`
 }
 

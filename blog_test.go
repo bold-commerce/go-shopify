@@ -27,7 +27,7 @@ func TestBlogList(t *testing.T) {
 		t.Errorf("Blog.List returned error: %v", err)
 	}
 
-	expected := []Blog{{ID: 1}, {ID: 2}}
+	expected := []Blog{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(blogs, expected) {
 		t.Errorf("Blog.List returned %+v, expected %+v", blogs, expected)
 	}
@@ -75,7 +75,7 @@ func TestBlogGet(t *testing.T) {
 		t.Errorf("Blog.Get returned error: %v", err)
 	}
 
-	expected := &Blog{ID: 1}
+	expected := &Blog{Id: 1}
 	if !reflect.DeepEqual(blog, expected) {
 		t.Errorf("Blog.Get returned %+v, expected %+v", blog, expected)
 	}
@@ -104,8 +104,8 @@ func TestBlogCreate(t *testing.T) {
 	}
 
 	expectedInt := int64(241253187)
-	if returnedBlog.ID != expectedInt {
-		t.Errorf("Blog.ID returned %+v, expected %+v", returnedBlog.ID, expectedInt)
+	if returnedBlog.Id != expectedInt {
+		t.Errorf("Blog.Id returned %+v, expected %+v", returnedBlog.Id, expectedInt)
 	}
 }
 
@@ -123,7 +123,7 @@ func TestBlogUpdate(t *testing.T) {
 	)
 
 	blog := Blog{
-		ID:    1,
+		Id:    1,
 		Title: "Mah Blog",
 	}
 
@@ -133,8 +133,8 @@ func TestBlogUpdate(t *testing.T) {
 	}
 
 	expectedInt := int64(241253187)
-	if returnedBlog.ID != expectedInt {
-		t.Errorf("Blog.ID returned %+v, expected %+v", returnedBlog.ID, expectedInt)
+	if returnedBlog.Id != expectedInt {
+		t.Errorf("Blog.Id returned %+v, expected %+v", returnedBlog.Id, expectedInt)
 	}
 }
 

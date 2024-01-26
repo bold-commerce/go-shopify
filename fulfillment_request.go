@@ -30,7 +30,7 @@ type FulfillmentRequestOrderLineItem struct {
 }
 
 type FulfillmentRequestLineItem struct {
-	FulfillmentOrderLineItemID int64  `json:"fulfillment_order_line_item_id,omitempty"`
+	FulfillmentOrderLineItemId int64  `json:"fulfillment_order_line_item_id,omitempty"`
 	Message                    string `json:"message,omitempty"`
 }
 
@@ -46,8 +46,8 @@ type FulfillmentRequestServiceOp struct {
 }
 
 // Send sends a fulfillment request to the fulfillment service of a fulfillment order.
-func (s *FulfillmentRequestServiceOp) Send(ctx context.Context, fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
-	path := fmt.Sprintf("%s/%d/fulfillment_request.json", fulfillmentRequestBasePath, fulfillmentOrderID)
+func (s *FulfillmentRequestServiceOp) Send(ctx context.Context, fulfillmentOrderId int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
+	path := fmt.Sprintf("%s/%d/fulfillment_request.json", fulfillmentRequestBasePath, fulfillmentOrderId)
 	wrappedData := FulfillmentRequestResource{FulfillmentRequest: request}
 	resource := new(FulfillmentRequestResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)
@@ -55,8 +55,8 @@ func (s *FulfillmentRequestServiceOp) Send(ctx context.Context, fulfillmentOrder
 }
 
 // Accept accepts a fulfillment request sent to a fulfillment service for a fulfillment order.
-func (s *FulfillmentRequestServiceOp) Accept(ctx context.Context, fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
-	path := fmt.Sprintf("%s/%d/fulfillment_request/accept.json", fulfillmentRequestBasePath, fulfillmentOrderID)
+func (s *FulfillmentRequestServiceOp) Accept(ctx context.Context, fulfillmentOrderId int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
+	path := fmt.Sprintf("%s/%d/fulfillment_request/accept.json", fulfillmentRequestBasePath, fulfillmentOrderId)
 	wrappedData := map[string]interface{}{"fulfillment_request": request}
 	resource := new(FulfillmentRequestResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)
@@ -64,8 +64,8 @@ func (s *FulfillmentRequestServiceOp) Accept(ctx context.Context, fulfillmentOrd
 }
 
 // Reject rejects a fulfillment request sent to a fulfillment service for a fulfillment order.
-func (s *FulfillmentRequestServiceOp) Reject(ctx context.Context, fulfillmentOrderID int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
-	path := fmt.Sprintf("%s/%d/fulfillment_request/reject.json", fulfillmentRequestBasePath, fulfillmentOrderID)
+func (s *FulfillmentRequestServiceOp) Reject(ctx context.Context, fulfillmentOrderId int64, request FulfillmentRequest) (*FulfillmentOrder, error) {
+	path := fmt.Sprintf("%s/%d/fulfillment_request/reject.json", fulfillmentRequestBasePath, fulfillmentOrderId)
 	wrappedData := map[string]interface{}{"fulfillment_request": request}
 	resource := new(FulfillmentRequestResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)

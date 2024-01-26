@@ -50,7 +50,7 @@ type CarrierService struct {
 	// Whether merchants are able to send dummy data to your service through the Shopify admin to see shipping rate examples.
 	ServiceDiscovery bool `json:"service_discovery,omitempty"`
 
-	AdminGraphqlAPIID string `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId string `json:"admin_graphql_api_id,omitempty"`
 }
 
 type SingleCarrierResource struct {
@@ -140,7 +140,7 @@ func (s *CarrierServiceOp) List(ctx context.Context) ([]CarrierService, error) {
 	return resource.CarrierServices, err
 }
 
-// Get individual carrier resource by carrier resource ID
+// Get individual carrier resource by carrier resource Id
 func (s *CarrierServiceOp) Get(ctx context.Context, id int64) (*CarrierService, error) {
 	path := fmt.Sprintf("%s/%d.json", carrierBasePath, id)
 	resource := new(SingleCarrierResource)

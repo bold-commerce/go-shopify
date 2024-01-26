@@ -28,7 +28,7 @@ type BlogServiceOp struct {
 
 // Blog represents a Shopify blog
 type Blog struct {
-	ID                 int64      `json:"id"`
+	Id                 int64      `json:"id"`
 	Title              string     `json:"title"`
 	Commentable        string     `json:"commentable"`
 	Feedburner         string     `json:"feedburner"`
@@ -39,7 +39,7 @@ type Blog struct {
 	TemplateSuffix     string     `json:"template_suffix"`
 	CreatedAt          *time.Time `json:"created_at"`
 	UpdatedAt          *time.Time `json:"updated_at"`
-	AdminGraphqlAPIID  string     `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId  string     `json:"admin_graphql_api_id,omitempty"`
 }
 
 // BlogsResource is the result from the blogs.json endpoint
@@ -85,7 +85,7 @@ func (s *BlogServiceOp) Create(ctx context.Context, blog Blog) (*Blog, error) {
 
 // Update an existing blog
 func (s *BlogServiceOp) Update(ctx context.Context, blog Blog) (*Blog, error) {
-	path := fmt.Sprintf("%s/%d.json", blogsBasePath, blog.ID)
+	path := fmt.Sprintf("%s/%d.json", blogsBasePath, blog.Id)
 	wrappedData := BlogResource{Blog: &blog}
 	resource := new(BlogResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)

@@ -11,10 +11,10 @@ import (
 )
 
 func redirectTests(t *testing.T, redirect Redirect) {
-	// Check that ID is assigned to the returned redirect
+	// Check that Id is assigned to the returned redirect
 	expectedInt := int64(1)
-	if redirect.ID != expectedInt {
-		t.Errorf("Redirect.ID returned %+v, expected %+v", redirect.ID, expectedInt)
+	if redirect.Id != expectedInt {
+		t.Errorf("Redirect.Id returned %+v, expected %+v", redirect.Id, expectedInt)
 	}
 }
 
@@ -30,7 +30,7 @@ func TestRedirectList(t *testing.T) {
 		t.Errorf("Redirect.List returned error: %v", err)
 	}
 
-	expected := []Redirect{{ID: 1}, {ID: 2}}
+	expected := []Redirect{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(redirects, expected) {
 		t.Errorf("Redirect.List returned %+v, expected %+v", redirects, expected)
 	}
@@ -84,7 +84,7 @@ func TestRedirectGet(t *testing.T) {
 		t.Errorf("Redirect.Get returned error: %v", err)
 	}
 
-	expected := &Redirect{ID: 1}
+	expected := &Redirect{Id: 1}
 	if !reflect.DeepEqual(redirect, expected) {
 		t.Errorf("Redirect.Get returned %+v, expected %+v", redirect, expected)
 	}
@@ -118,7 +118,7 @@ func TestRedirectUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("redirect.json")))
 
 	redirect := Redirect{
-		ID: 1,
+		Id: 1,
 	}
 
 	returnedRedirect, err := client.Redirect.Update(context.Background(), redirect)

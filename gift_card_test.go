@@ -26,8 +26,8 @@ func TestGiftCardGet(t *testing.T) {
 		t.Errorf("GiftCard.Get returned error: %v", err)
 	}
 
-	expected := GiftCard{ID: 1}
-	if expected.ID != giftCard.ID {
+	expected := GiftCard{Id: 1}
+	if expected.Id != giftCard.Id {
 		t.Errorf("GiftCard.Get returned %+v, expected %+v", giftCard, expected)
 	}
 }
@@ -50,8 +50,8 @@ func TestGiftCardList(t *testing.T) {
 		t.Errorf("GiftCard.List returned error: %v", err)
 	}
 
-	expected := []GiftCard{{ID: 1}}
-	if expected[0].ID != giftCard[0].ID {
+	expected := []GiftCard{{Id: 1}}
+	if expected[0].Id != giftCard[0].Id {
 		t.Errorf("GiftCard.List returned %+v, expected %+v", giftCard, expected)
 	}
 }
@@ -74,8 +74,8 @@ func TestGiftCardCreate(t *testing.T) {
 		t.Errorf("GiftCard.Create returned error: %v", err)
 	}
 
-	expected := GiftCard{ID: 1}
-	if expected.ID != giftCard.ID {
+	expected := GiftCard{Id: 1}
+	if expected.Id != giftCard.Id {
 		t.Errorf("GiftCard.Create returned %+v, expected %+v", giftCard, expected)
 	}
 }
@@ -93,13 +93,13 @@ func TestGiftCardUpdate(t *testing.T) {
 		),
 	)
 
-	giftCard, err := client.GiftCard.Update(context.Background(), GiftCard{ID: 1})
+	giftCard, err := client.GiftCard.Update(context.Background(), GiftCard{Id: 1})
 	if err != nil {
 		t.Errorf("GiftCard.Update returned error: %v", err)
 	}
 
-	expected := GiftCard{ID: 1}
-	if expected.ID != giftCard.ID {
+	expected := GiftCard{Id: 1}
+	if expected.Id != giftCard.Id {
 		t.Errorf("GiftCard.Update returned %+v, expected %+v", giftCard, expected)
 	}
 }
@@ -122,8 +122,8 @@ func TestGiftCardDisable(t *testing.T) {
 		t.Errorf("GiftCard.Disable returned error: %v", err)
 	}
 
-	expected := []GiftCard{{ID: 1}}
-	if expected[0].ID != giftCard.ID {
+	expected := []GiftCard{{Id: 1}}
+	if expected[0].Id != giftCard.Id {
 		t.Errorf("GiftCard.Disable returned %+v, expected %+v", giftCard, expected)
 	}
 }

@@ -12,10 +12,10 @@ import (
 )
 
 func FulfillmentOrderTests(t *testing.T, fulfillmentOrder FulfillmentOrder) {
-	// Check that ID is assigned to the returned fulfillment
+	// Check that Id is assigned to the returned fulfillment
 	expectedInt := int64(255858046) // in fulfillment_order.json fixture
 	if fulfillmentOrder.Id != expectedInt {
-		t.Errorf("FulfillmentOrder.ID returned %+v, expected %+v", fulfillmentOrder.Id, expectedInt)
+		t.Errorf("FulfillmentOrder.Id returned %+v, expected %+v", fulfillmentOrder.Id, expectedInt)
 	}
 }
 

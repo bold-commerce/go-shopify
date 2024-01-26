@@ -159,8 +159,8 @@ type FulfillmentOrderMoveResource struct {
 }
 
 // FulfillmentOrderPathPrefix returns the prefix for a fulfillmentOrder path
-func FulfillmentOrderPathPrefix(resource string, resourceID int64) string {
-	return fmt.Sprintf("%s/%d", resource, resourceID)
+func FulfillmentOrderPathPrefix(resource string, resourceId int64) string {
+	return fmt.Sprintf("%s/%d", resource, resourceId)
 }
 
 // List gets FulfillmentOrder items for an order
@@ -173,8 +173,8 @@ func (s *FulfillmentOrderServiceOp) List(ctx context.Context, orderId int64, opt
 }
 
 // Get gets an individual fulfillment order
-func (s *FulfillmentOrderServiceOp) Get(ctx context.Context, fulfillmentID int64, options interface{}) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Get(ctx context.Context, fulfillmentId int64, options interface{}) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -182,8 +182,8 @@ func (s *FulfillmentOrderServiceOp) Get(ctx context.Context, fulfillmentID int64
 }
 
 // Cancel cancels a fulfillment order
-func (s *FulfillmentOrderServiceOp) Cancel(ctx context.Context, fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Cancel(ctx context.Context, fulfillmentId int64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/cancel.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Post(ctx, path, nil, resource)
@@ -191,13 +191,13 @@ func (s *FulfillmentOrderServiceOp) Cancel(ctx context.Context, fulfillmentID in
 }
 
 // Close marks a fulfillment order as incomplete with an optional message
-func (s *FulfillmentOrderServiceOp) Close(ctx context.Context, fulfillmentID int64, message string) (*FulfillmentOrder, error) {
+func (s *FulfillmentOrderServiceOp) Close(ctx context.Context, fulfillmentId int64, message string) (*FulfillmentOrder, error) {
 	req := struct {
 		Message string `json:"message,omitempty"`
 	}{
 		Message: message,
 	}
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/close.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Post(ctx, path, req, resource)
@@ -205,7 +205,7 @@ func (s *FulfillmentOrderServiceOp) Close(ctx context.Context, fulfillmentID int
 }
 
 // Hold applies a fulfillment hold on an open fulfillment order
-func (s *FulfillmentOrderServiceOp) Hold(ctx context.Context, fulfillmentID int64, notify bool, reason FulfillmentOrderHoldReason, notes string) (*FulfillmentOrder, error) {
+func (s *FulfillmentOrderServiceOp) Hold(ctx context.Context, fulfillmentId int64, notify bool, reason FulfillmentOrderHoldReason, notes string) (*FulfillmentOrder, error) {
 	type holdRequest struct {
 		Reason         FulfillmentOrderHoldReason `json:"reason"`
 		ReasonNotes    string                     `json:"reason_notes,omitempty"`
@@ -220,7 +220,7 @@ func (s *FulfillmentOrderServiceOp) Hold(ctx context.Context, fulfillmentID int6
 			NotifyMerchant: notify,
 		},
 	}
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/hold.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Post(ctx, path, req, resource)
@@ -228,8 +228,8 @@ func (s *FulfillmentOrderServiceOp) Hold(ctx context.Context, fulfillmentID int6
 }
 
 // Open marks the fulfillment order as open
-func (s *FulfillmentOrderServiceOp) Open(ctx context.Context, fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Open(ctx context.Context, fulfillmentId int64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/open.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Post(ctx, path, nil, resource)
@@ -237,8 +237,8 @@ func (s *FulfillmentOrderServiceOp) Open(ctx context.Context, fulfillmentID int6
 }
 
 // ReleaseHold releases the fulfillment hold on a fulfillment order
-func (s *FulfillmentOrderServiceOp) ReleaseHold(ctx context.Context, fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) ReleaseHold(ctx context.Context, fulfillmentId int64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/release_hold.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Post(ctx, path, nil, resource)
@@ -246,8 +246,8 @@ func (s *FulfillmentOrderServiceOp) ReleaseHold(ctx context.Context, fulfillment
 }
 
 // Reschedule reschedules the fulfill_at time of a scheduled fulfillment order
-func (s *FulfillmentOrderServiceOp) Reschedule(ctx context.Context, fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Reschedule(ctx context.Context, fulfillmentId int64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/reschedule.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Post(ctx, path, nil, resource)
@@ -255,12 +255,12 @@ func (s *FulfillmentOrderServiceOp) Reschedule(ctx context.Context, fulfillmentI
 }
 
 // SetDeadline sets deadline for fulfillment orders
-func (s *FulfillmentOrderServiceOp) SetDeadline(ctx context.Context, fulfillmentIDs []int64, deadline time.Time) error {
+func (s *FulfillmentOrderServiceOp) SetDeadline(ctx context.Context, fulfillmentIds []int64, deadline time.Time) error {
 	req := struct {
 		FulfillmentOrderIds []int64   `json:"fulfillment_order_ids"`
 		FulfillmentDeadline time.Time `json:"fulfillment_deadline"`
 	}{
-		FulfillmentOrderIds: fulfillmentIDs,
+		FulfillmentOrderIds: fulfillmentIds,
 		FulfillmentDeadline: deadline,
 	}
 	path := "fulfillment_orders/set_fulfillment_orders_deadline.json"
@@ -269,14 +269,14 @@ func (s *FulfillmentOrderServiceOp) SetDeadline(ctx context.Context, fulfillment
 }
 
 // Move moves a fulfillment order to a new location
-func (s *FulfillmentOrderServiceOp) Move(ctx context.Context, fulfillmentID int64, moveRequest FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error) {
+func (s *FulfillmentOrderServiceOp) Move(ctx context.Context, fulfillmentId int64, moveRequest FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error) {
 	wrappedRequest := struct {
 		FulfillmentOrder FulfillmentOrderMoveRequest `json:"fulfillment_order"`
 	}{
 		FulfillmentOrder: moveRequest,
 	}
 
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/move.json", prefix)
 	resource := new(FulfillmentOrderMoveResource)
 	err := s.client.Post(ctx, path, wrappedRequest, resource)

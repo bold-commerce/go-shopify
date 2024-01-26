@@ -11,10 +11,10 @@ import (
 )
 
 func FulfillmentTests(t *testing.T, fulfillment Fulfillment) {
-	// Check that ID is assigned to the returned fulfillment
+	// Check that Id is assigned to the returned fulfillment
 	expectedInt := int64(1022782888)
-	if fulfillment.ID != expectedInt {
-		t.Errorf("Fulfillment.ID returned %+v, expected %+v", fulfillment.ID, expectedInt)
+	if fulfillment.Id != expectedInt {
+		t.Errorf("Fulfillment.Id returned %+v, expected %+v", fulfillment.Id, expectedInt)
 	}
 }
 
@@ -25,14 +25,14 @@ func TestFulfillmentList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"fulfillments": [{"id":1},{"id":2}]}`))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	fulfillments, err := fulfillmentService.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Fulfillment.List returned error: %v", err)
 	}
 
-	expected := []Fulfillment{{ID: 1}, {ID: 2}}
+	expected := []Fulfillment{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(fulfillments, expected) {
 		t.Errorf("Fulfillment.List returned %+v, expected %+v", fulfillments, expected)
 	}
@@ -52,7 +52,7 @@ func TestFulfillmentCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	cnt, err := fulfillmentService.Count(context.Background(), nil)
 	if err != nil {
@@ -83,14 +83,14 @@ func TestFulfillmentGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"fulfillment": {"id":1}}`))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	fulfillment, err := fulfillmentService.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Fulfillment.Get returned error: %v", err)
 	}
 
-	expected := &Fulfillment{ID: 1}
+	expected := &Fulfillment{Id: 1}
 	if !reflect.DeepEqual(fulfillment, expected) {
 		t.Errorf("Fulfillment.Get returned %+v, expected %+v", fulfillment, expected)
 	}
@@ -103,10 +103,10 @@ func TestFulfillmentCreate(t *testing.T) {
 	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	fulfillment := Fulfillment{
-		LocationID:     905684977,
+		LocationId:     905684977,
 		TrackingNumber: "123456789",
 		TrackingUrls: []string{
 			"https://shipping.xyz/track.php?num=123456789",
@@ -130,10 +130,10 @@ func TestFulfillmentUpdate(t *testing.T) {
 	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1022782888.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	fulfillment := Fulfillment{
-		ID:             1022782888,
+		Id:             1022782888,
 		TrackingNumber: "987654321",
 	}
 
@@ -152,7 +152,7 @@ func TestFulfillmentComplete(t *testing.T) {
 	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/complete.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	returnedFulfillment, err := fulfillmentService.Complete(context.Background(), 1)
 	if err != nil {
@@ -169,7 +169,7 @@ func TestFulfillmentTransition(t *testing.T) {
 	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/open.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	returnedFulfillment, err := fulfillmentService.Transition(context.Background(), 1)
 	if err != nil {
@@ -186,7 +186,7 @@ func TestFulfillmentCancel(t *testing.T) {
 	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/123/fulfillments/1/cancel.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
-	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceID: 123}
+	fulfillmentService := &FulfillmentServiceOp{client: client, resource: ordersResourceName, resourceId: 123}
 
 	returnedFulfillment, err := fulfillmentService.Cancel(context.Background(), 1)
 	if err != nil {

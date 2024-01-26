@@ -12,10 +12,10 @@ import (
 )
 
 func variantTests(t *testing.T, variant Variant) {
-	// Check that the ID is assigned to the returned variant
+	// Check that the Id is assigned to the returned variant
 	expectedInt := int64(1)
-	if variant.ID != expectedInt {
-		t.Errorf("Variant.ID returned %+v, expected %+v", variant.ID, expectedInt)
+	if variant.Id != expectedInt {
+		t.Errorf("Variant.Id returned %+v, expected %+v", variant.Id, expectedInt)
 	}
 
 	// Check that the Title is assigned to the returned variant
@@ -36,10 +36,10 @@ func variantTests(t *testing.T, variant Variant) {
 }
 
 func variantWithMetafieldsTests(t *testing.T, variant Variant) {
-	// Check that the ID is assigned to the returned variant
+	// Check that the Id is assigned to the returned variant
 	expectedInt := int64(2)
-	if variant.ID != expectedInt {
-		t.Errorf("Variant.ID returned %+v, expected %+v", variant.ID, expectedInt)
+	if variant.Id != expectedInt {
+		t.Errorf("Variant.Id returned %+v, expected %+v", variant.Id, expectedInt)
 	}
 
 	// Check that the Title is assigned to the returned variant
@@ -76,7 +76,7 @@ func TestVariantList(t *testing.T) {
 		t.Errorf("Variant.List returned error: %v", err)
 	}
 
-	expected := []Variant{{ID: 1}, {ID: 2}}
+	expected := []Variant{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(variants, expected) {
 		t.Errorf("Variant.List returned %+v, expected %+v", variants, expected)
 	}
@@ -130,7 +130,7 @@ func TestVariantGet(t *testing.T) {
 		t.Errorf("Variant.Get returned error: %v", err)
 	}
 
-	expected := &Variant{ID: 1}
+	expected := &Variant{Id: 1}
 	if !reflect.DeepEqual(variant, expected) {
 		t.Errorf("Variant.Get returned %+v, expected %+v", variant, expected)
 	}
@@ -184,7 +184,7 @@ func TestVariantUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("variant.json")))
 
 	variant := Variant{
-		ID:      1,
+		Id:      1,
 		Option1: "Green",
 	}
 
@@ -205,11 +205,11 @@ func TestVariantWithMetafieldsUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("variant_with_metafields.json")))
 
 	variant := Variant{
-		ID:      2,
+		Id:      2,
 		Option1: "Green",
 		Metafields: []Metafield{
 			{
-				ID:          123,
+				Id:          123,
 				Description: "Original",
 			},
 		},
@@ -251,7 +251,7 @@ func TestVariantListMetafields(t *testing.T) {
 		t.Errorf("Variant.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Variant.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -305,7 +305,7 @@ func TestVariantGetMetafield(t *testing.T) {
 		t.Errorf("Variant.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Variant.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -341,7 +341,7 @@ func TestVariantUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,
@@ -381,7 +381,7 @@ func TestVariantListWithTaxCode(t *testing.T) {
 		t.Errorf("Variant.List returned error: %v", err)
 	}
 
-	expected := []Variant{{ID: 1, TaxCode: "P0000000"}, {ID: 2, TaxCode: "P0000000"}}
+	expected := []Variant{{Id: 1, TaxCode: "P0000000"}, {Id: 2, TaxCode: "P0000000"}}
 	if !reflect.DeepEqual(variants, expected) {
 		t.Errorf("Variant.List returned %+v, expected %+v", variants, expected)
 	}
@@ -399,7 +399,7 @@ func TestVariantGetWithTaxCode(t *testing.T) {
 		t.Errorf("Variant.Get returned error: %v", err)
 	}
 
-	expected := &Variant{ID: 1, TaxCode: "P0000000"}
+	expected := &Variant{Id: 1, TaxCode: "P0000000"}
 	if !reflect.DeepEqual(variant, expected) {
 		t.Errorf("Variant.Get returned %+v, expected %+v", variant, expected)
 	}
@@ -427,10 +427,10 @@ func TestVariantCreateWithTaxCode(t *testing.T) {
 }
 
 func variantTestsWithTaxCode(t *testing.T, variant Variant) {
-	// Check that the ID is assigned to the returned variant
+	// Check that the Id is assigned to the returned variant
 	expectedInt := int64(1)
-	if variant.ID != expectedInt {
-		t.Errorf("Variant.ID returned %+v, expected %+v", variant.ID, expectedInt)
+	if variant.Id != expectedInt {
+		t.Errorf("Variant.Id returned %+v, expected %+v", variant.Id, expectedInt)
 	}
 
 	// Check that the Title is assigned to the returned variant

@@ -25,9 +25,9 @@ type ApplicationChargeServiceOp struct {
 }
 
 type ApplicationCharge struct {
-	ID                 int64            `json:"id"`
+	Id                 int64            `json:"id"`
 	Name               string           `json:"name"`
-	APIClientID        int64            `json:"api_client_id"`
+	APIClientId        int64            `json:"api_client_id"`
 	Price              *decimal.Decimal `json:"price"`
 	Status             string           `json:"status"`
 	ReturnURL          string           `json:"return_url"`
@@ -59,8 +59,8 @@ func (a ApplicationChargeServiceOp) Create(ctx context.Context, charge Applicati
 }
 
 // Get gets individual application charge.
-func (a ApplicationChargeServiceOp) Get(ctx context.Context, chargeID int64, options interface{}) (*ApplicationCharge, error) {
-	path := fmt.Sprintf("%s/%d.json", applicationChargesBasePath, chargeID)
+func (a ApplicationChargeServiceOp) Get(ctx context.Context, chargeId int64, options interface{}) (*ApplicationCharge, error) {
+	path := fmt.Sprintf("%s/%d.json", applicationChargesBasePath, chargeId)
 	resource := &ApplicationChargeResource{}
 	return resource.Charge, a.client.Get(ctx, path, resource, options)
 }
@@ -74,7 +74,7 @@ func (a ApplicationChargeServiceOp) List(ctx context.Context, options interface{
 
 // Activate activates application charge.
 func (a ApplicationChargeServiceOp) Activate(ctx context.Context, charge ApplicationCharge) (*ApplicationCharge, error) {
-	path := fmt.Sprintf("%s/%d/activate.json", applicationChargesBasePath, charge.ID)
+	path := fmt.Sprintf("%s/%d/activate.json", applicationChargesBasePath, charge.Id)
 	resource := &ApplicationChargeResource{}
 	return resource.Charge, a.client.Post(ctx, path, ApplicationChargeResource{Charge: &charge}, resource)
 }

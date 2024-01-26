@@ -615,7 +615,7 @@ type ListOptions struct {
 	Order        string    `url:"order,omitempty"`
 	Fields       string    `url:"fields,omitempty"`
 	Vendor       string    `url:"vendor,omitempty"`
-	IDs          []int64   `url:"ids,omitempty,comma"`
+	Ids          []int64   `url:"ids,omitempty,comma"`
 }
 
 // General count options that can be used for most collection counts.

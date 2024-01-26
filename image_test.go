@@ -10,16 +10,16 @@ import (
 )
 
 func imageTests(t *testing.T, image Image) {
-	// Check that ID is set
-	expectedImageID := int64(1)
-	if image.ID != expectedImageID {
-		t.Errorf("Image.ID returned %+v, expected %+v", image.ID, expectedImageID)
+	// Check that Id is set
+	expectedImageId := int64(1)
+	if image.Id != expectedImageId {
+		t.Errorf("Image.Id returned %+v, expected %+v", image.Id, expectedImageId)
 	}
 
 	// Check that product_id is set
-	expectedProductID := int64(1)
-	if image.ProductID != expectedProductID {
-		t.Errorf("Image.ProductID returned %+v, expected %+v", image.ProductID, expectedProductID)
+	expectedProductId := int64(1)
+	if image.ProductId != expectedProductId {
+		t.Errorf("Image.ProductId returned %+v, expected %+v", image.ProductId, expectedProductId)
 	}
 
 	// Check that position is set
@@ -177,7 +177,7 @@ func TestImageUpdate(t *testing.T) {
 	variantIds[0] = 808950810
 	variantIds[1] = 457924702
 	existingImage := Image{
-		ID:         1,
+		Id:         1,
 		VariantIds: variantIds,
 	}
 	// And update it

@@ -28,7 +28,7 @@ func TestCarrierList(t *testing.T) {
 			Active:             true,
 			ServiceDiscovery:   true,
 			CarrierServiceType: "api",
-			AdminGraphqlAPIID:  "gid://shopify/DeliveryCarrierService/1",
+			AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",
 			Format:             "json",
 			CallbackUrl:        "https://fooshop.example.com/shipping",
 		},
@@ -56,7 +56,7 @@ func TestCarrierGet(t *testing.T) {
 		Active:             true,
 		ServiceDiscovery:   true,
 		CarrierServiceType: "api",
-		AdminGraphqlAPIID:  "gid://shopify/DeliveryCarrierService/1",
+		AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",
 		Format:             "json",
 		CallbackUrl:        "https://fooshop.example.com/shipping",
 	}
@@ -83,7 +83,7 @@ func TestCarrierCreate(t *testing.T) {
 		Active:             true,
 		ServiceDiscovery:   true,
 		CarrierServiceType: "api",
-		AdminGraphqlAPIID:  "gid://shopify/DeliveryCarrierService/1",
+		AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",
 		Format:             "json",
 		CallbackUrl:        "https://fooshop.example.com/shipping",
 	}
@@ -110,7 +110,7 @@ func TestCarrierUpdate(t *testing.T) {
 		Active:             true,
 		ServiceDiscovery:   true,
 		CarrierServiceType: "api",
-		AdminGraphqlAPIID:  "gid://shopify/DeliveryCarrierService/1",
+		AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",
 		Format:             "json",
 		CallbackUrl:        "https://fooshop.example.com/shipping",
 	}

@@ -26,8 +26,8 @@ func storefrontAccessTokenTests(t *testing.T, StorefrontAccessToken StorefrontAc
 	}
 
 	expectedStr = "gid://shopify/StorefrontAccessToken/755357713"
-	if StorefrontAccessToken.AdminGraphqlAPIID != expectedStr {
-		t.Errorf("StorefrontAccessToken.AdminGraphqlAPIID returned %+v, expected %+v", StorefrontAccessToken.AdminGraphqlAPIID, expectedStr)
+	if StorefrontAccessToken.AdminGraphqlApiId != expectedStr {
+		t.Errorf("StorefrontAccessToken.AdminGraphqlApiId returned %+v, expected %+v", StorefrontAccessToken.AdminGraphqlApiId, expectedStr)
 	}
 
 	d := time.Date(2016, time.June, 1, 14, 10, 44, 0, time.UTC)

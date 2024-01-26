@@ -101,8 +101,8 @@ func (s *PaymentsTransactionsServiceOp) ListWithPagination(ctx context.Context, 
 }
 
 // Get individual PaymentsTransactions
-func (s *PaymentsTransactionsServiceOp) Get(ctx context.Context, payoutID int64, options interface{}) (*PaymentsTransactions, error) {
-	path := fmt.Sprintf("%s/%d.json", paymentsTransactionsBasePath, payoutID)
+func (s *PaymentsTransactionsServiceOp) Get(ctx context.Context, payoutId int64, options interface{}) (*PaymentsTransactions, error) {
+	path := fmt.Sprintf("%s/%d.json", paymentsTransactionsBasePath, payoutId)
 	resource := new(PaymentsTransactionResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.PaymentsTransaction, err

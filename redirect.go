@@ -27,7 +27,7 @@ type RedirectServiceOp struct {
 
 // Redirect represents a Shopify redirect.
 type Redirect struct {
-	ID     int64  `json:"id"`
+	Id     int64  `json:"id"`
 	Path   string `json:"path"`
 	Target string `json:"target"`
 }
@@ -57,8 +57,8 @@ func (s *RedirectServiceOp) Count(ctx context.Context, options interface{}) (int
 }
 
 // Get individual redirect
-func (s *RedirectServiceOp) Get(ctx context.Context, redirectID int64, options interface{}) (*Redirect, error) {
-	path := fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectID)
+func (s *RedirectServiceOp) Get(ctx context.Context, redirectId int64, options interface{}) (*Redirect, error) {
+	path := fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectId)
 	resource := new(RedirectResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Redirect, err
@@ -75,7 +75,7 @@ func (s *RedirectServiceOp) Create(ctx context.Context, redirect Redirect) (*Red
 
 // Update an existing redirect
 func (s *RedirectServiceOp) Update(ctx context.Context, redirect Redirect) (*Redirect, error) {
-	path := fmt.Sprintf("%s/%d.json", redirectsBasePath, redirect.ID)
+	path := fmt.Sprintf("%s/%d.json", redirectsBasePath, redirect.Id)
 	wrappedData := RedirectResource{Redirect: &redirect}
 	resource := new(RedirectResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
@@ -83,6 +83,6 @@ func (s *RedirectServiceOp) Update(ctx context.Context, redirect Redirect) (*Red
 }
 
 // Delete an existing redirect.
-func (s *RedirectServiceOp) Delete(ctx context.Context, redirectID int64) error {
-	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectID))
+func (s *RedirectServiceOp) Delete(ctx context.Context, redirectId int64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectId))
 }

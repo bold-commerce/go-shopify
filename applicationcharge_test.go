@@ -19,9 +19,9 @@ func applicationChargeTests(t *testing.T, charge ApplicationCharge) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(1017262355), charge.ID},
+		{"Id", int64(1017262355), charge.Id},
 		{"Name", "Super Duper Expensive action", charge.Name},
-		{"APIClientID", int64(755357713), charge.APIClientID},
+		{"APIClientId", int64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(100.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -87,7 +87,7 @@ func TestApplicationChargeServiceOp_Get(t *testing.T) {
 		t.Errorf("ApplicationCharge.Get returned an error: %v", err)
 	}
 
-	expected := &ApplicationCharge{ID: 1}
+	expected := &ApplicationCharge{Id: 1}
 	if !reflect.DeepEqual(charge, expected) {
 		t.Errorf("ApplicationCharge.Get returned %+v, expected %+v", charge, expected)
 	}
@@ -108,7 +108,7 @@ func TestApplicationChargeServiceOp_List(t *testing.T) {
 		t.Errorf("ApplicationCharge.List returned an error: %v", err)
 	}
 
-	expected := []ApplicationCharge{{ID: 1}, {ID: 2}}
+	expected := []ApplicationCharge{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(charges, expected) {
 		t.Errorf("ApplicationCharge.List returned %+v, expected %+v", charges, expected)
 	}
@@ -128,7 +128,7 @@ func TestApplicationChargeServiceOp_Activate(t *testing.T) {
 	)
 
 	charge := ApplicationCharge{
-		ID:     455696195,
+		Id:     455696195,
 		Status: "accepted",
 	}
 
@@ -137,7 +137,7 @@ func TestApplicationChargeServiceOp_Activate(t *testing.T) {
 		t.Errorf("ApplicationCharge.Activate returned an error: %v", err)
 	}
 
-	expected := &ApplicationCharge{ID: 455696195, Status: "active"}
+	expected := &ApplicationCharge{Id: 455696195, Status: "active"}
 	if !reflect.DeepEqual(returnedCharge, expected) {
 		t.Errorf("ApplicationCharge.Activate returned %+v, expected %+v", charge, expected)
 	}

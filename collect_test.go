@@ -16,9 +16,9 @@ func collectTests(t *testing.T, collect Collect) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(18091352323), collect.ID},
-		{"CollectionID", int64(241600835), collect.CollectionID},
-		{"ProductID", int64(6654094787), collect.ProductID},
+		{"Id", int64(18091352323), collect.Id},
+		{"CollectionId", int64(241600835), collect.CollectionId},
+		{"ProductId", int64(6654094787), collect.ProductId},
 		{"Featured", false, collect.Featured},
 		{"SortValue", "0000000002", collect.SortValue},
 	}
@@ -42,7 +42,7 @@ func TestCollectList(t *testing.T) {
 		t.Errorf("Collect.List returned error: %v", err)
 	}
 
-	expected := []Collect{{ID: 1}, {ID: 2}}
+	expected := []Collect{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(collects, expected) {
 		t.Errorf("Collect.List returned %+v, expected %+v", collects, expected)
 	}
@@ -95,7 +95,7 @@ func TestCollectGet(t *testing.T) {
 		t.Errorf("Collect.Get returned error: %v", err)
 	}
 
-	expected := &Collect{ID: 1}
+	expected := &Collect{Id: 1}
 	if !reflect.DeepEqual(product, expected) {
 		t.Errorf("Collect.Get returned %+v, expected %+v", product, expected)
 	}
@@ -109,8 +109,8 @@ func TestCollectCreate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("collect.json")))
 
 	collect := Collect{
-		CollectionID: 241600835,
-		ProductID:    6654094787,
+		CollectionId: 241600835,
+		ProductId:    6654094787,
 	}
 
 	returnedCollect, err := client.Collect.Create(context.Background(), collect)

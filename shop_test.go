@@ -34,7 +34,7 @@ func TestShopGet(t *testing.T) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(690933842), shop.ID},
+		{"Id", int64(690933842), shop.Id},
 		{"ShopOwner", "Steve Jobs", shop.ShopOwner},
 		{"Address1", "1 Infinite Loop", shop.Address1},
 		{"Name", "Apple Computers", shop.Name},
@@ -69,7 +69,7 @@ func TestShopListMetafields(t *testing.T) {
 		t.Errorf("Shop.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Shop.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -123,7 +123,7 @@ func TestShopGetMetafield(t *testing.T) {
 		t.Errorf("Shop.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Shop.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -159,7 +159,7 @@ func TestShopUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,

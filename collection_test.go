@@ -49,7 +49,7 @@ func TestCollectionGet(t *testing.T) {
 
 	imageCreatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T15:01:45-05:00")
 	expected := &Collection{
-		ID:             25,
+		Id:             25,
 		Handle:         "more-than-5",
 		Title:          "More than $5",
 		UpdatedAt:      &updatedAt,
@@ -135,7 +135,7 @@ func TestCollectionListProducts(t *testing.T) {
 
 	expected := []Product{
 		{
-			ID:             632910392,
+			Id:             632910392,
 			Title:          "The Best Product",
 			BodyHTML:       "<p>The best product available</p>",
 			Vendor:         "local-vendor",
@@ -148,8 +148,8 @@ func TestCollectionListProducts(t *testing.T) {
 			Tags:           "Best",
 			Options: []ProductOption{
 				{
-					ID:        6519940513924,
-					ProductID: 632910392,
+					Id:        6519940513924,
+					ProductId: 632910392,
 					Name:      "Title",
 					Position:  1,
 					Values:    nil,
@@ -158,8 +158,8 @@ func TestCollectionListProducts(t *testing.T) {
 			Variants: nil,
 			Images: []Image{
 				{
-					ID:         14601766043780,
-					ProductID:  632910392,
+					Id:         14601766043780,
+					ProductId:  632910392,
 					Position:   1,
 					CreatedAt:  &imageCreatedAt,
 					UpdatedAt:  &imageUpdatedAt,
@@ -170,7 +170,7 @@ func TestCollectionListProducts(t *testing.T) {
 				},
 			},
 			TemplateSuffix:    "special",
-			AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+			AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 		},
 	}
 	if !reflect.DeepEqual(products, expected) {
@@ -272,7 +272,7 @@ func TestListProductsWithPagination(t *testing.T) {
 
 	expectedProducts := []Product{
 		{
-			ID:             632910392,
+			Id:             632910392,
 			Title:          "The Best Product",
 			BodyHTML:       "<p>The best product available</p>",
 			Vendor:         "local-vendor",
@@ -285,8 +285,8 @@ func TestListProductsWithPagination(t *testing.T) {
 			Tags:           "Best",
 			Options: []ProductOption{
 				{
-					ID:        6519940513924,
-					ProductID: 632910392,
+					Id:        6519940513924,
+					ProductId: 632910392,
 					Name:      "Title",
 					Position:  1,
 					Values:    nil,
@@ -295,8 +295,8 @@ func TestListProductsWithPagination(t *testing.T) {
 			Variants: nil,
 			Images: []Image{
 				{
-					ID:         14601766043780,
-					ProductID:  632910392,
+					Id:         14601766043780,
+					ProductId:  632910392,
 					Position:   1,
 					CreatedAt:  &imageCreatedAt,
 					UpdatedAt:  &imageUpdatedAt,
@@ -307,7 +307,7 @@ func TestListProductsWithPagination(t *testing.T) {
 				},
 			},
 			TemplateSuffix:    "special",
-			AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+			AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 		},
 	}
 	if !reflect.DeepEqual(products, expectedProducts) {
@@ -326,7 +326,7 @@ func TestListProductsWithPagination(t *testing.T) {
 			Order:        "",
 			Fields:       "",
 			Vendor:       "",
-			IDs:          nil,
+			Ids:          nil,
 		},
 		PreviousPageOptions: nil,
 	}

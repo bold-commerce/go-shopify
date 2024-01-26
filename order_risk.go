@@ -92,16 +92,16 @@ func (s *OrderRiskServiceOp) ListWithPagination(ctx context.Context, orderId int
 }
 
 // Get individual order
-func (s *OrderRiskServiceOp) Get(ctx context.Context, orderID int64, riskID int64, options interface{}) (*OrderRisk, error) {
-	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderID, ordersRiskResourceName, riskID)
+func (s *OrderRiskServiceOp) Get(ctx context.Context, orderId int64, riskId int64, options interface{}) (*OrderRisk, error) {
+	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderId, ordersRiskResourceName, riskId)
 	resource := new(OrderRiskResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.OrderRisk, err
 }
 
 // Create order
-func (s *OrderRiskServiceOp) Create(ctx context.Context, orderID int64, orderRisk OrderRisk) (*OrderRisk, error) {
-	path := fmt.Sprintf("%s/%d/%s.json", ordersRiskBasePath, orderID, ordersRiskResourceName)
+func (s *OrderRiskServiceOp) Create(ctx context.Context, orderId int64, orderRisk OrderRisk) (*OrderRisk, error) {
+	path := fmt.Sprintf("%s/%d/%s.json", ordersRiskBasePath, orderId, ordersRiskResourceName)
 	wrappedData := OrderRiskResource{OrderRisk: &orderRisk}
 	resource := new(OrderRiskResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)
@@ -109,8 +109,8 @@ func (s *OrderRiskServiceOp) Create(ctx context.Context, orderID int64, orderRis
 }
 
 // Update order
-func (s *OrderRiskServiceOp) Update(ctx context.Context, orderID int64, riskID int64, orderRisk OrderRisk) (*OrderRisk, error) {
-	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderID, ordersRiskResourceName, riskID)
+func (s *OrderRiskServiceOp) Update(ctx context.Context, orderId int64, riskId int64, orderRisk OrderRisk) (*OrderRisk, error) {
+	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderId, ordersRiskResourceName, riskId)
 	wrappedData := OrderRiskResource{OrderRisk: &orderRisk}
 	resource := new(OrderRiskResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
@@ -118,8 +118,8 @@ func (s *OrderRiskServiceOp) Update(ctx context.Context, orderID int64, riskID i
 }
 
 // Delete order
-func (s *OrderRiskServiceOp) Delete(ctx context.Context, orderID int64, riskID int64) error {
-	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderID, ordersRiskResourceName, riskID)
+func (s *OrderRiskServiceOp) Delete(ctx context.Context, orderId int64, riskId int64) error {
+	path := fmt.Sprintf("%s/%d/%s/%d.json", ordersRiskBasePath, orderId, ordersRiskResourceName, riskId)
 	err := s.client.Delete(ctx, path)
 	return err
 }

@@ -14,15 +14,15 @@ func TestFulfillmentRequestServiceOp_Send(t *testing.T) {
 	setup()
 	defer teardown()
 
-	fulfillmentOrderID := int64(1046000829)
+	fulfillmentOrderId := int64(1046000829)
 	message := "Fulfill this ASAP please."
 	httpmock.RegisterResponder(
 		http.MethodPost,
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/%d/fulfillment_request.json", client.pathPrefix, fulfillmentOrderID),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/%d/fulfillment_request.json", client.pathPrefix, fulfillmentOrderId),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_send.json")),
 	)
 
-	result, err := client.FulfillmentRequest.Send(context.Background(), fulfillmentOrderID, FulfillmentRequest{Message: message})
+	result, err := client.FulfillmentRequest.Send(context.Background(), fulfillmentOrderId, FulfillmentRequest{Message: message})
 	if err != nil {
 		t.Errorf("FulfillmentRequest.Send returned error: %v", err)
 	}
@@ -91,16 +91,16 @@ func TestFulfillmentRequestServiceOp_Accept(t *testing.T) {
 	setup()
 	defer teardown()
 
-	fulfillmentOrderID := int64(1046000828)
+	fulfillmentOrderId := int64(1046000828)
 	message := "We will start processing your fulfillment on the next business day."
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/%d/fulfillment_request/accept.json", client.pathPrefix, fulfillmentOrderID),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/%d/fulfillment_request/accept.json", client.pathPrefix, fulfillmentOrderId),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_accept.json")),
 	)
 
-	result, err := client.FulfillmentRequest.Accept(context.Background(), fulfillmentOrderID, FulfillmentRequest{Message: message})
+	result, err := client.FulfillmentRequest.Accept(context.Background(), fulfillmentOrderId, FulfillmentRequest{Message: message})
 	if err != nil {
 		t.Errorf("FulfillmentRequest.Accept returned error: %v", err)
 	}
@@ -168,16 +168,16 @@ func TestFulfillmentRequestServiceOp_Reject(t *testing.T) {
 	setup()
 	defer teardown()
 
-	fulfillmentOrderID := int64(1046000830)
+	fulfillmentOrderId := int64(1046000830)
 	rejectionMessage := "Not enough inventory on hand to complete the work."
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/%d/fulfillment_request/reject.json", client.pathPrefix, fulfillmentOrderID),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/%d/fulfillment_request/reject.json", client.pathPrefix, fulfillmentOrderId),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_reject.json")),
 	)
 
-	result, err := client.FulfillmentRequest.Reject(context.Background(), fulfillmentOrderID, FulfillmentRequest{Message: rejectionMessage})
+	result, err := client.FulfillmentRequest.Reject(context.Background(), fulfillmentOrderId, FulfillmentRequest{Message: rejectionMessage})
 	if err != nil {
 		t.Errorf("FulfillmentRequest.Reject returned error: %v", err)
 	}

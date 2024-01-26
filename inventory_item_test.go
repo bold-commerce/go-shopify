@@ -16,8 +16,8 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 	}
 
 	expectedInt := int64(808950810)
-	if item.ID != expectedInt {
-		t.Errorf("InventoryItem.ID returned %+v, expected %+v", item.ID, expectedInt)
+	if item.Id != expectedInt {
+		t.Errorf("InventoryItem.Id returned %+v, expected %+v", item.Id, expectedInt)
 	}
 
 	expectedSKU := "new sku"
@@ -81,7 +81,7 @@ func TestInventoryItemsList(t *testing.T) {
 	inventoryItemsTests(t, items)
 }
 
-func TestInventoryItemsListWithIDs(t *testing.T) {
+func TestInventoryItemsListWithIds(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -96,7 +96,7 @@ func TestInventoryItemsListWithIDs(t *testing.T) {
 	)
 
 	options := ListOptions{
-		IDs: []int64{1, 2},
+		Ids: []int64{1, 2},
 	}
 
 	items, err := client.InventoryItem.List(context.Background(), options)
@@ -130,7 +130,7 @@ func TestInventoryItemUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("inventory_item.json")))
 
 	item := InventoryItem{
-		ID: 1,
+		Id: 1,
 	}
 
 	updatedItem, err := client.InventoryItem.Update(context.Background(), item)

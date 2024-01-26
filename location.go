@@ -14,7 +14,7 @@ const locationsBasePath = "locations"
 type LocationService interface {
 	// Retrieves a list of locations
 	List(ctx context.Context, options interface{}) ([]Location, error)
-	// Retrieves a single location by its ID
+	// Retrieves a single location by its Id
 	Get(ctx context.Context, id int64, options interface{}) (*Location, error)
 	// Retrieves a count of locations
 	Count(ctx context.Context, options interface{}) (int, error)
@@ -46,8 +46,8 @@ type Location struct {
 	// The date and time (ISO 8601 format) when the location was created.
 	CreatedAt time.Time `json:"created_at"`
 
-	// The ID for the location.
-	ID int64 `json:"id"`
+	// The Id for the location.
+	Id int64 `json:"id"`
 
 	// Whether this is a fulfillment service location.
 	// If true, then the location is a fulfillment service location.
@@ -72,7 +72,7 @@ type Location struct {
 	// The zip or postal code.
 	Zip string `json:"zip"`
 
-	AdminGraphqlAPIID string `json:"admin_graphql_api_id"`
+	AdminGraphqlApiId string `json:"admin_graphql_api_id"`
 }
 
 // LocationServiceOp handles communication with the location related methods of
