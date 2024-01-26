@@ -128,7 +128,7 @@ func TestThemeUpdate(t *testing.T) {
 		t.Errorf("Theme.Update returned error: %v", err)
 	}
 
-	expectedThemeId := int64(1)
+	expectedThemeId := uint64(1)
 	if expectation.Id != expectedThemeId {
 		t.Errorf("Theme.Id returned %+v expected %+v", expectation.Id, expectedThemeId)
 	}
@@ -148,7 +148,7 @@ func TestThemeCreate(t *testing.T) {
 		t.Errorf("Theme.Create returned error: %v", err)
 	}
 
-	expectedThemeId := int64(1)
+	expectedThemeId := uint64(1)
 	if expectation.Id != expectedThemeId {
 		t.Errorf("Theme.Id returned %+v expected %+v", expectation.Id, expectedThemeId)
 	}

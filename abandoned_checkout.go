@@ -30,7 +30,7 @@ type AbandonedCheckoutsResource struct {
 
 // AbandonedCheckout represents a Shopify abandoned checkout
 type AbandonedCheckout struct {
-	Id                       int64                `json:"id,omitempty"`
+	Id                       uint64               `json:"id,omitempty"`
 	Token                    string               `json:"token,omitempty"`
 	CartToken                string               `json:"cart_token,omitempty"`
 	Email                    string               `json:"email,omitempty"`
@@ -48,10 +48,10 @@ type AbandonedCheckout struct {
 	Currency                 string               `json:"currency,omitempty"`
 	CompletedAt              *time.Time           `json:"completed_at,omitempty"`
 	ClosedAt                 *time.Time           `json:"closed_at,omitempty"`
-	UserId                   int64                `json:"user_id,omitempty"`
+	UserId                   uint64               `json:"user_id,omitempty"`
 	SourceIdentifier         string               `json:"source_identifier,omitempty"`
 	SourceUrl                string               `json:"source_url,omitempty"`
-	DeviceId                 int64                `json:"device_id,omitempty"`
+	DeviceId                 uint64               `json:"device_id,omitempty"`
 	Phone                    string               `json:"phone,omitempty"`
 	CustomerLocale           string               `json:"customer_locale,omitempty"`
 	Name                     string               `json:"name,omitempty"`

@@ -13,7 +13,7 @@ import (
 
 func FulfillmentOrderTests(t *testing.T, fulfillmentOrder FulfillmentOrder) {
 	// Check that Id is assigned to the returned fulfillment
-	expectedInt := int64(255858046) // in fulfillment_order.json fixture
+	expectedInt := uint64(255858046) // in fulfillment_order.json fixture
 	if fulfillmentOrder.Id != expectedInt {
 		t.Errorf("FulfillmentOrder.Id returned %+v, expected %+v", fulfillmentOrder.Id, expectedInt)
 	}
@@ -150,7 +150,7 @@ func TestFulfillmentOrderOpen(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 
 	result, err := fulfillmentOrderService.Open(context.Background(), fulfillmentId)
 	if err != nil {
@@ -170,7 +170,7 @@ func TestFulfillmentOrderReleaseHold(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 
 	result, err := fulfillmentOrderService.ReleaseHold(context.Background(), fulfillmentId)
 	if err != nil {
@@ -190,7 +190,7 @@ func TestFulfillmentOrderReschedule(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 
 	result, err := fulfillmentOrderService.Reschedule(context.Background(), fulfillmentId)
 	if err != nil {
@@ -210,9 +210,9 @@ func TestFulfillmentOrderSetDeadline(t *testing.T) {
 		httpmock.NewStringResponder(200, "{}"))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 	newDeadline := time.Now().Add(time.Hour * 24 * 7)
-	err := fulfillmentOrderService.SetDeadline(context.Background(), []int64{fulfillmentId}, newDeadline)
+	err := fulfillmentOrderService.SetDeadline(context.Background(), []uint64{fulfillmentId}, newDeadline)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.SetDeadline returned error: %v", err)
 	}

@@ -17,7 +17,7 @@ func smartCollectionTests(t *testing.T, collection SmartCollection) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"Id", int64(30497275952), collection.Id},
+		{"Id", uint64(30497275952), collection.Id},
 		{"Handle", "macbooks", collection.Handle},
 		{"Title", "Macbooks", collection.Title},
 		{"BodyHTML", "Macbook Body", collection.BodyHTML},

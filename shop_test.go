@@ -34,7 +34,7 @@ func TestShopGet(t *testing.T) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"Id", int64(690933842), shop.Id},
+		{"Id", uint64(690933842), shop.Id},
 		{"ShopOwner", "Steve Jobs", shop.ShopOwner},
 		{"Address1", "1 Infinite Loop", shop.Address1},
 		{"Name", "Apple Computers", shop.Name},

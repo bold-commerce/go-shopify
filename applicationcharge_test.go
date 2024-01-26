@@ -19,9 +19,9 @@ func applicationChargeTests(t *testing.T, charge ApplicationCharge) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"Id", int64(1017262355), charge.Id},
+		{"Id", uint64(1017262355), charge.Id},
 		{"Name", "Super Duper Expensive action", charge.Name},
-		{"APIClientId", int64(755357713), charge.APIClientId},
+		{"APIClientId", uint64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(100.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},

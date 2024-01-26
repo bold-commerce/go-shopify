@@ -12,26 +12,26 @@ import (
 type FulfillmentService interface {
 	List(context.Context, interface{}) ([]Fulfillment, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*Fulfillment, error)
+	Get(context.Context, uint64, interface{}) (*Fulfillment, error)
 	Create(context.Context, Fulfillment) (*Fulfillment, error)
 	Update(context.Context, Fulfillment) (*Fulfillment, error)
-	Complete(context.Context, int64) (*Fulfillment, error)
-	Transition(context.Context, int64) (*Fulfillment, error)
-	Cancel(context.Context, int64) (*Fulfillment, error)
+	Complete(context.Context, uint64) (*Fulfillment, error)
+	Transition(context.Context, uint64) (*Fulfillment, error)
+	Cancel(context.Context, uint64) (*Fulfillment, error)
 }
 
 // FulfillmentsService is an interface for other Shopify resources
 // to interface with the fulfillment endpoints of the Shopify API.
 // https://help.shopify.com/api/reference/fulfillment
 type FulfillmentsService interface {
-	ListFulfillments(context.Context, int64, interface{}) ([]Fulfillment, error)
-	CountFulfillments(context.Context, int64, interface{}) (int, error)
-	GetFulfillment(context.Context, int64, int64, interface{}) (*Fulfillment, error)
-	CreateFulfillment(context.Context, int64, Fulfillment) (*Fulfillment, error)
-	UpdateFulfillment(context.Context, int64, Fulfillment) (*Fulfillment, error)
-	CompleteFulfillment(context.Context, int64, int64) (*Fulfillment, error)
-	TransitionFulfillment(context.Context, int64, int64) (*Fulfillment, error)
-	CancelFulfillment(context.Context, int64, int64) (*Fulfillment, error)
+	ListFulfillments(context.Context, uint64, interface{}) ([]Fulfillment, error)
+	CountFulfillments(context.Context, uint64, interface{}) (int, error)
+	GetFulfillment(context.Context, uint64, uint64, interface{}) (*Fulfillment, error)
+	CreateFulfillment(context.Context, uint64, Fulfillment) (*Fulfillment, error)
+	UpdateFulfillment(context.Context, uint64, Fulfillment) (*Fulfillment, error)
+	CompleteFulfillment(context.Context, uint64, uint64) (*Fulfillment, error)
+	TransitionFulfillment(context.Context, uint64, uint64) (*Fulfillment, error)
+	CancelFulfillment(context.Context, uint64, uint64) (*Fulfillment, error)
 }
 
 // FulfillmentServiceOp handles communication with the fulfillment
@@ -39,14 +39,14 @@ type FulfillmentsService interface {
 type FulfillmentServiceOp struct {
 	client     *Client
 	resource   string
-	resourceId int64
+	resourceId uint64
 }
 
 // Fulfillment represents a Shopify fulfillment.
 type Fulfillment struct {
-	Id                          int64                        `json:"id,omitempty"`
-	OrderId                     int64                        `json:"order_id,omitempty"`
-	LocationId                  int64                        `json:"location_id,omitempty"`
+	Id                          uint64                       `json:"id,omitempty"`
+	OrderId                     uint64                       `json:"order_id,omitempty"`
+	LocationId                  uint64                       `json:"location_id,omitempty"`
 	Status                      string                       `json:"status,omitempty"`
 	CreatedAt                   *time.Time                   `json:"created_at,omitempty"`
 	Service                     string                       `json:"service,omitempty"`
@@ -75,14 +75,14 @@ type FulfillmentTrackingInfo struct {
 // LineItemByFulfillmentOrder represents the FulfillmentOrders (and optionally the items) used to create a Fulfillment.
 // https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillment#post-fulfillments
 type LineItemByFulfillmentOrder struct {
-	FulfillmentOrderId        int64                                    `json:"fulfillment_order_id,omitempty"`
+	FulfillmentOrderId        uint64                                   `json:"fulfillment_order_id,omitempty"`
 	FulfillmentOrderLineItems []LineItemByFulfillmentOrderItemQuantity `json:"fulfillment_order_line_items,omitempty"`
 }
 
 // LineItemByFulfillmentOrderItemQuantity represents the quantity to fulfill for one item.
 type LineItemByFulfillmentOrderItemQuantity struct {
-	Id       int64 `json:"id"`
-	Quantity int64 `json:"quantity"`
+	Id       uint64 `json:"id"`
+	Quantity uint64 `json:"quantity"`
 }
 
 // Receipt represents a Shopify receipt.
@@ -118,7 +118,7 @@ func (s *FulfillmentServiceOp) Count(ctx context.Context, options interface{}) (
 }
 
 // Get individual fulfillment
-func (s *FulfillmentServiceOp) Get(ctx context.Context, fulfillmentId int64, options interface{}) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Get(ctx context.Context, fulfillmentId uint64, options interface{}) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceId)
 	path := fmt.Sprintf("%s/%d.json", prefix, fulfillmentId)
 	resource := new(FulfillmentResource)
@@ -147,7 +147,7 @@ func (s *FulfillmentServiceOp) Update(ctx context.Context, fulfillment Fulfillme
 }
 
 // Complete an existing fulfillment
-func (s *FulfillmentServiceOp) Complete(ctx context.Context, fulfillmentId int64) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Complete(ctx context.Context, fulfillmentId uint64) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceId)
 	path := fmt.Sprintf("%s/%d/complete.json", prefix, fulfillmentId)
 	resource := new(FulfillmentResource)
@@ -156,7 +156,7 @@ func (s *FulfillmentServiceOp) Complete(ctx context.Context, fulfillmentId int64
 }
 
 // Transition an existing fulfillment
-func (s *FulfillmentServiceOp) Transition(ctx context.Context, fulfillmentId int64) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Transition(ctx context.Context, fulfillmentId uint64) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceId)
 	path := fmt.Sprintf("%s/%d/open.json", prefix, fulfillmentId)
 	resource := new(FulfillmentResource)
@@ -165,7 +165,7 @@ func (s *FulfillmentServiceOp) Transition(ctx context.Context, fulfillmentId int
 }
 
 // Cancel an existing fulfillment
-func (s *FulfillmentServiceOp) Cancel(ctx context.Context, fulfillmentId int64) (*Fulfillment, error) {
+func (s *FulfillmentServiceOp) Cancel(ctx context.Context, fulfillmentId uint64) (*Fulfillment, error) {
 	prefix := FulfillmentPathPrefix(s.resource, s.resourceId)
 	path := fmt.Sprintf("%s/%d/cancel.json", prefix, fulfillmentId)
 	resource := new(FulfillmentResource)

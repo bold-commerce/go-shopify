@@ -20,12 +20,12 @@ type CustomerService interface {
 	List(context.Context, interface{}) ([]Customer, error)
 	ListWithPagination(ctx context.Context, options interface{}) ([]Customer, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*Customer, error)
+	Get(context.Context, uint64, interface{}) (*Customer, error)
 	Search(context.Context, interface{}) ([]Customer, error)
 	Create(context.Context, Customer) (*Customer, error)
 	Update(context.Context, Customer) (*Customer, error)
-	Delete(context.Context, int64) error
-	ListOrders(context.Context, int64, interface{}) ([]Order, error)
+	Delete(context.Context, uint64) error
+	ListOrders(context.Context, uint64, interface{}) ([]Order, error)
 	ListTags(context.Context, interface{}) ([]string, error)
 
 	// MetafieldsService used for Customer resource to communicate with Metafields resource
@@ -40,7 +40,7 @@ type CustomerServiceOp struct {
 
 // Customer represents a Shopify customer
 type Customer struct {
-	Id                        int64                  `json:"id,omitempty"`
+	Id                        uint64                 `json:"id,omitempty"`
 	Email                     string                 `json:"email,omitempty"`
 	FirstName                 string                 `json:"first_name,omitempty"`
 	LastName                  string                 `json:"last_name,omitempty"`
@@ -53,7 +53,7 @@ type Customer struct {
 	TotalSpent                *decimal.Decimal       `json:"total_spent,omitempty"`
 	Phone                     string                 `json:"phone,omitempty"`
 	Tags                      string                 `json:"tags,omitempty"`
-	LastOrderId               int64                  `json:"last_order_id,omitempty"`
+	LastOrderId               uint64                 `json:"last_order_id,omitempty"`
 	LastOrderName             string                 `json:"last_order_name,omitempty"`
 	AcceptsMarketing          bool                   `json:"accepts_marketing,omitempty"`
 	AcceptsMarketingUpdatedAt *time.Time             `json:"accepts_marketing_updated_at,omitempty"`
@@ -131,7 +131,7 @@ func (s *CustomerServiceOp) Count(ctx context.Context, options interface{}) (int
 }
 
 // Get customer
-func (s *CustomerServiceOp) Get(ctx context.Context, customerId int64, options interface{}) (*Customer, error) {
+func (s *CustomerServiceOp) Get(ctx context.Context, customerId uint64, options interface{}) (*Customer, error) {
 	path := fmt.Sprintf("%s/%v.json", customersBasePath, customerId)
 	resource := new(CustomerResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -157,7 +157,7 @@ func (s *CustomerServiceOp) Update(ctx context.Context, customer Customer) (*Cus
 }
 
 // Delete an existing customer
-func (s *CustomerServiceOp) Delete(ctx context.Context, customerId int64) error {
+func (s *CustomerServiceOp) Delete(ctx context.Context, customerId uint64) error {
 	path := fmt.Sprintf("%s/%d.json", customersBasePath, customerId)
 	return s.client.Delete(ctx, path)
 }
@@ -171,7 +171,7 @@ func (s *CustomerServiceOp) Search(ctx context.Context, options interface{}) ([]
 }
 
 // ListOrders retrieves all orders from a customer
-func (s *CustomerServiceOp) ListOrders(ctx context.Context, customerId int64, options interface{}) ([]Order, error) {
+func (s *CustomerServiceOp) ListOrders(ctx context.Context, customerId uint64, options interface{}) ([]Order, error) {
 	path := fmt.Sprintf("%s/%d/orders.json", customersBasePath, customerId)
 	resource := new(OrdersResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -187,37 +187,37 @@ func (s *CustomerServiceOp) ListTags(ctx context.Context, options interface{}) (
 }
 
 // List metafields for a customer
-func (s *CustomerServiceOp) ListMetafields(ctx context.Context, customerId int64, options interface{}) ([]Metafield, error) {
+func (s *CustomerServiceOp) ListMetafields(ctx context.Context, customerId uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.List(ctx, options)
 }
 
 // Count metafields for a customer
-func (s *CustomerServiceOp) CountMetafields(ctx context.Context, customerId int64, options interface{}) (int, error) {
+func (s *CustomerServiceOp) CountMetafields(ctx context.Context, customerId uint64, options interface{}) (int, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.Count(ctx, options)
 }
 
 // Get individual metafield for a customer
-func (s *CustomerServiceOp) GetMetafield(ctx context.Context, customerId int64, metafieldId int64, options interface{}) (*Metafield, error) {
+func (s *CustomerServiceOp) GetMetafield(ctx context.Context, customerId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.Get(ctx, metafieldId, options)
 }
 
 // Create a new metafield for a customer
-func (s *CustomerServiceOp) CreateMetafield(ctx context.Context, customerId int64, metafield Metafield) (*Metafield, error) {
+func (s *CustomerServiceOp) CreateMetafield(ctx context.Context, customerId uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.Create(ctx, metafield)
 }
 
 // Update an existing metafield for a customer
-func (s *CustomerServiceOp) UpdateMetafield(ctx context.Context, customerId int64, metafield Metafield) (*Metafield, error) {
+func (s *CustomerServiceOp) UpdateMetafield(ctx context.Context, customerId uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.Update(ctx, metafield)
 }
 
 // // Delete an existing metafield for a customer
-func (s *CustomerServiceOp) DeleteMetafield(ctx context.Context, customerId int64, metafieldId int64) error {
+func (s *CustomerServiceOp) DeleteMetafield(ctx context.Context, customerId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.Delete(ctx, metafieldId)
 }

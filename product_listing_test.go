@@ -15,7 +15,7 @@ import (
 
 func productListingTests(t *testing.T, product ProductListing) {
 	// Check that Id is assigned to the returned product
-	var expectedInt int64 = 921728736
+	var expectedInt uint64 = 921728736
 	if product.Id != expectedInt {
 		t.Errorf("Product.Id returned %+v, expected %+v", product.Id, expectedInt)
 	}
@@ -244,7 +244,7 @@ func TestProductListingGetProductIds(t *testing.T) {
 		t.Errorf("ProductListing.Get returned error: %v", err)
 	}
 
-	expected := []int64{1, 2, 3}
+	expected := []uint64{1, 2, 3}
 	if !reflect.DeepEqual(productIds, expected) {
 		t.Errorf("ProductListing.Get returned %+v, expected %+v", productIds, expected)
 	}

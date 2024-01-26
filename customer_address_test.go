@@ -9,12 +9,12 @@ import (
 )
 
 func verifyAddress(t *testing.T, address CustomerAddress) {
-	expectedId := int64(1)
+	expectedId := uint64(1)
 	if address.Id != expectedId {
 		t.Errorf("CustomerAddress.Id returned %+v, expected %+v", address.Id, expectedId)
 	}
 
-	expectedCustomerId := int64(1)
+	expectedCustomerId := uint64(1)
 	if address.CustomerId != expectedCustomerId {
 		t.Errorf("CustomerAddress.CustomerId returned %+v, expected %+v", address.CustomerId, expectedCustomerId)
 	}

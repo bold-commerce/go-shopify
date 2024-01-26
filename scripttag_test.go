@@ -64,7 +64,7 @@ func TestScriptTagGet(t *testing.T) {
 }
 
 func scriptTagTests(t *testing.T, tag ScriptTag) {
-	expected := int64(870402688)
+	expected := uint64(870402688)
 	if tag.Id != expected {
 		t.Errorf("tag.Id is %+v, expected %+v", tag.Id, expected)
 	}

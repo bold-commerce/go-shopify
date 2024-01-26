@@ -79,7 +79,7 @@ func TestDiscountCodeCreate(t *testing.T) {
 		t.Errorf("DiscountCode.Create returned error: %v", err)
 	}
 
-	expectedInt := int64(1054381139)
+	expectedInt := uint64(1054381139)
 	if returnedDC.Id != expectedInt {
 		t.Errorf("DiscountCode.Id returned %+v, expected %+v", returnedDC.Id, expectedInt)
 	}
@@ -99,7 +99,7 @@ func TestDiscountCodeUpdate(t *testing.T) {
 	)
 
 	dc := PriceRuleDiscountCode{
-		Id:   int64(1054381139),
+		Id:   uint64(1054381139),
 		Code: "SUMMERSALE10OFF",
 	}
 
@@ -108,7 +108,7 @@ func TestDiscountCodeUpdate(t *testing.T) {
 		t.Errorf("DiscountCode.Update returned error: %v", err)
 	}
 
-	expectedInt := int64(1054381139)
+	expectedInt := uint64(1054381139)
 	if returnedDC.Id != expectedInt {
 		t.Errorf("DiscountCode.Id returned %+v, expected %+v", returnedDC.Id, expectedInt)
 	}

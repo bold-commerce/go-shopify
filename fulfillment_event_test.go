@@ -14,8 +14,8 @@ func TestFulfillmentEventServiceOp_List(t *testing.T) {
 	setup()
 	defer teardown()
 
-	orderId := int64(1234567890)
-	fulfillmentId := int64(987654321)
+	orderId := uint64(1234567890)
+	fulfillmentId := uint64(987654321)
 	httpmock.RegisterResponder(
 		http.MethodGet,
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/%d/fulfillments/%d/events.json", client.pathPrefix, orderId, fulfillmentId),
@@ -57,9 +57,9 @@ func TestFulfillmentEventServiceOp_Get(t *testing.T) {
 	setup()
 	defer teardown()
 
-	orderId := int64(1234567890)
-	fulfillmentId := int64(987654321)
-	eventId := int64(123123123)
+	orderId := uint64(1234567890)
+	fulfillmentId := uint64(987654321)
+	eventId := uint64(123123123)
 
 	httpmock.RegisterResponder(
 		http.MethodGet,
@@ -100,8 +100,8 @@ func TestFulfillmentEventServiceOp_Create(t *testing.T) {
 	setup()
 	defer teardown()
 
-	orderId := int64(1234567890)
-	fulfillmentId := int64(987654321)
+	orderId := uint64(1234567890)
+	fulfillmentId := uint64(987654321)
 
 	httpmock.RegisterResponder(
 		http.MethodPost,
@@ -161,9 +161,9 @@ func TestFulfillmentEventServiceOp_Delete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	orderId := int64(1234567890)
-	fulfillmentId := int64(987654321)
-	eventId := int64(123123123)
+	orderId := uint64(1234567890)
+	fulfillmentId := uint64(987654321)
+	eventId := uint64(123123123)
 
 	httpmock.RegisterResponder(
 		http.MethodDelete,

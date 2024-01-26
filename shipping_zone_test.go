@@ -16,22 +16,22 @@ func shippingZoneTests(t *testing.T, zone ShippingZone) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"Id", int64(1039932365), zone.Id},
+		{"Id", uint64(1039932365), zone.Id},
 		{"Name", "Some zone", zone.Name},
-		{"WeightBasedShippingRates.0.Id", int64(882078075), zone.WeightBasedShippingRates[0].Id},
+		{"WeightBasedShippingRates.0.Id", uint64(882078075), zone.WeightBasedShippingRates[0].Id},
 		{"WeightBasedShippingRates.0.ShippingZoneId", zone.Id, zone.WeightBasedShippingRates[0].ShippingZoneId},
 		{"WeightBasedShippingRates.0.Name", "Canada Air Shipping", zone.WeightBasedShippingRates[0].Name},
 		{"WeightBasedShippingRates.0.Price", decimal.NewFromFloat(25.00).String(), zone.WeightBasedShippingRates[0].Price.String()},
 		{"WeightBasedShippingRates.0.WeightLow", decimal.NewFromFloat(0).String(), zone.WeightBasedShippingRates[0].WeightLow.String()},
 		{"WeightBasedShippingRates.0.WeightHigh", decimal.NewFromFloat(11.0231).String(), zone.WeightBasedShippingRates[0].WeightHigh.String()},
-		{"PriceBasedShippingRates.0.Id", int64(882078074), zone.PriceBasedShippingRates[0].Id},
+		{"PriceBasedShippingRates.0.Id", uint64(882078074), zone.PriceBasedShippingRates[0].Id},
 		{"PriceBasedShippingRates.0.Name", "$5 Shipping", zone.PriceBasedShippingRates[0].Name},
 		{"PriceBasedShippingRates.0.Price", decimal.NewFromFloat(5.05).String(), zone.PriceBasedShippingRates[0].Price.String()},
 		{"PriceBasedShippingRates.0.MinOrderSubtotal", decimal.NewFromFloat(40.0).String(), zone.PriceBasedShippingRates[0].MinOrderSubtotal.String()},
 		{"PriceBasedShippingRates.0.MaxOrderSubtotal", decimal.NewFromFloat(100.0).String(), zone.PriceBasedShippingRates[0].MaxOrderSubtotal.String()},
-		{"CarrierShippingRateProviders.0.Id", int64(882078076), zone.CarrierShippingRateProviders[0].Id},
+		{"CarrierShippingRateProviders.0.Id", uint64(882078076), zone.CarrierShippingRateProviders[0].Id},
 		{"CarrierShippingRateProviders.0.ShippingZoneId", zone.Id, zone.CarrierShippingRateProviders[0].ShippingZoneId},
-		{"CarrierShippingRateProviders.0.CarrierServiceId", int64(770241334), zone.CarrierShippingRateProviders[0].CarrierServiceId},
+		{"CarrierShippingRateProviders.0.CarrierServiceId", uint64(770241334), zone.CarrierShippingRateProviders[0].CarrierServiceId},
 		{"CarrierShippingRateProviders.0.FlatModifier", decimal.NewFromFloat(0).String(), zone.CarrierShippingRateProviders[0].FlatModifier.String()},
 		{"CarrierShippingRateProviders.0.PercentModifier", decimal.NewFromFloat(0).String(), zone.CarrierShippingRateProviders[0].PercentModifier.String()},
 	}

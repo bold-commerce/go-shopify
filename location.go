@@ -15,7 +15,7 @@ type LocationService interface {
 	// Retrieves a list of locations
 	List(ctx context.Context, options interface{}) ([]Location, error)
 	// Retrieves a single location by its Id
-	Get(ctx context.Context, id int64, options interface{}) (*Location, error)
+	Get(ctx context.Context, id uint64, options interface{}) (*Location, error)
 	// Retrieves a count of locations
 	Count(ctx context.Context, options interface{}) (int, error)
 }
@@ -47,7 +47,7 @@ type Location struct {
 	CreatedAt time.Time `json:"created_at"`
 
 	// The Id for the location.
-	Id int64 `json:"id"`
+	Id uint64 `json:"id"`
 
 	// Whether this is a fulfillment service location.
 	// If true, then the location is a fulfillment service location.
@@ -88,7 +88,7 @@ func (s *LocationServiceOp) List(ctx context.Context, options interface{}) ([]Lo
 	return resource.Locations, err
 }
 
-func (s *LocationServiceOp) Get(ctx context.Context, id int64, options interface{}) (*Location, error) {
+func (s *LocationServiceOp) Get(ctx context.Context, id uint64, options interface{}) (*Location, error) {
 	path := fmt.Sprintf("%s/%d.json", locationsBasePath, id)
 	resource := new(LocationResource)
 	err := s.client.Get(ctx, path, resource, options)

@@ -14,10 +14,10 @@ const blogsBasePath = "blogs"
 type BlogService interface {
 	List(context.Context, interface{}) ([]Blog, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*Blog, error)
+	Get(context.Context, uint64, interface{}) (*Blog, error)
 	Create(context.Context, Blog) (*Blog, error)
 	Update(context.Context, Blog) (*Blog, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 // BlogServiceOp handles communication with the blog related methods of
@@ -28,7 +28,7 @@ type BlogServiceOp struct {
 
 // Blog represents a Shopify blog
 type Blog struct {
-	Id                 int64      `json:"id"`
+	Id                 uint64     `json:"id"`
 	Title              string     `json:"title"`
 	Commentable        string     `json:"commentable"`
 	Feedburner         string     `json:"feedburner"`
@@ -67,7 +67,7 @@ func (s *BlogServiceOp) Count(ctx context.Context, options interface{}) (int, er
 }
 
 // Get single blog
-func (s *BlogServiceOp) Get(ctx context.Context, blogId int64, options interface{}) (*Blog, error) {
+func (s *BlogServiceOp) Get(ctx context.Context, blogId uint64, options interface{}) (*Blog, error) {
 	path := fmt.Sprintf("%s/%d.json", blogsBasePath, blogId)
 	resource := new(BlogResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -93,6 +93,6 @@ func (s *BlogServiceOp) Update(ctx context.Context, blog Blog) (*Blog, error) {
 }
 
 // Delete an blog
-func (s *BlogServiceOp) Delete(ctx context.Context, blogId int64) error {
+func (s *BlogServiceOp) Delete(ctx context.Context, blogId uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", blogsBasePath, blogId))
 }

@@ -15,7 +15,7 @@ const payoutsBasePath = "shopify_payments/payouts"
 type PayoutsService interface {
 	List(context.Context, interface{}) ([]Payout, error)
 	ListWithPagination(context.Context, interface{}) ([]Payout, *Pagination, error)
-	Get(context.Context, int64, interface{}) (*Payout, error)
+	Get(context.Context, uint64, interface{}) (*Payout, error)
 }
 
 // PayoutsServiceOp handles communication with the payout related methods of the
@@ -29,8 +29,8 @@ type PayoutsListOptions struct {
 	PageInfo string       `url:"page_info,omitempty"`
 	Limit    int          `url:"limit,omitempty"`
 	Fields   string       `url:"fields,omitempty"`
-	LastId   int64        `url:"last_id,omitempty"`
-	SinceId  int64        `url:"since_id,omitempty"`
+	LastId   uint64       `url:"last_id,omitempty"`
+	SinceId  uint64       `url:"since_id,omitempty"`
 	Status   PayoutStatus `url:"status,omitempty"`
 	DateMin  *OnlyDate    `url:"date_min,omitempty"`
 	DateMax  *OnlyDate    `url:"date_max,omitempty"`
@@ -39,7 +39,7 @@ type PayoutsListOptions struct {
 
 // Payout represents a Shopify payout
 type Payout struct {
-	Id       int64           `json:"id,omitempty"`
+	Id       uint64          `json:"id,omitempty"`
 	Date     OnlyDate        `json:"date,omitempty"`
 	Currency string          `json:"currency,omitempty"`
 	Amount   decimal.Decimal `json:"amount,omitempty"`
@@ -88,7 +88,7 @@ func (s *PayoutsServiceOp) ListWithPagination(ctx context.Context, options inter
 }
 
 // Get individual payout
-func (s *PayoutsServiceOp) Get(ctx context.Context, id int64, options interface{}) (*Payout, error) {
+func (s *PayoutsServiceOp) Get(ctx context.Context, id uint64, options interface{}) (*Payout, error) {
 	path := fmt.Sprintf("%s/%d.json", payoutsBasePath, id)
 	resource := new(PayoutResource)
 	err := s.client.Get(ctx, path, resource, options)

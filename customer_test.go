@@ -420,7 +420,7 @@ func TestCustomerUpdate(t *testing.T) {
 		t.Errorf("Customer.Update returned error: %v", err)
 	}
 
-	expectedCustomerId := int64(1)
+	expectedCustomerId := uint64(1)
 	if returnedCustomer.Id != expectedCustomerId {
 		t.Errorf("Customer.Id returned %+v expected %+v", returnedCustomer.Id, expectedCustomerId)
 	}
@@ -443,7 +443,7 @@ func TestCustomerCreate(t *testing.T) {
 		t.Errorf("Customer.Create returned error: %v", err)
 	}
 
-	expectedCustomerId := int64(1)
+	expectedCustomerId := uint64(1)
 	if returnedCustomer.Id != expectedCustomerId {
 		t.Errorf("Customer.Id returned %+v expected %+v", returnedCustomer.Id, expectedCustomerId)
 	}

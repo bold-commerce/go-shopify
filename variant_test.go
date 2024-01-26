@@ -13,7 +13,7 @@ import (
 
 func variantTests(t *testing.T, variant Variant) {
 	// Check that the Id is assigned to the returned variant
-	expectedInt := int64(1)
+	expectedInt := uint64(1)
 	if variant.Id != expectedInt {
 		t.Errorf("Variant.Id returned %+v, expected %+v", variant.Id, expectedInt)
 	}
@@ -24,7 +24,7 @@ func variantTests(t *testing.T, variant Variant) {
 		t.Errorf("Variant.Title returned %+v, expected %+v", variant.Title, expectedTitle)
 	}
 
-	expectedInventoryItemId := int64(1)
+	expectedInventoryItemId := uint64(1)
 	if variant.InventoryItemId != expectedInventoryItemId {
 		t.Errorf("Variant.InventoryItemId returned %+v, expected %+v", variant.InventoryItemId, expectedInventoryItemId)
 	}
@@ -37,7 +37,7 @@ func variantTests(t *testing.T, variant Variant) {
 
 func variantWithMetafieldsTests(t *testing.T, variant Variant) {
 	// Check that the Id is assigned to the returned variant
-	expectedInt := int64(2)
+	expectedInt := uint64(2)
 	if variant.Id != expectedInt {
 		t.Errorf("Variant.Id returned %+v, expected %+v", variant.Id, expectedInt)
 	}
@@ -48,7 +48,7 @@ func variantWithMetafieldsTests(t *testing.T, variant Variant) {
 		t.Errorf("Variant.Title returned %+v, expected %+v", variant.Title, expectedTitle)
 	}
 
-	expectedInventoryItemId := int64(1)
+	expectedInventoryItemId := uint64(1)
 	if variant.InventoryItemId != expectedInventoryItemId {
 		t.Errorf("Variant.InventoryItemId returned %+v, expected %+v", variant.InventoryItemId, expectedInventoryItemId)
 	}
@@ -428,7 +428,7 @@ func TestVariantCreateWithTaxCode(t *testing.T) {
 
 func variantTestsWithTaxCode(t *testing.T, variant Variant) {
 	// Check that the Id is assigned to the returned variant
-	expectedInt := int64(1)
+	expectedInt := uint64(1)
 	if variant.Id != expectedInt {
 		t.Errorf("Variant.Id returned %+v, expected %+v", variant.Id, expectedInt)
 	}
@@ -439,7 +439,7 @@ func variantTestsWithTaxCode(t *testing.T, variant Variant) {
 		t.Errorf("Variant.Title returned %+v, expected %+v", variant.Title, expectedTitle)
 	}
 
-	expectedInventoryItemId := int64(1)
+	expectedInventoryItemId := uint64(1)
 	if variant.InventoryItemId != expectedInventoryItemId {
 		t.Errorf("Variant.InventoryItemId returned %+v, expected %+v", variant.InventoryItemId, expectedInventoryItemId)
 	}

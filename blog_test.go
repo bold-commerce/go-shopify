@@ -103,7 +103,7 @@ func TestBlogCreate(t *testing.T) {
 		t.Errorf("Blog.Create returned error: %v", err)
 	}
 
-	expectedInt := int64(241253187)
+	expectedInt := uint64(241253187)
 	if returnedBlog.Id != expectedInt {
 		t.Errorf("Blog.Id returned %+v, expected %+v", returnedBlog.Id, expectedInt)
 	}
@@ -132,7 +132,7 @@ func TestBlogUpdate(t *testing.T) {
 		t.Errorf("Blog.Update returned error: %v", err)
 	}
 
-	expectedInt := int64(241253187)
+	expectedInt := uint64(241253187)
 	if returnedBlog.Id != expectedInt {
 		t.Errorf("Blog.Id returned %+v, expected %+v", returnedBlog.Id, expectedInt)
 	}

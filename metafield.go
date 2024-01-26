@@ -12,22 +12,22 @@ import (
 type MetafieldService interface {
 	List(context.Context, interface{}) ([]Metafield, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*Metafield, error)
+	Get(context.Context, uint64, interface{}) (*Metafield, error)
 	Create(context.Context, Metafield) (*Metafield, error)
 	Update(context.Context, Metafield) (*Metafield, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 // MetafieldsService is an interface for other Shopify resources
 // to interface with the metafield endpoints of the Shopify API.
 // https://help.shopify.com/api/reference/metafield
 type MetafieldsService interface {
-	ListMetafields(context.Context, int64, interface{}) ([]Metafield, error)
-	CountMetafields(context.Context, int64, interface{}) (int, error)
-	GetMetafield(context.Context, int64, int64, interface{}) (*Metafield, error)
-	CreateMetafield(context.Context, int64, Metafield) (*Metafield, error)
-	UpdateMetafield(context.Context, int64, Metafield) (*Metafield, error)
-	DeleteMetafield(context.Context, int64, int64) error
+	ListMetafields(context.Context, uint64, interface{}) ([]Metafield, error)
+	CountMetafields(context.Context, uint64, interface{}) (int, error)
+	GetMetafield(context.Context, uint64, uint64, interface{}) (*Metafield, error)
+	CreateMetafield(context.Context, uint64, Metafield) (*Metafield, error)
+	UpdateMetafield(context.Context, uint64, Metafield) (*Metafield, error)
+	DeleteMetafield(context.Context, uint64, uint64) error
 }
 
 // MetafieldServiceOp handles communication with the metafield
@@ -35,7 +35,7 @@ type MetafieldsService interface {
 type MetafieldServiceOp struct {
 	client     *Client
 	resource   string
-	resourceId int64
+	resourceId uint64
 }
 
 type metafieldType string
@@ -95,10 +95,10 @@ const (
 type Metafield struct {
 	CreatedAt         *time.Time    `json:"created_at,omitempty"`
 	Description       string        `json:"description,omitempty"`    // Description of the metafield.
-	Id                int64         `json:"id,omitempty"`             // Assigned by Shopify, used for updating a metafield.
+	Id                uint64        `json:"id,omitempty"`             // Assigned by Shopify, used for updating a metafield.
 	Key               string        `json:"key,omitempty"`            // The unique identifier for a metafield within its namespace, 3-64 characters long.
 	Namespace         string        `json:"namespace,omitempty"`      // The container for a group of metafields, 3-255 characters long.
-	OwnerId           int64         `json:"owner_id,omitempty"`       // The unique Id of the resource the metafield is for, i.e.: an Order Id.
+	OwnerId           uint64        `json:"owner_id,omitempty"`       // The unique Id of the resource the metafield is for, i.e.: an Order Id.
 	OwnerResource     string        `json:"owner_resource,omitempty"` // The type of reserouce the metafield is for, i.e.: and Order.
 	UpdatedAt         *time.Time    `json:"updated_at,omitempty"`     //
 	Value             interface{}   `json:"value,omitempty"`          // The data stored in the metafield. Always stored as a string, use Type field for actual data type.
@@ -133,7 +133,7 @@ func (s *MetafieldServiceOp) Count(ctx context.Context, options interface{}) (in
 }
 
 // Get individual metafield
-func (s *MetafieldServiceOp) Get(ctx context.Context, metafieldId int64, options interface{}) (*Metafield, error) {
+func (s *MetafieldServiceOp) Get(ctx context.Context, metafieldId uint64, options interface{}) (*Metafield, error) {
 	prefix := MetafieldPathPrefix(s.resource, s.resourceId)
 	path := fmt.Sprintf("%s/%d.json", prefix, metafieldId)
 	resource := new(MetafieldResource)
@@ -162,7 +162,7 @@ func (s *MetafieldServiceOp) Update(ctx context.Context, metafield Metafield) (*
 }
 
 // Delete an existing metafield
-func (s *MetafieldServiceOp) Delete(ctx context.Context, metafieldId int64) error {
+func (s *MetafieldServiceOp) Delete(ctx context.Context, metafieldId uint64) error {
 	prefix := MetafieldPathPrefix(s.resource, s.resourceId)
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", prefix, metafieldId))
 }

@@ -103,7 +103,7 @@ func TestFulfillmentServiceServiceOp_Create(t *testing.T) {
 		t.Errorf("FulfillmentService.Get returned error: %v", err)
 	}
 
-	expectedFulfillmentServiceId := int64(1061774487)
+	expectedFulfillmentServiceId := uint64(1061774487)
 	if fulfillmentService.Id != expectedFulfillmentServiceId {
 		t.Errorf("FulfillmentService.Id returned %+v, expected %+v", fulfillmentService.Id, expectedFulfillmentServiceId)
 	}

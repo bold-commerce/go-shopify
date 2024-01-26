@@ -22,9 +22,9 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 		expected interface{}
 		actual   interface{}
 	}{
-		{"Id", int64(1029266948), charge.Id},
+		{"Id", uint64(1029266948), charge.Id},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientId", int64(755357713), charge.APIClientId},
+		{"APIClientId", uint64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -70,9 +70,9 @@ func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
 		expected interface{}
 		actual   interface{}
 	}{
-		{"Id", int64(1029266948), charge.Id},
+		{"Id", uint64(1029266948), charge.Id},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientId", int64(755357713), charge.APIClientId},
+		{"APIClientId", uint64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},

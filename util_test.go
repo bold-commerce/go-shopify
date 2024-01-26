@@ -70,7 +70,7 @@ func TestShopBaseUrl(t *testing.T) {
 func TestMetafieldPathPrefix(t *testing.T) {
 	cases := []struct {
 		resource   string
-		resourceId int64
+		resourceId uint64
 		expected   string
 	}{
 		{"", 0, "metafields"},
@@ -88,7 +88,7 @@ func TestMetafieldPathPrefix(t *testing.T) {
 func TestFulfillmentPathPrefix(t *testing.T) {
 	cases := []struct {
 		resource   string
-		resourceId int64
+		resourceId uint64
 		expected   string
 	}{
 		{"", 0, "fulfillments"},

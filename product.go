@@ -22,10 +22,10 @@ type ProductService interface {
 	List(context.Context, interface{}) ([]Product, error)
 	ListWithPagination(context.Context, interface{}) ([]Product, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*Product, error)
+	Get(context.Context, uint64, interface{}) (*Product, error)
 	Create(context.Context, Product) (*Product, error)
 	Update(context.Context, Product) (*Product, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 
 	// MetafieldsService used for Product resource to communicate with Metafields resource
 	MetafieldsService
@@ -58,7 +58,7 @@ const (
 
 // Product represents a Shopify product
 type Product struct {
-	Id                             int64           `json:"id,omitempty"`
+	Id                             uint64          `json:"id,omitempty"`
 	Title                          string          `json:"title,omitempty"`
 	BodyHTML                       string          `json:"body_html,omitempty"`
 	Vendor                         string          `json:"vendor,omitempty"`
@@ -83,8 +83,8 @@ type Product struct {
 
 // The options provided by Shopify
 type ProductOption struct {
-	Id        int64    `json:"id,omitempty"`
-	ProductId int64    `json:"product_id,omitempty"`
+	Id        uint64   `json:"id,omitempty"`
+	ProductId uint64   `json:"product_id,omitempty"`
 	Name      string   `json:"name,omitempty"`
 	Position  int      `json:"position,omitempty"`
 	Values    []string `json:"values,omitempty"`
@@ -92,7 +92,7 @@ type ProductOption struct {
 
 type ProductListOptions struct {
 	ListOptions
-	CollectionId          int64           `url:"collection_id,omitempty"`
+	CollectionId          uint64          `url:"collection_id,omitempty"`
 	ProductType           string          `url:"product_type,omitempty"`
 	Vendor                string          `url:"vendor,omitempty"`
 	Handle                string          `url:"handle,omitempty"`
@@ -148,7 +148,7 @@ func (s *ProductServiceOp) Count(ctx context.Context, options interface{}) (int,
 }
 
 // Get individual product
-func (s *ProductServiceOp) Get(ctx context.Context, productId int64, options interface{}) (*Product, error) {
+func (s *ProductServiceOp) Get(ctx context.Context, productId uint64, options interface{}) (*Product, error) {
 	path := fmt.Sprintf("%s/%d.json", productsBasePath, productId)
 	resource := new(ProductResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -174,42 +174,42 @@ func (s *ProductServiceOp) Update(ctx context.Context, product Product) (*Produc
 }
 
 // Delete an existing product
-func (s *ProductServiceOp) Delete(ctx context.Context, productId int64) error {
+func (s *ProductServiceOp) Delete(ctx context.Context, productId uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", productsBasePath, productId))
 }
 
 // ListMetafields for a product
-func (s *ProductServiceOp) ListMetafields(ctx context.Context, productId int64, options interface{}) ([]Metafield, error) {
+func (s *ProductServiceOp) ListMetafields(ctx context.Context, productId uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.List(ctx, options)
 }
 
 // Count metafields for a product
-func (s *ProductServiceOp) CountMetafields(ctx context.Context, productId int64, options interface{}) (int, error) {
+func (s *ProductServiceOp) CountMetafields(ctx context.Context, productId uint64, options interface{}) (int, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.Count(ctx, options)
 }
 
 // GetMetafield for a product
-func (s *ProductServiceOp) GetMetafield(ctx context.Context, productId int64, metafieldId int64, options interface{}) (*Metafield, error) {
+func (s *ProductServiceOp) GetMetafield(ctx context.Context, productId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.Get(ctx, metafieldId, options)
 }
 
 // CreateMetafield for a product
-func (s *ProductServiceOp) CreateMetafield(ctx context.Context, productId int64, metafield Metafield) (*Metafield, error) {
+func (s *ProductServiceOp) CreateMetafield(ctx context.Context, productId uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.Create(ctx, metafield)
 }
 
 // UpdateMetafield for a product
-func (s *ProductServiceOp) UpdateMetafield(ctx context.Context, productId int64, metafield Metafield) (*Metafield, error) {
+func (s *ProductServiceOp) UpdateMetafield(ctx context.Context, productId uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.Update(ctx, metafield)
 }
 
 // DeleteMetafield for a product
-func (s *ProductServiceOp) DeleteMetafield(ctx context.Context, productId int64, metafieldId int64) error {
+func (s *ProductServiceOp) DeleteMetafield(ctx context.Context, productId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.Delete(ctx, metafieldId)
 }

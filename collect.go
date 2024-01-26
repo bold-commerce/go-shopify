@@ -14,9 +14,9 @@ const collectsBasePath = "collects"
 type CollectService interface {
 	List(context.Context, interface{}) ([]Collect, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*Collect, error)
+	Get(context.Context, uint64, interface{}) (*Collect, error)
 	Create(context.Context, Collect) (*Collect, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 // CollectServiceOp handles communication with the collect related methods of
@@ -27,9 +27,9 @@ type CollectServiceOp struct {
 
 // Collect represents a Shopify collect
 type Collect struct {
-	Id           int64      `json:"id,omitempty"`
-	CollectionId int64      `json:"collection_id,omitempty"`
-	ProductId    int64      `json:"product_id,omitempty"`
+	Id           uint64     `json:"id,omitempty"`
+	CollectionId uint64     `json:"collection_id,omitempty"`
+	ProductId    uint64     `json:"product_id,omitempty"`
 	Featured     bool       `json:"featured,omitempty"`
 	CreatedAt    *time.Time `json:"created_at,omitempty"`
 	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
@@ -62,7 +62,7 @@ func (s *CollectServiceOp) Count(ctx context.Context, options interface{}) (int,
 }
 
 // Get individual collect
-func (s *CollectServiceOp) Get(ctx context.Context, collectId int64, options interface{}) (*Collect, error) {
+func (s *CollectServiceOp) Get(ctx context.Context, collectId uint64, options interface{}) (*Collect, error) {
 	path := fmt.Sprintf("%s/%d.json", collectsBasePath, collectId)
 	resource := new(CollectResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -79,6 +79,6 @@ func (s *CollectServiceOp) Create(ctx context.Context, collect Collect) (*Collec
 }
 
 // Delete an existing collect
-func (s *CollectServiceOp) Delete(ctx context.Context, collectId int64) error {
+func (s *CollectServiceOp) Delete(ctx context.Context, collectId uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", collectsBasePath, collectId))
 }

@@ -12,7 +12,7 @@ import (
 
 func redirectTests(t *testing.T, redirect Redirect) {
 	// Check that Id is assigned to the returned redirect
-	expectedInt := int64(1)
+	expectedInt := uint64(1)
 	if redirect.Id != expectedInt {
 		t.Errorf("Redirect.Id returned %+v, expected %+v", redirect.Id, expectedInt)
 	}

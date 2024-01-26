@@ -15,10 +15,10 @@ type ProductListingService interface {
 	List(context.Context, interface{}) ([]ProductListing, error)
 	ListWithPagination(context.Context, interface{}) ([]ProductListing, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*ProductListing, error)
-	GetProductIds(context.Context, interface{}) ([]int64, error)
-	Publish(context.Context, int64) (*ProductListing, error)
-	Delete(context.Context, int64) error
+	Get(context.Context, uint64, interface{}) (*ProductListing, error)
+	GetProductIds(context.Context, interface{}) ([]uint64, error)
+	Publish(context.Context, uint64) (*ProductListing, error)
+	Delete(context.Context, uint64) error
 }
 
 // ProductListingServiceOp handles communication with the product related methods of
@@ -29,7 +29,7 @@ type ProductListingServiceOp struct {
 
 // ProductListing represents a Shopify product published to your sales channel app
 type ProductListing struct {
-	Id          int64           `json:"product_id,omitempty"`
+	Id          uint64          `json:"product_id,omitempty"`
 	Title       string          `json:"title,omitempty"`
 	BodyHTML    string          `json:"body_html,omitempty"`
 	Vendor      string          `json:"vendor,omitempty"`
@@ -56,7 +56,7 @@ type ProductsListingsResource struct {
 
 // Represents the result from the product_listings/product_ids.json endpoint
 type ProductListingIdsResource struct {
-	ProductIds []int64 `json:"product_ids"`
+	ProductIds []uint64 `json:"product_ids"`
 }
 
 // Resource which create product_listing endpoint expects in request body
@@ -70,7 +70,7 @@ type ProductListingIdsResource struct {
 //	}
 type ProductListingPublishResource struct {
 	ProductListing struct {
-		ProductId int64 `json:"product_id"`
+		ProductId uint64 `json:"product_id"`
 	} `json:"product_listing"`
 }
 
@@ -103,7 +103,7 @@ func (s *ProductListingServiceOp) Count(ctx context.Context, options interface{}
 }
 
 // Get individual product_listing by product Id
-func (s *ProductListingServiceOp) Get(ctx context.Context, productId int64, options interface{}) (*ProductListing, error) {
+func (s *ProductListingServiceOp) Get(ctx context.Context, productId uint64, options interface{}) (*ProductListing, error) {
 	path := fmt.Sprintf("%s/%d.json", productListingBasePath, productId)
 	resource := new(ProductListingResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -111,7 +111,7 @@ func (s *ProductListingServiceOp) Get(ctx context.Context, productId int64, opti
 }
 
 // GetProductIds lists all product Ids that are published to your sales channel
-func (s *ProductListingServiceOp) GetProductIds(ctx context.Context, options interface{}) ([]int64, error) {
+func (s *ProductListingServiceOp) GetProductIds(ctx context.Context, options interface{}) ([]uint64, error) {
 	path := fmt.Sprintf("%s/product_ids.json", productListingBasePath)
 	resource := new(ProductListingIdsResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -119,7 +119,7 @@ func (s *ProductListingServiceOp) GetProductIds(ctx context.Context, options int
 }
 
 // Publish an existing product listing to your sales channel app
-func (s *ProductListingServiceOp) Publish(ctx context.Context, productId int64) (*ProductListing, error) {
+func (s *ProductListingServiceOp) Publish(ctx context.Context, productId uint64) (*ProductListing, error) {
 	path := fmt.Sprintf("%s/%v.json", productListingBasePath, productId)
 	wrappedData := new(ProductListingPublishResource)
 	wrappedData.ProductListing.ProductId = productId
@@ -129,6 +129,6 @@ func (s *ProductListingServiceOp) Publish(ctx context.Context, productId int64) 
 }
 
 // Delete unpublishes an existing product from your sales channel app.
-func (s *ProductListingServiceOp) Delete(ctx context.Context, productId int64) error {
+func (s *ProductListingServiceOp) Delete(ctx context.Context, productId uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", productListingBasePath, productId))
 }

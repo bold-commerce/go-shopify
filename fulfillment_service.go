@@ -13,22 +13,22 @@ const (
 // https://help.shopify.com/api/reference/fulfillmentservice
 type FulfillmentServiceService interface {
 	List(context.Context, interface{}) ([]FulfillmentServiceData, error)
-	Get(context.Context, int64, interface{}) (*FulfillmentServiceData, error)
+	Get(context.Context, uint64, interface{}) (*FulfillmentServiceData, error)
 	Create(context.Context, FulfillmentServiceData) (*FulfillmentServiceData, error)
 	Update(context.Context, FulfillmentServiceData) (*FulfillmentServiceData, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 type FulfillmentServiceData struct {
-	Id                     int64  `json:"id,omitempty"`
+	Id                     uint64 `json:"id,omitempty"`
 	Name                   string `json:"name,omitempty"`
 	Email                  string `json:"email,omitempty"`
 	ServiceName            string `json:"service_name,omitempty"`
 	Handle                 string `json:"handle,omitempty"`
 	FulfillmentOrdersOptIn bool   `json:"fulfillment_orders_opt_in,omitempty"`
 	IncludePendingStock    bool   `json:"include_pending_stock,omitempty"`
-	ProviderId             int64  `json:"provider_id,omitempty"`
-	LocationId             int64  `json:"location_id,omitempty"`
+	ProviderId             uint64 `json:"provider_id,omitempty"`
+	LocationId             uint64 `json:"location_id,omitempty"`
 	CallbackURL            string `json:"callback_url,omitempty"`
 	TrackingSupport        bool   `json:"tracking_support,omitempty"`
 	InventoryManagement    bool   `json:"inventory_management,omitempty"`
@@ -65,7 +65,7 @@ func (s *FulfillmentServiceServiceOp) List(ctx context.Context, options interfac
 }
 
 // Get Receive a single FulfillmentServiceData
-func (s *FulfillmentServiceServiceOp) Get(ctx context.Context, fulfillmentServiceId int64, options interface{}) (*FulfillmentServiceData, error) {
+func (s *FulfillmentServiceServiceOp) Get(ctx context.Context, fulfillmentServiceId uint64, options interface{}) (*FulfillmentServiceData, error) {
 	path := fmt.Sprintf("%s/%d.json", fulfillmentServiceBasePath, fulfillmentServiceId)
 	resource := new(FulfillmentServiceResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -91,7 +91,7 @@ func (s *FulfillmentServiceServiceOp) Update(ctx context.Context, fulfillmentSer
 }
 
 // Delete Remove an existing FulfillmentServiceData
-func (s *FulfillmentServiceServiceOp) Delete(ctx context.Context, fulfillmentServiceId int64) error {
+func (s *FulfillmentServiceServiceOp) Delete(ctx context.Context, fulfillmentServiceId uint64) error {
 	path := fmt.Sprintf("%s/%d.json", fulfillmentServiceBasePath, fulfillmentServiceId)
 	return s.client.Delete(ctx, path)
 }

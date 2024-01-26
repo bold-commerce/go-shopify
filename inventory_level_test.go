@@ -14,13 +14,13 @@ func inventoryLevelTests(t *testing.T, item *InventoryLevel) {
 		return
 	}
 
-	expectedInt := int64(808950810)
+	expectedInt := uint64(808950810)
 	if item.InventoryItemId != expectedInt {
 		t.Errorf("InventoryLevel.InventoryItemId returned %+v, expected %+v",
 			item.InventoryItemId, expectedInt)
 	}
 
-	expectedInt = int64(905684977)
+	expectedInt = uint64(905684977)
 	if item.LocationId != expectedInt {
 		t.Errorf("InventoryLevel.LocationId is %+v, expected %+v",
 			item.LocationId, expectedInt)
@@ -71,7 +71,7 @@ func TestInventoryLevelListWithItemId(t *testing.T) {
 	)
 
 	options := InventoryLevelListOptions{
-		InventoryItemIds: []int64{1, 2},
+		InventoryItemIds: []uint64{1, 2},
 	}
 
 	levels, err := client.InventoryLevel.List(context.Background(), options)
@@ -97,7 +97,7 @@ func TestInventoryLevelListWithLocationId(t *testing.T) {
 	)
 
 	options := InventoryLevelListOptions{
-		LocationIds: []int64{1, 2},
+		LocationIds: []uint64{1, 2},
 	}
 
 	levels, err := client.InventoryLevel.List(context.Background(), options)

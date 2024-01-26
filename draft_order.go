@@ -19,12 +19,12 @@ const (
 type DraftOrderService interface {
 	List(context.Context, interface{}) ([]DraftOrder, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*DraftOrder, error)
+	Get(context.Context, uint64, interface{}) (*DraftOrder, error)
 	Create(context.Context, DraftOrder) (*DraftOrder, error)
 	Update(context.Context, DraftOrder) (*DraftOrder, error)
-	Delete(context.Context, int64) error
-	Invoice(context.Context, int64, DraftOrderInvoice) (*DraftOrderInvoice, error)
-	Complete(context.Context, int64, bool) (*DraftOrder, error)
+	Delete(context.Context, uint64) error
+	Invoice(context.Context, uint64, DraftOrderInvoice) (*DraftOrderInvoice, error)
+	Complete(context.Context, uint64, bool) (*DraftOrder, error)
 
 	// MetafieldsService used for DrafT Order resource to communicate with Metafields resource
 	MetafieldsService
@@ -38,8 +38,8 @@ type DraftOrderServiceOp struct {
 
 // DraftOrder represents a shopify draft order
 type DraftOrder struct {
-	Id              int64            `json:"id,omitempty"`
-	OrderId         int64            `json:"order_id,omitempty"`
+	Id              uint64           `json:"id,omitempty"`
+	OrderId         uint64           `json:"order_id,omitempty"`
 	Name            string           `json:"name,omitempty"`
 	Customer        *Customer        `json:"customer,omitempty"`
 	ShippingAddress *Address         `json:"shipping_address,omitempty"`
@@ -103,7 +103,7 @@ type DraftOrderInvoiceResource struct {
 type DraftOrderListOptions struct {
 	Fields       string      `url:"fields,omitempty"`
 	Limit        int         `url:"limit,omitempty"`
-	SinceId      int64       `url:"since_id,omitempty"`
+	SinceId      uint64      `url:"since_id,omitempty"`
 	UpdatedAtMin *time.Time  `url:"updated_at_min,omitempty"`
 	UpdatedAtMax *time.Time  `url:"updated_at_max,omitempty"`
 	Ids          string      `url:"ids,omitempty"`
@@ -114,7 +114,7 @@ type DraftOrderListOptions struct {
 type DraftOrderCountOptions struct {
 	Fields  string      `url:"fields,omitempty"`
 	Limit   int         `url:"limit,omitempty"`
-	SinceId int64       `url:"since_id,omitempty"`
+	SinceId uint64      `url:"since_id,omitempty"`
 	Ids     string      `url:"ids,omitempty"`
 	Status  orderStatus `url:"status,omitempty"`
 }
@@ -143,13 +143,13 @@ func (s *DraftOrderServiceOp) Count(ctx context.Context, options interface{}) (i
 }
 
 // Delete draft orders
-func (s *DraftOrderServiceOp) Delete(ctx context.Context, draftOrderId int64) error {
+func (s *DraftOrderServiceOp) Delete(ctx context.Context, draftOrderId uint64) error {
 	path := fmt.Sprintf("%s/%d.json", draftOrdersBasePath, draftOrderId)
 	return s.client.Delete(ctx, path)
 }
 
 // Invoice a draft order
-func (s *DraftOrderServiceOp) Invoice(ctx context.Context, draftOrderId int64, draftOrderInvoice DraftOrderInvoice) (*DraftOrderInvoice, error) {
+func (s *DraftOrderServiceOp) Invoice(ctx context.Context, draftOrderId uint64, draftOrderInvoice DraftOrderInvoice) (*DraftOrderInvoice, error) {
 	path := fmt.Sprintf("%s/%d/send_invoice.json", draftOrdersBasePath, draftOrderId)
 	wrappedData := DraftOrderInvoiceResource{DraftOrderInvoice: &draftOrderInvoice}
 	resource := new(DraftOrderInvoiceResource)
@@ -158,7 +158,7 @@ func (s *DraftOrderServiceOp) Invoice(ctx context.Context, draftOrderId int64, d
 }
 
 // Get individual draft order
-func (s *DraftOrderServiceOp) Get(ctx context.Context, draftOrderId int64, options interface{}) (*DraftOrder, error) {
+func (s *DraftOrderServiceOp) Get(ctx context.Context, draftOrderId uint64, options interface{}) (*DraftOrder, error) {
 	path := fmt.Sprintf("%s/%d.json", draftOrdersBasePath, draftOrderId)
 	resource := new(DraftOrderResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -175,7 +175,7 @@ func (s *DraftOrderServiceOp) Update(ctx context.Context, draftOrder DraftOrder)
 }
 
 // Complete draft order
-func (s *DraftOrderServiceOp) Complete(ctx context.Context, draftOrderId int64, paymentPending bool) (*DraftOrder, error) {
+func (s *DraftOrderServiceOp) Complete(ctx context.Context, draftOrderId uint64, paymentPending bool) (*DraftOrder, error) {
 	path := fmt.Sprintf("%s/%d/complete.json?payment_pending=%t", draftOrdersBasePath, draftOrderId, paymentPending)
 	resource := new(DraftOrderResource)
 	err := s.client.Put(ctx, path, nil, resource)
@@ -183,37 +183,37 @@ func (s *DraftOrderServiceOp) Complete(ctx context.Context, draftOrderId int64, 
 }
 
 // List metafields for an order
-func (s *DraftOrderServiceOp) ListMetafields(ctx context.Context, draftOrderId int64, options interface{}) ([]Metafield, error) {
+func (s *DraftOrderServiceOp) ListMetafields(ctx context.Context, draftOrderId uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.List(ctx, options)
 }
 
 // Count metafields for an order
-func (s *DraftOrderServiceOp) CountMetafields(ctx context.Context, draftOrderId int64, options interface{}) (int, error) {
+func (s *DraftOrderServiceOp) CountMetafields(ctx context.Context, draftOrderId uint64, options interface{}) (int, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.Count(ctx, options)
 }
 
 // Get individual metafield for an order
-func (s *DraftOrderServiceOp) GetMetafield(ctx context.Context, draftOrderId int64, metafieldId int64, options interface{}) (*Metafield, error) {
+func (s *DraftOrderServiceOp) GetMetafield(ctx context.Context, draftOrderId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.Get(ctx, metafieldId, options)
 }
 
 // Create a new metafield for an order
-func (s *DraftOrderServiceOp) CreateMetafield(ctx context.Context, draftOrderId int64, metafield Metafield) (*Metafield, error) {
+func (s *DraftOrderServiceOp) CreateMetafield(ctx context.Context, draftOrderId uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.Create(ctx, metafield)
 }
 
 // Update an existing metafield for an order
-func (s *DraftOrderServiceOp) UpdateMetafield(ctx context.Context, draftOrderId int64, metafield Metafield) (*Metafield, error) {
+func (s *DraftOrderServiceOp) UpdateMetafield(ctx context.Context, draftOrderId uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.Update(ctx, metafield)
 }
 
 // Delete an existing metafield for an order
-func (s *DraftOrderServiceOp) DeleteMetafield(ctx context.Context, draftOrderId int64, metafieldId int64) error {
+func (s *DraftOrderServiceOp) DeleteMetafield(ctx context.Context, draftOrderId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.Delete(ctx, metafieldId)
 }

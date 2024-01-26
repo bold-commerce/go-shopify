@@ -14,7 +14,7 @@ func TestFulfillmentRequestServiceOp_Send(t *testing.T) {
 	setup()
 	defer teardown()
 
-	fulfillmentOrderId := int64(1046000829)
+	fulfillmentOrderId := uint64(1046000829)
 	message := "Fulfill this ASAP please."
 	httpmock.RegisterResponder(
 		http.MethodPost,
@@ -91,7 +91,7 @@ func TestFulfillmentRequestServiceOp_Accept(t *testing.T) {
 	setup()
 	defer teardown()
 
-	fulfillmentOrderId := int64(1046000828)
+	fulfillmentOrderId := uint64(1046000828)
 	message := "We will start processing your fulfillment on the next business day."
 
 	httpmock.RegisterResponder(
@@ -168,7 +168,7 @@ func TestFulfillmentRequestServiceOp_Reject(t *testing.T) {
 	setup()
 	defer teardown()
 
-	fulfillmentOrderId := int64(1046000830)
+	fulfillmentOrderId := uint64(1046000830)
 	rejectionMessage := "Not enough inventory on hand to complete the work."
 
 	httpmock.RegisterResponder(

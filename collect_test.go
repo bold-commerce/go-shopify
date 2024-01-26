@@ -16,9 +16,9 @@ func collectTests(t *testing.T, collect Collect) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"Id", int64(18091352323), collect.Id},
-		{"CollectionId", int64(241600835), collect.CollectionId},
-		{"ProductId", int64(6654094787), collect.ProductId},
+		{"Id", uint64(18091352323), collect.Id},
+		{"CollectionId", uint64(241600835), collect.CollectionId},
+		{"ProductId", uint64(6654094787), collect.ProductId},
 		{"Featured", false, collect.Featured},
 		{"SortValue", "0000000002", collect.SortValue},
 	}

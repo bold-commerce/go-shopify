@@ -12,9 +12,9 @@ const collectionsBasePath = "collections"
 // of the Shopify API.
 // See: https://help.shopify.com/api/reference/products/collection
 type CollectionService interface {
-	Get(ctx context.Context, collectionId int64, options interface{}) (*Collection, error)
-	ListProducts(ctx context.Context, collectionId int64, options interface{}) ([]Product, error)
-	ListProductsWithPagination(ctx context.Context, collectionId int64, options interface{}) ([]Product, *Pagination, error)
+	Get(ctx context.Context, collectionId uint64, options interface{}) (*Collection, error)
+	ListProducts(ctx context.Context, collectionId uint64, options interface{}) ([]Product, error)
+	ListProductsWithPagination(ctx context.Context, collectionId uint64, options interface{}) ([]Product, *Pagination, error)
 }
 
 // CollectionServiceOp handles communication with the collection related methods of
@@ -25,7 +25,7 @@ type CollectionServiceOp struct {
 
 // Collection represents a Shopify collection
 type Collection struct {
-	Id             int64      `json:"id"`
+	Id             uint64     `json:"id"`
 	Handle         string     `json:"handle"`
 	Title          string     `json:"title"`
 	UpdatedAt      *time.Time `json:"updated_at"`
@@ -43,7 +43,7 @@ type CollectionResource struct {
 }
 
 // Get individual collection
-func (s *CollectionServiceOp) Get(ctx context.Context, collectionId int64, options interface{}) (*Collection, error) {
+func (s *CollectionServiceOp) Get(ctx context.Context, collectionId uint64, options interface{}) (*Collection, error) {
 	path := fmt.Sprintf("%s/%d.json", collectionsBasePath, collectionId)
 	resource := new(CollectionResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -51,7 +51,7 @@ func (s *CollectionServiceOp) Get(ctx context.Context, collectionId int64, optio
 }
 
 // List products for a collection
-func (s *CollectionServiceOp) ListProducts(ctx context.Context, collectionId int64, options interface{}) ([]Product, error) {
+func (s *CollectionServiceOp) ListProducts(ctx context.Context, collectionId uint64, options interface{}) ([]Product, error) {
 	products, _, err := s.ListProductsWithPagination(ctx, collectionId, options)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (s *CollectionServiceOp) ListProducts(ctx context.Context, collectionId int
 }
 
 // List products for a collection and return pagination to retrieve next/previous results.
-func (s *CollectionServiceOp) ListProductsWithPagination(ctx context.Context, collectionId int64, options interface{}) ([]Product, *Pagination, error) {
+func (s *CollectionServiceOp) ListProductsWithPagination(ctx context.Context, collectionId uint64, options interface{}) ([]Product, *Pagination, error) {
 	path := fmt.Sprintf("%s/%d/products.json", collectionsBasePath, collectionId)
 	resource := new(ProductsResource)
 

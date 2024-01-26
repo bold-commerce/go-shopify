@@ -1196,9 +1196,9 @@ func validLineItem() LineItem {
 	tl2Rate := decimal.New(5, -2)
 	discountAllocationAmount := decimal.New(55, -1)
 	return LineItem{
-		Id:                         int64(254721536),
-		ProductId:                  int64(111475476),
-		VariantId:                  int64(1234),
+		Id:                         uint64(254721536),
+		ProductId:                  uint64(111475476),
+		VariantId:                  uint64(1234),
 		Quantity:                   1,
 		Price:                      &price,
 		TotalDiscount:              &totalDiscount,
@@ -1309,7 +1309,7 @@ func validShippingLines() ShippingLines {
 	tl2Rate := decimal.New(5, -2)
 
 	return ShippingLines{
-		Id:    int64(254721542),
+		Id:    uint64(254721542),
 		Title: "Small Packet International Air",
 		Price: &price,
 		PriceSet: &AmountSet{

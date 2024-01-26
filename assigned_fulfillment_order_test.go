@@ -11,7 +11,7 @@ import (
 
 func AssignedFulfillmentOrderTests(t *testing.T, assignedFulfillmentOrder AssignedFulfillmentOrder) {
 	// Check that Id is assigned to the returned fulfillment
-	expectedInt := int64(255858046) // in assigned_fulfillment_orders.json fixture
+	expectedInt := uint64(255858046) // in assigned_fulfillment_orders.json fixture
 	if assignedFulfillmentOrder.Id != expectedInt {
 		t.Errorf("AssignedFulfillmentOrder.Id returned %+v, expected %+v", assignedFulfillmentOrder.Id, expectedInt)
 	}
