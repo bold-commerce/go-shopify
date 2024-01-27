@@ -130,10 +130,10 @@ to understand the format and release schedules. You can use `WithVersion` to spe
 of the API. If you do not use this option you will be defaulted to the oldest stable API.
 
 ```go
-client := goshopify.NewClient(app, "shopname", "", goshopify.WithVersion("2019-04"))
+client, err := goshopify.NewClient(app, "shopname", "", goshopify.WithVersion("2019-04"))
 ```
 
-#### WithRetry, err
+#### WithRetry
 
 Shopify [Rate Limits](https://shopify.dev/concepts/about-apis/rate-limits) their API and if this happens to you they
 will send a back off (usually 2s) to tell you to retry your request. To support this functionality seamlessly within
