@@ -227,25 +227,40 @@ func TestCustomerGet(t *testing.T) {
 	createdAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	updatedAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	totalSpent := decimal.NewFromFloat(278.60)
+	emailMarketingConsent1 := EmailMarketingConsent{
+		State:            "not_subscribed",
+		OptInLevel:       "single_opt_in",
+		ConsentUpdatedAt: updatedAt,
+	}
+
+	smsMarketingConsent1 := SMSMarketingConsent{
+		State:                "not_subscribed",
+		OptInLevel:           "single_opt_in",
+		ConsentUpdatedAt:     updatedAt,
+		ConsentCollectedFrom: "OTHER",
+	}
 
 	expectation := &Customer{
-		ID:               1,
-		Email:            "test@example.com",
-		FirstName:        "Test",
-		LastName:         "Citizen",
-		AcceptsMarketing: true,
-		VerifiedEmail:    true,
-		TaxExempt:        false,
-		OrdersCount:      4,
-		State:            "enabled",
-		TotalSpent:       &totalSpent,
-		LastOrderId:      123,
-		Note:             "",
-		Phone:            "",
-		DefaultAddress:   address1,
-		Addresses:        []*CustomerAddress{address1},
-		CreatedAt:        &createdAt,
-		UpdatedAt:        &updatedAt,
+		ID:                        1,
+		Email:                     "test@example.com",
+		FirstName:                 "Test",
+		LastName:                  "Citizen",
+		AcceptsMarketing:          true,
+		VerifiedEmail:             true,
+		TaxExempt:                 false,
+		OrdersCount:               4,
+		State:                     "enabled",
+		TotalSpent:                &totalSpent,
+		LastOrderId:               123,
+		Note:                      "",
+		Phone:                     "",
+		AcceptsMarketingUpdatedAt: &updatedAt,
+		EmailMarketingConsent:     &emailMarketingConsent1,
+		SMSMarketingConsent:       &smsMarketingConsent1,
+		DefaultAddress:            address1,
+		Addresses:                 []*CustomerAddress{address1},
+		CreatedAt:                 &createdAt,
+		UpdatedAt:                 &updatedAt,
 	}
 
 	if customer.ID != expectation.ID {
@@ -353,6 +368,38 @@ func TestCustomerGet(t *testing.T) {
 	}
 	if len(customer.Addresses) != len(expectation.Addresses) {
 		t.Errorf("Customer.Addresses count returned %d, expected %d", len(customer.Addresses), len(expectation.Addresses))
+	}
+	if !customer.AcceptsMarketingUpdatedAt.Equal(*expectation.AcceptsMarketingUpdatedAt) {
+		t.Errorf("Customer.AcceptsMarketingUpdatedAt returned %+v, expected %+v", customer.AcceptsMarketingUpdatedAt, expectation.AcceptsMarketingUpdatedAt)
+	}
+	if customer.EmailMarketingConsent == nil {
+		t.Errorf("Customer.EmailMarketingConsent is nil, expected not nil")
+	} else {
+		if !customer.EmailMarketingConsent.ConsentUpdatedAt.Equal(expectation.EmailMarketingConsent.ConsentUpdatedAt) {
+			t.Errorf("Customer.EmailMarketingConsent.ConsentUpdatedAt returned %+v, expected %+v", customer.EmailMarketingConsent.ConsentUpdatedAt, expectation.EmailMarketingConsent.ConsentUpdatedAt)
+		}
+		if customer.EmailMarketingConsent.State != expectation.EmailMarketingConsent.State {
+			t.Errorf("Customer.EmailMarketingConsent.State returned %+v, expected %+v", customer.EmailMarketingConsent.State, expectation.EmailMarketingConsent.State)
+		}
+		if customer.EmailMarketingConsent.OptInLevel != expectation.EmailMarketingConsent.OptInLevel {
+			t.Errorf("Customer.EmailMarketingConsent.OptInLevel returned %+v, expected %+v", customer.EmailMarketingConsent.OptInLevel, expectation.EmailMarketingConsent.OptInLevel)
+		}
+	}
+	if customer.SMSMarketingConsent == nil {
+		t.Errorf("Customer.SMSMarketingConsent is nil, expected not nil")
+	} else {
+		if !customer.SMSMarketingConsent.ConsentUpdatedAt.Equal(expectation.SMSMarketingConsent.ConsentUpdatedAt) {
+			t.Errorf("Customer.SMSMarketingConsent.ConsentUpdatedAt returned %+v, expected %+v", customer.SMSMarketingConsent.ConsentUpdatedAt, expectation.SMSMarketingConsent.ConsentUpdatedAt)
+		}
+		if customer.SMSMarketingConsent.State != expectation.SMSMarketingConsent.State {
+			t.Errorf("Customer.SMSMarketingConsent.State returned %+v, expected %+v", customer.SMSMarketingConsent.State, expectation.SMSMarketingConsent.State)
+		}
+		if customer.SMSMarketingConsent.OptInLevel != expectation.SMSMarketingConsent.OptInLevel {
+			t.Errorf("Customer.SMSMarketingConsent.OptInLevel returned %+v, expected %+v", customer.SMSMarketingConsent.OptInLevel, expectation.SMSMarketingConsent.OptInLevel)
+		}
+		if customer.SMSMarketingConsent.ConsentCollectedFrom != expectation.SMSMarketingConsent.ConsentCollectedFrom {
+			t.Errorf("Customer.SMSMarketingConsent.ConsentCollectedFrom returned %+v, expected %+v", customer.SMSMarketingConsent.ConsentCollectedFrom, expectation.SMSMarketingConsent.ConsentCollectedFrom)
+		}
 	}
 }
 
