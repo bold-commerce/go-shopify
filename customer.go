@@ -40,27 +40,30 @@ type CustomerServiceOp struct {
 
 // Customer represents a Shopify customer
 type Customer struct {
-	ID                  int64              `json:"id,omitempty"`
-	Email               string             `json:"email,omitempty"`
-	FirstName           string             `json:"first_name,omitempty"`
-	LastName            string             `json:"last_name,omitempty"`
-	State               string             `json:"state,omitempty"`
-	Note                string             `json:"note,omitempty"`
-	VerifiedEmail       bool               `json:"verified_email,omitempty"`
-	MultipassIdentifier string             `json:"multipass_identifier,omitempty"`
-	OrdersCount         int                `json:"orders_count,omitempty"`
-	TaxExempt           bool               `json:"tax_exempt,omitempty"`
-	TotalSpent          *decimal.Decimal   `json:"total_spent,omitempty"`
-	Phone               string             `json:"phone,omitempty"`
-	Tags                string             `json:"tags,omitempty"`
-	LastOrderId         int64              `json:"last_order_id,omitempty"`
-	LastOrderName       string             `json:"last_order_name,omitempty"`
-	AcceptsMarketing    bool               `json:"accepts_marketing,omitempty"`
-	DefaultAddress      *CustomerAddress   `json:"default_address,omitempty"`
-	Addresses           []*CustomerAddress `json:"addresses,omitempty"`
-	CreatedAt           *time.Time         `json:"created_at,omitempty"`
-	UpdatedAt           *time.Time         `json:"updated_at,omitempty"`
-	Metafields          []Metafield        `json:"metafields,omitempty"`
+	ID                        int64                  `json:"id,omitempty"`
+	Email                     string                 `json:"email,omitempty"`
+	FirstName                 string                 `json:"first_name,omitempty"`
+	LastName                  string                 `json:"last_name,omitempty"`
+	State                     string                 `json:"state,omitempty"`
+	Note                      string                 `json:"note,omitempty"`
+	VerifiedEmail             bool                   `json:"verified_email,omitempty"`
+	MultipassIdentifier       string                 `json:"multipass_identifier,omitempty"`
+	OrdersCount               int                    `json:"orders_count,omitempty"`
+	TaxExempt                 bool                   `json:"tax_exempt,omitempty"`
+	TotalSpent                *decimal.Decimal       `json:"total_spent,omitempty"`
+	Phone                     string                 `json:"phone,omitempty"`
+	Tags                      string                 `json:"tags,omitempty"`
+	LastOrderId               int64                  `json:"last_order_id,omitempty"`
+	LastOrderName             string                 `json:"last_order_name,omitempty"`
+	AcceptsMarketing          bool                   `json:"accepts_marketing,omitempty"`
+	AcceptsMarketingUpdatedAt *time.Time             `json:"accepts_marketing_updated_at,omitempty"`
+	EmailMarketingConsent     *EmailMarketingConsent `json:"email_marketing_consent"`
+	SMSMarketingConsent       *SMSMarketingConsent   `json:"sms_marketing_consent"`
+	DefaultAddress            *CustomerAddress       `json:"default_address,omitempty"`
+	Addresses                 []*CustomerAddress     `json:"addresses,omitempty"`
+	CreatedAt                 *time.Time             `json:"created_at,omitempty"`
+	UpdatedAt                 *time.Time             `json:"updated_at,omitempty"`
+	Metafields                []Metafield            `json:"metafields,omitempty"`
 }
 
 // Represents the result from the customers/X.json endpoint
@@ -85,6 +88,19 @@ type CustomerSearchOptions struct {
 	Fields string `url:"fields,omitempty"`
 	Order  string `url:"order,omitempty"`
 	Query  string `url:"query,omitempty"`
+}
+
+type EmailMarketingConsent struct {
+	State            string    `json:"state"`
+	OptInLevel       string    `json:"opt_in_level"`
+	ConsentUpdatedAt time.Time `json:"consent_updated_at"`
+}
+
+type SMSMarketingConsent struct {
+	State                string    `json:"state"`
+	OptInLevel           string    `json:"opt_in_level"`
+	ConsentUpdatedAt     time.Time `json:"consent_updated_at"`
+	ConsentCollectedFrom string    `json:"consent_collected_from"`
 }
 
 // List customers
