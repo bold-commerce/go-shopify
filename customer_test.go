@@ -230,13 +230,13 @@ func TestCustomerGet(t *testing.T) {
 	emailMarketingConsent1 := EmailMarketingConsent{
 		State:            "not_subscribed",
 		OptInLevel:       "single_opt_in",
-		ConsentUpdatedAt: updatedAt,
+		ConsentUpdatedAt: &updatedAt,
 	}
 
 	smsMarketingConsent1 := SMSMarketingConsent{
 		State:                "not_subscribed",
 		OptInLevel:           "single_opt_in",
-		ConsentUpdatedAt:     updatedAt,
+		ConsentUpdatedAt:     &updatedAt,
 		ConsentCollectedFrom: "OTHER",
 	}
 
@@ -375,7 +375,7 @@ func TestCustomerGet(t *testing.T) {
 	if customer.EmailMarketingConsent == nil {
 		t.Errorf("Customer.EmailMarketingConsent is nil, expected not nil")
 	} else {
-		if !customer.EmailMarketingConsent.ConsentUpdatedAt.Equal(expectation.EmailMarketingConsent.ConsentUpdatedAt) {
+		if !customer.EmailMarketingConsent.ConsentUpdatedAt.Equal(*expectation.EmailMarketingConsent.ConsentUpdatedAt) {
 			t.Errorf("Customer.EmailMarketingConsent.ConsentUpdatedAt returned %+v, expected %+v", customer.EmailMarketingConsent.ConsentUpdatedAt, expectation.EmailMarketingConsent.ConsentUpdatedAt)
 		}
 		if customer.EmailMarketingConsent.State != expectation.EmailMarketingConsent.State {
@@ -388,7 +388,7 @@ func TestCustomerGet(t *testing.T) {
 	if customer.SMSMarketingConsent == nil {
 		t.Errorf("Customer.SMSMarketingConsent is nil, expected not nil")
 	} else {
-		if !customer.SMSMarketingConsent.ConsentUpdatedAt.Equal(expectation.SMSMarketingConsent.ConsentUpdatedAt) {
+		if !customer.SMSMarketingConsent.ConsentUpdatedAt.Equal(*expectation.SMSMarketingConsent.ConsentUpdatedAt) {
 			t.Errorf("Customer.SMSMarketingConsent.ConsentUpdatedAt returned %+v, expected %+v", customer.SMSMarketingConsent.ConsentUpdatedAt, expectation.SMSMarketingConsent.ConsentUpdatedAt)
 		}
 		if customer.SMSMarketingConsent.State != expectation.SMSMarketingConsent.State {

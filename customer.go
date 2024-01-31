@@ -91,16 +91,16 @@ type CustomerSearchOptions struct {
 }
 
 type EmailMarketingConsent struct {
-	State            string    `json:"state"`
-	OptInLevel       string    `json:"opt_in_level"`
-	ConsentUpdatedAt time.Time `json:"consent_updated_at"`
+	State            string     `json:"state"`
+	OptInLevel       string     `json:"opt_in_level"`
+	ConsentUpdatedAt *time.Time `json:"consent_updated_at"`
 }
 
 type SMSMarketingConsent struct {
-	State                string    `json:"state"`
-	OptInLevel           string    `json:"opt_in_level"`
-	ConsentUpdatedAt     time.Time `json:"consent_updated_at"`
-	ConsentCollectedFrom string    `json:"consent_collected_from"`
+	State                string     `json:"state"`
+	OptInLevel           string     `json:"opt_in_level"`
+	ConsentUpdatedAt     *time.Time `json:"consent_updated_at"`
+	ConsentCollectedFrom string     `json:"consent_collected_from"`
 }
 
 // List customers
