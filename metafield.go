@@ -38,57 +38,60 @@ type MetafieldServiceOp struct {
 	resourceId uint64
 }
 
-type metafieldType string
+// MetafieldType
+//
+// Docs: https://shopify.dev/docs/api/admin-rest/2023-07/resources/metafield#resource-object
+type MetafieldType string
 
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/metafield#resource-object
 const (
-	// True or false.
-	MetafieldTypeBoolean metafieldType = "boolean"
+	// MetafieldTypeBoolean True or false.
+	MetafieldTypeBoolean MetafieldType = "boolean"
 
-	// A hexidecimal color code, #fff123.
-	MetafieldTypeColor metafieldType = "color" //#fff123
+	// MetafieldTypeColor A hexidecimal color code, #fff123.
+	MetafieldTypeColor MetafieldType = "color" // #fff123
 
-	// ISO601, YYYY-MM-DD.
-	MetafieldTypeDate metafieldType = "date"
+	// MetafieldTypeDate ISO601, YYYY-MM-DD.
+	MetafieldTypeDate MetafieldType = "date"
 
-	// ISO8601, YYYY-MM-DDTHH:MM:SS.
-	MetafieldTypeDatetime metafieldType = "date_time"
+	// MetafieldTypeDatetime ISO8601, YYYY-MM-DDTHH:MM:SS.
+	MetafieldTypeDatetime MetafieldType = "date_time"
 
-	// JSON, {"value:" 25.0, "unit": "cm"}.
-	MetafieldTypeDimension metafieldType = "dimension"
+	// MetafieldTypeDimension JSON, {"value:" 25.0, "unit": "cm"}.
+	MetafieldTypeDimension MetafieldType = "dimension"
 
-	//{"ingredient": "flour", "amount": 0.3}.
-	MetafieldTypeJSON metafieldType = "json"
+	// MetafieldTypeJSON {"ingredient": "flour", "amount": 0.3}.
+	MetafieldTypeJSON MetafieldType = "json"
 
-	// JSON, {"amount": 5.99, "currency_code": "CAD"}.
-	MetafieldTypeMoney metafieldType = "money"
+	// MetafieldTypeMoney JSON, {"amount": 5.99, "currency_code": "CAD"}.
+	MetafieldTypeMoney MetafieldType = "money"
 
-	// lines of text separated with newline characters.
-	MetafieldTypeMultiLineTextField metafieldType = "multi_line_text_field"
+	// MetafieldTypeMultiLineTextField lines of text separated with newline characters.
+	MetafieldTypeMultiLineTextField MetafieldType = "multi_line_text_field"
 
-	// 10.4.
-	MetafieldTypeNumberDecimal metafieldType = "number_decimal"
+	// MetafieldTypeNumberDecimal 10.4.
+	MetafieldTypeNumberDecimal MetafieldType = "number_decimal"
 
-	// 10.
-	MetafieldTypeNumberInteger metafieldType = "number_integer"
+	// MetafieldTypeNumberInteger 10.
+	MetafieldTypeNumberInteger MetafieldType = "number_integer"
 
-	// JSON, {"value": "3.5", "scale_min": "1.0", "scale_max": "5.0"}.
-	MetafieldTypeRating metafieldType = "rating"
+	// MetafieldTypeRating JSON, {"value": "3.5", "scale_min": "1.0", "scale_max": "5.0"}.
+	MetafieldTypeRating MetafieldType = "rating"
 
-	// JSON, {"type": "root","children": [{"type": "paragraph","children": [{"type": "text","value": "Bold text.","bold": true}]}]}.
-	MetafieldTypeRichTextField metafieldType = "rich_text_field"
+	// MetafieldTypeRichTextField JSON, {"type": "root","children": [{"type": "paragraph","children": [{"type": "text","value": "Bold text.","bold": true}]}]}.
+	MetafieldTypeRichTextField MetafieldType = "rich_text_field"
 
-	// A single line of text. Do not use for numbers or dates, use correct type instead!
-	MetafieldTypeSingleLineTextField metafieldType = "single_line_text_field"
+	// MetafieldTypeSingleLineTextField A single line of text. Do not use for numbers or dates, use correct type instead!
+	MetafieldTypeSingleLineTextField MetafieldType = "single_line_text_field"
 
-	// https, http, mailto, sms, or tel.
-	MetafieldTypeURL metafieldType = "url"
+	// MetafieldTypeURL https, http, mailto, sms, or tel.
+	MetafieldTypeURL MetafieldType = "url"
 
-	// JSON, {"value:" 20.0, "unit": "ml"}.
-	MetafieldTypeVolume metafieldType = "volume"
+	// MetafieldTypeVolume JSON, {"value:" 20.0, "unit": "ml"}.
+	MetafieldTypeVolume MetafieldType = "volume"
 
-	// JSON, {"value:" 2.5, "unit": "kg"}.
-	MetafieldTypeWeight metafieldType = "weight"
+	// MetafieldTypeWeight JSON, {"value:" 2.5, "unit": "kg"}.
+	MetafieldTypeWeight MetafieldType = "weight"
 )
 
 // Metafield represents a Shopify metafield.
@@ -102,7 +105,7 @@ type Metafield struct {
 	OwnerResource     string        `json:"owner_resource,omitempty"` // The type of reserouce the metafield is for, i.e.: and Order.
 	UpdatedAt         *time.Time    `json:"updated_at,omitempty"`     //
 	Value             interface{}   `json:"value,omitempty"`          // The data stored in the metafield. Always stored as a string, use Type field for actual data type.
-	Type              metafieldType `json:"type,omitempty"`           // One of Shopify's defined types, see metafieldType.
+	Type              MetafieldType `json:"type,omitempty"`           // One of Shopify's defined types, see MetafieldType.
 	AdminGraphqlApiId string        `json:"admin_graphql_api_id,omitempty"`
 }
 
