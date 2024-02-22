@@ -53,6 +53,7 @@ type RecurringApplicationCharge struct {
 	TrialEndsOn           *time.Time       `json:"trial_ends_on"`
 	UpdateCappedAmountURL string           `json:"update_capped_amount_url"`
 	UpdatedAt             *time.Time       `json:"updated_at"`
+	Currency              string           `json:"currency"`
 }
 
 func parse(dest **time.Time, data *string) error {
