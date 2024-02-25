@@ -130,6 +130,7 @@ type Client struct {
 	FulfillmentRequest         FulfillmentRequestService
 	PaymentsTransactions       PaymentsTransactionsService
 	OrderRisk                  OrderRiskService
+	ApiPermissions             ApiPermissionsService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -334,6 +335,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 	c.FulfillmentRequest = &FulfillmentRequestServiceOp{client: c}
 	c.PaymentsTransactions = &PaymentsTransactionsServiceOp{client: c}
 	c.OrderRisk = &OrderRiskServiceOp{client: c}
+	c.ApiPermissions = &ApiPermissionsServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {
