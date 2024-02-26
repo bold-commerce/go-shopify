@@ -19,7 +19,7 @@ func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
 	riskLevel := decimal.NewFromFloat(0.08)
 
 	expected := UsageCharge{
-		ID:               1034618208,
+		Id:               1034618208,
 		Description:      "Super Mega Plan 1000 emails",
 		Price:            &price,
 		CreatedAt:        &createdAt,
@@ -29,8 +29,8 @@ func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
 		RiskLevel:        &riskLevel,
 	}
 
-	if usageCharge.ID != expected.ID {
-		t.Errorf("UsageCharge.ID returned %v, expected %v", usageCharge.ID, expected.ID)
+	if usageCharge.Id != expected.Id {
+		t.Errorf("UsageCharge.Id returned %v, expected %v", usageCharge.Id, expected.Id)
 	}
 	if usageCharge.Description != expected.Description {
 		t.Errorf("UsageCharge.Description returned %v, expected %v", usageCharge.Description, expected.Description)

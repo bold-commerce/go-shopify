@@ -17,7 +17,7 @@ func smartCollectionTests(t *testing.T, collection SmartCollection) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(30497275952), collection.ID},
+		{"Id", uint64(30497275952), collection.Id},
 		{"Handle", "macbooks", collection.Handle},
 		{"Title", "Macbooks", collection.Title},
 		{"BodyHTML", "Macbook Body", collection.BodyHTML},
@@ -47,7 +47,7 @@ func TestSmartCollectionList(t *testing.T) {
 		t.Errorf("SmartCollection.List returned error: %v", err)
 	}
 
-	expected := []SmartCollection{{ID: 1}, {ID: 2}}
+	expected := []SmartCollection{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(collections, expected) {
 		t.Errorf("SmartCollection.List returned %+v, expected %+v", collections, expected)
 	}
@@ -101,7 +101,7 @@ func TestSmartCollectionGet(t *testing.T) {
 		t.Errorf("SmartCollection.Get returned error: %v", err)
 	}
 
-	expected := &SmartCollection{ID: 1}
+	expected := &SmartCollection{Id: 1}
 	if !reflect.DeepEqual(collection, expected) {
 		t.Errorf("SmartCollection.Get returned %+v, expected %+v", collection, expected)
 	}
@@ -134,7 +134,7 @@ func TestSmartCollectionUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("smartcollection.json")))
 
 	collection := SmartCollection{
-		ID:    1,
+		Id:    1,
 		Title: "Macbooks",
 	}
 
@@ -171,7 +171,7 @@ func TestSmartCollectionListMetafields(t *testing.T) {
 		t.Errorf("SmartCollection.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("SmartCollection.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -225,7 +225,7 @@ func TestSmartCollectionGetMetafield(t *testing.T) {
 		t.Errorf("SmartCollection.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("SmartCollection.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -261,7 +261,7 @@ func TestSmartCollectionUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,

@@ -14,10 +14,10 @@ import (
 )
 
 func productTests(t *testing.T, product Product) {
-	// Check that ID is assigned to the returned product
-	var expectedInt int64 = 1071559748
-	if product.ID != expectedInt {
-		t.Errorf("Product.ID returned %+v, expected %+v", product.ID, expectedInt)
+	// Check that Id is assigned to the returned product
+	var expectedInt uint64 = 1071559748
+	if product.Id != expectedInt {
+		t.Errorf("Product.Id returned %+v, expected %+v", product.Id, expectedInt)
 	}
 }
 
@@ -33,7 +33,7 @@ func TestProductList(t *testing.T) {
 		t.Errorf("Product.List returned error: %v", err)
 	}
 
-	expected := []Product{{ID: 1}, {ID: 2}}
+	expected := []Product{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
 	}
@@ -50,14 +50,14 @@ func TestProductListFilterByIds(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"products": [{"id":1},{"id":2},{"id":3}]}`))
 
-	listOptions := ListOptions{IDs: []int64{1, 2, 3}}
+	listOptions := ListOptions{Ids: []uint64{1, 2, 3}}
 
 	products, err := client.Product.List(context.Background(), listOptions)
 	if err != nil {
 		t.Errorf("Product.List returned error: %v", err)
 	}
 
-	expected := []Product{{ID: 1}, {ID: 2}, {ID: 3}}
+	expected := []Product{{Id: 1}, {Id: 2}, {Id: 3}}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("Product.List returned %+v, expected %+v", products, expected)
 	}
@@ -105,7 +105,7 @@ func TestProductListWithPagination(t *testing.T) {
 		{
 			`{"products": [{"id":1},{"id":2}]}`,
 			"",
-			[]Product{{ID: 1}, {ID: 2}},
+			[]Product{{Id: 1}, {Id: 2}},
 			new(Pagination),
 			nil,
 		},
@@ -149,7 +149,7 @@ func TestProductListWithPagination(t *testing.T) {
 		{
 			`{"products": [{"id":1}]}`,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
-			[]Product{{ID: 1}},
+			[]Product{{Id: 1}},
 			&Pagination{
 				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
 			},
@@ -158,7 +158,7 @@ func TestProductListWithPagination(t *testing.T) {
 		{
 			`{"products": [{"id":2}]}`,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
-			[]Product{{ID: 2}},
+			[]Product{{Id: 2}},
 			&Pagination{
 				NextPageOptions:     &ListOptions{PageInfo: "foo"},
 				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
@@ -250,7 +250,7 @@ func TestProductGet(t *testing.T) {
 		t.Errorf("Product.Get returned error: %v", err)
 	}
 
-	expected := &Product{ID: 1}
+	expected := &Product{Id: 1}
 	if !reflect.DeepEqual(product, expected) {
 		t.Errorf("Product.Get returned %+v, expected %+v", product, expected)
 	}
@@ -286,7 +286,7 @@ func TestProductUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("product.json")))
 
 	product := Product{
-		ID:          1,
+		Id:          1,
 		ProductType: "Skateboard",
 	}
 
@@ -323,7 +323,7 @@ func TestProductListMetafields(t *testing.T) {
 		t.Errorf("Product.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Product.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -377,7 +377,7 @@ func TestProductGetMetafield(t *testing.T) {
 		t.Errorf("Product.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Product.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -413,7 +413,7 @@ func TestProductUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,

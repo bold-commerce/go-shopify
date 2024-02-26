@@ -15,7 +15,7 @@ const inventoryItemsBasePath = "inventory_items"
 // See https://help.shopify.com/en/api/reference/inventory/inventoryitem
 type InventoryItemService interface {
 	List(context.Context, interface{}) ([]InventoryItem, error)
-	Get(context.Context, int64, interface{}) (*InventoryItem, error)
+	Get(context.Context, uint64, interface{}) (*InventoryItem, error)
 	Update(context.Context, InventoryItem) (*InventoryItem, error)
 }
 
@@ -26,13 +26,13 @@ type InventoryItemServiceOp struct {
 
 // InventoryItem represents a Shopify inventory item
 type InventoryItem struct {
-	ID                           int64            `json:"id,omitempty"`
+	Id                           uint64           `json:"id,omitempty"`
 	SKU                          string           `json:"sku,omitempty"`
 	CreatedAt                    *time.Time       `json:"created_at,omitempty"`
 	UpdatedAt                    *time.Time       `json:"updated_at,omitempty"`
 	Cost                         *decimal.Decimal `json:"cost,omitempty"`
 	Tracked                      *bool            `json:"tracked,omitempty"`
-	AdminGraphqlAPIID            string           `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId            string           `json:"admin_graphql_api_id,omitempty"`
 	CountryCodeOfOrigin          *string          `json:"country_code_of_origin"`
 	CountryHarmonizedSystemCodes []string         `json:"country_harmonized_system_codes"`
 	HarmonizedSystemCode         *string          `json:"harmonized_system_code"`
@@ -58,7 +58,7 @@ func (s *InventoryItemServiceOp) List(ctx context.Context, options interface{}) 
 }
 
 // Get a inventory item
-func (s *InventoryItemServiceOp) Get(ctx context.Context, id int64, options interface{}) (*InventoryItem, error) {
+func (s *InventoryItemServiceOp) Get(ctx context.Context, id uint64, options interface{}) (*InventoryItem, error) {
 	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, id)
 	resource := new(InventoryItemResource)
 	err := s.client.Get(ctx, path, resource, options)
@@ -67,7 +67,7 @@ func (s *InventoryItemServiceOp) Get(ctx context.Context, id int64, options inte
 
 // Update a inventory item
 func (s *InventoryItemServiceOp) Update(ctx context.Context, item InventoryItem) (*InventoryItem, error) {
-	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, item.ID)
+	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, item.Id)
 	wrappedData := InventoryItemResource{InventoryItem: &item}
 	resource := new(InventoryItemResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)

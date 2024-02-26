@@ -57,7 +57,7 @@ func TestOrderListWithPagination(t *testing.T) {
 		{
 			`{"orders": [{"id":1},{"id":2}]}`,
 			"",
-			[]Order{{ID: 1}, {ID: 2}},
+			[]Order{{Id: 1}, {Id: 2}},
 			new(Pagination),
 			nil,
 		},
@@ -101,7 +101,7 @@ func TestOrderListWithPagination(t *testing.T) {
 		{
 			`{"orders": [{"id":1}]}`,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
-			[]Order{{ID: 1}},
+			[]Order{{Id: 1}},
 			&Pagination{
 				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
 			},
@@ -110,7 +110,7 @@ func TestOrderListWithPagination(t *testing.T) {
 		{
 			`{"orders": [{"id":2}]}`,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
-			[]Order{{ID: 2}},
+			[]Order{{Id: 2}},
 			&Pagination{
 				NextPageOptions:     &ListOptions{PageInfo: "foo"},
 				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
@@ -205,8 +205,8 @@ func transactionTest(t *testing.T, transaction Transaction) {
 	}
 
 	// Check null value
-	if transaction.LocationID != nil {
-		t.Error("Expected Transaction.LocationID to be nil")
+	if transaction.LocationId != nil {
+		t.Error("Expected Transaction.LocationId to be nil")
 	}
 
 	if transaction.PaymentDetails == nil {
@@ -372,7 +372,7 @@ func TestOrderCreate(t *testing.T) {
 	order := Order{
 		LineItems: []LineItem{
 			{
-				VariantID: 1,
+				VariantId: 1,
 				Quantity:  1,
 			},
 		},
@@ -383,9 +383,9 @@ func TestOrderCreate(t *testing.T) {
 		t.Errorf("Order.Create returned error: %v", err)
 	}
 
-	expected := Order{ID: 1}
-	if o.ID != expected.ID {
-		t.Errorf("Order.Create returned id %d, expected %d", o.ID, expected.ID)
+	expected := Order{Id: 1}
+	if o.Id != expected.Id {
+		t.Errorf("Order.Create returned id %d, expected %d", o.Id, expected.Id)
 	}
 }
 
@@ -397,7 +397,7 @@ func TestOrderUpdate(t *testing.T) {
 		httpmock.NewStringResponder(201, `{"order":{"id": 1}}`))
 
 	order := Order{
-		ID:                1,
+		Id:                1,
 		FinancialStatus:   OrderFinancialStatusPaid,
 		FulfillmentStatus: OrderFulfillmentStatusFulfilled,
 	}
@@ -407,9 +407,9 @@ func TestOrderUpdate(t *testing.T) {
 		t.Errorf("Order.Update returned error: %v", err)
 	}
 
-	expected := Order{ID: 1}
-	if o.ID != expected.ID {
-		t.Errorf("Order.Update returned id %d, expected %d", o.ID, expected.ID)
+	expected := Order{Id: 1}
+	if o.Id != expected.Id {
+		t.Errorf("Order.Update returned id %d, expected %d", o.Id, expected.Id)
 	}
 }
 
@@ -484,7 +484,7 @@ func TestOrderListMetafields(t *testing.T) {
 		t.Errorf("Order.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Order.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -538,7 +538,7 @@ func TestOrderGetMetafield(t *testing.T) {
 		t.Errorf("Order.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Order.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -574,7 +574,7 @@ func TestOrderUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,
@@ -614,7 +614,7 @@ func TestOrderListFulfillments(t *testing.T) {
 		t.Errorf("Order.ListFulfillments() returned error: %v", err)
 	}
 
-	expected := []Fulfillment{{ID: 1}, {ID: 2}}
+	expected := []Fulfillment{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(fulfillments, expected) {
 		t.Errorf("Order.ListFulfillments() returned %+v, expected %+v", fulfillments, expected)
 	}
@@ -668,7 +668,7 @@ func TestOrderGetFulfillment(t *testing.T) {
 		t.Errorf("Order.GetFulfillment() returned error: %v", err)
 	}
 
-	expected := &Fulfillment{ID: 2}
+	expected := &Fulfillment{Id: 2}
 	if !reflect.DeepEqual(fulfillment, expected) {
 		t.Errorf("Order.GetFulfillment() returned %+v, expected %+v", fulfillment, expected)
 	}
@@ -682,7 +682,7 @@ func TestOrderCreateFulfillment(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillment := Fulfillment{
-		LocationID:     905684977,
+		LocationId:     905684977,
 		TrackingNumber: "123456789",
 		TrackingUrls: []string{
 			"https://shipping.xyz/track.php?num=123456789",
@@ -707,7 +707,7 @@ func TestOrderUpdateFulfillment(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
 
 	fulfillment := Fulfillment{
-		ID:             1022782888,
+		Id:             1022782888,
 		TrackingNumber: "987654321",
 	}
 	returnedFulfillment, err := client.Order.UpdateFulfillment(context.Background(), 1, fulfillment)
@@ -885,7 +885,7 @@ func TestLineItemUnmarshalJSONPropertiesObject(t *testing.T) {
 	testLineItem(t, expected, actual)
 }
 
-// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a JSON string
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceId from a JSON string
 func TestShippingLines_UnmarshallJSON(t *testing.T) {
 	setup()
 	defer teardown()
@@ -902,8 +902,8 @@ func TestShippingLines_UnmarshallJSON(t *testing.T) {
 	testShippingLines(t, expected, actual)
 }
 
-// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a JSON Number
-func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDNumber(t *testing.T) {
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceId from a JSON Number
+func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIdNumber(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -915,13 +915,13 @@ func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDNumber(t *testi
 	}
 
 	expected := validShippingLines()
-	expected.RequestedFulfillmentServiceID = "123456"
+	expected.RequestedFulfillmentServiceId = "123456"
 
 	testShippingLines(t, expected, actual)
 }
 
-// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a JSON null
-func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDNull(t *testing.T) {
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceId from a JSON null
+func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIdNull(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -933,13 +933,13 @@ func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDNull(t *testing
 	}
 
 	expected := validShippingLines()
-	expected.RequestedFulfillmentServiceID = ""
+	expected.RequestedFulfillmentServiceId = ""
 
 	testShippingLines(t, expected, actual)
 }
 
-// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceID from a malformed JSON
-func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDInvalid(t *testing.T) {
+// TestShippingLines tests unmarshalling ShippingLines.RequestFulfillmentServiceId from a malformed JSON
+func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIdInvalid(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -952,16 +952,16 @@ func TestShippingLines_UnmarshallJSON_RequestFulfillmentServiceIDInvalid(t *test
 }
 
 func testLineItem(t *testing.T, expected, actual LineItem) {
-	if actual.ID != expected.ID {
-		t.Errorf("LineItem.ID should be (%v), was (%v)", expected.ID, actual.ID)
+	if actual.Id != expected.Id {
+		t.Errorf("LineItem.Id should be (%v), was (%v)", expected.Id, actual.Id)
 	}
 
-	if actual.ProductID != expected.ProductID {
-		t.Errorf("LineItem.ProductID should be (%v), was (%v)", expected.ProductID, actual.ProductID)
+	if actual.ProductId != expected.ProductId {
+		t.Errorf("LineItem.ProductId should be (%v), was (%v)", expected.ProductId, actual.ProductId)
 	}
 
-	if actual.VariantID != expected.VariantID {
-		t.Errorf("LineItem.VariantID should be (%v), was (%v)", expected.VariantID, actual.VariantID)
+	if actual.VariantId != expected.VariantId {
+		t.Errorf("LineItem.VariantId should be (%v), was (%v)", expected.VariantId, actual.VariantId)
 	}
 
 	if actual.Quantity != expected.Quantity {
@@ -1126,8 +1126,8 @@ func testTaxLines(t *testing.T, expected, actual []TaxLine) {
 }
 
 func testShippingLines(t *testing.T, expected, actual ShippingLines) {
-	if actual.ID != expected.ID {
-		t.Errorf("ShippingLines.ID should be (%v), was (%v)", expected.ID, actual.ID)
+	if actual.Id != expected.Id {
+		t.Errorf("ShippingLines.Id should be (%v), was (%v)", expected.Id, actual.Id)
 	}
 
 	if actual.Title != expected.Title {
@@ -1150,8 +1150,8 @@ func testShippingLines(t *testing.T, expected, actual ShippingLines) {
 		t.Errorf("ShippingLines.Phone should be (%v), was (%v)", expected.Phone, actual.Phone)
 	}
 
-	if actual.RequestedFulfillmentServiceID != expected.RequestedFulfillmentServiceID {
-		t.Errorf("ShippingLines.RequestedFulfillmentServiceID should be (%v), was (%v)", expected.RequestedFulfillmentServiceID, actual.RequestedFulfillmentServiceID)
+	if actual.RequestedFulfillmentServiceId != expected.RequestedFulfillmentServiceId {
+		t.Errorf("ShippingLines.RequestedFulfillmentServiceId should be (%v), was (%v)", expected.RequestedFulfillmentServiceId, actual.RequestedFulfillmentServiceId)
 	}
 
 	if actual.DeliveryCategory != expected.DeliveryCategory {
@@ -1196,9 +1196,9 @@ func validLineItem() LineItem {
 	tl2Rate := decimal.New(5, -2)
 	discountAllocationAmount := decimal.New(55, -1)
 	return LineItem{
-		ID:                         int64(254721536),
-		ProductID:                  int64(111475476),
-		VariantID:                  int64(1234),
+		Id:                         uint64(254721536),
+		ProductId:                  uint64(111475476),
+		VariantId:                  uint64(1234),
 		Quantity:                   1,
 		Price:                      &price,
 		TotalDiscount:              &totalDiscount,
@@ -1240,7 +1240,7 @@ func validLineItem() LineItem {
 			},
 		},
 		OriginLocation: &Address{
-			ID:           123,
+			Id:           123,
 			Address1:     "100 some street",
 			Address2:     "",
 			City:         "Winnipeg",
@@ -1258,7 +1258,7 @@ func validLineItem() LineItem {
 			Zip:          "R3Y 0L6",
 		},
 		DestinationLocation: &Address{
-			ID:           124,
+			Id:           124,
 			Address1:     "200 some street",
 			Address2:     "",
 			City:         "Winnipeg",
@@ -1309,7 +1309,7 @@ func validShippingLines() ShippingLines {
 	tl2Rate := decimal.New(5, -2)
 
 	return ShippingLines{
-		ID:    int64(254721542),
+		Id:    uint64(254721542),
 		Title: "Small Packet International Air",
 		Price: &price,
 		PriceSet: &AmountSet{
@@ -1336,7 +1336,7 @@ func validShippingLines() ShippingLines {
 		Code:                          "INT.TP",
 		Source:                        "canada_post",
 		Phone:                         "",
-		RequestedFulfillmentServiceID: "third_party_fulfillment_service_id",
+		RequestedFulfillmentServiceId: "third_party_fulfillment_service_id",
 		DeliveryCategory:              "",
 		CarrierIdentifier:             "third_party_carrier_identifier",
 		TaxLines: []TaxLine{

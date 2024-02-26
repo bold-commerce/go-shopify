@@ -15,10 +15,10 @@ const carrierBasePath = "carrier_services"
 // See: https://shopify.dev/docs/admin-api/rest/reference/shipping-and-fulfillment/carrierservice
 type CarrierServiceService interface {
 	List(context.Context) ([]CarrierService, error)
-	Get(context.Context, int64) (*CarrierService, error)
+	Get(context.Context, uint64) (*CarrierService, error)
 	Create(context.Context, CarrierService) (*CarrierService, error)
 	Update(context.Context, CarrierService) (*CarrierService, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 // CarrierServiceOp handles communication with the product related methods of
@@ -39,7 +39,7 @@ type CarrierService struct {
 	CarrierServiceType string `json:"carrier_service_type,omitempty"`
 
 	// The Id of the carrier service.
-	Id int64 `json:"id,omitempty"`
+	Id uint64 `json:"id,omitempty"`
 
 	// The format of the data returned by the URL endpoint. Valid values: json and xml. Default value: json.
 	Format string `json:"format,omitempty"`
@@ -50,7 +50,7 @@ type CarrierService struct {
 	// Whether merchants are able to send dummy data to your service through the Shopify admin to see shipping rate examples.
 	ServiceDiscovery bool `json:"service_discovery,omitempty"`
 
-	AdminGraphqlAPIID string `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId string `json:"admin_graphql_api_id,omitempty"`
 }
 
 type SingleCarrierResource struct {
@@ -140,8 +140,8 @@ func (s *CarrierServiceOp) List(ctx context.Context) ([]CarrierService, error) {
 	return resource.CarrierServices, err
 }
 
-// Get individual carrier resource by carrier resource ID
-func (s *CarrierServiceOp) Get(ctx context.Context, id int64) (*CarrierService, error) {
+// Get individual carrier resource by carrier resource Id
+func (s *CarrierServiceOp) Get(ctx context.Context, id uint64) (*CarrierService, error) {
 	path := fmt.Sprintf("%s/%d.json", carrierBasePath, id)
 	resource := new(SingleCarrierResource)
 	err := s.client.Get(ctx, path, resource, nil)
@@ -171,6 +171,6 @@ func (s *CarrierServiceOp) Update(ctx context.Context, carrier CarrierService) (
 }
 
 // Delete a carrier service
-func (s *CarrierServiceOp) Delete(ctx context.Context, id int64) error {
+func (s *CarrierServiceOp) Delete(ctx context.Context, id uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", carrierBasePath, id))
 }

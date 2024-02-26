@@ -14,15 +14,15 @@ func getTheme() Theme {
 	createdAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	updatedAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	return Theme{
-		ID:                1,
+		Id:                1,
 		Name:              "launchpad",
 		Previewable:       true,
 		Processing:        false,
 		Role:              "unpublished",
-		ThemeStoreID:      1234,
+		ThemeStoreId:      1234,
 		CreatedAt:         &createdAt,
 		UpdatedAt:         &updatedAt,
-		AdminGraphQLApiID: "gid://shopify/Theme/1234",
+		AdminGraphqlApiId: "gid://shopify/Theme/1234",
 	}
 }
 
@@ -55,7 +55,7 @@ func TestThemeList(t *testing.T) {
 		t.Errorf("Theme.List returned error: %v", err)
 	}
 
-	expected := []Theme{{ID: 1}, {ID: 2}}
+	expected := []Theme{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(themes, expected) {
 		t.Errorf("Theme.List returned %+v, expected %+v", themes, expected)
 	}
@@ -65,7 +65,7 @@ func TestThemeList(t *testing.T) {
 		t.Errorf("Theme.List returned error: %v", err)
 	}
 
-	expected = []Theme{{ID: 1}}
+	expected = []Theme{{Id: 1}}
 	if !reflect.DeepEqual(themes, expected) {
 		t.Errorf("Theme.List returned %+v, expected %+v", themes, expected)
 	}
@@ -85,8 +85,8 @@ func TestThemeGet(t *testing.T) {
 	}
 
 	expectation := getTheme()
-	if theme.ID != expectation.ID {
-		t.Errorf("Theme.ID returned %+v, expected %+v", theme.ID, expectation.ID)
+	if theme.Id != expectation.Id {
+		t.Errorf("Theme.Id returned %+v, expected %+v", theme.Id, expectation.Id)
 	}
 	if theme.Name != expectation.Name {
 		t.Errorf("Theme.Name returned %+v, expected %+v", theme.Name, expectation.Name)
@@ -100,8 +100,8 @@ func TestThemeGet(t *testing.T) {
 	if theme.Role != expectation.Role {
 		t.Errorf("Theme.Role returned %+v, expected %+v", theme.Role, expectation.Role)
 	}
-	if theme.ThemeStoreID != expectation.ThemeStoreID {
-		t.Errorf("Theme.ThemeStoreID returned %+v, expected %+v", theme.ThemeStoreID, expectation.ThemeStoreID)
+	if theme.ThemeStoreId != expectation.ThemeStoreId {
+		t.Errorf("Theme.ThemeStoreId returned %+v, expected %+v", theme.ThemeStoreId, expectation.ThemeStoreId)
 	}
 	if !theme.CreatedAt.Equal(*expectation.CreatedAt) {
 		t.Errorf("Theme.CreatedAt returned %+v, expected %+v", theme.CreatedAt, expectation.CreatedAt)
@@ -109,8 +109,8 @@ func TestThemeGet(t *testing.T) {
 	if !theme.UpdatedAt.Equal(*expectation.UpdatedAt) {
 		t.Errorf("Theme.UpdatedAt returned %+v, expected %+v", theme.UpdatedAt, expectation.UpdatedAt)
 	}
-	if theme.AdminGraphQLApiID != expectation.AdminGraphQLApiID {
-		t.Errorf("Theme.AdminGraphQLApiID returned %+v, expected %+v", theme.AdminGraphQLApiID, expectation.AdminGraphQLApiID)
+	if theme.AdminGraphqlApiId != expectation.AdminGraphqlApiId {
+		t.Errorf("Theme.AdminGraphqlApiId returned %+v, expected %+v", theme.AdminGraphqlApiId, expectation.AdminGraphqlApiId)
 	}
 }
 
@@ -128,9 +128,9 @@ func TestThemeUpdate(t *testing.T) {
 		t.Errorf("Theme.Update returned error: %v", err)
 	}
 
-	expectedThemeID := int64(1)
-	if expectation.ID != expectedThemeID {
-		t.Errorf("Theme.ID returned %+v expected %+v", expectation.ID, expectedThemeID)
+	expectedThemeId := uint64(1)
+	if expectation.Id != expectedThemeId {
+		t.Errorf("Theme.Id returned %+v expected %+v", expectation.Id, expectedThemeId)
 	}
 }
 
@@ -148,9 +148,9 @@ func TestThemeCreate(t *testing.T) {
 		t.Errorf("Theme.Create returned error: %v", err)
 	}
 
-	expectedThemeID := int64(1)
-	if expectation.ID != expectedThemeID {
-		t.Errorf("Theme.ID returned %+v expected %+v", expectation.ID, expectedThemeID)
+	expectedThemeId := uint64(1)
+	if expectation.Id != expectedThemeId {
+		t.Errorf("Theme.Id returned %+v expected %+v", expectation.Id, expectedThemeId)
 	}
 }
 

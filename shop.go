@@ -26,7 +26,7 @@ type ShopServiceOp struct {
 
 // Shop represents a Shopify shop
 type Shop struct {
-	ID                              int64      `json:"id"`
+	Id                              uint64     `json:"id"`
 	Name                            string     `json:"name"`
 	ShopOwner                       string     `json:"shop_owner"`
 	Email                           string     `json:"email"`
@@ -55,7 +55,7 @@ type Shop struct {
 	PlanDisplayName                 string     `json:"plan_display_name"`
 	PasswordEnabled                 bool       `json:"password_enabled"`
 	PrimaryLocale                   string     `json:"primary_locale"`
-	PrimaryLocationId               int64      `json:"primary_location_id"`
+	PrimaryLocationId               uint64     `json:"primary_location_id"`
 	Timezone                        string     `json:"timezone"`
 	IanaTimezone                    string     `json:"iana_timezone"`
 	ForceSSL                        bool       `json:"force_ssl"`
@@ -90,37 +90,37 @@ func (s *ShopServiceOp) Get(ctx context.Context, options interface{}) (*Shop, er
 }
 
 // ListMetafields for a shop
-func (s *ShopServiceOp) ListMetafields(ctx context.Context, _ int64, options interface{}) ([]Metafield, error) {
+func (s *ShopServiceOp) ListMetafields(ctx context.Context, _ uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
 	return metafieldService.List(ctx, options)
 }
 
 // CountMetafields for a shop
-func (s *ShopServiceOp) CountMetafields(ctx context.Context, _ int64, options interface{}) (int, error) {
+func (s *ShopServiceOp) CountMetafields(ctx context.Context, _ uint64, options interface{}) (int, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
 	return metafieldService.Count(ctx, options)
 }
 
 // GetMetafield for a shop
-func (s *ShopServiceOp) GetMetafield(ctx context.Context, _ int64, metafieldID int64, options interface{}) (*Metafield, error) {
+func (s *ShopServiceOp) GetMetafield(ctx context.Context, _ uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
-	return metafieldService.Get(ctx, metafieldID, options)
+	return metafieldService.Get(ctx, metafieldId, options)
 }
 
 // CreateMetafield for a shop
-func (s *ShopServiceOp) CreateMetafield(ctx context.Context, _ int64, metafield Metafield) (*Metafield, error) {
+func (s *ShopServiceOp) CreateMetafield(ctx context.Context, _ uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
 	return metafieldService.Create(ctx, metafield)
 }
 
 // UpdateMetafield for a shop
-func (s *ShopServiceOp) UpdateMetafield(ctx context.Context, _ int64, metafield Metafield) (*Metafield, error) {
+func (s *ShopServiceOp) UpdateMetafield(ctx context.Context, _ uint64, metafield Metafield) (*Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
 	return metafieldService.Update(ctx, metafield)
 }
 
 // DeleteMetafield for a shop
-func (s *ShopServiceOp) DeleteMetafield(ctx context.Context, _ int64, metafieldID int64) error {
+func (s *ShopServiceOp) DeleteMetafield(ctx context.Context, _ uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: shopResourceName}
-	return metafieldService.Delete(ctx, metafieldID)
+	return metafieldService.Delete(ctx, metafieldId)
 }

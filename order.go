@@ -21,13 +21,13 @@ type OrderService interface {
 	List(context.Context, interface{}) ([]Order, error)
 	ListWithPagination(context.Context, interface{}) ([]Order, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*Order, error)
+	Get(context.Context, uint64, interface{}) (*Order, error)
 	Create(context.Context, Order) (*Order, error)
 	Update(context.Context, Order) (*Order, error)
-	Cancel(context.Context, int64, interface{}) (*Order, error)
-	Close(context.Context, int64) (*Order, error)
-	Open(context.Context, int64) (*Order, error)
-	Delete(context.Context, int64) error
+	Cancel(context.Context, uint64, interface{}) (*Order, error)
+	Close(context.Context, uint64) (*Order, error)
+	Open(context.Context, uint64) (*Order, error)
+	Delete(context.Context, uint64) error
 
 	// MetafieldsService used for Order resource to communicate with Metafields resource
 	MetafieldsService
@@ -139,7 +139,7 @@ const (
 type OrderCountOptions struct {
 	Page              int                    `url:"page,omitempty"`
 	Limit             int                    `url:"limit,omitempty"`
-	SinceID           int64                  `url:"since_id,omitempty"`
+	SinceId           uint64                 `url:"since_id,omitempty"`
 	CreatedAtMin      time.Time              `url:"created_at_min,omitempty"`
 	CreatedAtMax      time.Time              `url:"created_at_max,omitempty"`
 	UpdatedAtMin      time.Time              `url:"updated_at_min,omitempty"`
@@ -190,7 +190,7 @@ const (
 
 // Order represents a Shopify order
 type Order struct {
-	ID                     int64                   `json:"id,omitempty"`
+	Id                     uint64                  `json:"id,omitempty"`
 	Name                   string                  `json:"name,omitempty"`
 	Email                  string                  `json:"email,omitempty"`
 	CreatedAt              *time.Time              `json:"created_at,omitempty"`
@@ -234,18 +234,18 @@ type Order struct {
 	LineItems              []LineItem              `json:"line_items,omitempty"`
 	ShippingLines          []ShippingLines         `json:"shipping_lines,omitempty"`
 	Transactions           []Transaction           `json:"transactions,omitempty"`
-	AppID                  int                     `json:"app_id,omitempty"`
+	AppId                  int                     `json:"app_id,omitempty"`
 	CustomerLocale         string                  `json:"customer_locale,omitempty"`
 	LandingSite            string                  `json:"landing_site,omitempty"`
 	ReferringSite          string                  `json:"referring_site,omitempty"`
 	SourceName             string                  `json:"source_name,omitempty"`
 	ClientDetails          *ClientDetails          `json:"client_details,omitempty"`
 	Tags                   string                  `json:"tags,omitempty"`
-	LocationId             int64                   `json:"location_id,omitempty"`
+	LocationId             uint64                  `json:"location_id,omitempty"`
 	PaymentGatewayNames    []string                `json:"payment_gateway_names,omitempty"`
 	ProcessingMethod       string                  `json:"processing_method,omitempty"`
 	Refunds                []Refund                `json:"refunds,omitempty"`
-	UserId                 int64                   `json:"user_id,omitempty"`
+	UserId                 uint64                  `json:"user_id,omitempty"`
 	OrderStatusUrl         string                  `json:"order_status_url,omitempty"`
 	Gateway                string                  `json:"gateway,omitempty"`
 	Confirmed              bool                    `json:"confirmed,omitempty"`
@@ -253,10 +253,10 @@ type Order struct {
 	Reference              string                  `json:"reference,omitempty"`
 	SourceIdentifier       string                  `json:"source_identifier,omitempty"`
 	SourceURL              string                  `json:"source_url,omitempty"`
-	DeviceID               int64                   `json:"device_id,omitempty"`
+	DeviceId               uint64                  `json:"device_id,omitempty"`
 	Phone                  string                  `json:"phone,omitempty"`
 	LandingSiteRef         string                  `json:"landing_site_ref,omitempty"`
-	CheckoutID             int64                   `json:"checkout_id,omitempty"`
+	CheckoutId             uint64                  `json:"checkout_id,omitempty"`
 	ContactEmail           string                  `json:"contact_email,omitempty"`
 	Metafields             []Metafield             `json:"metafields,omitempty"`
 	SendReceipt            bool                    `json:"send_receipt,omitempty"`
@@ -266,7 +266,7 @@ type Order struct {
 }
 
 type Address struct {
-	ID           int64   `json:"id,omitempty"`
+	Id           uint64  `json:"id,omitempty"`
 	Address1     string  `json:"address1,omitempty"`
 	Address2     string  `json:"address2,omitempty"`
 	City         string  `json:"city,omitempty"`
@@ -291,9 +291,9 @@ type DiscountCode struct {
 }
 
 type LineItem struct {
-	ID                         int64                  `json:"id,omitempty"`
-	ProductID                  int64                  `json:"product_id,omitempty"`
-	VariantID                  int64                  `json:"variant_id,omitempty"`
+	Id                         uint64                 `json:"id,omitempty"`
+	ProductId                  uint64                 `json:"product_id,omitempty"`
+	VariantId                  uint64                 `json:"variant_id,omitempty"`
 	Quantity                   int                    `json:"quantity,omitempty"`
 	Price                      *decimal.Decimal       `json:"price,omitempty"`
 	TotalDiscount              *decimal.Decimal       `json:"total_discount,omitempty"`
@@ -408,7 +408,7 @@ type PaymentDetails struct {
 }
 
 type ShippingLines struct {
-	ID                            int64            `json:"id,omitempty"`
+	Id                            uint64           `json:"id,omitempty"`
 	Title                         string           `json:"title,omitempty"`
 	Price                         *decimal.Decimal `json:"price,omitempty"`
 	PriceSet                      *AmountSet       `json:"price_set,omitempty"`
@@ -417,7 +417,7 @@ type ShippingLines struct {
 	Code                          string           `json:"code,omitempty"`
 	Source                        string           `json:"source,omitempty"`
 	Phone                         string           `json:"phone,omitempty"`
-	RequestedFulfillmentServiceID string           `json:"requested_fulfillment_service_id,omitempty"`
+	RequestedFulfillmentServiceId string           `json:"requested_fulfillment_service_id,omitempty"`
 	DeliveryCategory              string           `json:"delivery_category,omitempty"`
 	CarrierIdentifier             string           `json:"carrier_identifier,omitempty"`
 	TaxLines                      []TaxLine        `json:"tax_lines,omitempty"`
@@ -430,7 +430,7 @@ func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
 	type alias ShippingLines
 	aux := &struct {
 		*alias
-		RequestedFulfillmentServiceID interface{} `json:"requested_fulfillment_service_id"`
+		RequestedFulfillmentServiceId interface{} `json:"requested_fulfillment_service_id"`
 	}{alias: (*alias)(sl)}
 
 	err := json.Unmarshal(data, &aux)
@@ -438,11 +438,11 @@ func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	switch aux.RequestedFulfillmentServiceID.(type) {
+	switch aux.RequestedFulfillmentServiceId.(type) {
 	case nil:
-		sl.RequestedFulfillmentServiceID = ""
+		sl.RequestedFulfillmentServiceId = ""
 	default:
-		sl.RequestedFulfillmentServiceID = fmt.Sprintf("%v", aux.RequestedFulfillmentServiceID)
+		sl.RequestedFulfillmentServiceId = fmt.Sprintf("%v", aux.RequestedFulfillmentServiceId)
 	}
 
 	return nil
@@ -455,8 +455,8 @@ type TaxLine struct {
 }
 
 type Transaction struct {
-	ID             int64            `json:"id,omitempty"`
-	OrderID        int64            `json:"order_id,omitempty"`
+	Id             uint64           `json:"id,omitempty"`
+	OrderId        uint64           `json:"order_id,omitempty"`
 	Amount         *decimal.Decimal `json:"amount,omitempty"`
 	Kind           string           `json:"kind,omitempty"`
 	Gateway        string           `json:"gateway,omitempty"`
@@ -466,10 +466,10 @@ type Transaction struct {
 	Test           bool             `json:"test,omitempty"`
 	Authorization  string           `json:"authorization,omitempty"`
 	Currency       string           `json:"currency,omitempty"`
-	LocationID     *int64           `json:"location_id,omitempty"`
-	UserID         *int64           `json:"user_id,omitempty"`
-	ParentID       *int64           `json:"parent_id,omitempty"`
-	DeviceID       *int64           `json:"device_id,omitempty"`
+	LocationId     *int64           `json:"location_id,omitempty"`
+	UserId         *int64           `json:"user_id,omitempty"`
+	ParentId       *int64           `json:"parent_id,omitempty"`
+	DeviceId       *int64           `json:"device_id,omitempty"`
 	ErrorCode      string           `json:"error_code,omitempty"`
 	SourceName     string           `json:"source_name,omitempty"`
 	Source         string           `json:"source,omitempty"`
@@ -486,21 +486,21 @@ type ClientDetails struct {
 }
 
 type Refund struct {
-	Id               int64             `json:"id,omitempty"`
-	OrderId          int64             `json:"order_id,omitempty"`
+	Id               uint64            `json:"id,omitempty"`
+	OrderId          uint64            `json:"order_id,omitempty"`
 	CreatedAt        *time.Time        `json:"created_at,omitempty"`
 	Note             string            `json:"note,omitempty"`
 	Restock          bool              `json:"restock,omitempty"`
-	UserId           int64             `json:"user_id,omitempty"`
+	UserId           uint64            `json:"user_id,omitempty"`
 	RefundLineItems  []RefundLineItem  `json:"refund_line_items,omitempty"`
 	Transactions     []Transaction     `json:"transactions,omitempty"`
 	OrderAdjustments []OrderAdjustment `json:"order_adjustments,omitempty"`
 }
 
 type OrderAdjustment struct {
-	Id           int64               `json:"id,omitempty"`
-	OrderId      int64               `json:"order_id,omitempty"`
-	RefundId     int64               `json:"refund_id,omitempty"`
+	Id           uint64              `json:"id,omitempty"`
+	OrderId      uint64              `json:"order_id,omitempty"`
+	RefundId     uint64              `json:"refund_id,omitempty"`
 	Amount       *decimal.Decimal    `json:"amount,omitempty"`
 	TaxAmount    *decimal.Decimal    `json:"tax_amount,omitempty"`
 	Kind         OrderAdjustmentType `json:"kind,omitempty"`
@@ -517,9 +517,9 @@ const (
 )
 
 type RefundLineItem struct {
-	Id         int64            `json:"id,omitempty"`
+	Id         uint64           `json:"id,omitempty"`
 	Quantity   int              `json:"quantity,omitempty"`
-	LineItemId int64            `json:"line_item_id,omitempty"`
+	LineItemId uint64           `json:"line_item_id,omitempty"`
 	LineItem   *LineItem        `json:"line_item,omitempty"`
 	Subtotal   *decimal.Decimal `json:"subtotal,omitempty"`
 	TotalTax   *decimal.Decimal `json:"total_tax,omitempty"`
@@ -553,8 +553,8 @@ func (s *OrderServiceOp) Count(ctx context.Context, options interface{}) (int, e
 }
 
 // Get individual order
-func (s *OrderServiceOp) Get(ctx context.Context, orderID int64, options interface{}) (*Order, error) {
-	path := fmt.Sprintf("%s/%d.json", ordersBasePath, orderID)
+func (s *OrderServiceOp) Get(ctx context.Context, orderId uint64, options interface{}) (*Order, error) {
+	path := fmt.Sprintf("%s/%d.json", ordersBasePath, orderId)
 	resource := new(OrderResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Order, err
@@ -571,7 +571,7 @@ func (s *OrderServiceOp) Create(ctx context.Context, order Order) (*Order, error
 
 // Update order
 func (s *OrderServiceOp) Update(ctx context.Context, order Order) (*Order, error) {
-	path := fmt.Sprintf("%s/%d.json", ordersBasePath, order.ID)
+	path := fmt.Sprintf("%s/%d.json", ordersBasePath, order.Id)
 	wrappedData := OrderResource{Order: &order}
 	resource := new(OrderResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
@@ -579,116 +579,116 @@ func (s *OrderServiceOp) Update(ctx context.Context, order Order) (*Order, error
 }
 
 // Cancel order
-func (s *OrderServiceOp) Cancel(ctx context.Context, orderID int64, options interface{}) (*Order, error) {
-	path := fmt.Sprintf("%s/%d/cancel.json", ordersBasePath, orderID)
+func (s *OrderServiceOp) Cancel(ctx context.Context, orderId uint64, options interface{}) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/cancel.json", ordersBasePath, orderId)
 	resource := new(OrderResource)
 	err := s.client.Post(ctx, path, options, resource)
 	return resource.Order, err
 }
 
 // Close order
-func (s *OrderServiceOp) Close(ctx context.Context, orderID int64) (*Order, error) {
-	path := fmt.Sprintf("%s/%d/close.json", ordersBasePath, orderID)
+func (s *OrderServiceOp) Close(ctx context.Context, orderId uint64) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/close.json", ordersBasePath, orderId)
 	resource := new(OrderResource)
 	err := s.client.Post(ctx, path, nil, resource)
 	return resource.Order, err
 }
 
 // Open order
-func (s *OrderServiceOp) Open(ctx context.Context, orderID int64) (*Order, error) {
-	path := fmt.Sprintf("%s/%d/open.json", ordersBasePath, orderID)
+func (s *OrderServiceOp) Open(ctx context.Context, orderId uint64) (*Order, error) {
+	path := fmt.Sprintf("%s/%d/open.json", ordersBasePath, orderId)
 	resource := new(OrderResource)
 	err := s.client.Post(ctx, path, nil, resource)
 	return resource.Order, err
 }
 
 // Delete order
-func (s *OrderServiceOp) Delete(ctx context.Context, orderID int64) error {
-	path := fmt.Sprintf("%s/%d.json", ordersBasePath, orderID)
+func (s *OrderServiceOp) Delete(ctx context.Context, orderId uint64) error {
+	path := fmt.Sprintf("%s/%d.json", ordersBasePath, orderId)
 	err := s.client.Delete(ctx, path)
 	return err
 }
 
 // List metafields for an order
-func (s *OrderServiceOp) ListMetafields(ctx context.Context, orderID int64, options interface{}) ([]Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) ListMetafields(ctx context.Context, orderId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return metafieldService.List(ctx, options)
 }
 
 // Count metafields for an order
-func (s *OrderServiceOp) CountMetafields(ctx context.Context, orderID int64, options interface{}) (int, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) CountMetafields(ctx context.Context, orderId uint64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return metafieldService.Count(ctx, options)
 }
 
 // Get individual metafield for an order
-func (s *OrderServiceOp) GetMetafield(ctx context.Context, orderID int64, metafieldID int64, options interface{}) (*Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
-	return metafieldService.Get(ctx, metafieldID, options)
+func (s *OrderServiceOp) GetMetafield(ctx context.Context, orderId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return metafieldService.Get(ctx, metafieldId, options)
 }
 
 // Create a new metafield for an order
-func (s *OrderServiceOp) CreateMetafield(ctx context.Context, orderID int64, metafield Metafield) (*Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) CreateMetafield(ctx context.Context, orderId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return metafieldService.Create(ctx, metafield)
 }
 
 // Update an existing metafield for an order
-func (s *OrderServiceOp) UpdateMetafield(ctx context.Context, orderID int64, metafield Metafield) (*Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) UpdateMetafield(ctx context.Context, orderId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return metafieldService.Update(ctx, metafield)
 }
 
 // Delete an existing metafield for an order
-func (s *OrderServiceOp) DeleteMetafield(ctx context.Context, orderID int64, metafieldID int64) error {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
-	return metafieldService.Delete(ctx, metafieldID)
+func (s *OrderServiceOp) DeleteMetafield(ctx context.Context, orderId uint64, metafieldId uint64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return metafieldService.Delete(ctx, metafieldId)
 }
 
 // List fulfillments for an order
-func (s *OrderServiceOp) ListFulfillments(ctx context.Context, orderID int64, options interface{}) ([]Fulfillment, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) ListFulfillments(ctx context.Context, orderId uint64, options interface{}) ([]Fulfillment, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.List(ctx, options)
 }
 
 // Count fulfillments for an order
-func (s *OrderServiceOp) CountFulfillments(ctx context.Context, orderID int64, options interface{}) (int, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) CountFulfillments(ctx context.Context, orderId uint64, options interface{}) (int, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Count(ctx, options)
 }
 
 // Get individual fulfillment for an order
-func (s *OrderServiceOp) GetFulfillment(ctx context.Context, orderID int64, fulfillmentID int64, options interface{}) (*Fulfillment, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
-	return fulfillmentService.Get(ctx, fulfillmentID, options)
+func (s *OrderServiceOp) GetFulfillment(ctx context.Context, orderId uint64, fulfillmentId uint64, options interface{}) (*Fulfillment, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return fulfillmentService.Get(ctx, fulfillmentId, options)
 }
 
 // Create a new fulfillment for an order
-func (s *OrderServiceOp) CreateFulfillment(ctx context.Context, orderID int64, fulfillment Fulfillment) (*Fulfillment, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) CreateFulfillment(ctx context.Context, orderId uint64, fulfillment Fulfillment) (*Fulfillment, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Create(ctx, fulfillment)
 }
 
 // Update an existing fulfillment for an order
-func (s *OrderServiceOp) UpdateFulfillment(ctx context.Context, orderID int64, fulfillment Fulfillment) (*Fulfillment, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
+func (s *OrderServiceOp) UpdateFulfillment(ctx context.Context, orderId uint64, fulfillment Fulfillment) (*Fulfillment, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Update(ctx, fulfillment)
 }
 
 // Complete an existing fulfillment for an order
-func (s *OrderServiceOp) CompleteFulfillment(ctx context.Context, orderID int64, fulfillmentID int64) (*Fulfillment, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
-	return fulfillmentService.Complete(ctx, fulfillmentID)
+func (s *OrderServiceOp) CompleteFulfillment(ctx context.Context, orderId uint64, fulfillmentId uint64) (*Fulfillment, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return fulfillmentService.Complete(ctx, fulfillmentId)
 }
 
 // Transition an existing fulfillment for an order
-func (s *OrderServiceOp) TransitionFulfillment(ctx context.Context, orderID int64, fulfillmentID int64) (*Fulfillment, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
-	return fulfillmentService.Transition(ctx, fulfillmentID)
+func (s *OrderServiceOp) TransitionFulfillment(ctx context.Context, orderId uint64, fulfillmentId uint64) (*Fulfillment, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return fulfillmentService.Transition(ctx, fulfillmentId)
 }
 
 // Cancel an existing fulfillment for an order
-func (s *OrderServiceOp) CancelFulfillment(ctx context.Context, orderID int64, fulfillmentID int64) (*Fulfillment, error) {
-	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceID: orderID}
-	return fulfillmentService.Cancel(ctx, fulfillmentID)
+func (s *OrderServiceOp) CancelFulfillment(ctx context.Context, orderId uint64, fulfillmentId uint64) (*Fulfillment, error) {
+	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return fulfillmentService.Cancel(ctx, fulfillmentId)
 }

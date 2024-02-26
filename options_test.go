@@ -8,7 +8,7 @@ import (
 )
 
 func TestWithVersion(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	c := MustNewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 	expected := fmt.Sprintf("admin/api/%s", testApiVersion)
 	if c.pathPrefix != expected {
 		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
@@ -16,7 +16,7 @@ func TestWithVersion(t *testing.T) {
 }
 
 func TestWithVersionNoVersion(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithVersion(""))
+	c := MustNewClient(app, "fooshop", "abcd", WithVersion(""))
 	expected := "admin"
 	if c.pathPrefix != expected {
 		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
@@ -24,7 +24,7 @@ func TestWithVersionNoVersion(t *testing.T) {
 }
 
 func TestWithoutVersionInInitiation(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd")
+	c := MustNewClient(app, "fooshop", "abcd")
 	expected := "admin"
 	if c.pathPrefix != expected {
 		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
@@ -32,7 +32,7 @@ func TestWithoutVersionInInitiation(t *testing.T) {
 }
 
 func TestWithVersionInvalidVersion(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithVersion("9999-99b"))
+	c := MustNewClient(app, "fooshop", "abcd", WithVersion("9999-99b"))
 	expected := "admin"
 	if c.pathPrefix != expected {
 		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
@@ -40,7 +40,7 @@ func TestWithVersionInvalidVersion(t *testing.T) {
 }
 
 func TestWithRetry(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithRetry(5))
+	c := MustNewClient(app, "fooshop", "abcd", WithRetry(5))
 	expected := 5
 	if c.retries != expected {
 		t.Errorf("WithRetry client.retries = %d, expected %d", c.retries, expected)
@@ -49,7 +49,7 @@ func TestWithRetry(t *testing.T) {
 
 func TestWithLogger(t *testing.T) {
 	logger := &LeveledLogger{Level: LevelDebug}
-	c := NewClient(app, "fooshop", "abcd", WithLogger(logger))
+	c := MustNewClient(app, "fooshop", "abcd", WithLogger(logger))
 
 	if c.log != logger {
 		t.Errorf("WithLogger expected logs to match %v != %v", c.log, logger)
@@ -57,7 +57,7 @@ func TestWithLogger(t *testing.T) {
 }
 
 func TestWithUnstableVersion(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithVersion(UnstableApiVersion))
+	c := MustNewClient(app, "fooshop", "abcd", WithVersion(UnstableApiVersion))
 	expected := fmt.Sprintf("admin/api/%s", UnstableApiVersion)
 	if c.pathPrefix != expected {
 		t.Errorf("WithVersion client.pathPrefix = %s, expected %s", c.pathPrefix, expected)
@@ -65,7 +65,7 @@ func TestWithUnstableVersion(t *testing.T) {
 }
 
 func TestWithHTTPClient(t *testing.T) {
-	c := NewClient(app, "fooshop", "abcd", WithHTTPClient(&http.Client{Timeout: 30 * time.Second}))
+	c := MustNewClient(app, "fooshop", "abcd", WithHTTPClient(&http.Client{Timeout: 30 * time.Second}))
 	expected := 30 * time.Second
 
 	if c.Client.Timeout.String() != expected.String() {

@@ -247,21 +247,33 @@ func (c *Client) NewRequest(ctx context.Context, method, relPath string, body, o
 	return req, nil
 }
 
-// NewClient returns a new Shopify API client with an already authenticated shopname and
+// MustNewClient returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
 // a.NewClient(shopName, token, opts) is equivalent to NewClient(a, shopName, token, opts)
-func (app App) NewClient(shopName, token string, opts ...Option) *Client {
+func (app App) NewClient(shopName, token string, opts ...Option) (*Client, error) {
 	return NewClient(app, shopName, token, opts...)
 }
 
 // Returns a new Shopify API client with an already authenticated shopname and
 // token. The shopName parameter is the shop's myshopify domain,
 // e.g. "theshop.myshopify.com", or simply "theshop"
-func NewClient(app App, shopName, token string, opts ...Option) *Client {
+// panics if an error occurs
+func MustNewClient(app App, shopName, token string, opts ...Option) *Client {
+	c, err := NewClient(app, shopName, token, opts...)
+	if err != nil {
+		panic(err)
+	}
+	return c
+}
+
+// Returns a new Shopify API client with an already authenticated shopname and
+// token. The shopName parameter is the shop's myshopify domain,
+// e.g. "theshop.myshopify.com", or simply "theshop"
+func NewClient(app App, shopName, token string, opts ...Option) (*Client, error) {
 	baseURL, err := url.Parse(ShopBaseUrl(shopName))
 	if err != nil {
-		panic(err) // something really wrong with shopName
+		return nil, err
 	}
 
 	c := &Client{
@@ -328,7 +340,7 @@ func NewClient(app App, shopName, token string, opts ...Option) *Client {
 		opt(c)
 	}
 
-	return c
+	return c, nil
 }
 
 // Do sends an API request and populates the given interface with the parsed
@@ -595,7 +607,7 @@ type ListOptions struct {
 	// It is the deprecated way to do pagination.
 	Page         int       `url:"page,omitempty"`
 	Limit        int       `url:"limit,omitempty"`
-	SinceID      int64     `url:"since_id,omitempty"`
+	SinceId      *uint64   `url:"since_id,omitempty"`
 	CreatedAtMin time.Time `url:"created_at_min,omitempty"`
 	CreatedAtMax time.Time `url:"created_at_max,omitempty"`
 	UpdatedAtMin time.Time `url:"updated_at_min,omitempty"`
@@ -603,7 +615,7 @@ type ListOptions struct {
 	Order        string    `url:"order,omitempty"`
 	Fields       string    `url:"fields,omitempty"`
 	Vendor       string    `url:"vendor,omitempty"`
-	IDs          []int64   `url:"ids,omitempty,comma"`
+	Ids          []uint64  `url:"ids,omitempty,comma"`
 }
 
 // General count options that can be used for most collection counts.

@@ -14,11 +14,11 @@ const priceRulesBasePath = "price_rules"
 // of the Shopify API.
 // See: https://shopify.dev/docs/admin-api/rest/reference/discounts/pricerule
 type PriceRuleService interface {
-	Get(context.Context, int64) (*PriceRule, error)
+	Get(context.Context, uint64) (*PriceRule, error)
 	Create(context.Context, PriceRule) (*PriceRule, error)
 	Update(context.Context, PriceRule) (*PriceRule, error)
 	List(context.Context) ([]PriceRule, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 // PriceRuleServiceOp handles communication with the price rule related methods of the Shopify API.
@@ -28,7 +28,7 @@ type PriceRuleServiceOp struct {
 
 // PriceRule represents a Shopify discount rule
 type PriceRule struct {
-	ID                                     int64                                   `json:"id,omitempty"`
+	Id                                     uint64                                  `json:"id,omitempty"`
 	Title                                  string                                  `json:"title,omitempty"`
 	ValueType                              string                                  `json:"value_type,omitempty"`
 	Value                                  *decimal.Decimal                        `json:"value,omitempty"`
@@ -43,15 +43,15 @@ type PriceRule struct {
 	EndsAt                                 *time.Time                              `json:"ends_at,omitempty"`
 	CreatedAt                              *time.Time                              `json:"created_at,omitempty"`
 	UpdatedAt                              *time.Time                              `json:"updated_at,omitempty"`
-	EntitledProductIds                     []int64                                 `json:"entitled_product_ids,omitempty"`
-	EntitledVariantIds                     []int64                                 `json:"entitled_variant_ids,omitempty"`
-	EntitledCollectionIds                  []int64                                 `json:"entitled_collection_ids,omitempty"`
-	EntitledCountryIds                     []int64                                 `json:"entitled_country_ids,omitempty"`
-	PrerequisiteProductIds                 []int64                                 `json:"prerequisite_product_ids,omitempty"`
-	PrerequisiteVariantIds                 []int64                                 `json:"prerequisite_variant_ids,omitempty"`
-	PrerequisiteCollectionIds              []int64                                 `json:"prerequisite_collection_ids,omitempty"`
-	PrerequisiteSavedSearchIds             []int64                                 `json:"prerequisite_saved_search_ids,omitempty"`
-	PrerequisiteCustomerIds                []int64                                 `json:"prerequisite_customer_ids,omitempty"`
+	EntitledProductIds                     []uint64                                `json:"entitled_product_ids,omitempty"`
+	EntitledVariantIds                     []uint64                                `json:"entitled_variant_ids,omitempty"`
+	EntitledCollectionIds                  []uint64                                `json:"entitled_collection_ids,omitempty"`
+	EntitledCountryIds                     []uint64                                `json:"entitled_country_ids,omitempty"`
+	PrerequisiteProductIds                 []uint64                                `json:"prerequisite_product_ids,omitempty"`
+	PrerequisiteVariantIds                 []uint64                                `json:"prerequisite_variant_ids,omitempty"`
+	PrerequisiteCollectionIds              []uint64                                `json:"prerequisite_collection_ids,omitempty"`
+	PrerequisiteSavedSearchIds             []uint64                                `json:"prerequisite_saved_search_ids,omitempty"`
+	PrerequisiteCustomerIds                []uint64                                `json:"prerequisite_customer_ids,omitempty"`
 	PrerequisiteSubtotalRange              *prerequisiteSubtotalRange              `json:"prerequisite_subtotal_range,omitempty"`
 	PrerequisiteQuantityRange              *prerequisiteQuantityRange              `json:"prerequisite_quantity_range,omitempty"`
 	PrerequisiteShippingPriceRange         *prerequisiteShippingPriceRange         `json:"prerequisite_shipping_price_range,omitempty"`
@@ -153,8 +153,8 @@ func (pr *PriceRule) SetPrerequisiteToEntitlementQuantityRatio(prerequisiteQuant
 }
 
 // Get retrieves a single price rules
-func (s *PriceRuleServiceOp) Get(ctx context.Context, priceRuleID int64) (*PriceRule, error) {
-	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
+func (s *PriceRuleServiceOp) Get(ctx context.Context, priceRuleId uint64) (*PriceRule, error) {
+	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleId)
 	resource := new(PriceRuleResource)
 	err := s.client.Get(ctx, path, resource, nil)
 	return resource.PriceRule, err
@@ -179,7 +179,7 @@ func (s *PriceRuleServiceOp) Create(ctx context.Context, pr PriceRule) (*PriceRu
 
 // Update updates an existing a price rule
 func (s *PriceRuleServiceOp) Update(ctx context.Context, pr PriceRule) (*PriceRule, error) {
-	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, pr.ID)
+	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, pr.Id)
 	resource := new(PriceRuleResource)
 	wrappedData := PriceRuleResource{PriceRule: &pr}
 	err := s.client.Put(ctx, path, wrappedData, resource)
@@ -187,8 +187,8 @@ func (s *PriceRuleServiceOp) Update(ctx context.Context, pr PriceRule) (*PriceRu
 }
 
 // Delete deletes a price rule
-func (s *PriceRuleServiceOp) Delete(ctx context.Context, priceRuleID int64) error {
-	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleID)
+func (s *PriceRuleServiceOp) Delete(ctx context.Context, priceRuleId uint64) error {
+	path := fmt.Sprintf("%s/%d.json", priceRulesBasePath, priceRuleId)
 	err := s.client.Delete(ctx, path)
 	return err
 }

@@ -147,7 +147,7 @@ func TestWebhookUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("webhook.json")))
 
 	webhook := Webhook{
-		ID:      4759306,
+		Id:      4759306,
 		Topic:   "orders/create",
 		Address: "http://example.com",
 	}

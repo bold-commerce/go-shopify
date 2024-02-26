@@ -11,10 +11,10 @@ import (
 )
 
 func pageTests(t *testing.T, page Page) {
-	// Check that ID is assigned to the returned page
-	expectedInt := int64(1)
-	if page.ID != expectedInt {
-		t.Errorf("Page.ID returned %+v, expected %+v", page.ID, expectedInt)
+	// Check that Id is assigned to the returned page
+	expectedInt := uint64(1)
+	if page.Id != expectedInt {
+		t.Errorf("Page.Id returned %+v, expected %+v", page.Id, expectedInt)
 	}
 }
 
@@ -30,7 +30,7 @@ func TestPageList(t *testing.T) {
 		t.Errorf("Page.List returned error: %v", err)
 	}
 
-	expected := []Page{{ID: 1}, {ID: 2}}
+	expected := []Page{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(pages, expected) {
 		t.Errorf("Page.List returned %+v, expected %+v", pages, expected)
 	}
@@ -84,7 +84,7 @@ func TestPageGet(t *testing.T) {
 		t.Errorf("Page.Get returned error: %v", err)
 	}
 
-	expected := &Page{ID: 1}
+	expected := &Page{Id: 1}
 	if !reflect.DeepEqual(page, expected) {
 		t.Errorf("Page.Get returned %+v, expected %+v", page, expected)
 	}
@@ -118,7 +118,7 @@ func TestPageUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("page.json")))
 
 	page := Page{
-		ID: 1,
+		Id: 1,
 	}
 
 	returnedPage, err := client.Page.Update(context.Background(), page)
@@ -154,7 +154,7 @@ func TestPageListMetafields(t *testing.T) {
 		t.Errorf("Page.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Page.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -208,7 +208,7 @@ func TestPageGetMetafield(t *testing.T) {
 		t.Errorf("Page.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Page.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -244,7 +244,7 @@ func TestPageUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,

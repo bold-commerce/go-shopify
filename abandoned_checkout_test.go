@@ -27,7 +27,7 @@ func TestAbandonedCheckoutList(t *testing.T) {
 		t.Errorf("AbandonedCheckout.List returned error: %v", err)
 	}
 
-	expected := []AbandonedCheckout{{ID: 1}, {ID: 2}}
+	expected := []AbandonedCheckout{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(abandonedCheckouts, expected) {
 		t.Errorf("AbandonedCheckout.List returned %+v, expected %+v", abandonedCheckouts, expected)
 	}

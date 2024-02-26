@@ -18,17 +18,32 @@ func TestAppAuthorizeUrl(t *testing.T) {
 	defer teardown()
 
 	cases := []struct {
-		shopName string
-		nonce    string
-		expected string
+		shopName    string
+		nonce       string
+		expected    string
+		errExpected string
 	}{
-		{"fooshop", "thenonce", "https://fooshop.myshopify.com/admin/oauth/authorize?client_id=apikey&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&scope=read_products&state=thenonce"},
+		{
+			"fooshop",
+			"thenonce",
+			"https://fooshop.myshopify.com/admin/oauth/authorize?client_id=apikey&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&scope=read_products&state=thenonce",
+			"",
+		},
+		{
+			"foo^^shop",
+			"thenonce",
+			"",
+			`parse "https://foo^^shop.myshopify.com": invalid character "^" in host name`,
+		},
 	}
 
 	for _, c := range cases {
-		actual := app.AuthorizeUrl(c.shopName, c.nonce)
+		actual, err := app.AuthorizeUrl(c.shopName, c.nonce)
+		if (c.errExpected == "" && err != nil) || (c.errExpected != "" && err.Error() != c.errExpected) {
+			t.Fatalf("App.AuthorizeUrl(): err expected %s, err actual %s", c.errExpected, err)
+		}
 		if actual != c.expected {
-			t.Errorf("App.AuthorizeUrl(): expected %s, actual %s", c.expected, actual)
+			t.Fatalf("App.AuthorizeUrl(): expected %s, actual %s", c.expected, actual)
 		}
 	}
 }
@@ -56,7 +71,7 @@ func TestAppGetAccessTokenError(t *testing.T) {
 	setup()
 	defer teardown()
 
-	// app.Client isn't specified so NewClient called
+	// app.Client isn't specified so MustNewClient called
 	expectedError := errors.New("application_cannot_be_found")
 
 	token, err := app.GetAccessToken(context.Background(), "fooshop", "")
@@ -151,7 +166,7 @@ func TestVerifyWebhookRequest(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
+		testClient := MustNewClient(App{}, "", "")
 		req, err := testClient.NewRequest(context.Background(), "GET", "", c.message, nil)
 		if err != nil {
 			t.Fatalf("Webhook.verify err = %v, expected true", err)
@@ -203,7 +218,7 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
+		testClient := MustNewClient(App{}, "", "")
 
 		// We actually want to test nil body's, not ""
 		if c.message == "" {

@@ -93,7 +93,7 @@ app := goshopify.App{
 }
 
 // Create a new API client
-client := goshopify.NewClient(app, "shopname", "token")
+client, err := goshopify.NewClient(app, "shopname", "token")
 
 // Fetch the number of products.
 numProducts, err := client.Product.Count(nil)
@@ -111,7 +111,7 @@ app := goshopify.App{
 }
 
 // Create a new API client (notice the token parameter is the empty string)
-client := goshopify.NewClient(app, "shopname", "")
+client, err := goshopify.NewClient(app, "shopname", "")
 
 // Fetch the number of products.
 numProducts, err := client.Product.Count(nil)
@@ -130,7 +130,7 @@ to understand the format and release schedules. You can use `WithVersion` to spe
 of the API. If you do not use this option you will be defaulted to the oldest stable API.
 
 ```go
-client := goshopify.NewClient(app, "shopname", "", goshopify.WithVersion("2019-04"))
+client, err := goshopify.NewClient(app, "shopname", "", goshopify.WithVersion("2019-04"))
 ```
 
 #### WithRetry
@@ -141,7 +141,7 @@ the client a `WithRetry` option exists where you can pass an `int` of how many t
 before returning an error. `WithRetry` additionally supports retrying HTTP503 errors.
 
 ```go
-client := goshopify.NewClient(app, "shopname", "", goshopify.WithRetry(3))
+client, err := goshopify.NewClient(app, "shopname", "", goshopify.WithRetry(3))
 ```
 
 #### Query options
@@ -187,7 +187,7 @@ For example, let's say you want to fetch webhooks. There's a helper function
 ```go
 // Declare a model for the webhook
 type Webhook struct {
-    ID int         `json:"id"`
+    Id int         `json:"id"`
     Address string `json:"address"`
 }
 
@@ -199,7 +199,7 @@ type WebhooksResource struct {
 func FetchWebhooks() ([]Webhook, error) {
     path := "admin/webhooks.json"
     resource := new(WebhooksResource)
-    client := goshopify.NewClient(app, "shopname", "token")
+    client, _ := goshopify.NewClient(app, "shopname", "token")
 
     // resource gets modified when calling Get
     err := client.Get(path, resource, nil)

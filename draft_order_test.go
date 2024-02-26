@@ -75,7 +75,7 @@ func TestDraftOrderCreate(t *testing.T) {
 	draftOrder := DraftOrder{
 		LineItems: []LineItem{
 			{
-				VariantID: 1,
+				VariantId: 1,
 				Quantity:  1,
 			},
 		},
@@ -86,9 +86,9 @@ func TestDraftOrderCreate(t *testing.T) {
 		t.Errorf("DraftOrder.Create returned error: %v", err)
 	}
 
-	expected := DraftOrder{ID: 1}
-	if d.ID != expected.ID {
-		t.Errorf("DraftOrder.Create returned id %d, expected %d", d.ID, expected.ID)
+	expected := DraftOrder{Id: 1}
+	if d.Id != expected.Id {
+		t.Errorf("DraftOrder.Create returned id %d, expected %d", d.Id, expected.Id)
 	}
 }
 
@@ -100,7 +100,7 @@ func TestDraftOrderUpdate(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"draft_order":{"id": 1}}`))
 
 	draftOrder := DraftOrder{
-		ID:            1,
+		Id:            1,
 		Note:          "slow order",
 		TaxesIncluded: true,
 	}
@@ -110,9 +110,9 @@ func TestDraftOrderUpdate(t *testing.T) {
 		t.Errorf("DraftOrder.Create returned an error %v", err)
 	}
 
-	expected := DraftOrder{ID: 1}
-	if d.ID != expected.ID {
-		t.Errorf("DraftOrder.Update returned id %d, expected %d", d.ID, expected.ID)
+	expected := DraftOrder{Id: 1}
+	if d.Id != expected.Id {
+		t.Errorf("DraftOrder.Update returned id %d, expected %d", d.Id, expected.Id)
 	}
 }
 
@@ -291,7 +291,7 @@ func TestDraftOrderListMetafields(t *testing.T) {
 		t.Errorf("DraftOrder.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Order.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -345,7 +345,7 @@ func TestDraftOrderGetMetafield(t *testing.T) {
 		t.Errorf("Order.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Order.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -380,7 +380,7 @@ func TestDraftOrderUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Namespace: "affiliates",

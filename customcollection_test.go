@@ -17,7 +17,7 @@ func customCollectionTests(t *testing.T, collection CustomCollection) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(30497275952), collection.ID},
+		{"Id", uint64(30497275952), collection.Id},
 		{"Handle", "macbooks", collection.Handle},
 		{"Title", "Macbooks", collection.Title},
 		{"BodyHTML", "Macbook Body", collection.BodyHTML},
@@ -43,7 +43,7 @@ func TestCustomCollectionList(t *testing.T) {
 		t.Errorf("CustomCollection.List returned error: %v", err)
 	}
 
-	expected := []CustomCollection{{ID: 1}, {ID: 2}}
+	expected := []CustomCollection{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("CustomCollection.List returned %+v, expected %+v", products, expected)
 	}
@@ -97,7 +97,7 @@ func TestCustomCollectionGet(t *testing.T) {
 		t.Errorf("CustomCollection.Get returned error: %v", err)
 	}
 
-	expected := &CustomCollection{ID: 1}
+	expected := &CustomCollection{Id: 1}
 	if !reflect.DeepEqual(product, expected) {
 		t.Errorf("CustomCollection.Get returned %+v, expected %+v", product, expected)
 	}
@@ -130,7 +130,7 @@ func TestCustomCollectionUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("customcollection.json")))
 
 	collection := CustomCollection{
-		ID:    1,
+		Id:    1,
 		Title: "Macbooks",
 	}
 
@@ -167,7 +167,7 @@ func TestCustomCollectionListMetafields(t *testing.T) {
 		t.Errorf("CustomCollection.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("CustomCollection.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -221,7 +221,7 @@ func TestCustomCollectionGetMetafield(t *testing.T) {
 		t.Errorf("CustomCollection.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("CustomCollection.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -257,7 +257,7 @@ func TestCustomCollectionUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,

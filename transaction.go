@@ -9,10 +9,10 @@ import (
 // the Shopify API.
 // See: https://help.shopify.com/api/reference/transaction
 type TransactionService interface {
-	List(context.Context, int64, interface{}) ([]Transaction, error)
-	Count(context.Context, int64, interface{}) (int, error)
-	Get(context.Context, int64, int64, interface{}) (*Transaction, error)
-	Create(context.Context, int64, Transaction) (*Transaction, error)
+	List(context.Context, uint64, interface{}) ([]Transaction, error)
+	Count(context.Context, uint64, interface{}) (int, error)
+	Get(context.Context, uint64, uint64, interface{}) (*Transaction, error)
+	Create(context.Context, uint64, Transaction) (*Transaction, error)
 }
 
 // TransactionServiceOp handles communication with the transaction related methods of the
@@ -32,30 +32,30 @@ type TransactionsResource struct {
 }
 
 // List transactions
-func (s *TransactionServiceOp) List(ctx context.Context, orderID int64, options interface{}) ([]Transaction, error) {
-	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderID)
+func (s *TransactionServiceOp) List(ctx context.Context, orderId uint64, options interface{}) ([]Transaction, error) {
+	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderId)
 	resource := new(TransactionsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Transactions, err
 }
 
 // Count transactions
-func (s *TransactionServiceOp) Count(ctx context.Context, orderID int64, options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%d/transactions/count.json", ordersBasePath, orderID)
+func (s *TransactionServiceOp) Count(ctx context.Context, orderId uint64, options interface{}) (int, error) {
+	path := fmt.Sprintf("%s/%d/transactions/count.json", ordersBasePath, orderId)
 	return s.client.Count(ctx, path, options)
 }
 
 // Get individual transaction
-func (s *TransactionServiceOp) Get(ctx context.Context, orderID int64, transactionID int64, options interface{}) (*Transaction, error) {
-	path := fmt.Sprintf("%s/%d/transactions/%d.json", ordersBasePath, orderID, transactionID)
+func (s *TransactionServiceOp) Get(ctx context.Context, orderId uint64, transactionId uint64, options interface{}) (*Transaction, error) {
+	path := fmt.Sprintf("%s/%d/transactions/%d.json", ordersBasePath, orderId, transactionId)
 	resource := new(TransactionResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Transaction, err
 }
 
 // Create a new transaction
-func (s *TransactionServiceOp) Create(ctx context.Context, orderID int64, transaction Transaction) (*Transaction, error) {
-	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderID)
+func (s *TransactionServiceOp) Create(ctx context.Context, orderId uint64, transaction Transaction) (*Transaction, error) {
+	path := fmt.Sprintf("%s/%d/transactions.json", ordersBasePath, orderId)
 	wrappedData := TransactionResource{Transaction: &transaction}
 	resource := new(TransactionResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)

@@ -26,8 +26,8 @@ func TestPriceRuleGet(t *testing.T) {
 		t.Errorf("PriceRule.Get returned error: %v", err)
 	}
 
-	expected := PriceRule{ID: 1}
-	if expected.ID != rules.ID {
+	expected := PriceRule{Id: 1}
+	if expected.Id != rules.Id {
 		t.Errorf("PriceRule.Get returned %+v, expected %+v", rules, expected)
 	}
 }
@@ -50,8 +50,8 @@ func TestPriceRuleList(t *testing.T) {
 		t.Errorf("PriceRule.List returned error: %v", err)
 	}
 
-	expected := []PriceRule{{ID: 1}}
-	if expected[0].ID != rules[0].ID {
+	expected := []PriceRule{{Id: 1}}
+	if expected[0].Id != rules[0].Id {
 		t.Errorf("PriceRule.List returned %+v, expected %+v", rules, expected)
 	}
 }
@@ -74,8 +74,8 @@ func TestPriceRuleCreate(t *testing.T) {
 		t.Errorf("PriceRule.Create returned error: %v", err)
 	}
 
-	expected := PriceRule{ID: 1}
-	if expected.ID != rules.ID {
+	expected := PriceRule{Id: 1}
+	if expected.Id != rules.Id {
 		t.Errorf("PriceRule.Create returned %+v, expected %+v", rules, expected)
 	}
 }
@@ -93,13 +93,13 @@ func TestPriceRuleUpdate(t *testing.T) {
 		),
 	)
 
-	rules, err := client.PriceRule.Update(context.Background(), PriceRule{ID: 1})
+	rules, err := client.PriceRule.Update(context.Background(), PriceRule{Id: 1})
 	if err != nil {
 		t.Errorf("PriceRule.Update returned error: %v", err)
 	}
 
-	expected := PriceRule{ID: 1}
-	if expected.ID != rules.ID {
+	expected := PriceRule{Id: 1}
+	if expected.Id != rules.Id {
 		t.Errorf("PriceRule.Update returned %+v, expected %+v", rules, expected)
 	}
 }

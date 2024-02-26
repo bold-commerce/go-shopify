@@ -14,7 +14,7 @@ const inventoryLevelsBasePath = "inventory_levels"
 type InventoryLevelService interface {
 	List(context.Context, interface{}) ([]InventoryLevel, error)
 	Adjust(context.Context, interface{}) (*InventoryLevel, error)
-	Delete(context.Context, int64, int64) error
+	Delete(context.Context, uint64, uint64) error
 	Connect(context.Context, InventoryLevel) (*InventoryLevel, error)
 	Set(context.Context, InventoryLevel) (*InventoryLevel, error)
 }
@@ -26,8 +26,8 @@ type InventoryLevelServiceOp struct {
 
 // InventoryLevel represents a Shopify inventory level
 type InventoryLevel struct {
-	InventoryItemId   int64      `json:"inventory_item_id,omitempty"`
-	LocationId        int64      `json:"location_id,omitempty"`
+	InventoryItemId   uint64     `json:"inventory_item_id,omitempty"`
+	LocationId        uint64     `json:"location_id,omitempty"`
 	Available         int        `json:"available"`
 	CreatedAt         *time.Time `json:"created_at,omitempty"`
 	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
@@ -46,17 +46,17 @@ type InventoryLevelsResource struct {
 
 // InventoryLevelListOptions is used for get list
 type InventoryLevelListOptions struct {
-	InventoryItemIds []int64   `url:"inventory_item_ids,omitempty,comma"`
-	LocationIds      []int64   `url:"location_ids,omitempty,comma"`
+	InventoryItemIds []uint64  `url:"inventory_item_ids,omitempty,comma"`
+	LocationIds      []uint64  `url:"location_ids,omitempty,comma"`
 	Limit            int       `url:"limit,omitempty"`
 	UpdatedAtMin     time.Time `url:"updated_at_min,omitempty"`
 }
 
 // InventoryLevelAdjustOptions is used for Adjust inventory levels
 type InventoryLevelAdjustOptions struct {
-	InventoryItemId int64 `json:"inventory_item_id"`
-	LocationId      int64 `json:"location_id"`
-	Adjust          int   `json:"available_adjustment"`
+	InventoryItemId uint64 `json:"inventory_item_id"`
+	LocationId      uint64 `json:"location_id"`
+	Adjust          int    `json:"available_adjustment"`
 }
 
 // List inventory levels
@@ -68,7 +68,7 @@ func (s *InventoryLevelServiceOp) List(ctx context.Context, options interface{})
 }
 
 // Delete an inventory level
-func (s *InventoryLevelServiceOp) Delete(ctx context.Context, itemId, locationId int64) error {
+func (s *InventoryLevelServiceOp) Delete(ctx context.Context, itemId, locationId uint64) error {
 	path := fmt.Sprintf("%s.json?inventory_item_id=%v&location_id=%v",
 		inventoryLevelsBasePath, itemId, locationId)
 	return s.client.Delete(ctx, path)

@@ -14,7 +14,7 @@ const storefrontAccessTokensBasePath = "storefront_access_tokens"
 type StorefrontAccessTokenService interface {
 	List(context.Context, interface{}) ([]StorefrontAccessToken, error)
 	Create(context.Context, StorefrontAccessToken) (*StorefrontAccessToken, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 // StorefrontAccessTokenServiceOp handles communication with the storefront access token
@@ -25,11 +25,11 @@ type StorefrontAccessTokenServiceOp struct {
 
 // StorefrontAccessToken represents a Shopify storefront access token
 type StorefrontAccessToken struct {
-	ID                int64      `json:"id,omitempty"`
+	Id                uint64     `json:"id,omitempty"`
 	Title             string     `json:"title,omitempty"`
 	AccessToken       string     `json:"access_token,omitempty"`
 	AccessScope       string     `json:"access_scope,omitempty"`
-	AdminGraphqlAPIID string     `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
 	CreatedAt         *time.Time `json:"created_at,omitempty"`
 }
 
@@ -61,6 +61,6 @@ func (s *StorefrontAccessTokenServiceOp) Create(ctx context.Context, storefrontA
 }
 
 // Delete an existing storefront access token
-func (s *StorefrontAccessTokenServiceOp) Delete(ctx context.Context, ID int64) error {
-	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", storefrontAccessTokensBasePath, ID))
+func (s *StorefrontAccessTokenServiceOp) Delete(ctx context.Context, Id uint64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", storefrontAccessTokensBasePath, Id))
 }

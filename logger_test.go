@@ -82,7 +82,7 @@ func TestDoGetHeadersDebug(t *testing.T) {
 	reqExpected := "[DEBUG] GET: //http:%2F%2Ftest.com/foo/1\n[DEBUG] SENT: request body\n"
 	resExpected := "[DEBUG] Shopify X-Request-Id: 00000000-0000-0000-0000-000000000000\n[DEBUG] RECV 200: OK\n[DEBUG] RESP: response body\n"
 
-	client := NewClient(app, "fooshop", "abcd", WithLogger(logger))
+	client := MustNewClient(app, "fooshop", "abcd", WithLogger(logger))
 
 	client.logBody(nil, "")
 	if out.String() != "" {

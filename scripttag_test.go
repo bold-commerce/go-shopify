@@ -21,7 +21,7 @@ func TestScriptTagList(t *testing.T) {
 		t.Errorf("ScriptTag.List returned error: %v", err)
 	}
 
-	expected := []ScriptTag{{ID: 1}, {ID: 2}}
+	expected := []ScriptTag{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(scriptTags, expected) {
 		t.Errorf("ScriptTag.List returned %+v, expected %+v", scriptTags, expected)
 	}
@@ -57,16 +57,16 @@ func TestScriptTagGet(t *testing.T) {
 		t.Errorf("ScriptTag.Get returned error: %v", err)
 	}
 
-	expected := &ScriptTag{ID: 1}
+	expected := &ScriptTag{Id: 1}
 	if !reflect.DeepEqual(scriptTag, expected) {
 		t.Errorf("ScriptTag.Get returned %+v, expected %+v", scriptTag, expected)
 	}
 }
 
 func scriptTagTests(t *testing.T, tag ScriptTag) {
-	expected := int64(870402688)
-	if tag.ID != expected {
-		t.Errorf("tag.ID is %+v, expected %+v", tag.ID, expected)
+	expected := uint64(870402688)
+	if tag.Id != expected {
+		t.Errorf("tag.Id is %+v, expected %+v", tag.Id, expected)
 	}
 }
 
@@ -98,7 +98,7 @@ func TestScriptTagUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("script_tags.json")))
 
 	tag := ScriptTag{
-		ID:  1,
+		Id:  1,
 		Src: "https://djavaskripped.org/fancy.js",
 	}
 

@@ -14,10 +14,10 @@ const scriptTagsBasePath = "script_tags"
 type ScriptTagService interface {
 	List(context.Context, interface{}) ([]ScriptTag, error)
 	Count(context.Context, interface{}) (int, error)
-	Get(context.Context, int64, interface{}) (*ScriptTag, error)
+	Get(context.Context, uint64, interface{}) (*ScriptTag, error)
 	Create(context.Context, ScriptTag) (*ScriptTag, error)
 	Update(context.Context, ScriptTag) (*ScriptTag, error)
-	Delete(context.Context, int64) error
+	Delete(context.Context, uint64) error
 }
 
 // ScriptTagServiceOp handles communication with the shop related methods of the
@@ -30,7 +30,7 @@ type ScriptTagServiceOp struct {
 type ScriptTag struct {
 	CreatedAt    *time.Time `json:"created_at"`
 	Event        string     `json:"event"`
-	ID           int64      `json:"id"`
+	Id           uint64     `json:"id"`
 	Src          string     `json:"src"`
 	DisplayScope string     `json:"display_scope"`
 	UpdatedAt    *time.Time `json:"updated_at"`
@@ -40,7 +40,7 @@ type ScriptTag struct {
 type ScriptTagOption struct {
 	Limit        int       `url:"limit,omitempty"`
 	Page         int       `url:"page,omitempty"`
-	SinceID      int64     `url:"since_id,omitempty"`
+	SinceId      uint64    `url:"since_id,omitempty"`
 	CreatedAtMin time.Time `url:"created_at_min,omitempty"`
 	CreatedAtMax time.Time `url:"created_at_max,omitempty"`
 	UpdatedAtMin time.Time `url:"updated_at_min,omitempty"`
@@ -76,8 +76,8 @@ func (s *ScriptTagServiceOp) Count(ctx context.Context, options interface{}) (in
 }
 
 // Get individual script tag
-func (s *ScriptTagServiceOp) Get(ctx context.Context, tagID int64, options interface{}) (*ScriptTag, error) {
-	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagID)
+func (s *ScriptTagServiceOp) Get(ctx context.Context, tagId uint64, options interface{}) (*ScriptTag, error) {
+	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagId)
 	resource := &ScriptTagResource{}
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.ScriptTag, err
@@ -94,7 +94,7 @@ func (s *ScriptTagServiceOp) Create(ctx context.Context, tag ScriptTag) (*Script
 
 // Update an existing script tag
 func (s *ScriptTagServiceOp) Update(ctx context.Context, tag ScriptTag) (*ScriptTag, error) {
-	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tag.ID)
+	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tag.Id)
 	wrappedData := ScriptTagResource{ScriptTag: &tag}
 	resource := &ScriptTagResource{}
 	err := s.client.Put(ctx, path, wrappedData, resource)
@@ -102,6 +102,6 @@ func (s *ScriptTagServiceOp) Update(ctx context.Context, tag ScriptTag) (*Script
 }
 
 // Delete an existing script tag
-func (s *ScriptTagServiceOp) Delete(ctx context.Context, tagID int64) error {
-	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagID))
+func (s *ScriptTagServiceOp) Delete(ctx context.Context, tagId uint64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tagId))
 }
