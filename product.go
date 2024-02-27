@@ -101,6 +101,7 @@ type ProductListOptions struct {
 	PublishedStatus       string          `url:"published_status,omitempty"`
 	PresentmentCurrencies string          `url:"presentment_currencies,omitempty"`
 	Status                []ProductStatus `url:"status,omitempty,comma"`
+	Title                 string          `url:"title,omitempty"`
 }
 
 // Represents the result from the products/X.json endpoint
