@@ -53,7 +53,7 @@ const (
 	// The product isn't ready to sell and is unavailable to customers on sales
 	// channels and apps. By default, duplicated and unarchived products are set to
 	// draft.
-	ProductStatucDraft ProductStatus = "draft"
+	ProductStatusDraft ProductStatus = "draft"
 )
 
 // Product represents a Shopify product
