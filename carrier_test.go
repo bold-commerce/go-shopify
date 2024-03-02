@@ -21,11 +21,13 @@ func TestCarrierList(t *testing.T) {
 		t.Errorf("Carrier.List returned error: %v", err)
 	}
 
+	trueVar := true
+
 	expected := []CarrierService{
 		{
 			Id:                 1,
 			Name:               "Shipping Rate Provider",
-			Active:             true,
+			Active:             &trueVar,
 			ServiceDiscovery:   true,
 			CarrierServiceType: "api",
 			AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",
@@ -50,10 +52,12 @@ func TestCarrierGet(t *testing.T) {
 		t.Errorf("Carrier.Get returned error: %v", err)
 	}
 
+	trueVar := true
+
 	expected := &CarrierService{
 		Id:                 1,
 		Name:               "Shipping Rate Provider",
-		Active:             true,
+		Active:             &trueVar,
 		ServiceDiscovery:   true,
 		CarrierServiceType: "api",
 		AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",
@@ -77,10 +81,12 @@ func TestCarrierCreate(t *testing.T) {
 		t.Errorf("Carrier.Create returned error: %v", err)
 	}
 
+	trueVar := true
+
 	expected := &CarrierService{
 		Id:                 1,
 		Name:               "Shipping Rate Provider",
-		Active:             true,
+		Active:             &trueVar,
 		ServiceDiscovery:   true,
 		CarrierServiceType: "api",
 		AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",
@@ -104,10 +110,12 @@ func TestCarrierUpdate(t *testing.T) {
 		t.Errorf("Carrier.Update returned error: %v", err)
 	}
 
+	trueVar := true
+
 	expected := &CarrierService{
 		Id:                 1,
 		Name:               "Shipping Rate Provider",
-		Active:             true,
+		Active:             &trueVar,
 		ServiceDiscovery:   true,
 		CarrierServiceType: "api",
 		AdminGraphqlApiId:  "gid://shopify/DeliveryCarrierService/1",

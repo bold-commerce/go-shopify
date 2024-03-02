@@ -30,7 +30,7 @@ type CarrierServiceOp struct {
 // CarrierService represents a Shopify carrier service
 type CarrierService struct {
 	// Whether this carrier service is active.
-	Active bool `json:"active,omitempty"`
+	Active *bool `json:"active"`
 
 	// The URL endpoint that Shopify needs to retrieve shipping rates. This must be a public URL.
 	CallbackUrl string `json:"callback_url,omitempty"`
