@@ -9,7 +9,21 @@ The new home of Conversio's Shopify Go library.
 
 ## Supported Go Versions
 
-This library is tested automatically against the latest version of Go (currently 1.20) and the two previous versions (1.19, 1.18) but should also work with older versions.
+This library is tested automatically against the latest version of Go (currently 1.22) and the two previous versions (1.21, 1.20) but should also work with older versions.
+
+## Install v4
+
+```console
+$ go get github.com/bold-commerce/go-shopify/v4
+```
+
+## Use v4
+
+```go
+import "github.com/bold-commerce/go-shopify/v4"
+```
+
+This gives you access to the `goshopify` package.
 
 ## Install v3
 
