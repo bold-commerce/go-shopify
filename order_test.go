@@ -34,6 +34,104 @@ func TestOrderListError(t *testing.T) {
 	}
 }
 
+func TestOrderListAll(t *testing.T) {
+	setup()
+	defer teardown()
+
+	listURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/orders.json", client.pathPrefix)
+
+	cases := []struct {
+		name                string
+		expectedOrders      []Order
+		expectedRequestURLs []string
+		expectedLinkHeaders []string
+		expectedBodies      []string
+		expectedErr         error
+	}{
+		{
+			name: "Pulls the next page",
+			expectedRequestURLs: []string{
+				listURL,
+				fmt.Sprintf("%s?page_info=pg2", listURL),
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="next"`,
+				`<http://valid.url?page_info=pg1>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"orders": [{"id":1},{"id":2}]}`,
+				`{"orders": [{"id":3},{"id":4}]}`,
+			},
+			expectedOrders: []Order{{Id: 1}, {Id: 2}, {Id: 3}, {Id: 4}},
+			expectedErr:    nil,
+		},
+		{
+			name: "Stops when there is not a next page",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"orders": [{"id":1}]}`,
+			},
+			expectedOrders: []Order{{Id: 1}},
+			expectedErr:    nil,
+		},
+	}
+
+	for i, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if len(c.expectedRequestURLs) != len(c.expectedLinkHeaders) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected link headers (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedLinkHeaders),
+				)
+
+				return
+			}
+
+			if len(c.expectedRequestURLs) != len(c.expectedBodies) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected bodies (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedBodies),
+				)
+
+				return
+			}
+
+			for i := range c.expectedRequestURLs {
+				response := &http.Response{
+					StatusCode: 200,
+					Body:       httpmock.NewRespBodyFromString(c.expectedBodies[i]),
+					Header: http.Header{
+						"Link": {c.expectedLinkHeaders[i]},
+					},
+				}
+
+				httpmock.RegisterResponder("GET", c.expectedRequestURLs[i], httpmock.ResponderFromResponse(response))
+			}
+
+			orders, err := client.Order.ListAll(context.Background(), nil)
+			if !reflect.DeepEqual(orders, c.expectedOrders) {
+				t.Errorf("test %d Order.ListAll orders returned %+v, expected %+v", i, orders, c.expectedOrders)
+			}
+
+			if (c.expectedErr != nil || err != nil) && err.Error() != c.expectedErr.Error() {
+				t.Errorf(
+					"test %d Order.ListAll err returned %+v, expected %+v",
+					i,
+					err,
+					c.expectedErr,
+				)
+			}
+		})
+	}
+}
+
 func TestOrderListWithPagination(t *testing.T) {
 	setup()
 	defer teardown()

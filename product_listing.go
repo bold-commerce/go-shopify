@@ -13,6 +13,7 @@ const productListingBasePath = "product_listings"
 // See: https://shopify.dev/docs/admin-api/rest/reference/sales-channels/productlisting
 type ProductListingService interface {
 	List(context.Context, interface{}) ([]ProductListing, error)
+	ListAll(context.Context, interface{}) ([]ProductListing, error)
 	ListWithPagination(context.Context, interface{}) ([]ProductListing, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*ProductListing, error)
@@ -81,6 +82,29 @@ func (s *ProductListingServiceOp) List(ctx context.Context, options interface{})
 		return nil, err
 	}
 	return products, nil
+}
+
+// ListAll Lists all products, iterating over pages
+func (s *ProductListingServiceOp) ListAll(ctx context.Context, options interface{}) ([]ProductListing, error) {
+	collector := []ProductListing{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
 }
 
 // ListWithPagination lists products and return pagination to retrieve next/previous results.

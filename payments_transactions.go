@@ -12,6 +12,7 @@ const paymentsTransactionsBasePath = "shopify_payments/balance/transactions"
 // See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/transactions
 type PaymentsTransactionsService interface {
 	List(context.Context, interface{}) ([]PaymentsTransactions, error)
+	ListAll(context.Context, interface{}) ([]PaymentsTransactions, error)
 	ListWithPagination(context.Context, interface{}) ([]PaymentsTransactions, *Pagination, error)
 	Get(context.Context, uint64, interface{}) (*PaymentsTransactions, error)
 }
@@ -86,6 +87,29 @@ func (s *PaymentsTransactionsServiceOp) List(ctx context.Context, options interf
 		return nil, err
 	}
 	return PaymentsTransactions, nil
+}
+
+// ListAll Lists all PaymentsTransactions, iterating over pages
+func (s *PaymentsTransactionsServiceOp) ListAll(ctx context.Context, options interface{}) ([]PaymentsTransactions, error) {
+	collector := []PaymentsTransactions{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
 }
 
 func (s *PaymentsTransactionsServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]PaymentsTransactions, *Pagination, error) {

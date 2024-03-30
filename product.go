@@ -20,6 +20,7 @@ var linkRegex = regexp.MustCompile(`^ *<([^>]+)>; rel="(previous|next)" *$`)
 // See: https://help.shopify.com/api/reference/product
 type ProductService interface {
 	List(context.Context, interface{}) ([]Product, error)
+	ListAll(context.Context, interface{}) ([]Product, error)
 	ListWithPagination(context.Context, interface{}) ([]Product, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Product, error)
@@ -127,6 +128,29 @@ func (s *ProductServiceOp) List(ctx context.Context, options interface{}) ([]Pro
 		return nil, err
 	}
 	return products, nil
+}
+
+// ListAll Lists all products, iterating over pages
+func (s *ProductServiceOp) ListAll(ctx context.Context, options interface{}) ([]Product, error) {
+	collector := []Product{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
 }
 
 // ListWithPagination lists products and return pagination to retrieve next/previous results.

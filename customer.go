@@ -18,6 +18,7 @@ const (
 // See: https://help.shopify.com/api/reference/customer
 type CustomerService interface {
 	List(context.Context, interface{}) ([]Customer, error)
+	ListAll(context.Context, interface{}) ([]Customer, error)
 	ListWithPagination(ctx context.Context, options interface{}) ([]Customer, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Customer, error)
@@ -109,6 +110,29 @@ func (s *CustomerServiceOp) List(ctx context.Context, options interface{}) ([]Cu
 	resource := new(CustomersResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Customers, err
+}
+
+// ListAll Lists all customers, iterating over pages
+func (s *CustomerServiceOp) ListAll(ctx context.Context, options interface{}) ([]Customer, error) {
+	collector := []Customer{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
 }
 
 // ListWithPagination lists customers and return pagination to retrieve next/previous results.

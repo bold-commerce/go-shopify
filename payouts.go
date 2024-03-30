@@ -14,6 +14,7 @@ const payoutsBasePath = "shopify_payments/payouts"
 // See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/payouts
 type PayoutsService interface {
 	List(context.Context, interface{}) ([]Payout, error)
+	ListAll(context.Context, interface{}) ([]Payout, error)
 	ListWithPagination(context.Context, interface{}) ([]Payout, *Pagination, error)
 	Get(context.Context, uint64, interface{}) (*Payout, error)
 }
@@ -73,6 +74,29 @@ func (s *PayoutsServiceOp) List(ctx context.Context, options interface{}) ([]Pay
 		return nil, err
 	}
 	return payouts, nil
+}
+
+// ListAll Lists all payouts, iterating over pages
+func (s *PayoutsServiceOp) ListAll(ctx context.Context, options interface{}) ([]Payout, error) {
+	collector := []Payout{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
 }
 
 func (s *PayoutsServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Payout, *Pagination, error) {

@@ -15,6 +15,7 @@ const (
 // See: https://shopify.dev/docs/api/admin-rest/2023-10/resources/order-risk
 type OrderRiskService interface {
 	List(context.Context, uint64, interface{}) ([]OrderRisk, error)
+	ListAll(context.Context, uint64, interface{}) ([]OrderRisk, error)
 	ListWithPagination(context.Context, uint64, interface{}) ([]OrderRisk, *Pagination, error)
 	Get(context.Context, uint64, uint64, interface{}) (*OrderRisk, error)
 	Create(context.Context, uint64, OrderRisk) (*OrderRisk, error)
@@ -77,6 +78,29 @@ func (s *OrderRiskServiceOp) List(ctx context.Context, orderId uint64, options i
 		return nil, err
 	}
 	return orders, nil
+}
+
+// ListAll Lists all OrderRisk, iterating over pages
+func (s *OrderRiskServiceOp) ListAll(ctx context.Context, orderId uint64, options interface{}) ([]OrderRisk, error) {
+	collector := []OrderRisk{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, orderId, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
 }
 
 func (s *OrderRiskServiceOp) ListWithPagination(ctx context.Context, orderId uint64, options interface{}) ([]OrderRisk, *Pagination, error) {

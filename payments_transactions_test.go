@@ -112,6 +112,104 @@ func TestPaymentsTransactionsListError(t *testing.T) {
 	}
 }
 
+func TestPaymentsTransactionsListAll(t *testing.T) {
+	setup()
+	defer teardown()
+
+	listURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/balance/transactions.json", client.pathPrefix)
+
+	cases := []struct {
+		name                          string
+		expectedPaymentsTransactionss []PaymentsTransactions
+		expectedRequestURLs           []string
+		expectedLinkHeaders           []string
+		expectedBodies                []string
+		expectedErr                   error
+	}{
+		{
+			name: "Pulls the next page",
+			expectedRequestURLs: []string{
+				listURL,
+				fmt.Sprintf("%s?page_info=pg2", listURL),
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="next"`,
+				`<http://valid.url?page_info=pg1>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"transactions": [{"id":1},{"id":2}]}`,
+				`{"transactions": [{"id":3},{"id":4}]}`,
+			},
+			expectedPaymentsTransactionss: []PaymentsTransactions{{Id: 1}, {Id: 2}, {Id: 3}, {Id: 4}},
+			expectedErr:                   nil,
+		},
+		{
+			name: "Stops when there is not a next page",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"transactions": [{"id":1}]}`,
+			},
+			expectedPaymentsTransactionss: []PaymentsTransactions{{Id: 1}},
+			expectedErr:                   nil,
+		},
+	}
+
+	for i, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if len(c.expectedRequestURLs) != len(c.expectedLinkHeaders) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected link headers (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedLinkHeaders),
+				)
+
+				return
+			}
+
+			if len(c.expectedRequestURLs) != len(c.expectedBodies) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected bodies (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedBodies),
+				)
+
+				return
+			}
+
+			for i := range c.expectedRequestURLs {
+				response := &http.Response{
+					StatusCode: 200,
+					Body:       httpmock.NewRespBodyFromString(c.expectedBodies[i]),
+					Header: http.Header{
+						"Link": {c.expectedLinkHeaders[i]},
+					},
+				}
+
+				httpmock.RegisterResponder("GET", c.expectedRequestURLs[i], httpmock.ResponderFromResponse(response))
+			}
+
+			transactions, err := client.PaymentsTransactions.ListAll(context.Background(), nil)
+			if !reflect.DeepEqual(transactions, c.expectedPaymentsTransactionss) {
+				t.Errorf("test %d PaymentsTransactions.ListAll orders returned %+v, expected %+v", i, transactions, c.expectedPaymentsTransactionss)
+			}
+
+			if (c.expectedErr != nil || err != nil) && err.Error() != c.expectedErr.Error() {
+				t.Errorf(
+					"test %d PaymentsTransactions.ListAll err returned %+v, expected %+v",
+					i,
+					err,
+					c.expectedErr,
+				)
+			}
+		})
+	}
+}
+
 func TestPaymentsTransactionsListWithPagination(t *testing.T) {
 	setup()
 	defer teardown()

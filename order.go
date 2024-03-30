@@ -19,6 +19,7 @@ const (
 // See: https://help.shopify.com/api/reference/order
 type OrderService interface {
 	List(context.Context, interface{}) ([]Order, error)
+	ListAll(context.Context, interface{}) ([]Order, error)
 	ListWithPagination(context.Context, interface{}) ([]Order, *Pagination, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Order, error)
@@ -535,6 +536,29 @@ func (s *OrderServiceOp) List(ctx context.Context, options interface{}) ([]Order
 		return nil, err
 	}
 	return orders, nil
+}
+
+// ListAll Lists all orders, iterating over pages
+func (s *OrderServiceOp) ListAll(ctx context.Context, options interface{}) ([]Order, error) {
+	collector := []Order{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
 }
 
 func (s *OrderServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Order, *Pagination, error) {
