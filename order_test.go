@@ -79,6 +79,20 @@ func TestOrderListAll(t *testing.T) {
 			expectedOrders: []Order{{Id: 1}},
 			expectedErr:    nil,
 		},
+		{
+			name: "Returns errors when required",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?paage_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"orders": []}`,
+			},
+			expectedOrders: []Order{},
+			expectedErr:    errors.New("page_info is missing"),
+		},
 	}
 
 	for i, c := range cases {

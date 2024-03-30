@@ -127,6 +127,20 @@ func TestProductListAll(t *testing.T) {
 			expectedProducts: []Product{{Id: 1}},
 			expectedErr:      nil,
 		},
+		{
+			name: "Returns errors when required",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?paage_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"products": []}`,
+			},
+			expectedProducts: []Product{},
+			expectedErr:      errors.New("page_info is missing"),
+		},
 	}
 
 	for i, c := range cases {
