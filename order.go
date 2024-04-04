@@ -412,7 +412,7 @@ type PaymentDetails struct {
 }
 
 type ShippingLines struct {
-	Id                            uint64           `json:"id,omitempty"`
+	Id                            string           `json:"id,omitempty"`
 	Title                         string           `json:"title,omitempty"`
 	Price                         *decimal.Decimal `json:"price,omitempty"`
 	PriceSet                      *AmountSet       `json:"price_set,omitempty"`
@@ -428,7 +428,8 @@ type ShippingLines struct {
 	Handle                        string           `json:"handle,omitempty"`
 }
 
-// UnmarshalJSON custom unmarshaller for ShippingLines implemented to handle requested_fulfillment_service_id being
+// UnmarshalJSON custom unmarshaller for ShippingLines implemented
+// to handle requested_fulfillment_service_id being
 // returned as json numbers or json nulls instead of json strings
 func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
 	type alias ShippingLines
