@@ -52,6 +52,7 @@ type AssignedFulfillmentOrderLineItem struct {
 	InventoryItemId     uint64 `json:"inventory_item_id,omitempty"`
 	Quantity            uint64 `json:"quantity,omitempty"`
 	FulfillableQuantity uint64 `json:"fulfillable_quantity,omitempty"`
+	VariantId           uint64 `json:"variant_id,omitempty"`
 }
 
 // AssignedFulfillmentOrderResource represents the result from the assigned_fulfillment_order.json endpoint
