@@ -58,6 +58,11 @@ func imageTests(t *testing.T, image Image) {
 		t.Errorf("Image.VariantIds[0] returned %+v, expected %+v", image.VariantIds[1], expectedVariantIds[1])
 	}
 
+	expectedAlt := "new alt tag content"
+	if image.Alt != expectedAlt {
+		t.Errorf("Image.Alt returned %+v, expected %+v", image.Alt, expectedSrc)
+	}
+
 	// Check that CreatedAt date is set
 	expectedCreatedAt := time.Date(2017, time.July, 24, 19, 9, 43, 0, time.UTC)
 	if !expectedCreatedAt.Equal(*image.CreatedAt) {

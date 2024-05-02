@@ -36,6 +36,7 @@ type Image struct {
 	Src               string     `json:"src,omitempty"`
 	Attachment        string     `json:"attachment,omitempty"`
 	Filename          string     `json:"filename,omitempty"`
+	Alt               string     `json:"alt,omitempty"`
 	VariantIds        []uint64   `json:"variant_ids,omitempty"`
 	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
 }
