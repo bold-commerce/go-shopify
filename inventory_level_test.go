@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -13,13 +14,13 @@ func inventoryLevelTests(t *testing.T, item *InventoryLevel) {
 		return
 	}
 
-	expectedInt := int64(808950810)
+	expectedInt := uint64(808950810)
 	if item.InventoryItemId != expectedInt {
 		t.Errorf("InventoryLevel.InventoryItemId returned %+v, expected %+v",
 			item.InventoryItemId, expectedInt)
 	}
 
-	expectedInt = int64(905684977)
+	expectedInt = uint64(905684977)
 	if item.LocationId != expectedInt {
 		t.Errorf("InventoryLevel.LocationId is %+v, expected %+v",
 			item.LocationId, expectedInt)
@@ -47,7 +48,7 @@ func TestInventoryLevelsList(t *testing.T) {
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_levels.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("inventory_levels.json")))
 
-	levels, err := client.InventoryLevel.List(nil)
+	levels, err := client.InventoryLevel.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("InventoryLevels.List returned error: %v", err)
 	}
@@ -70,10 +71,10 @@ func TestInventoryLevelListWithItemId(t *testing.T) {
 	)
 
 	options := InventoryLevelListOptions{
-		InventoryItemIds: []int64{1, 2},
+		InventoryItemIds: []uint64{1, 2},
 	}
 
-	levels, err := client.InventoryLevel.List(options)
+	levels, err := client.InventoryLevel.List(context.Background(), options)
 	if err != nil {
 		t.Errorf("InventoryLevels.List returned error: %v", err)
 	}
@@ -96,10 +97,10 @@ func TestInventoryLevelListWithLocationId(t *testing.T) {
 	)
 
 	options := InventoryLevelListOptions{
-		LocationIds: []int64{1, 2},
+		LocationIds: []uint64{1, 2},
 	}
 
-	levels, err := client.InventoryLevel.List(options)
+	levels, err := client.InventoryLevel.List(context.Background(), options)
 	if err != nil {
 		t.Errorf("InventoryLevels.List returned error: %v", err)
 	}
@@ -121,7 +122,7 @@ func TestInventoryLevelAdjust(t *testing.T) {
 		Adjust:          6,
 	}
 
-	adjItem, err := client.InventoryLevel.Adjust(option)
+	adjItem, err := client.InventoryLevel.Adjust(context.Background(), option)
 	if err != nil {
 		t.Errorf("InventoryLevel.Adjust returned error: %v", err)
 	}
@@ -137,7 +138,7 @@ func TestInventoryLevelDelete(t *testing.T) {
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_levels.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.InventoryLevel.Delete(1, 1)
+	err := client.InventoryLevel.Delete(context.Background(), 1, 1)
 	if err != nil {
 		t.Errorf("InventoryLevel.Delete returned error: %v", err)
 	}
@@ -158,7 +159,7 @@ func TestInventoryLevelConnect(t *testing.T) {
 		LocationId:      1,
 	}
 
-	level, err := client.InventoryLevel.Connect(options)
+	level, err := client.InventoryLevel.Connect(context.Background(), options)
 	if err != nil {
 		t.Errorf("InventoryLevels.Connect returned error: %v", err)
 	}
@@ -181,7 +182,7 @@ func TestInventoryLevelSet(t *testing.T) {
 		LocationId:      1,
 	}
 
-	level, err := client.InventoryLevel.Set(options)
+	level, err := client.InventoryLevel.Set(context.Background(), options)
 	if err != nil {
 		t.Errorf("InventoryLevels.Set returned error: %v", err)
 	}
@@ -205,7 +206,7 @@ func TestInventoryLevelSetZero(t *testing.T) {
 		Available:       0,
 	}
 
-	level, err := client.InventoryLevel.Set(options)
+	level, err := client.InventoryLevel.Set(context.Background(), options)
 	if err != nil {
 		t.Errorf("InventoryLevels.Set returned error: %v", err)
 	}

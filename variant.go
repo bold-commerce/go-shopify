@@ -1,25 +1,28 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/shopspring/decimal"
 )
 
-const variantsBasePath = "variants"
-const variantsResourceName = "variants"
+const (
+	variantsBasePath     = "variants"
+	variantsResourceName = "variants"
+)
 
 // VariantService is an interface for interacting with the variant endpoints
 // of the Shopify API.
 // See https://help.shopify.com/api/reference/product_variant
 type VariantService interface {
-	List(int64, interface{}) ([]Variant, error)
-	Count(int64, interface{}) (int, error)
-	Get(int64, interface{}) (*Variant, error)
-	Create(int64, Variant) (*Variant, error)
-	Update(Variant) (*Variant, error)
-	Delete(int64, int64) error
+	List(context.Context, uint64, interface{}) ([]Variant, error)
+	Count(context.Context, uint64, interface{}) (int, error)
+	Get(context.Context, uint64, interface{}) (*Variant, error)
+	Create(context.Context, uint64, Variant) (*Variant, error)
+	Update(context.Context, Variant) (*Variant, error)
+	Delete(context.Context, uint64, uint64) error
 
 	// MetafieldsService used for Variant resource to communicate with Metafields resource
 	MetafieldsService
@@ -35,19 +38,19 @@ type variantInventoryPolicy string
 
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/product-variant#resource-object
 const (
-	//Customers are not allowed to place orders for the product variant if it's out
-	//of stock. This is the default value.
+	// Customers are not allowed to place orders for the product variant if it's out
+	// of stock. This is the default value.
 	VariantInventoryPolicyDeny variantInventoryPolicy = "deny"
 
-	//Customers are allowed to place orders for the product variant if it's out of
-	//stock.
+	// Customers are allowed to place orders for the product variant if it's out of
+	// stock.
 	VariantInventoryPolicyContinue variantInventoryPolicy = "continue"
 )
 
 // Variant represents a Shopify variant
 type Variant struct {
-	ID                   int64                  `json:"id,omitempty"`
-	ProductID            int64                  `json:"product_id,omitempty"`
+	Id                   uint64                 `json:"id,omitempty"`
+	ProductId            uint64                 `json:"product_id,omitempty"`
 	Title                string                 `json:"title,omitempty"`
 	Sku                  string                 `json:"sku,omitempty"`
 	Position             int                    `json:"position,omitempty"`
@@ -57,7 +60,7 @@ type Variant struct {
 	CompareAtPrice       *decimal.Decimal       `json:"compare_at_price,omitempty"`
 	FulfillmentService   string                 `json:"fulfillment_service,omitempty"`
 	InventoryManagement  string                 `json:"inventory_management,omitempty"`
-	InventoryItemId      int64                  `json:"inventory_item_id,omitempty"`
+	InventoryItemId      uint64                 `json:"inventory_item_id,omitempty"`
 	Option1              string                 `json:"option1,omitempty"`
 	Option2              string                 `json:"option2,omitempty"`
 	Option3              string                 `json:"option3,omitempty"`
@@ -66,13 +69,13 @@ type Variant struct {
 	Taxable              bool                   `json:"taxable,omitempty"`
 	TaxCode              string                 `json:"tax_code,omitempty"`
 	Barcode              string                 `json:"barcode,omitempty"`
-	ImageID              int64                  `json:"image_id,omitempty"`
+	ImageId              uint64                 `json:"image_id,omitempty"`
 	InventoryQuantity    int                    `json:"inventory_quantity,omitempty"`
 	Weight               *decimal.Decimal       `json:"weight,omitempty"`
 	WeightUnit           string                 `json:"weight_unit,omitempty"`
 	OldInventoryQuantity int                    `json:"old_inventory_quantity,omitempty"`
 	RequireShipping      bool                   `json:"requires_shipping"`
-	AdminGraphqlAPIID    string                 `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId    string                 `json:"admin_graphql_api_id,omitempty"`
 	Metafields           []Metafield            `json:"metafields,omitempty"`
 	PresentmentPrices    []presentmentPrices    `json:"presentment_prices,omitempty"`
 }
@@ -98,82 +101,82 @@ type VariantsResource struct {
 }
 
 // List variants
-func (s *VariantServiceOp) List(productID int64, options interface{}) ([]Variant, error) {
-	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
+func (s *VariantServiceOp) List(ctx context.Context, productId uint64, options interface{}) ([]Variant, error) {
+	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productId)
 	resource := new(VariantsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Variants, err
 }
 
 // Count variants
-func (s *VariantServiceOp) Count(productID int64, options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%d/variants/count.json", productsBasePath, productID)
-	return s.client.Count(path, options)
+func (s *VariantServiceOp) Count(ctx context.Context, productId uint64, options interface{}) (int, error) {
+	path := fmt.Sprintf("%s/%d/variants/count.json", productsBasePath, productId)
+	return s.client.Count(ctx, path, options)
 }
 
 // Get individual variant
-func (s *VariantServiceOp) Get(variantID int64, options interface{}) (*Variant, error) {
-	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variantID)
+func (s *VariantServiceOp) Get(ctx context.Context, variantId uint64, options interface{}) (*Variant, error) {
+	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variantId)
 	resource := new(VariantResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Variant, err
 }
 
 // Create a new variant
-func (s *VariantServiceOp) Create(productID int64, variant Variant) (*Variant, error) {
-	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productID)
+func (s *VariantServiceOp) Create(ctx context.Context, productId uint64, variant Variant) (*Variant, error) {
+	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productId)
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Variant, err
 }
 
 // Update existing variant
-func (s *VariantServiceOp) Update(variant Variant) (*Variant, error) {
-	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variant.ID)
+func (s *VariantServiceOp) Update(ctx context.Context, variant Variant) (*Variant, error) {
+	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variant.Id)
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Variant, err
 }
 
 // Delete an existing variant
-func (s *VariantServiceOp) Delete(productID int64, variantID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%d/variants/%d.json", productsBasePath, productID, variantID))
+func (s *VariantServiceOp) Delete(ctx context.Context, productId uint64, variantId uint64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d/variants/%d.json", productsBasePath, productId, variantId))
 }
 
 // ListMetafields for a variant
-func (s *VariantServiceOp) ListMetafields(variantID int64, options interface{}) ([]Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceID: variantID}
-	return metafieldService.List(options)
+func (s *VariantServiceOp) ListMetafields(ctx context.Context, variantId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.List(ctx, options)
 }
 
 // CountMetafields for a variant
-func (s *VariantServiceOp) CountMetafields(variantID int64, options interface{}) (int, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceID: variantID}
-	return metafieldService.Count(options)
+func (s *VariantServiceOp) CountMetafields(ctx context.Context, variantId uint64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.Count(ctx, options)
 }
 
 // GetMetafield for a variant
-func (s *VariantServiceOp) GetMetafield(variantID int64, metafieldID int64, options interface{}) (*Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceID: variantID}
-	return metafieldService.Get(metafieldID, options)
+func (s *VariantServiceOp) GetMetafield(ctx context.Context, variantId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.Get(ctx, metafieldId, options)
 }
 
 // CreateMetafield for a variant
-func (s *VariantServiceOp) CreateMetafield(variantID int64, metafield Metafield) (*Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceID: variantID}
-	return metafieldService.Create(metafield)
+func (s *VariantServiceOp) CreateMetafield(ctx context.Context, variantId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.Create(ctx, metafield)
 }
 
 // UpdateMetafield for a variant
-func (s *VariantServiceOp) UpdateMetafield(variantID int64, metafield Metafield) (*Metafield, error) {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceID: variantID}
-	return metafieldService.Update(metafield)
+func (s *VariantServiceOp) UpdateMetafield(ctx context.Context, variantId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.Update(ctx, metafield)
 }
 
 // DeleteMetafield for a variant
-func (s *VariantServiceOp) DeleteMetafield(variantID int64, metafieldID int64) error {
-	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceID: variantID}
-	return metafieldService.Delete(metafieldID)
+func (s *VariantServiceOp) DeleteMetafield(ctx context.Context, variantId uint64, metafieldId uint64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.Delete(ctx, metafieldId)
 }

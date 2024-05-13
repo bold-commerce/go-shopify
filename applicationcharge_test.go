@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -18,9 +19,9 @@ func applicationChargeTests(t *testing.T, charge ApplicationCharge) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(1017262355), charge.ID},
+		{"Id", uint64(1017262355), charge.Id},
 		{"Name", "Super Duper Expensive action", charge.Name},
-		{"APIClientID", int64(755357713), charge.APIClientID},
+		{"APIClientId", uint64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(100.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -63,7 +64,7 @@ func TestApplicationChargeServiceOp_Create(t *testing.T) {
 		ReturnURL: "http://super-duper.shopifyapps.com",
 	}
 
-	returnedCharge, err := client.ApplicationCharge.Create(charge)
+	returnedCharge, err := client.ApplicationCharge.Create(context.Background(), charge)
 	if err != nil {
 		t.Errorf("ApplicationCharge.Create returned an error: %v", err)
 	}
@@ -81,12 +82,12 @@ func TestApplicationChargeServiceOp_Get(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"application_charge": {"id":1}}`),
 	)
 
-	charge, err := client.ApplicationCharge.Get(1, nil)
+	charge, err := client.ApplicationCharge.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("ApplicationCharge.Get returned an error: %v", err)
 	}
 
-	expected := &ApplicationCharge{ID: 1}
+	expected := &ApplicationCharge{Id: 1}
 	if !reflect.DeepEqual(charge, expected) {
 		t.Errorf("ApplicationCharge.Get returned %+v, expected %+v", charge, expected)
 	}
@@ -102,12 +103,12 @@ func TestApplicationChargeServiceOp_List(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"application_charges": [{"id":1},{"id":2}]}`),
 	)
 
-	charges, err := client.ApplicationCharge.List(nil)
+	charges, err := client.ApplicationCharge.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("ApplicationCharge.List returned an error: %v", err)
 	}
 
-	expected := []ApplicationCharge{{ID: 1}, {ID: 2}}
+	expected := []ApplicationCharge{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(charges, expected) {
 		t.Errorf("ApplicationCharge.List returned %+v, expected %+v", charges, expected)
 	}
@@ -127,16 +128,16 @@ func TestApplicationChargeServiceOp_Activate(t *testing.T) {
 	)
 
 	charge := ApplicationCharge{
-		ID:     455696195,
+		Id:     455696195,
 		Status: "accepted",
 	}
 
-	returnedCharge, err := client.ApplicationCharge.Activate(charge)
+	returnedCharge, err := client.ApplicationCharge.Activate(context.Background(), charge)
 	if err != nil {
 		t.Errorf("ApplicationCharge.Activate returned an error: %v", err)
 	}
 
-	expected := &ApplicationCharge{ID: 455696195, Status: "active"}
+	expected := &ApplicationCharge{Id: 455696195, Status: "active"}
 	if !reflect.DeepEqual(returnedCharge, expected) {
 		t.Errorf("ApplicationCharge.Activate returned %+v, expected %+v", charge, expected)
 	}

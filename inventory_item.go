@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,9 +14,9 @@ const inventoryItemsBasePath = "inventory_items"
 // inventory items endpoints of the Shopify API
 // See https://help.shopify.com/en/api/reference/inventory/inventoryitem
 type InventoryItemService interface {
-	List(interface{}) ([]InventoryItem, error)
-	Get(int64, interface{}) (*InventoryItem, error)
-	Update(InventoryItem) (*InventoryItem, error)
+	List(context.Context, interface{}) ([]InventoryItem, error)
+	Get(context.Context, uint64, interface{}) (*InventoryItem, error)
+	Update(context.Context, InventoryItem) (*InventoryItem, error)
 }
 
 // InventoryItemServiceOp is the default implementation of the InventoryItemService interface
@@ -25,13 +26,13 @@ type InventoryItemServiceOp struct {
 
 // InventoryItem represents a Shopify inventory item
 type InventoryItem struct {
-	ID                           int64            `json:"id,omitempty"`
+	Id                           uint64           `json:"id,omitempty"`
 	SKU                          string           `json:"sku,omitempty"`
 	CreatedAt                    *time.Time       `json:"created_at,omitempty"`
 	UpdatedAt                    *time.Time       `json:"updated_at,omitempty"`
 	Cost                         *decimal.Decimal `json:"cost,omitempty"`
 	Tracked                      *bool            `json:"tracked,omitempty"`
-	AdminGraphqlAPIID            string           `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId            string           `json:"admin_graphql_api_id,omitempty"`
 	CountryCodeOfOrigin          *string          `json:"country_code_of_origin"`
 	CountryHarmonizedSystemCodes []string         `json:"country_harmonized_system_codes"`
 	HarmonizedSystemCode         *string          `json:"harmonized_system_code"`
@@ -49,26 +50,26 @@ type InventoryItemsResource struct {
 }
 
 // List inventory items
-func (s *InventoryItemServiceOp) List(options interface{}) ([]InventoryItem, error) {
+func (s *InventoryItemServiceOp) List(ctx context.Context, options interface{}) ([]InventoryItem, error) {
 	path := fmt.Sprintf("%s.json", inventoryItemsBasePath)
 	resource := new(InventoryItemsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.InventoryItems, err
 }
 
 // Get a inventory item
-func (s *InventoryItemServiceOp) Get(id int64, options interface{}) (*InventoryItem, error) {
+func (s *InventoryItemServiceOp) Get(ctx context.Context, id uint64, options interface{}) (*InventoryItem, error) {
 	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, id)
 	resource := new(InventoryItemResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.InventoryItem, err
 }
 
 // Update a inventory item
-func (s *InventoryItemServiceOp) Update(item InventoryItem) (*InventoryItem, error) {
-	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, item.ID)
+func (s *InventoryItemServiceOp) Update(ctx context.Context, item InventoryItem) (*InventoryItem, error) {
+	path := fmt.Sprintf("%s/%d.json", inventoryItemsBasePath, item.Id)
 	wrappedData := InventoryItemResource{InventoryItem: &item}
 	resource := new(InventoryItemResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.InventoryItem, err
 }

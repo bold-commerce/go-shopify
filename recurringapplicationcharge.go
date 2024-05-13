@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -14,12 +15,12 @@ const recurringApplicationChargesBasePath = "recurring_application_charges"
 // RecurringApplicationCharge endpoints of the Shopify API.
 // See https://help.shopify.com/api/reference/billing/recurringapplicationcharge
 type RecurringApplicationChargeService interface {
-	Create(RecurringApplicationCharge) (*RecurringApplicationCharge, error)
-	Get(int64, interface{}) (*RecurringApplicationCharge, error)
-	List(interface{}) ([]RecurringApplicationCharge, error)
-	Activate(RecurringApplicationCharge) (*RecurringApplicationCharge, error)
-	Delete(int64) error
-	Update(int64, int64) (*RecurringApplicationCharge, error)
+	Create(context.Context, RecurringApplicationCharge) (*RecurringApplicationCharge, error)
+	Get(context.Context, uint64, interface{}) (*RecurringApplicationCharge, error)
+	List(context.Context, interface{}) ([]RecurringApplicationCharge, error)
+	Activate(context.Context, RecurringApplicationCharge) (*RecurringApplicationCharge, error)
+	Delete(context.Context, uint64) error
+	Update(context.Context, uint64, uint64) (*RecurringApplicationCharge, error)
 }
 
 // RecurringApplicationChargeServiceOp handles communication with the
@@ -30,7 +31,7 @@ type RecurringApplicationChargeServiceOp struct {
 
 // RecurringApplicationCharge represents a Shopify RecurringApplicationCharge.
 type RecurringApplicationCharge struct {
-	APIClientID           int64            `json:"api_client_id"`
+	APIClientId           uint64           `json:"api_client_id"`
 	ActivatedOn           *time.Time       `json:"activated_on"`
 	BalanceRemaining      *decimal.Decimal `json:"balance_remaining"`
 	BalanceUsed           *decimal.Decimal `json:"balance_used"`
@@ -40,7 +41,7 @@ type RecurringApplicationCharge struct {
 	ConfirmationURL       string           `json:"confirmation_url"`
 	CreatedAt             *time.Time       `json:"created_at"`
 	DecoratedReturnURL    string           `json:"decorated_return_url"`
-	ID                    int64            `json:"id"`
+	Id                    uint64           `json:"id"`
 	Name                  string           `json:"name"`
 	Price                 *decimal.Decimal `json:"price"`
 	ReturnURL             string           `json:"return_url"`
@@ -52,6 +53,7 @@ type RecurringApplicationCharge struct {
 	TrialEndsOn           *time.Time       `json:"trial_ends_on"`
 	UpdateCappedAmountURL string           `json:"update_capped_amount_url"`
 	UpdatedAt             *time.Time       `json:"updated_at"`
+	Currency              string           `json:"currency"`
 }
 
 func parse(dest **time.Time, data *string) error {
@@ -125,59 +127,59 @@ type RecurringApplicationChargesResource struct {
 }
 
 // Create creates new recurring application charge.
-func (r *RecurringApplicationChargeServiceOp) Create(charge RecurringApplicationCharge) (
-	*RecurringApplicationCharge, error) {
-
+func (r *RecurringApplicationChargeServiceOp) Create(ctx context.Context, charge RecurringApplicationCharge) (
+	*RecurringApplicationCharge, error,
+) {
 	path := fmt.Sprintf("%s.json", recurringApplicationChargesBasePath)
 	wrappedData := RecurringApplicationChargeResource{Charge: &charge}
 	resource := &RecurringApplicationChargeResource{}
-	err := r.client.Post(path, wrappedData, resource)
+	err := r.client.Post(ctx, path, wrappedData, resource)
 	return resource.Charge, err
 }
 
 // Get gets individual recurring application charge.
-func (r *RecurringApplicationChargeServiceOp) Get(chargeID int64, options interface{}) (
-	*RecurringApplicationCharge, error) {
-
-	path := fmt.Sprintf("%s/%d.json", recurringApplicationChargesBasePath, chargeID)
+func (r *RecurringApplicationChargeServiceOp) Get(ctx context.Context, chargeId uint64, options interface{}) (
+	*RecurringApplicationCharge, error,
+) {
+	path := fmt.Sprintf("%s/%d.json", recurringApplicationChargesBasePath, chargeId)
 	resource := &RecurringApplicationChargeResource{}
-	err := r.client.Get(path, resource, options)
+	err := r.client.Get(ctx, path, resource, options)
 	return resource.Charge, err
 }
 
 // List gets all recurring application charges.
-func (r *RecurringApplicationChargeServiceOp) List(options interface{}) (
-	[]RecurringApplicationCharge, error) {
-
+func (r *RecurringApplicationChargeServiceOp) List(ctx context.Context, options interface{}) (
+	[]RecurringApplicationCharge, error,
+) {
 	path := fmt.Sprintf("%s.json", recurringApplicationChargesBasePath)
 	resource := &RecurringApplicationChargesResource{}
-	err := r.client.Get(path, resource, options)
+	err := r.client.Get(ctx, path, resource, options)
 	return resource.Charges, err
 }
 
 // Activate activates recurring application charge.
-func (r *RecurringApplicationChargeServiceOp) Activate(charge RecurringApplicationCharge) (
-	*RecurringApplicationCharge, error) {
-
-	path := fmt.Sprintf("%s/%d/activate.json", recurringApplicationChargesBasePath, charge.ID)
+func (r *RecurringApplicationChargeServiceOp) Activate(ctx context.Context, charge RecurringApplicationCharge) (
+	*RecurringApplicationCharge, error,
+) {
+	path := fmt.Sprintf("%s/%d/activate.json", recurringApplicationChargesBasePath, charge.Id)
 	wrappedData := RecurringApplicationChargeResource{Charge: &charge}
 	resource := &RecurringApplicationChargeResource{}
-	err := r.client.Post(path, wrappedData, resource)
+	err := r.client.Post(ctx, path, wrappedData, resource)
 	return resource.Charge, err
 }
 
 // Delete deletes recurring application charge.
-func (r *RecurringApplicationChargeServiceOp) Delete(chargeID int64) error {
-	return r.client.Delete(fmt.Sprintf("%s/%d.json", recurringApplicationChargesBasePath, chargeID))
+func (r *RecurringApplicationChargeServiceOp) Delete(ctx context.Context, chargeId uint64) error {
+	return r.client.Delete(ctx, fmt.Sprintf("%s/%d.json", recurringApplicationChargesBasePath, chargeId))
 }
 
 // Update updates recurring application charge.
-func (r *RecurringApplicationChargeServiceOp) Update(chargeID, newCappedAmount int64) (
-	*RecurringApplicationCharge, error) {
-
+func (r *RecurringApplicationChargeServiceOp) Update(ctx context.Context, chargeId, newCappedAmount uint64) (
+	*RecurringApplicationCharge, error,
+) {
 	path := fmt.Sprintf("%s/%d/customize.json?recurring_application_charge[capped_amount]=%d",
-		recurringApplicationChargesBasePath, chargeID, newCappedAmount)
+		recurringApplicationChargesBasePath, chargeId, newCappedAmount)
 	resource := &RecurringApplicationChargeResource{}
-	err := r.client.Put(path, nil, resource)
+	err := r.client.Put(ctx, path, nil, resource)
 	return resource.Charge, err
 }

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -10,9 +11,10 @@ const paymentsTransactionsBasePath = "shopify_payments/balance/transactions"
 // the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/2023-01/resources/transactions
 type PaymentsTransactionsService interface {
-	List(interface{}) ([]PaymentsTransactions, error)
-	ListWithPagination(interface{}) ([]PaymentsTransactions, *Pagination, error)
-	Get(int64, interface{}) (*PaymentsTransactions, error)
+	List(context.Context, interface{}) ([]PaymentsTransactions, error)
+	ListAll(context.Context, interface{}) ([]PaymentsTransactions, error)
+	ListWithPagination(context.Context, interface{}) ([]PaymentsTransactions, *Pagination, error)
+	Get(context.Context, uint64, interface{}) (*PaymentsTransactions, error)
 }
 
 // PaymentsTransactionsServiceOp handles communication with the transactions related methods of
@@ -26,9 +28,9 @@ type PaymentsTransactionsListOptions struct {
 	PageInfo     string       `url:"page_info,omitempty"`
 	Limit        int          `url:"limit,omitempty"`
 	Fields       string       `url:"fields,omitempty"`
-	LastId       int64        `url:"last_id,omitempty"`
-	SinceId      int64        `url:"since_id,omitempty"`
-	PayoutId     int64        `url:"payout_id,omitempty"`
+	LastId       uint64       `url:"last_id,omitempty"`
+	SinceId      uint64       `url:"since_id,omitempty"`
+	PayoutId     uint64       `url:"payout_id,omitempty"`
 	PayoutStatus PayoutStatus `url:"payout_status,omitempty"`
 	DateMin      *OnlyDate    `url:"date_min,omitempty"`
 	DateMax      *OnlyDate    `url:"date_max,omitempty"`
@@ -37,7 +39,7 @@ type PaymentsTransactionsListOptions struct {
 
 // PaymentsTransactions represents a Shopify Transactions
 type PaymentsTransactions struct {
-	Id                       int64                     `json:"id,omitempty"`
+	Id                       uint64                    `json:"id,omitempty"`
 	Type                     PaymentsTransactionsTypes `json:"type,omitempty"`
 	Test                     bool                      `json:"test,omitempty"`
 	PayoutId                 int                       `json:"payout_id,omitempty"`
@@ -79,19 +81,42 @@ type PaymentsTransactionsResource struct {
 }
 
 // List PaymentsTransactions
-func (s *PaymentsTransactionsServiceOp) List(options interface{}) ([]PaymentsTransactions, error) {
-	PaymentsTransactions, _, err := s.ListWithPagination(options)
+func (s *PaymentsTransactionsServiceOp) List(ctx context.Context, options interface{}) ([]PaymentsTransactions, error) {
+	PaymentsTransactions, _, err := s.ListWithPagination(ctx, options)
 	if err != nil {
 		return nil, err
 	}
 	return PaymentsTransactions, nil
 }
 
-func (s *PaymentsTransactionsServiceOp) ListWithPagination(options interface{}) ([]PaymentsTransactions, *Pagination, error) {
+// ListAll Lists all PaymentsTransactions, iterating over pages
+func (s *PaymentsTransactionsServiceOp) ListAll(ctx context.Context, options interface{}) ([]PaymentsTransactions, error) {
+	collector := []PaymentsTransactions{}
+
+	for {
+		entities, pagination, err := s.ListWithPagination(ctx, options)
+
+		if err != nil {
+			return collector, err
+		}
+
+		collector = append(collector, entities...)
+
+		if pagination.NextPageOptions == nil {
+			break
+		}
+
+		options = pagination.NextPageOptions
+	}
+
+	return collector, nil
+}
+
+func (s *PaymentsTransactionsServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]PaymentsTransactions, *Pagination, error) {
 	path := fmt.Sprintf("%s.json", paymentsTransactionsBasePath)
 	resource := new(PaymentsTransactionsResource)
 
-	pagination, err := s.client.ListWithPagination(path, resource, options)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -100,9 +125,9 @@ func (s *PaymentsTransactionsServiceOp) ListWithPagination(options interface{}) 
 }
 
 // Get individual PaymentsTransactions
-func (s *PaymentsTransactionsServiceOp) Get(payoutID int64, options interface{}) (*PaymentsTransactions, error) {
-	path := fmt.Sprintf("%s/%d.json", paymentsTransactionsBasePath, payoutID)
+func (s *PaymentsTransactionsServiceOp) Get(ctx context.Context, payoutId uint64, options interface{}) (*PaymentsTransactions, error) {
+	path := fmt.Sprintf("%s/%d.json", paymentsTransactionsBasePath, payoutId)
 	resource := new(PaymentsTransactionResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.PaymentsTransaction, err
 }

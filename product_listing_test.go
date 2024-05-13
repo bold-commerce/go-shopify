@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -13,10 +14,10 @@ import (
 )
 
 func productListingTests(t *testing.T, product ProductListing) {
-	// Check that ID is assigned to the returned product
-	var expectedInt int64 = 921728736
-	if product.ID != expectedInt {
-		t.Errorf("Product.ID returned %+v, expected %+v", product.ID, expectedInt)
+	// Check that Id is assigned to the returned product
+	var expectedInt uint64 = 921728736
+	if product.Id != expectedInt {
+		t.Errorf("Product.Id returned %+v, expected %+v", product.Id, expectedInt)
 	}
 }
 
@@ -27,12 +28,12 @@ func TestProductListingList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"product_listings": [{"product_id":1},{"product_id":2}]}`))
 
-	products, err := client.ProductListing.List(nil)
+	products, err := client.ProductListing.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("ProductListing.List returned error: %v", err)
 	}
 
-	expected := []ProductListing{{ID: 1}, {ID: 2}}
+	expected := []ProductListing{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("ProductListing.List returned %+v, expected %+v", products, expected)
 	}
@@ -47,13 +48,125 @@ func TestProductListingListError(t *testing.T) {
 
 	expectedErrMessage := "Unknown Error"
 
-	products, err := client.ProductListing.List(nil)
+	products, err := client.ProductListing.List(context.Background(), nil)
 	if products != nil {
 		t.Errorf("ProductListing.List returned products, expected nil: %v", err)
 	}
 
 	if err == nil || err.Error() != expectedErrMessage {
 		t.Errorf("ProductListing.List err returned %+v, expected %+v", err, expectedErrMessage)
+	}
+}
+
+func TestProductListingListAll(t *testing.T) {
+	setup()
+	defer teardown()
+
+	listURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings.json", client.pathPrefix)
+
+	cases := []struct {
+		name                    string
+		expectedProductListings []ProductListing
+		expectedRequestURLs     []string
+		expectedLinkHeaders     []string
+		expectedBodies          []string
+		expectedErr             error
+	}{
+		{
+			name: "Pulls the next page",
+			expectedRequestURLs: []string{
+				listURL,
+				fmt.Sprintf("%s?page_info=pg2", listURL),
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="next"`,
+				`<http://valid.url?page_info=pg1>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"product_listings": [{"product_id":1},{"product_id":2}]}`,
+				`{"product_listings": [{"product_id":3},{"product_id":4}]}`,
+			},
+			expectedProductListings: []ProductListing{{Id: 1}, {Id: 2}, {Id: 3}, {Id: 4}},
+			expectedErr:             nil,
+		},
+		{
+			name: "Stops when there is not a next page",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"product_listings": [{"product_id":1}]}`,
+			},
+			expectedProductListings: []ProductListing{{Id: 1}},
+			expectedErr:             nil,
+		},
+		{
+			name: "Returns errors when required",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?paage_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"product_listings": []}`,
+			},
+			expectedProductListings: []ProductListing{},
+			expectedErr:             errors.New("page_info is missing"),
+		},
+	}
+
+	for i, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if len(c.expectedRequestURLs) != len(c.expectedLinkHeaders) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected link headers (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedLinkHeaders),
+				)
+
+				return
+			}
+
+			if len(c.expectedRequestURLs) != len(c.expectedBodies) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected bodies (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedBodies),
+				)
+
+				return
+			}
+
+			for i := range c.expectedRequestURLs {
+				response := &http.Response{
+					StatusCode: 200,
+					Body:       httpmock.NewRespBodyFromString(c.expectedBodies[i]),
+					Header: http.Header{
+						"Link": {c.expectedLinkHeaders[i]},
+					},
+				}
+
+				httpmock.RegisterResponder("GET", c.expectedRequestURLs[i], httpmock.ResponderFromResponse(response))
+			}
+
+			productListings, err := client.ProductListing.ListAll(context.Background(), nil)
+			if !reflect.DeepEqual(productListings, c.expectedProductListings) {
+				t.Errorf("test %d ProductListing.ListAll orders returned %+v, expected %+v", i, productListings, c.expectedProductListings)
+			}
+
+			if (c.expectedErr != nil || err != nil) && err.Error() != c.expectedErr.Error() {
+				t.Errorf(
+					"test %d ProductListing.ListAll err returned %+v, expected %+v",
+					i,
+					err,
+					c.expectedErr,
+				)
+			}
+		})
 	}
 }
 
@@ -80,7 +193,7 @@ func TestProductListingListWithPagination(t *testing.T) {
 		{
 			`{"product_listings": [{"product_id":1},{"product_id":2}]}`,
 			"",
-			[]ProductListing{{ID: 1}, {ID: 2}},
+			[]ProductListing{{Id: 1}, {Id: 2}},
 			new(Pagination),
 			nil,
 		},
@@ -124,7 +237,7 @@ func TestProductListingListWithPagination(t *testing.T) {
 		{
 			`{"product_listings": [{"product_id":1}]}`,
 			`<http://valid.url?page_info=foo&limit=2>; rel="next"`,
-			[]ProductListing{{ID: 1}},
+			[]ProductListing{{Id: 1}},
 			&Pagination{
 				NextPageOptions: &ListOptions{PageInfo: "foo", Limit: 2},
 			},
@@ -133,7 +246,7 @@ func TestProductListingListWithPagination(t *testing.T) {
 		{
 			`{"product_listings": [{"product_id":2}]}`,
 			`<http://valid.url?page_info=foo>; rel="next", <http://valid.url?page_info=bar>; rel="previous"`,
-			[]ProductListing{{ID: 2}},
+			[]ProductListing{{Id: 2}},
 			&Pagination{
 				NextPageOptions:     &ListOptions{PageInfo: "foo"},
 				PreviousPageOptions: &ListOptions{PageInfo: "bar"},
@@ -152,7 +265,7 @@ func TestProductListingListWithPagination(t *testing.T) {
 
 		httpmock.RegisterResponder("GET", listURL, httpmock.ResponderFromResponse(response))
 
-		products, pagination, err := client.ProductListing.ListWithPagination(nil)
+		products, pagination, err := client.ProductListing.ListWithPagination(context.Background(), nil)
 		if !reflect.DeepEqual(products, c.expectedProducts) {
 			t.Errorf("test %d ProductListing.ListWithPagination products returned %+v, expected %+v", i, products, c.expectedProducts)
 		}
@@ -191,7 +304,7 @@ func TestProductListingsCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.ProductListing.Count(nil)
+	cnt, err := client.ProductListing.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Product.Count returned error: %v", err)
 	}
@@ -202,7 +315,7 @@ func TestProductListingsCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.ProductListing.Count(CountOptions{CreatedAtMin: date})
+	cnt, err = client.ProductListing.Count(context.Background(), CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Product.Count returned error: %v", err)
 	}
@@ -220,32 +333,32 @@ func TestProductListingGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"product_listing": {"product_id":1}}`))
 
-	product, err := client.ProductListing.Get(1, nil)
+	product, err := client.ProductListing.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("ProductListing.Get returned error: %v", err)
 	}
 
-	expected := &ProductListing{ID: 1}
+	expected := &ProductListing{Id: 1}
 	if !reflect.DeepEqual(product, expected) {
 		t.Errorf("ProductListing.Get returned %+v, expected %+v", product, expected)
 	}
 }
 
-func TestProductListingGetProductIDs(t *testing.T) {
+func TestProductListingGetProductIds(t *testing.T) {
 	setup()
 	defer teardown()
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings/product_ids.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"product_ids": [1,2,3]}`))
 
-	productIDs, err := client.ProductListing.GetProductIDs(nil)
+	productIds, err := client.ProductListing.GetProductIds(context.Background(), nil)
 	if err != nil {
 		t.Errorf("ProductListing.Get returned error: %v", err)
 	}
 
-	expected := []int64{1, 2, 3}
-	if !reflect.DeepEqual(productIDs, expected) {
-		t.Errorf("ProductListing.Get returned %+v, expected %+v", productIDs, expected)
+	expected := []uint64{1, 2, 3}
+	if !reflect.DeepEqual(productIds, expected) {
+		t.Errorf("ProductListing.Get returned %+v, expected %+v", productIds, expected)
 	}
 }
 
@@ -257,11 +370,11 @@ func TestProductListingPublish(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("product_listing.json")))
 
 	product := Product{
-		ID:          921728736,
+		Id:          921728736,
 		ProductType: "Cult Products",
 	}
 
-	returnedProduct, err := client.ProductListing.Publish(product.ID)
+	returnedProduct, err := client.ProductListing.Publish(context.Background(), product.Id)
 	if err != nil {
 		t.Errorf("ProductListing.Publish returned error: %v", err)
 	}
@@ -276,7 +389,7 @@ func TestProductListingDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/product_listings/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.ProductListing.Delete(1)
+	err := client.ProductListing.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("ProductListing.Delete returned error: %v", err)
 	}

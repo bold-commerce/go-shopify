@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -13,7 +14,7 @@ const abandonedCheckoutsBasePath = "checkouts"
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/abandoned-checkouts
 type AbandonedCheckoutService interface {
-	List(interface{}) ([]AbandonedCheckout, error)
+	List(context.Context, interface{}) ([]AbandonedCheckout, error)
 }
 
 // AbandonedCheckoutServiceOp handles communication with the checkout related methods of
@@ -29,7 +30,7 @@ type AbandonedCheckoutsResource struct {
 
 // AbandonedCheckout represents a Shopify abandoned checkout
 type AbandonedCheckout struct {
-	ID                       int64                `json:"id,omitempty"`
+	Id                       uint64               `json:"id,omitempty"`
 	Token                    string               `json:"token,omitempty"`
 	CartToken                string               `json:"cart_token,omitempty"`
 	Email                    string               `json:"email,omitempty"`
@@ -47,10 +48,10 @@ type AbandonedCheckout struct {
 	Currency                 string               `json:"currency,omitempty"`
 	CompletedAt              *time.Time           `json:"completed_at,omitempty"`
 	ClosedAt                 *time.Time           `json:"closed_at,omitempty"`
-	UserID                   int64                `json:"user_id,omitempty"`
+	UserId                   uint64               `json:"user_id,omitempty"`
 	SourceIdentifier         string               `json:"source_identifier,omitempty"`
 	SourceUrl                string               `json:"source_url,omitempty"`
-	DeviceID                 int64                `json:"device_id,omitempty"`
+	DeviceId                 uint64               `json:"device_id,omitempty"`
 	Phone                    string               `json:"phone,omitempty"`
 	CustomerLocale           string               `json:"customer_locale,omitempty"`
 	Name                     string               `json:"name,omitempty"`
@@ -71,7 +72,7 @@ type AbandonedCheckout struct {
 	ShippingAddress          *Address             `json:"shipping_address,omitempty"`
 	Customer                 *Customer            `json:"customer,omitempty"`
 	SmsMarketingConsent      *SmsMarketingConsent `json:"sms_marketing_consent,omitempty"`
-	AdminGraphqlApiID        string               `json:"admin_graphql_api_id,omitempty"`
+	AdminGraphqlApiId        string               `json:"admin_graphql_api_id,omitempty"`
 	DefaultAddress           *CustomerAddress     `json:"default_address,omitempty"`
 }
 
@@ -83,9 +84,9 @@ type SmsMarketingConsent struct {
 }
 
 // Get abandoned checkout list
-func (s *AbandonedCheckoutServiceOp) List(options interface{}) ([]AbandonedCheckout, error) {
+func (s *AbandonedCheckoutServiceOp) List(ctx context.Context, options interface{}) ([]AbandonedCheckout, error) {
 	path := fmt.Sprintf("/%s.json", abandonedCheckoutsBasePath)
 	resource := new(AbandonedCheckoutsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.AbandonedCheckouts, err
 }

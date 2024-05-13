@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -9,16 +10,16 @@ import (
 )
 
 func imageTests(t *testing.T, image Image) {
-	// Check that ID is set
-	expectedImageID := int64(1)
-	if image.ID != expectedImageID {
-		t.Errorf("Image.ID returned %+v, expected %+v", image.ID, expectedImageID)
+	// Check that Id is set
+	expectedImageId := uint64(1)
+	if image.Id != expectedImageId {
+		t.Errorf("Image.Id returned %+v, expected %+v", image.Id, expectedImageId)
 	}
 
 	// Check that product_id is set
-	expectedProductID := int64(1)
-	if image.ProductID != expectedProductID {
-		t.Errorf("Image.ProductID returned %+v, expected %+v", image.ProductID, expectedProductID)
+	expectedProductId := uint64(1)
+	if image.ProductId != expectedProductId {
+		t.Errorf("Image.ProductId returned %+v, expected %+v", image.ProductId, expectedProductId)
 	}
 
 	// Check that position is set
@@ -46,7 +47,7 @@ func imageTests(t *testing.T, image Image) {
 	}
 
 	// Check that variant ids are set
-	expectedVariantIds := make([]int64, 2)
+	expectedVariantIds := make([]uint64, 2)
 	expectedVariantIds[0] = 808950810
 	expectedVariantIds[1] = 808950811
 
@@ -55,6 +56,11 @@ func imageTests(t *testing.T, image Image) {
 	}
 	if image.VariantIds[1] != expectedVariantIds[1] {
 		t.Errorf("Image.VariantIds[0] returned %+v, expected %+v", image.VariantIds[1], expectedVariantIds[1])
+	}
+
+	expectedAlt := "new alt tag content"
+	if image.Alt != expectedAlt {
+		t.Errorf("Image.Alt returned %+v, expected %+v", image.Alt, expectedSrc)
 	}
 
 	// Check that CreatedAt date is set
@@ -77,7 +83,7 @@ func TestImageList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("images.json")))
 
-	images, err := client.Image.List(1, nil)
+	images, err := client.Image.List(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Images.List returned error: %v", err)
 	}
@@ -104,7 +110,7 @@ func TestImageCount(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 1}`))
 
-	cnt, err := client.Image.Count(1, nil)
+	cnt, err := client.Image.Count(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Image.Count returned error: %v", err)
 	}
@@ -115,7 +121,7 @@ func TestImageCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Image.Count(1, CountOptions{CreatedAtMin: date})
+	cnt, err = client.Image.Count(context.Background(), 1, CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Image.Count returned %d, expected %d", cnt, expected)
 	}
@@ -133,7 +139,7 @@ func TestImageGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
-	image, err := client.Image.Get(1, 1, nil)
+	image, err := client.Image.Get(context.Background(), 1, 1, nil)
 	if err != nil {
 		t.Errorf("Image.Get returned error: %v", err)
 	}
@@ -148,7 +154,7 @@ func TestImageCreate(t *testing.T) {
 	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
-	variantIds := make([]int64, 2)
+	variantIds := make([]uint64, 2)
 	variantIds[0] = 808950810
 	variantIds[1] = 808950811
 
@@ -156,7 +162,7 @@ func TestImageCreate(t *testing.T) {
 		Src:        "https://cdn.shopify.com/s/files/1/0006/9093/3842/products/ipod-nano.png?v=1500937783",
 		VariantIds: variantIds,
 	}
-	returnedImage, err := client.Image.Create(1, image)
+	returnedImage, err := client.Image.Create(context.Background(), 1, image)
 	if err != nil {
 		t.Errorf("Image.Create returned error %v", err)
 	}
@@ -172,16 +178,16 @@ func TestImageUpdate(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("image.json")))
 
 	// Take an existing image
-	variantIds := make([]int64, 2)
+	variantIds := make([]uint64, 2)
 	variantIds[0] = 808950810
 	variantIds[1] = 457924702
 	existingImage := Image{
-		ID:         1,
+		Id:         1,
 		VariantIds: variantIds,
 	}
 	// And update it
 	existingImage.VariantIds[1] = 808950811
-	returnedImage, err := client.Image.Update(1, existingImage)
+	returnedImage, err := client.Image.Update(context.Background(), 1, existingImage)
 	if err != nil {
 		t.Errorf("Image.Update returned error %v", err)
 	}
@@ -196,7 +202,7 @@ func TestImageDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/products/1/images/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Image.Delete(1, 1)
+	err := client.Image.Delete(context.Background(), 1, 1)
 	if err != nil {
 		t.Errorf("Image.Delete returned error: %v", err)
 	}

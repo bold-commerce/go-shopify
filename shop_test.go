@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -16,13 +17,13 @@ func TestShopGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shop.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("shop.json")))
 
-	shop, err := client.Shop.Get(nil)
+	shop, err := client.Shop.Get(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Shop.Get returned error: %v", err)
 	}
 
 	// Check that dates are parsed
-	d := time.Date(2007, time.December, 31, 19, 00, 00, 0, time.UTC)
+	d := time.Date(2007, time.December, 31, 19, 0o0, 0o0, 0, time.UTC)
 	if !d.Equal(*shop.CreatedAt) {
 		t.Errorf("Shop.CreatedAt returned %+v, expected %+v", shop.CreatedAt, d)
 	}
@@ -33,7 +34,7 @@ func TestShopGet(t *testing.T) {
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(690933842), shop.ID},
+		{"Id", uint64(690933842), shop.Id},
 		{"ShopOwner", "Steve Jobs", shop.ShopOwner},
 		{"Address1", "1 Infinite Loop", shop.Address1},
 		{"Name", "Apple Computers", shop.Name},
@@ -63,12 +64,12 @@ func TestShopListMetafields(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/metafields.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafields": [{"id":1},{"id":2}]}`))
 
-	metafields, err := client.Shop.ListMetafields(1, nil)
+	metafields, err := client.Shop.ListMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Shop.ListMetafields() returned error: %v", err)
 	}
 
-	expected := []Metafield{{ID: 1}, {ID: 2}}
+	expected := []Metafield{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(metafields, expected) {
 		t.Errorf("Shop.ListMetafields() returned %+v, expected %+v", metafields, expected)
 	}
@@ -88,7 +89,7 @@ func TestShopCountMetafields(t *testing.T) {
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Shop.CountMetafields(1, nil)
+	cnt, err := client.Shop.CountMetafields(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Shop.CountMetafields() returned error: %v", err)
 	}
@@ -99,7 +100,7 @@ func TestShopCountMetafields(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Shop.CountMetafields(1, CountOptions{CreatedAtMin: date})
+	cnt, err = client.Shop.CountMetafields(context.Background(), 1, CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Shop.CountMetafields() returned error: %v", err)
 	}
@@ -117,12 +118,12 @@ func TestShopGetMetafield(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"metafield": {"id":2}}`))
 
-	metafield, err := client.Shop.GetMetafield(1, 2, nil)
+	metafield, err := client.Shop.GetMetafield(context.Background(), 1, 2, nil)
 	if err != nil {
 		t.Errorf("Shop.GetMetafield() returned error: %v", err)
 	}
 
-	expected := &Metafield{ID: 2}
+	expected := &Metafield{Id: 2}
 	if !reflect.DeepEqual(metafield, expected) {
 		t.Errorf("Shop.GetMetafield() returned %+v, expected %+v", metafield, expected)
 	}
@@ -142,7 +143,7 @@ func TestShopCreateMetafield(t *testing.T) {
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Shop.CreateMetafield(1, metafield)
+	returnedMetafield, err := client.Shop.CreateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Shop.CreateMetafield() returned error: %v", err)
 	}
@@ -158,14 +159,14 @@ func TestShopUpdateMetafield(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
 
 	metafield := Metafield{
-		ID:        2,
+		Id:        2,
 		Key:       "app_key",
 		Value:     "app_value",
 		Type:      MetafieldTypeSingleLineTextField,
 		Namespace: "affiliates",
 	}
 
-	returnedMetafield, err := client.Shop.UpdateMetafield(1, metafield)
+	returnedMetafield, err := client.Shop.UpdateMetafield(context.Background(), 1, metafield)
 	if err != nil {
 		t.Errorf("Shop.UpdateMetafield() returned error: %v", err)
 	}
@@ -180,7 +181,7 @@ func TestShopDeleteMetafield(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/metafields/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Shop.DeleteMetafield(1, 2)
+	err := client.Shop.DeleteMetafield(context.Background(), 1, 2)
 	if err != nil {
 		t.Errorf("Shop.DeleteMetafield() returned error: %v", err)
 	}

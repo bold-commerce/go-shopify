@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -20,13 +21,125 @@ func TestOrderRiskListError(t *testing.T) {
 
 	expectedErrMessage := "Unknown Error"
 
-	orders, err := client.OrderRisk.List(450789469, nil)
+	orders, err := client.OrderRisk.List(context.Background(), 450789469, nil)
 	if orders != nil {
 		t.Errorf("OrderRisk.List returned orders, expected nil: %v", err)
 	}
 
 	if err == nil || err.Error() != expectedErrMessage {
 		t.Errorf("OrderRisk.List err returned %+v, expected %+v", err, expectedErrMessage)
+	}
+}
+
+func TestOrderRiskListAll(t *testing.T) {
+	setup()
+	defer teardown()
+
+	listURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/450789469/risks.json", client.pathPrefix)
+
+	cases := []struct {
+		name                string
+		expectedOrderRisks  []OrderRisk
+		expectedRequestURLs []string
+		expectedLinkHeaders []string
+		expectedBodies      []string
+		expectedErr         error
+	}{
+		{
+			name: "Pulls the next page",
+			expectedRequestURLs: []string{
+				listURL,
+				fmt.Sprintf("%s?page_info=pg2", listURL),
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="next"`,
+				`<http://valid.url?page_info=pg1>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"risks": [{"id":1},{"id":2}]}`,
+				`{"risks": [{"id":3},{"id":4}]}`,
+			},
+			expectedOrderRisks: []OrderRisk{{Id: 1}, {Id: 2}, {Id: 3}, {Id: 4}},
+			expectedErr:        nil,
+		},
+		{
+			name: "Stops when there is not a next page",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?page_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"risks": [{"id":1}]}`,
+			},
+			expectedOrderRisks: []OrderRisk{{Id: 1}},
+			expectedErr:        nil,
+		},
+		{
+			name: "Returns errors when required",
+			expectedRequestURLs: []string{
+				listURL,
+			},
+			expectedLinkHeaders: []string{
+				`<http://valid.url?paage_info=pg2>; rel="previous"`,
+			},
+			expectedBodies: []string{
+				`{"risks": []}`,
+			},
+			expectedOrderRisks: []OrderRisk{},
+			expectedErr:        errors.New("page_info is missing"),
+		},
+	}
+
+	for i, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if len(c.expectedRequestURLs) != len(c.expectedLinkHeaders) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected link headers (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedLinkHeaders),
+				)
+
+				return
+			}
+
+			if len(c.expectedRequestURLs) != len(c.expectedBodies) {
+				t.Errorf(
+					"test case must have the same number of expected request urls (%d) as expected bodies (%d)",
+					len(c.expectedRequestURLs),
+					len(c.expectedBodies),
+				)
+
+				return
+			}
+
+			for i := range c.expectedRequestURLs {
+				response := &http.Response{
+					StatusCode: 200,
+					Body:       httpmock.NewRespBodyFromString(c.expectedBodies[i]),
+					Header: http.Header{
+						"Link": {c.expectedLinkHeaders[i]},
+					},
+				}
+
+				httpmock.RegisterResponder("GET", c.expectedRequestURLs[i], httpmock.ResponderFromResponse(response))
+			}
+
+			risks, err := client.OrderRisk.ListAll(context.Background(), 450789469, nil)
+			if !reflect.DeepEqual(risks, c.expectedOrderRisks) {
+				t.Errorf("test %d OrderRisk.ListAll orders returned %+v, expected %+v", i, risks, c.expectedOrderRisks)
+			}
+
+			if (c.expectedErr != nil || err != nil) && err.Error() != c.expectedErr.Error() {
+				t.Errorf(
+					"test %d OrderRisk.ListAll err returned %+v, expected %+v",
+					i,
+					err,
+					c.expectedErr,
+				)
+			}
+		})
 	}
 }
 
@@ -125,7 +238,7 @@ func TestOrderRiskListWithPagination(t *testing.T) {
 
 		httpmock.RegisterResponder("GET", listURL, httpmock.ResponderFromResponse(response))
 
-		orderRisks, pagination, err := client.OrderRisk.ListWithPagination(450789469, nil)
+		orderRisks, pagination, err := client.OrderRisk.ListWithPagination(context.Background(), 450789469, nil)
 		if !reflect.DeepEqual(orderRisks, c.expectedOrders) {
 			t.Errorf("test %d OrderRisk.ListWithPagination OrderRisk returned %+v, expected %+v", i, orderRisks, c.expectedOrders)
 		}
@@ -157,7 +270,7 @@ func TestOrderRiskList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/450789469/risks.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("order_risks.json")))
 
-	orderRisks, err := client.OrderRisk.List(450789469, nil)
+	orderRisks, err := client.OrderRisk.List(context.Background(), 450789469, nil)
 	if err != nil {
 		t.Errorf("OrderRisk.List returned error: %v", err)
 	}
@@ -216,7 +329,7 @@ func TestOrderRiskListOptions(t *testing.T) {
 		},
 	}
 
-	orderRisks, err := client.OrderRisk.List(450789469, options)
+	orderRisks, err := client.OrderRisk.List(context.Background(), 450789469, options)
 	if err != nil {
 		t.Errorf("OrderRisk.List returned error: %v", err)
 	}
@@ -259,7 +372,7 @@ func TestOrderRiskGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/450789469/risks/284138680.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("order_risk.json")))
 
-	orderRisk, err := client.OrderRisk.Get(450789469, 284138680, nil)
+	orderRisk, err := client.OrderRisk.Get(context.Background(), 450789469, 284138680, nil)
 	if err != nil {
 		t.Errorf("OrderRisk.List returned error: %v", err)
 	}
@@ -291,7 +404,7 @@ func TestOrderRiskCreate(t *testing.T) {
 		Id: 1,
 	}
 
-	o, err := client.OrderRisk.Create(450789469, orderRisk)
+	o, err := client.OrderRisk.Create(context.Background(), 450789469, orderRisk)
 	if err != nil {
 		t.Errorf("OrderRisk.Create returned error: %v", err)
 	}
@@ -315,7 +428,7 @@ func TestOrderRiskUpdate(t *testing.T) {
 		Recommendation: OrderRecommendationAccept,
 	}
 
-	o, err := client.OrderRisk.Update(1, 2, orderRisk)
+	o, err := client.OrderRisk.Update(context.Background(), 1, 2, orderRisk)
 	if err != nil {
 		t.Errorf("Order.Update returned error: %v", err)
 	}
@@ -333,7 +446,7 @@ func TestOrderRiskDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/risks/2.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.OrderRisk.Delete(1, 2)
+	err := client.OrderRisk.Delete(context.Background(), 1, 2)
 	if err != nil {
 		t.Errorf("Order.Delete returned error: %v", err)
 	}

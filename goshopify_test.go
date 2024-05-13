@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
@@ -48,7 +49,7 @@ func setup() {
 		Scope:       "read_products",
 		Password:    "privateapppassword",
 	}
-	client = NewClient(app, "fooshop", "abcd",
+	client = MustNewClient(app, "fooshop", "abcd",
 		WithVersion(testApiVersion),
 		WithRetry(maxRetries))
 	httpmock.ActivateNonDefault(client.Client)
@@ -67,34 +68,34 @@ func loadFixture(filename string) []byte {
 }
 
 func TestNewClient(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
 func TestNewClientWithNoToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
 func TestAppNewClient(t *testing.T) {
-	testClient := app.NewClient("fooshop", "abcd", WithVersion(testApiVersion))
+	testClient, _ := app.NewClient("fooshop", "abcd", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
 func TestAppNewClientWithNoToken(t *testing.T) {
-	testClient := app.NewClient("fooshop", "", WithVersion(testApiVersion))
+	testClient, _ := app.NewClient("fooshop", "", WithVersion(testApiVersion))
 	expected := "https://fooshop.myshopify.com"
 	if testClient.baseURL.String() != expected {
-		t.Errorf("NewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
+		t.Errorf("MustNewClient BaseURL = %v, expected %v", testClient.baseURL.String(), expected)
 	}
 }
 
@@ -112,13 +113,13 @@ func TestBadShopNamePanic(t *testing.T) {
 			"foo, shop, stuff commas",
 		} {
 			tried = shopName
-			_ = NewClient(app, shopName, "abcd", WithVersion(testApiVersion))
+			_ = MustNewClient(app, shopName, "abcd", WithVersion(testApiVersion))
 		}
 	}()
 }
 
 func TestNewRequest(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -130,7 +131,7 @@ func TestNewRequest(t *testing.T) {
 		Limit int `url:"limit"`
 	}
 
-	req, err := testClient.NewRequest("GET", inURL, inBody, extraOptions{Limit: 10})
+	req, err := testClient.NewRequest(context.Background(), "GET", inURL, inBody, extraOptions{Limit: 10})
 	if err != nil {
 		t.Fatalf("NewRequest(%v) err = %v, expected nil", inURL, err)
 	}
@@ -161,7 +162,7 @@ func TestNewRequest(t *testing.T) {
 }
 
 func TestNewRequestForPrivateApp(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "", WithVersion(testApiVersion))
 
 	inURL, outURL := "foo?page=1", "https://fooshop.myshopify.com/foo?limit=10&page=1"
 	inBody := struct {
@@ -173,7 +174,7 @@ func TestNewRequestForPrivateApp(t *testing.T) {
 		Limit int `url:"limit"`
 	}
 
-	req, err := testClient.NewRequest("GET", inURL, inBody, extraOptions{Limit: 10})
+	req, err := testClient.NewRequest(context.Background(), "GET", inURL, inBody, extraOptions{Limit: 10})
 	if err != nil {
 		t.Fatalf("NewRequest(%v) err = %v, expected nil", inURL, err)
 	}
@@ -218,9 +219,9 @@ func TestNewRequestForPrivateApp(t *testing.T) {
 }
 
 func TestNewRequestMissingToken(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "", WithVersion(testApiVersion))
 
-	req, _ := testClient.NewRequest("GET", "/foo", nil, nil)
+	req, _ := testClient.NewRequest(context.Background(), "GET", "/foo", nil, nil)
 
 	// Test token is not attached to the request
 	token := req.Header["X-Shopify-Access-Token"]
@@ -230,7 +231,7 @@ func TestNewRequestMissingToken(t *testing.T) {
 }
 
 func TestNewRequestError(t *testing.T) {
-	testClient := NewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithVersion(testApiVersion))
 
 	cases := []struct {
 		method  string
@@ -245,7 +246,7 @@ func TestNewRequestError(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		_, err := testClient.NewRequest(c.method, c.inURL, c.body, c.options)
+		_, err := testClient.NewRequest(context.Background(), c.method, c.inURL, c.body, c.options)
 
 		if err == nil {
 			t.Errorf("NewRequest(%v, %v, %v, %v) err = %v, expected error", c.method, c.inURL, c.body, c.options, err)
@@ -330,7 +331,7 @@ func TestDo(t *testing.T) {
 		httpmock.RegisterResponder("GET", shopUrl, c.responder)
 
 		body := new(MyStruct)
-		req, err := client.NewRequest("GET", c.url, nil, nil)
+		req, err := client.NewRequest(context.Background(), "GET", c.url, nil, nil)
 		if err != nil {
 			t.Error("error creating request: ", err)
 		}
@@ -455,7 +456,7 @@ func TestRetry(t *testing.T) {
 		retries = c.retries
 		httpmock.RegisterResponder("GET", fmt.Sprintf(urlFormat, c.relPath), c.responder)
 		body := new(MyStruct)
-		req, err := client.NewRequest("GET", c.relPath, nil, nil)
+		req, err := client.NewRequest(context.Background(), "GET", c.relPath, nil, nil)
 		if err != nil {
 			t.Error("error creating request: ", err)
 		}
@@ -504,13 +505,13 @@ func TestRetryPost(t *testing.T) {
 		},
 	}
 
-	testClient := NewClient(app, "fooshop", "abcd", WithRetry(2))
+	testClient := MustNewClient(app, "fooshop", "abcd", WithRetry(2))
 	httpmock.ActivateNonDefault(testClient.Client)
 	shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", u)
 	httpmock.RegisterResponder("POST", shopUrl, responder)
 
 	testBody := []byte(`{"foo": "bar"}`)
-	req, err := testClient.NewRequest("POST", u, testBody, nil)
+	req, err := testClient.NewRequest(context.Background(), "POST", u, testBody, nil)
 	if err != nil {
 		t.Errorf("TestRetryPost(): errored %s", err)
 	}
@@ -529,12 +530,12 @@ func TestClientDoAutoApiVersion(t *testing.T) {
 	}
 	expected := testApiVersion
 
-	testClient := NewClient(app, "fooshop", "abcd")
+	testClient := MustNewClient(app, "fooshop", "abcd")
 	httpmock.ActivateNonDefault(testClient.Client)
 	shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", u)
 	httpmock.RegisterResponder("GET", shopUrl, responder)
 
-	req, err := testClient.NewRequest("GET", u, nil, nil)
+	req, err := testClient.NewRequest(context.Background(), "GET", u, nil, nil)
 	if err != nil {
 		t.Errorf("TestClientDoApiVersion(): errored %s", err)
 	}
@@ -608,7 +609,7 @@ func TestCustomHTTPClientDo(t *testing.T) {
 		httpmock.RegisterResponder("GET", shopUrl, c.responder)
 
 		body := new(MyStruct)
-		req, err := client.NewRequest("GET", c.url, nil, nil)
+		req, err := client.NewRequest(context.Background(), "GET", c.url, nil, nil)
 		if err != nil {
 			t.Fatal(c.url, err)
 		}
@@ -687,7 +688,7 @@ func TestCreateAndDo(t *testing.T) {
 	for _, c := range cases {
 		httpmock.RegisterResponder("GET", mockPrefix+c.url, c.responder)
 		body := new(MyStruct)
-		err := client.CreateAndDo("GET", c.url, nil, c.options, body)
+		err := client.CreateAndDo(context.Background(), "GET", c.url, nil, c.options, body)
 
 		if err != nil && fmt.Sprint(err) != fmt.Sprint(c.expected) {
 			t.Errorf("CreateAndDo(): expected error %v, actual %v", c.expected, err)
@@ -699,7 +700,7 @@ func TestCreateAndDo(t *testing.T) {
 	// test invalid invalid protocol
 	httpmock.RegisterResponder("GET", "://fooshop.myshopify.com/foo/2", httpmock.NewStringResponder(200, ""))
 	body := new(MyStruct)
-	_, err := client.NewRequest("GET", "://fooshop.myshopify.com/foo/2", body, nil)
+	_, err := client.NewRequest(context.Background(), "GET", "://fooshop.myshopify.com/foo/2", body, nil)
 
 	expected := errors.New("parse \"://fooshop.myshopify.com/foo/2\": missing protocol scheme")
 
@@ -725,7 +726,6 @@ func TestResponseErrorStructError(t *testing.T) {
 	if !reflect.DeepEqual(res, expected) {
 		t.Errorf("ResponseError returned  %+v, expected %+v", res, expected)
 	}
-
 }
 
 func TestResponseErrorError(t *testing.T) {
@@ -838,7 +838,7 @@ func TestCount(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
 	// Test without options
-	cnt, err := client.Count("foocount", nil)
+	cnt, err := client.Count(context.Background(), "foocount", nil)
 	if err != nil {
 		t.Errorf("Client.Count returned error: %v", err)
 	}
@@ -850,7 +850,7 @@ func TestCount(t *testing.T) {
 
 	// Test with options
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Count("foocount", CountOptions{CreatedAtMin: date})
+	cnt, err = client.Count(context.Background(), "foocount", CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Client.Count returned error: %v", err)
 	}
@@ -934,14 +934,13 @@ func TestDoRateLimit(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.description, func(t *testing.T) {
-
 			shopUrl := fmt.Sprintf("https://fooshop.myshopify.com/%v", c.url)
 			httpmock.RegisterResponder("GET", shopUrl, c.responder)
 
 			var reqBody struct {
 				Foo string `json:"foo"`
 			}
-			req, _ := client.NewRequest("GET", c.url, nil, nil)
+			req, _ := client.NewRequest(context.Background(), "GET", c.url, nil, nil)
 			err := client.Do(req, reqBody)
 
 			if err != nil {
@@ -979,7 +978,7 @@ func TestListWithPagination(t *testing.T) {
 			}))
 
 	var locations LocationsResource
-	pagination, err := client.ListWithPagination("locations", &locations, nil)
+	pagination, err := client.ListWithPagination(context.Background(), "locations", &locations, nil)
 	if err != nil {
 		t.Fatalf("Client.ListWithPagination returned error: %v", err)
 	}

@@ -1,6 +1,9 @@
 package goshopify
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 const (
 	assignedFulfillmentOrderBasePath = "assigned_fulfillment_orders"
@@ -10,23 +13,23 @@ const (
 // of the Shopify API.
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/assignedfulfillmentorder
 type AssignedFulfillmentOrderService interface {
-	Get(interface{}) ([]AssignedFulfillmentOrder, error)
+	Get(context.Context, interface{}) ([]AssignedFulfillmentOrder, error)
 }
 
 type AssignedFulfillmentOrder struct {
-	Id                 int64                               `json:"id,omitempty"`
-	AssignedLocationId int64                               `json:"assigned_location_id,omitempty"`
+	Id                 uint64                              `json:"id,omitempty"`
+	AssignedLocationId uint64                              `json:"assigned_location_id,omitempty"`
 	Destination        AssignedFulfillmentOrderDestination `json:"destination,omitempty"`
 	LineItems          []AssignedFulfillmentOrderLineItem  `json:"line_items,omitempty"`
-	OrderId            int64                               `json:"order_id,omitempty"`
+	OrderId            uint64                              `json:"order_id,omitempty"`
 	RequestStatus      string                              `json:"request_status,omitempty"`
-	ShopId             int64                               `json:"shop_id,omitempty"`
+	ShopId             uint64                              `json:"shop_id,omitempty"`
 	Status             string                              `json:"status,omitempty"`
 }
 
 // AssignedFulfillmentOrderDestination represents a destination for a AssignedFulfillmentOrder
 type AssignedFulfillmentOrderDestination struct {
-	Id        int64  `json:"id,omitempty"`
+	Id        uint64 `json:"id,omitempty"`
 	Address1  string `json:"address1,omitempty"`
 	Address2  string `json:"address2,omitempty"`
 	City      string `json:"city,omitempty"`
@@ -42,13 +45,14 @@ type AssignedFulfillmentOrderDestination struct {
 
 // AssignedFulfillmentOrderLineItem represents a line item for a AssignedFulfillmentOrder
 type AssignedFulfillmentOrderLineItem struct {
-	Id                  int64 `json:"id,omitempty"`
-	ShopId              int64 `json:"shop_id,omitempty"`
-	FulfillmentOrderId  int64 `json:"fulfillment_order_id,omitempty"`
-	LineItemId          int64 `json:"line_item_id,omitempty"`
-	InventoryItemId     int64 `json:"inventory_item_id,omitempty"`
-	Quantity            int64 `json:"quantity,omitempty"`
-	FulfillableQuantity int64 `json:"fulfillable_quantity,omitempty"`
+	Id                  uint64 `json:"id,omitempty"`
+	ShopId              uint64 `json:"shop_id,omitempty"`
+	FulfillmentOrderId  uint64 `json:"fulfillment_order_id,omitempty"`
+	LineItemId          uint64 `json:"line_item_id,omitempty"`
+	InventoryItemId     uint64 `json:"inventory_item_id,omitempty"`
+	Quantity            uint64 `json:"quantity,omitempty"`
+	FulfillableQuantity uint64 `json:"fulfillable_quantity,omitempty"`
+	VariantId           uint64 `json:"variant_id,omitempty"`
 }
 
 // AssignedFulfillmentOrderResource represents the result from the assigned_fulfillment_order.json endpoint
@@ -68,9 +72,9 @@ type AssignedFulfillmentOrderServiceOp struct {
 }
 
 // Gets a list of all the fulfillment orders that are assigned to an app at the shop level
-func (s *AssignedFulfillmentOrderServiceOp) Get(options interface{}) ([]AssignedFulfillmentOrder, error) {
+func (s *AssignedFulfillmentOrderServiceOp) Get(ctx context.Context, options interface{}) ([]AssignedFulfillmentOrder, error) {
 	path := fmt.Sprintf("%s.json", assignedFulfillmentOrderBasePath)
 	resource := new(AssignedFulfillmentOrdersResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.AssignedFulfillmentOrders, err
 }

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -38,7 +39,7 @@ func TestCollectionGet(t *testing.T) {
 				}
 			}`))
 
-	collection, err := client.Collection.Get(1, nil)
+	collection, err := client.Collection.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Collection.Get returned error: %v", err)
 	}
@@ -48,7 +49,7 @@ func TestCollectionGet(t *testing.T) {
 
 	imageCreatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T15:01:45-05:00")
 	expected := &Collection{
-		ID:             25,
+		Id:             25,
 		Handle:         "more-than-5",
 		Title:          "More than $5",
 		UpdatedAt:      &updatedAt,
@@ -121,7 +122,7 @@ func TestCollectionListProducts(t *testing.T) {
 				]
 			}`))
 
-	products, err := client.Collection.ListProducts(1, nil)
+	products, err := client.Collection.ListProducts(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Collection.ListProducts returned error: %v", err)
 	}
@@ -134,7 +135,7 @@ func TestCollectionListProducts(t *testing.T) {
 
 	expected := []Product{
 		{
-			ID:             632910392,
+			Id:             632910392,
 			Title:          "The Best Product",
 			BodyHTML:       "<p>The best product available</p>",
 			Vendor:         "local-vendor",
@@ -147,8 +148,8 @@ func TestCollectionListProducts(t *testing.T) {
 			Tags:           "Best",
 			Options: []ProductOption{
 				{
-					ID:        6519940513924,
-					ProductID: 632910392,
+					Id:        6519940513924,
+					ProductId: 632910392,
 					Name:      "Title",
 					Position:  1,
 					Values:    nil,
@@ -157,25 +158,26 @@ func TestCollectionListProducts(t *testing.T) {
 			Variants: nil,
 			Images: []Image{
 				{
-					ID:         14601766043780,
-					ProductID:  632910392,
+					Id:         14601766043780,
+					ProductId:  632910392,
 					Position:   1,
 					CreatedAt:  &imageCreatedAt,
 					UpdatedAt:  &imageUpdatedAt,
 					Width:      480,
 					Height:     720,
 					Src:        "https://example/image.jpg",
-					VariantIds: []int64{32434329944196, 32434531893380},
+					VariantIds: []uint64{32434329944196, 32434531893380},
 				},
 			},
 			TemplateSuffix:    "special",
-			AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+			AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 		},
 	}
 	if !reflect.DeepEqual(products, expected) {
 		t.Errorf("Collection.ListProducts returned %+v, expected %+v", products, expected)
 	}
 }
+
 func TestCollectionListProductsError(t *testing.T) {
 	setup()
 	defer teardown()
@@ -188,7 +190,7 @@ func TestCollectionListProductsError(t *testing.T) {
 						some invalid json
 			}`))
 
-	products, err := client.Collection.ListProducts(1, nil)
+	products, err := client.Collection.ListProducts(context.Background(), 1, nil)
 
 	if len(products) > 0 {
 		t.Errorf("Collection.ListProducts returned products %v, expected no products to be returned", products)
@@ -199,6 +201,7 @@ func TestCollectionListProductsError(t *testing.T) {
 		t.Errorf("Collection.ListProducts err returned %v, expected %v", err, expectedError)
 	}
 }
+
 func TestListProductsWithPagination(t *testing.T) {
 	setup()
 	defer teardown()
@@ -256,7 +259,7 @@ func TestListProductsWithPagination(t *testing.T) {
 			},
 		}))
 
-	products, page, err := client.Collection.ListProductsWithPagination(1, nil)
+	products, page, err := client.Collection.ListProductsWithPagination(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Collection.ListProductsWithPagination returned error: %v", err)
 	}
@@ -269,7 +272,7 @@ func TestListProductsWithPagination(t *testing.T) {
 
 	expectedProducts := []Product{
 		{
-			ID:             632910392,
+			Id:             632910392,
 			Title:          "The Best Product",
 			BodyHTML:       "<p>The best product available</p>",
 			Vendor:         "local-vendor",
@@ -282,8 +285,8 @@ func TestListProductsWithPagination(t *testing.T) {
 			Tags:           "Best",
 			Options: []ProductOption{
 				{
-					ID:        6519940513924,
-					ProductID: 632910392,
+					Id:        6519940513924,
+					ProductId: 632910392,
 					Name:      "Title",
 					Position:  1,
 					Values:    nil,
@@ -292,19 +295,19 @@ func TestListProductsWithPagination(t *testing.T) {
 			Variants: nil,
 			Images: []Image{
 				{
-					ID:         14601766043780,
-					ProductID:  632910392,
+					Id:         14601766043780,
+					ProductId:  632910392,
 					Position:   1,
 					CreatedAt:  &imageCreatedAt,
 					UpdatedAt:  &imageUpdatedAt,
 					Width:      480,
 					Height:     720,
 					Src:        "https://example/image.jpg",
-					VariantIds: []int64{32434329944196, 32434531893380},
+					VariantIds: []uint64{32434329944196, 32434531893380},
 				},
 			},
 			TemplateSuffix:    "special",
-			AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+			AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 		},
 	}
 	if !reflect.DeepEqual(products, expectedProducts) {
@@ -316,7 +319,6 @@ func TestListProductsWithPagination(t *testing.T) {
 			PageInfo:     "pageInfoCode",
 			Page:         0,
 			Limit:        1,
-			SinceID:      0,
 			CreatedAtMin: time.Time{},
 			CreatedAtMax: time.Time{},
 			UpdatedAtMin: time.Time{},
@@ -324,7 +326,7 @@ func TestListProductsWithPagination(t *testing.T) {
 			Order:        "",
 			Fields:       "",
 			Vendor:       "",
-			IDs:          nil,
+			Ids:          nil,
 		},
 		PreviousPageOptions: nil,
 	}
@@ -345,7 +347,7 @@ func TestCollectionListProductsWithPaginationRequestError(t *testing.T) {
 						some invalid json
 			}`))
 
-	products, pagination, err := client.Collection.ListProductsWithPagination(1, nil)
+	products, pagination, err := client.Collection.ListProductsWithPagination(context.Background(), 1, nil)
 
 	if len(products) > 0 {
 		t.Errorf("Collection.ListProductsWithPagination returned products %v, expected no products to be returned", products)
@@ -376,7 +378,7 @@ func TestCollectionListProductsWithPaginationExtractionError(t *testing.T) {
 			},
 		}))
 
-	products, pagination, err := client.Collection.ListProductsWithPagination(1, nil)
+	products, pagination, err := client.Collection.ListProductsWithPagination(context.Background(), 1, nil)
 	if len(products) > 0 {
 		t.Errorf("Collection.ListProductsWithPagination returned products %v, expected no products to be returned", products)
 	}

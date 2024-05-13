@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -17,11 +18,11 @@ type ThemeListOptions struct {
 // of the Shopify API.
 // See: https://help.shopify.com/api/reference/theme
 type ThemeService interface {
-	List(interface{}) ([]Theme, error)
-	Create(Theme) (*Theme, error)
-	Get(int64, interface{}) (*Theme, error)
-	Update(Theme) (*Theme, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]Theme, error)
+	Create(context.Context, Theme) (*Theme, error)
+	Get(context.Context, uint64, interface{}) (*Theme, error)
+	Update(context.Context, Theme) (*Theme, error)
+	Delete(context.Context, uint64) error
 }
 
 // ThemeServiceOp handles communication with the theme related methods of
@@ -32,13 +33,13 @@ type ThemeServiceOp struct {
 
 // Theme represents a Shopify theme
 type Theme struct {
-	ID                int64      `json:"id"`
+	Id                uint64     `json:"id"`
 	Name              string     `json:"name"`
 	Previewable       bool       `json:"previewable"`
 	Processing        bool       `json:"processing"`
 	Role              string     `json:"role"`
-	ThemeStoreID      int64      `json:"theme_store_id"`
-	AdminGraphQLApiID string     `json:"admin_graphql_api_id"`
+	ThemeStoreId      uint64     `json:"theme_store_id"`
+	AdminGraphqlApiId string     `json:"admin_graphql_api_id"`
 	CreatedAt         *time.Time `json:"created_at"`
 	UpdatedAt         *time.Time `json:"updated_at"`
 }
@@ -54,41 +55,41 @@ type ThemesResource struct {
 }
 
 // List all themes
-func (s *ThemeServiceOp) List(options interface{}) ([]Theme, error) {
+func (s *ThemeServiceOp) List(ctx context.Context, options interface{}) ([]Theme, error) {
 	path := fmt.Sprintf("%s.json", themesBasePath)
 	resource := new(ThemesResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Themes, err
 }
 
 // Update a theme
-func (s *ThemeServiceOp) Create(theme Theme) (*Theme, error) {
+func (s *ThemeServiceOp) Create(ctx context.Context, theme Theme) (*Theme, error) {
 	path := fmt.Sprintf("%s.json", themesBasePath)
 	wrappedData := ThemeResource{Theme: &theme}
 	resource := new(ThemeResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Theme, err
 }
 
 // Get a theme
-func (s *ThemeServiceOp) Get(themeID int64, options interface{}) (*Theme, error) {
-	path := fmt.Sprintf("%s/%d.json", themesBasePath, themeID)
+func (s *ThemeServiceOp) Get(ctx context.Context, themeId uint64, options interface{}) (*Theme, error) {
+	path := fmt.Sprintf("%s/%d.json", themesBasePath, themeId)
 	resource := new(ThemeResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Theme, err
 }
 
 // Update a theme
-func (s *ThemeServiceOp) Update(theme Theme) (*Theme, error) {
-	path := fmt.Sprintf("%s/%d.json", themesBasePath, theme.ID)
+func (s *ThemeServiceOp) Update(ctx context.Context, theme Theme) (*Theme, error) {
+	path := fmt.Sprintf("%s/%d.json", themesBasePath, theme.Id)
 	wrappedData := ThemeResource{Theme: &theme}
 	resource := new(ThemeResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Theme, err
 }
 
 // Delete a theme
-func (s *ThemeServiceOp) Delete(themeID int64) error {
-	path := fmt.Sprintf("%s/%d.json", themesBasePath, themeID)
-	return s.client.Delete(path)
+func (s *ThemeServiceOp) Delete(ctx context.Context, themeId uint64) error {
+	path := fmt.Sprintf("%s/%d.json", themesBasePath, themeId)
+	return s.client.Delete(ctx, path)
 }

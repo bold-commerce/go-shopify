@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -9,16 +10,16 @@ import (
 // order endpoints  of the Shopify API.
 // https://shopify.dev/docs/api/admin-rest/2023-01/resources/fulfillmentorder#resource-object
 type FulfillmentOrderService interface {
-	List(int64, interface{}) ([]FulfillmentOrder, error)
-	Get(int64, interface{}) (*FulfillmentOrder, error)
-	Cancel(int64) (*FulfillmentOrder, error)
-	Close(int64, string) (*FulfillmentOrder, error)
-	Hold(int64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
-	Open(int64) (*FulfillmentOrder, error)
-	ReleaseHold(int64) (*FulfillmentOrder, error)
-	Reschedule(int64) (*FulfillmentOrder, error)
-	SetDeadline([]int64, time.Time) error
-	Move(int64, FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error)
+	List(context.Context, uint64, interface{}) ([]FulfillmentOrder, error)
+	Get(context.Context, uint64, interface{}) (*FulfillmentOrder, error)
+	Cancel(context.Context, uint64) (*FulfillmentOrder, error)
+	Close(context.Context, uint64, string) (*FulfillmentOrder, error)
+	Hold(context.Context, uint64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
+	Open(context.Context, uint64) (*FulfillmentOrder, error)
+	ReleaseHold(context.Context, uint64) (*FulfillmentOrder, error)
+	Reschedule(context.Context, uint64) (*FulfillmentOrder, error)
+	SetDeadline(context.Context, []uint64, time.Time) error
+	Move(context.Context, uint64, FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error)
 }
 
 // FulfillmentOrderHoldReason represents the reason for a fulfillment hold
@@ -39,18 +40,18 @@ type FulfillmentOrderServiceOp struct {
 }
 
 type FulfillmentOrderLineItemQuantity struct {
-	Id       int64 `json:"id"`
-	Quantity int64 `json:"quantity"`
+	Id       uint64 `json:"id"`
+	Quantity uint64 `json:"quantity"`
 }
 
 type FulfillmentOrderMoveRequest struct {
-	NewLocationId int64                              `json:"new_location_id"`
+	NewLocationId uint64                             `json:"new_location_id"`
 	LineItems     []FulfillmentOrderLineItemQuantity `json:"fulfillment_order_line_items,omitempty"`
 }
 
 // FulfillmentOrderDeliveryMethod represents a delivery method for a FulfillmentOrder
 type FulfillmentOrderDeliveryMethod struct {
-	Id                  int64     `json:"id,omitempty"`
+	Id                  uint64    `json:"id,omitempty"`
 	MethodType          string    `json:"method_type,omitempty"`
 	MinDeliveryDateTime time.Time `json:"min_delivery_date_time,omitempty"`
 	MaxDeliveryDateTime time.Time `json:"max_delivery_date_time,omitempty"`
@@ -58,7 +59,7 @@ type FulfillmentOrderDeliveryMethod struct {
 
 // FulfillmentOrderDestination represents a destination for a FulfillmentOrder
 type FulfillmentOrderDestination struct {
-	Id        int64  `json:"id,omitempty"`
+	Id        uint64 `json:"id,omitempty"`
 	Address1  string `json:"address1,omitempty"`
 	Address2  string `json:"address2,omitempty"`
 	City      string `json:"city,omitempty"`
@@ -85,14 +86,14 @@ type FulfillmentOrderInternationalDuties struct {
 
 // FulfillmentOrderLineItem represents a line item for a FulfillmentOrder
 type FulfillmentOrderLineItem struct {
-	Id                  int64 `json:"id,omitempty"`
-	ShopId              int64 `json:"shop_id,omitempty"`
-	FulfillmentOrderId  int64 `json:"fulfillment_order_id,omitempty"`
-	LineItemId          int64 `json:"line_item_id,omitempty"`
-	InventoryItemId     int64 `json:"inventory_item_id,omitempty"`
-	Quantity            int64 `json:"quantity,omitempty"`
-	FulfillableQuantity int64 `json:"fulfillable_quantity,omitempty"`
-	VariantId           int64 `json:"variant_id,omitempty"`
+	Id                  uint64 `json:"id,omitempty"`
+	ShopId              uint64 `json:"shop_id,omitempty"`
+	FulfillmentOrderId  uint64 `json:"fulfillment_order_id,omitempty"`
+	LineItemId          uint64 `json:"line_item_id,omitempty"`
+	InventoryItemId     uint64 `json:"inventory_item_id,omitempty"`
+	Quantity            uint64 `json:"quantity,omitempty"`
+	FulfillableQuantity uint64 `json:"fulfillable_quantity,omitempty"`
+	VariantId           uint64 `json:"variant_id,omitempty"`
 }
 
 // FulfillmentOrderMerchantRequest represents a MerchantRequest for a FulfillmentOrder
@@ -112,7 +113,7 @@ type FulfillmentOrderAssignedLocation struct {
 	Address2    string `json:"address2,omitempty"`
 	City        string `json:"city,omitempty"`
 	CountryCode string `json:"country_code,omitempty"`
-	LocationId  int64  `json:"location_id,omitempty"`
+	LocationId  uint64 `json:"location_id,omitempty"`
 	Name        string `json:"name,omitempty"`
 	Phone       string `json:"phone,omitempty"`
 	Province    string `json:"province,omitempty"`
@@ -121,9 +122,9 @@ type FulfillmentOrderAssignedLocation struct {
 
 // FulfillmentOrder represents a Shopify Fulfillment Order
 type FulfillmentOrder struct {
-	Id                  int64                               `json:"id,omitempty"`
+	Id                  uint64                              `json:"id,omitempty"`
 	AssignedLocation    FulfillmentOrderAssignedLocation    `json:"assigned_location,omitempty"`
-	AssignedLocationId  int64                               `json:"assigned_location_id,omitempty"`
+	AssignedLocationId  uint64                              `json:"assigned_location_id,omitempty"`
 	DeliveryMethod      FulfillmentOrderDeliveryMethod      `json:"delivery_method,omitempty"`
 	Destination         FulfillmentOrderDestination         `json:"destination,omitempty"`
 	FulfillAt           *time.Time                          `json:"fulfill_at,omitempty"`
@@ -132,9 +133,9 @@ type FulfillmentOrder struct {
 	InternationalDuties FulfillmentOrderInternationalDuties `json:"international_duties,omitempty"`
 	LineItems           []FulfillmentOrderLineItem          `json:"line_items,omitempty"`
 	MerchantRequests    []FulfillmentOrderMerchantRequest   `json:"merchant_requests,omitempty"`
-	OrderId             int64                               `json:"order_id,omitempty"`
+	OrderId             uint64                              `json:"order_id,omitempty"`
 	RequestStatus       string                              `json:"request_status,omitempty"`
-	ShopId              int64                               `json:"shop_id,omitempty"`
+	ShopId              uint64                              `json:"shop_id,omitempty"`
 	Status              string                              `json:"status,omitempty"`
 	SupportedActions    []string                            `json:"supported_actions,omitempty"`
 	CreatedAt           *time.Time                          `json:"created_at,omitempty"`
@@ -158,53 +159,53 @@ type FulfillmentOrderMoveResource struct {
 }
 
 // FulfillmentOrderPathPrefix returns the prefix for a fulfillmentOrder path
-func FulfillmentOrderPathPrefix(resource string, resourceID int64) string {
-	return fmt.Sprintf("%s/%d", resource, resourceID)
+func FulfillmentOrderPathPrefix(resource string, resourceId uint64) string {
+	return fmt.Sprintf("%s/%d", resource, resourceId)
 }
 
 // List gets FulfillmentOrder items for an order
-func (s *FulfillmentOrderServiceOp) List(orderId int64, options interface{}) ([]FulfillmentOrder, error) {
+func (s *FulfillmentOrderServiceOp) List(ctx context.Context, orderId uint64, options interface{}) ([]FulfillmentOrder, error) {
 	prefix := FulfillmentOrderPathPrefix("orders", orderId)
 	path := fmt.Sprintf("%s/fulfillment_orders.json", prefix)
 	resource := new(FulfillmentOrdersResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.FulfillmentOrders, err
 }
 
 // Get gets an individual fulfillment order
-func (s *FulfillmentOrderServiceOp) Get(fulfillmentID int64, options interface{}) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Get(ctx context.Context, fulfillmentId uint64, options interface{}) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.FulfillmentOrder, err
 }
 
 // Cancel cancels a fulfillment order
-func (s *FulfillmentOrderServiceOp) Cancel(fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Cancel(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/cancel.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Post(path, nil, resource)
+	err := s.client.Post(ctx, path, nil, resource)
 	return resource.FulfillmentOrder, err
 }
 
 // Close marks a fulfillment order as incomplete with an optional message
-func (s *FulfillmentOrderServiceOp) Close(fulfillmentID int64, message string) (*FulfillmentOrder, error) {
+func (s *FulfillmentOrderServiceOp) Close(ctx context.Context, fulfillmentId uint64, message string) (*FulfillmentOrder, error) {
 	req := struct {
 		Message string `json:"message,omitempty"`
 	}{
 		Message: message,
 	}
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/close.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Post(path, req, resource)
+	err := s.client.Post(ctx, path, req, resource)
 	return resource.FulfillmentOrder, err
 }
 
 // Hold applies a fulfillment hold on an open fulfillment order
-func (s *FulfillmentOrderServiceOp) Hold(fulfillmentID int64, notify bool, reason FulfillmentOrderHoldReason, notes string) (*FulfillmentOrder, error) {
+func (s *FulfillmentOrderServiceOp) Hold(ctx context.Context, fulfillmentId uint64, notify bool, reason FulfillmentOrderHoldReason, notes string) (*FulfillmentOrder, error) {
 	type holdRequest struct {
 		Reason         FulfillmentOrderHoldReason `json:"reason"`
 		ReasonNotes    string                     `json:"reason_notes,omitempty"`
@@ -219,65 +220,65 @@ func (s *FulfillmentOrderServiceOp) Hold(fulfillmentID int64, notify bool, reaso
 			NotifyMerchant: notify,
 		},
 	}
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/hold.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Post(path, req, resource)
+	err := s.client.Post(ctx, path, req, resource)
 	return resource.FulfillmentOrder, err
 }
 
 // Open marks the fulfillment order as open
-func (s *FulfillmentOrderServiceOp) Open(fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Open(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/open.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Post(path, nil, resource)
+	err := s.client.Post(ctx, path, nil, resource)
 	return resource.FulfillmentOrder, err
 }
 
 // ReleaseHold releases the fulfillment hold on a fulfillment order
-func (s *FulfillmentOrderServiceOp) ReleaseHold(fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) ReleaseHold(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/release_hold.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Post(path, nil, resource)
+	err := s.client.Post(ctx, path, nil, resource)
 	return resource.FulfillmentOrder, err
 }
 
 // Reschedule reschedules the fulfill_at time of a scheduled fulfillment order
-func (s *FulfillmentOrderServiceOp) Reschedule(fulfillmentID int64) (*FulfillmentOrder, error) {
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+func (s *FulfillmentOrderServiceOp) Reschedule(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrder, error) {
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/reschedule.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Post(path, nil, resource)
+	err := s.client.Post(ctx, path, nil, resource)
 	return resource.FulfillmentOrder, err
 }
 
 // SetDeadline sets deadline for fulfillment orders
-func (s *FulfillmentOrderServiceOp) SetDeadline(fulfillmentIDs []int64, deadline time.Time) error {
+func (s *FulfillmentOrderServiceOp) SetDeadline(ctx context.Context, fulfillmentIds []uint64, deadline time.Time) error {
 	req := struct {
-		FulfillmentOrderIds []int64   `json:"fulfillment_order_ids"`
+		FulfillmentOrderIds []uint64  `json:"fulfillment_order_ids"`
 		FulfillmentDeadline time.Time `json:"fulfillment_deadline"`
 	}{
-		FulfillmentOrderIds: fulfillmentIDs,
+		FulfillmentOrderIds: fulfillmentIds,
 		FulfillmentDeadline: deadline,
 	}
 	path := "fulfillment_orders/set_fulfillment_orders_deadline.json"
-	err := s.client.Post(path, req, nil)
+	err := s.client.Post(ctx, path, req, nil)
 	return err
 }
 
 // Move moves a fulfillment order to a new location
-func (s *FulfillmentOrderServiceOp) Move(fulfillmentID int64, moveRequest FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error) {
+func (s *FulfillmentOrderServiceOp) Move(ctx context.Context, fulfillmentId uint64, moveRequest FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error) {
 	wrappedRequest := struct {
 		FulfillmentOrder FulfillmentOrderMoveRequest `json:"fulfillment_order"`
 	}{
 		FulfillmentOrder: moveRequest,
 	}
 
-	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentID)
+	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/move.json", prefix)
 	resource := new(FulfillmentOrderMoveResource)
-	err := s.client.Post(path, wrappedRequest, resource)
+	err := s.client.Post(ctx, path, wrappedRequest, resource)
 	return resource, err
 }

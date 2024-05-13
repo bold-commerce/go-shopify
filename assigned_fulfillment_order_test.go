@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -9,10 +10,10 @@ import (
 )
 
 func AssignedFulfillmentOrderTests(t *testing.T, assignedFulfillmentOrder AssignedFulfillmentOrder) {
-	// Check that ID is assigned to the returned fulfillment
-	expectedInt := int64(255858046) // in assigned_fulfillment_orders.json fixture
+	// Check that Id is assigned to the returned fulfillment
+	expectedInt := uint64(255858046) // in assigned_fulfillment_orders.json fixture
 	if assignedFulfillmentOrder.Id != expectedInt {
-		t.Errorf("AssignedFulfillmentOrder.ID returned %+v, expected %+v", assignedFulfillmentOrder.Id, expectedInt)
+		t.Errorf("AssignedFulfillmentOrder.Id returned %+v, expected %+v", assignedFulfillmentOrder.Id, expectedInt)
 	}
 }
 
@@ -25,7 +26,7 @@ func TestAssignedFulfillmentOrderGet(t *testing.T) {
 
 	assignedFulfillmentOrderService := &AssignedFulfillmentOrderServiceOp{client: client}
 
-	assignedFulfillmentOrders, err := assignedFulfillmentOrderService.Get(nil)
+	assignedFulfillmentOrders, err := assignedFulfillmentOrderService.Get(context.Background(), nil)
 	if err != nil {
 		t.Errorf("AssignedFulfillmentOrder.List returned error: %v", err)
 	}
@@ -46,7 +47,7 @@ func TestAssignedFulfillmentOrderGet(t *testing.T) {
 
 // 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 
-// 	fulfillment, err := fulfillmentOrderService.Get(255858046, nil)
+// 	fulfillment, err := fulfillmentOrderService.Get(context.Background(), 255858046, nil)
 // 	if err != nil {
 // 		t.Errorf("FulfillmentOrder.Get returned error: %v", err)
 // 	}

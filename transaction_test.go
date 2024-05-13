@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -10,16 +11,16 @@ import (
 )
 
 func TransactionTests(t *testing.T, transaction Transaction) {
-	// Check that the ID is assigned to the returned transaction
-	expectedID := int64(389404469)
-	if transaction.ID != expectedID {
-		t.Errorf("Transaction.ID returned %+v, expected %+v", transaction.ID, expectedID)
+	// Check that the Id is assigned to the returned transaction
+	expectedId := uint64(389404469)
+	if transaction.Id != expectedId {
+		t.Errorf("Transaction.Id returned %+v, expected %+v", transaction.Id, expectedId)
 	}
 
-	// Check that the OrderID value is assigned to the returned transaction
-	expectedOrderID := int64(450789469)
-	if transaction.OrderID != expectedOrderID {
-		t.Errorf("Transaction.OrderID returned %+v, expected %+v", transaction.OrderID, expectedOrderID)
+	// Check that the OrderId value is assigned to the returned transaction
+	expectedOrderId := uint64(450789469)
+	if transaction.OrderId != expectedOrderId {
+		t.Errorf("Transaction.OrderId returned %+v, expected %+v", transaction.OrderId, expectedOrderId)
 	}
 
 	// Check that the Amount value is assigned to the returned transaction
@@ -76,28 +77,28 @@ func TransactionTests(t *testing.T, transaction Transaction) {
 		t.Errorf("Transaction.Currency returned %+v, expected %+v", transaction.Currency, expectedCurrency)
 	}
 
-	// Check that the LocationID value is assigned to the returned transaction
-	var expectedLocationID *int64
-	if transaction.LocationID != expectedLocationID {
-		t.Errorf("Transaction.LocationID returned %+v, expected %+v", transaction.LocationID, expectedLocationID)
+	// Check that the LocationId value is assigned to the returned transaction
+	var expectedLocationId *int64
+	if transaction.LocationId != expectedLocationId {
+		t.Errorf("Transaction.LocationId returned %+v, expected %+v", transaction.LocationId, expectedLocationId)
 	}
 
-	// Check that the UserID value is assigned to the returned transaction
-	var expectedUserID *int64
-	if transaction.UserID != expectedUserID {
-		t.Errorf("Transaction.UserID returned %+v, expected %+v", transaction.UserID, expectedUserID)
+	// Check that the UserId value is assigned to the returned transaction
+	var expectedUserId *int64
+	if transaction.UserId != expectedUserId {
+		t.Errorf("Transaction.UserId returned %+v, expected %+v", transaction.UserId, expectedUserId)
 	}
 
-	// Check that the ParentID value is assigned to the returned transaction
-	var expectedParentID *int64
-	if transaction.ParentID != expectedParentID {
-		t.Errorf("Transaction.ParentID returned %+v, expected %+v", transaction.ParentID, expectedParentID)
+	// Check that the ParentId value is assigned to the returned transaction
+	var expectedParentId *int64
+	if transaction.ParentId != expectedParentId {
+		t.Errorf("Transaction.ParentId returned %+v, expected %+v", transaction.ParentId, expectedParentId)
 	}
 
-	// Check that the DeviceID value is assigned to the returned transaction
-	var expectedDeviceID *int64
-	if transaction.DeviceID != expectedDeviceID {
-		t.Errorf("Transacion.DeviceID returned %+v, expected %+v", transaction.DeviceID, expectedDeviceID)
+	// Check that the DeviceId value is assigned to the returned transaction
+	var expectedDeviceId *int64
+	if transaction.DeviceId != expectedDeviceId {
+		t.Errorf("Transacion.DeviceId returned %+v, expected %+v", transaction.DeviceId, expectedDeviceId)
 	}
 
 	// Check that the ErrorCode value is assigned to the returned transaction
@@ -134,7 +135,7 @@ func TestTransactionList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/transactions.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("transactions.json")))
 
-	transactions, err := client.Transaction.List(1, nil)
+	transactions, err := client.Transaction.List(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Transaction.List returned error: %v", err)
 	}
@@ -151,7 +152,7 @@ func TestTransactionCount(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/transactions/count.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Transaction.Count(1, nil)
+	cnt, err := client.Transaction.Count(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Transaction.Count returned error: %v", err)
 	}
@@ -169,7 +170,7 @@ func TestTransactionGet(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/transactions/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("transaction.json")))
 
-	transaction, err := client.Transaction.Get(1, 1, nil)
+	transaction, err := client.Transaction.Get(context.Background(), 1, 1, nil)
 	if err != nil {
 		t.Errorf("Transaction.Get returned error: %v", err)
 	}
@@ -189,7 +190,7 @@ func TestTransactionCreate(t *testing.T) {
 	transaction := Transaction{
 		Amount: &amount,
 	}
-	result, err := client.Transaction.Create(1, transaction)
+	result, err := client.Transaction.Create(context.Background(), 1, transaction)
 	if err != nil {
 		t.Errorf("Transaction.Create returned error: %+v", err)
 	}

@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -12,11 +13,11 @@ const locationsBasePath = "locations"
 // See: https://help.shopify.com/en/api/reference/inventory/location
 type LocationService interface {
 	// Retrieves a list of locations
-	List(options interface{}) ([]Location, error)
-	// Retrieves a single location by its ID
-	Get(ID int64, options interface{}) (*Location, error)
+	List(ctx context.Context, options interface{}) ([]Location, error)
+	// Retrieves a single location by its Id
+	Get(ctx context.Context, id uint64, options interface{}) (*Location, error)
 	// Retrieves a count of locations
-	Count(options interface{}) (int, error)
+	Count(ctx context.Context, options interface{}) (int, error)
 }
 
 type Location struct {
@@ -45,8 +46,8 @@ type Location struct {
 	// The date and time (ISO 8601 format) when the location was created.
 	CreatedAt time.Time `json:"created_at"`
 
-	// The ID for the location.
-	ID int64 `json:"id"`
+	// The Id for the location.
+	Id uint64 `json:"id"`
 
 	// Whether this is a fulfillment service location.
 	// If true, then the location is a fulfillment service location.
@@ -71,7 +72,7 @@ type Location struct {
 	// The zip or postal code.
 	Zip string `json:"zip"`
 
-	AdminGraphqlAPIID string `json:"admin_graphql_api_id"`
+	AdminGraphqlApiId string `json:"admin_graphql_api_id"`
 }
 
 // LocationServiceOp handles communication with the location related methods of
@@ -80,23 +81,23 @@ type LocationServiceOp struct {
 	client *Client
 }
 
-func (s *LocationServiceOp) List(options interface{}) ([]Location, error) {
+func (s *LocationServiceOp) List(ctx context.Context, options interface{}) ([]Location, error) {
 	path := fmt.Sprintf("%s.json", locationsBasePath)
 	resource := new(LocationsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Locations, err
 }
 
-func (s *LocationServiceOp) Get(ID int64, options interface{}) (*Location, error) {
-	path := fmt.Sprintf("%s/%d.json", locationsBasePath, ID)
+func (s *LocationServiceOp) Get(ctx context.Context, id uint64, options interface{}) (*Location, error) {
+	path := fmt.Sprintf("%s/%d.json", locationsBasePath, id)
 	resource := new(LocationResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Location, err
 }
 
-func (s *LocationServiceOp) Count(options interface{}) (int, error) {
+func (s *LocationServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", locationsBasePath)
-	return s.client.Count(path, options)
+	return s.client.Count(ctx, path, options)
 }
 
 // Represents the result from the locations/X.json endpoint

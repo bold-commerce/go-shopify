@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -20,16 +21,15 @@ func TestDiscountCodeList(t *testing.T) {
 		),
 	)
 
-	codes, err := client.DiscountCode.List(507328175)
+	codes, err := client.DiscountCode.List(context.Background(), 507328175)
 	if err != nil {
 		t.Errorf("DiscountCode.List returned error: %v", err)
 	}
 
-	expected := []PriceRuleDiscountCode{{ID: 507328175}}
-	if expected[0].ID != codes[0].ID {
+	expected := []PriceRuleDiscountCode{{Id: 507328175}}
+	if expected[0].Id != codes[0].Id {
 		t.Errorf("DiscountCode.List returned %+v, expected %+v", codes, expected)
 	}
-
 }
 
 func TestDiscountCodeGet(t *testing.T) {
@@ -45,17 +45,16 @@ func TestDiscountCodeGet(t *testing.T) {
 		),
 	)
 
-	dc, err := client.DiscountCode.Get(507328175, 507328175)
+	dc, err := client.DiscountCode.Get(context.Background(), 507328175, 507328175)
 	if err != nil {
 		t.Errorf("DiscountCode.Get returned error: %v", err)
 	}
 
-	expected := &PriceRuleDiscountCode{ID: 507328175}
+	expected := &PriceRuleDiscountCode{Id: 507328175}
 
-	if dc.ID != expected.ID {
+	if dc.Id != expected.Id {
 		t.Errorf("DiscountCode.Get returned %+v, expected %+v", dc, expected)
 	}
-
 }
 
 func TestDiscountCodeCreate(t *testing.T) {
@@ -75,16 +74,15 @@ func TestDiscountCodeCreate(t *testing.T) {
 		Code: "SUMMERSALE10OFF",
 	}
 
-	returnedDC, err := client.DiscountCode.Create(507328175, dc)
+	returnedDC, err := client.DiscountCode.Create(context.Background(), 507328175, dc)
 	if err != nil {
 		t.Errorf("DiscountCode.Create returned error: %v", err)
 	}
 
-	expectedInt := int64(1054381139)
-	if returnedDC.ID != expectedInt {
-		t.Errorf("DiscountCode.ID returned %+v, expected %+v", returnedDC.ID, expectedInt)
+	expectedInt := uint64(1054381139)
+	if returnedDC.Id != expectedInt {
+		t.Errorf("DiscountCode.Id returned %+v, expected %+v", returnedDC.Id, expectedInt)
 	}
-
 }
 
 func TestDiscountCodeUpdate(t *testing.T) {
@@ -101,18 +99,18 @@ func TestDiscountCodeUpdate(t *testing.T) {
 	)
 
 	dc := PriceRuleDiscountCode{
-		ID:   int64(1054381139),
+		Id:   uint64(1054381139),
 		Code: "SUMMERSALE10OFF",
 	}
 
-	returnedDC, err := client.DiscountCode.Update(507328175, dc)
+	returnedDC, err := client.DiscountCode.Update(context.Background(), 507328175, dc)
 	if err != nil {
 		t.Errorf("DiscountCode.Update returned error: %v", err)
 	}
 
-	expectedInt := int64(1054381139)
-	if returnedDC.ID != expectedInt {
-		t.Errorf("DiscountCode.ID returned %+v, expected %+v", returnedDC.ID, expectedInt)
+	expectedInt := uint64(1054381139)
+	if returnedDC.Id != expectedInt {
+		t.Errorf("DiscountCode.Id returned %+v, expected %+v", returnedDC.Id, expectedInt)
 	}
 }
 
@@ -123,7 +121,7 @@ func TestDiscountCodeDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/price_rules/507328175/discount_codes/507328175.json", client.pathPrefix),
 		httpmock.NewStringResponder(204, "{}"))
 
-	err := client.DiscountCode.Delete(507328175, 507328175)
+	err := client.DiscountCode.Delete(context.Background(), 507328175, 507328175)
 	if err != nil {
 		t.Errorf("DiscountCode.Delete returned error: %v", err)
 	}

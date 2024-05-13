@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -25,8 +26,8 @@ func storefrontAccessTokenTests(t *testing.T, StorefrontAccessToken StorefrontAc
 	}
 
 	expectedStr = "gid://shopify/StorefrontAccessToken/755357713"
-	if StorefrontAccessToken.AdminGraphqlAPIID != expectedStr {
-		t.Errorf("StorefrontAccessToken.AdminGraphqlAPIID returned %+v, expected %+v", StorefrontAccessToken.AdminGraphqlAPIID, expectedStr)
+	if StorefrontAccessToken.AdminGraphqlApiId != expectedStr {
+		t.Errorf("StorefrontAccessToken.AdminGraphqlApiId returned %+v, expected %+v", StorefrontAccessToken.AdminGraphqlApiId, expectedStr)
 	}
 
 	d := time.Date(2016, time.June, 1, 14, 10, 44, 0, time.UTC)
@@ -42,7 +43,7 @@ func TestStorefrontAccessTokenList(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("storefront_access_tokens.json")))
 
-	storefrontAccessTokens, err := client.StorefrontAccessToken.List(nil)
+	storefrontAccessTokens, err := client.StorefrontAccessToken.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("StorefrontAccessToken.List returned error: %v", err)
 	}
@@ -65,7 +66,7 @@ func TestStorefrontAccessTokenCreate(t *testing.T) {
 		Title: "API Client Extension",
 	}
 
-	returnedStorefrontAccessToken, err := client.StorefrontAccessToken.Create(storefrontAccessToken)
+	returnedStorefrontAccessToken, err := client.StorefrontAccessToken.Create(context.Background(), storefrontAccessToken)
 	if err != nil {
 		t.Errorf("StorefrontAccessToken.Create returned error: %v", err)
 	}
@@ -80,7 +81,7 @@ func TestStorefrontAccessTokenDelete(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/storefront_access_tokens/755357713.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.StorefrontAccessToken.Delete(755357713)
+	err := client.StorefrontAccessToken.Delete(context.Background(), 755357713)
 	if err != nil {
 		t.Errorf("StorefrontAccessToken.Delete returned error: %v", err)
 	}

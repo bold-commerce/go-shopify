@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"math"
 	"time"
 )
@@ -9,7 +10,7 @@ import (
 // of the Shopify API
 // See https://shopify.dev/docs/admin-api/graphql/reference
 type GraphQLService interface {
-	Query(string, interface{}, interface{}) error
+	Query(context.Context, string, interface{}, interface{}) error
 }
 
 // GraphQLServiceOp handles communication with the graphql endpoint of
@@ -64,7 +65,7 @@ type graphQLErrorLocation struct {
 
 // Query creates a graphql query against the Shopify API
 // the "data" portion of the response is unmarshalled into resp
-func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
+func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp interface{}) error {
 	data := struct {
 		Query     string      `json:"query"`
 		Variables interface{} `json:"variables"`
@@ -80,7 +81,7 @@ func (s *GraphQLServiceOp) Query(q string, vars, resp interface{}) error {
 			Data: resp,
 		}
 
-		err := s.client.Post("graphql.json", data, &gr)
+		err := s.client.Post(ctx, "graphql.json", data, &gr)
 
 		// internal attempts count towards outer total
 		attempts += 1

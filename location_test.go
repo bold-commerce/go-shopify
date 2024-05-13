@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -16,7 +17,7 @@ func TestLocationServiceOp_List(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("locations.json")))
 
-	products, err := client.Location.List(nil)
+	products, err := client.Location.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Location.List returned error: %v", err)
 	}
@@ -25,7 +26,7 @@ func TestLocationServiceOp_List(t *testing.T) {
 	updated, _ := time.Parse(time.RFC3339, "2018-02-19T16:19:00-05:00")
 
 	expected := []Location{{
-		ID:                4688969785,
+		Id:                4688969785,
 		Name:              "Bajkowa",
 		Address1:          "Bajkowa",
 		Address2:          "",
@@ -39,7 +40,7 @@ func TestLocationServiceOp_List(t *testing.T) {
 		CountryName:       "Poland",
 		Legacy:            false,
 		Active:            true,
-		AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+		AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 	}}
 
 	if !reflect.DeepEqual(products, expected) {
@@ -54,7 +55,7 @@ func TestLocationServiceOp_Get(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/4688969785.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("location.json")))
 
-	product, err := client.Location.Get(4688969785, nil)
+	product, err := client.Location.Get(context.Background(), 4688969785, nil)
 	if err != nil {
 		t.Errorf("Location.Get returned error: %v", err)
 	}
@@ -63,7 +64,7 @@ func TestLocationServiceOp_Get(t *testing.T) {
 	updated, _ := time.Parse(time.RFC3339, "2018-02-19T16:19:00-05:00")
 
 	expected := &Location{
-		ID:                4688969785,
+		Id:                4688969785,
 		Name:              "Bajkowa",
 		Address1:          "Bajkowa",
 		Address2:          "",
@@ -77,7 +78,7 @@ func TestLocationServiceOp_Get(t *testing.T) {
 		CountryName:       "Poland",
 		Legacy:            false,
 		Active:            true,
-		AdminGraphqlAPIID: "gid://shopify/Location/4688969785",
+		AdminGraphqlApiId: "gid://shopify/Location/4688969785",
 	}
 
 	if !reflect.DeepEqual(product, expected) {
@@ -92,7 +93,7 @@ func TestLocationServiceOp_Count(t *testing.T) {
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/count.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
-	cnt, err := client.Location.Count(nil)
+	cnt, err := client.Location.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Location.Count returned error: %v", err)
 	}

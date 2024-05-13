@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -18,7 +19,7 @@ func TestAccessScopesServiceOp_List(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("access_scopes.json")),
 	)
 
-	scopeResponse, err := client.AccessScopes.List(nil)
+	scopeResponse, err := client.AccessScopes.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("AccessScopes.List returned an error: %v", err)
 	}

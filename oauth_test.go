@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -17,17 +18,32 @@ func TestAppAuthorizeUrl(t *testing.T) {
 	defer teardown()
 
 	cases := []struct {
-		shopName string
-		nonce    string
-		expected string
+		shopName    string
+		nonce       string
+		expected    string
+		errExpected string
 	}{
-		{"fooshop", "thenonce", "https://fooshop.myshopify.com/admin/oauth/authorize?client_id=apikey&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&scope=read_products&state=thenonce"},
+		{
+			"fooshop",
+			"thenonce",
+			"https://fooshop.myshopify.com/admin/oauth/authorize?client_id=apikey&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&scope=read_products&state=thenonce",
+			"",
+		},
+		{
+			"foo^^shop",
+			"thenonce",
+			"",
+			`parse "https://foo^^shop.myshopify.com": invalid character "^" in host name`,
+		},
 	}
 
 	for _, c := range cases {
-		actual := app.AuthorizeUrl(c.shopName, c.nonce)
+		actual, err := app.AuthorizeUrl(c.shopName, c.nonce)
+		if (c.errExpected == "" && err != nil) || (c.errExpected != "" && err.Error() != c.errExpected) {
+			t.Fatalf("App.AuthorizeUrl(): err expected %s, err actual %s", c.errExpected, err)
+		}
 		if actual != c.expected {
-			t.Errorf("App.AuthorizeUrl(): expected %s, actual %s", c.expected, actual)
+			t.Fatalf("App.AuthorizeUrl(): expected %s, actual %s", c.expected, actual)
 		}
 	}
 }
@@ -40,8 +56,7 @@ func TestAppGetAccessToken(t *testing.T) {
 		httpmock.NewStringResponder(200, `{"access_token":"footoken"}`))
 
 	app.Client = client
-	token, err := app.GetAccessToken("fooshop", "foocode")
-
+	token, err := app.GetAccessToken(context.Background(), "fooshop", "foocode")
 	if err != nil {
 		t.Fatalf("App.GetAccessToken(): %v", err)
 	}
@@ -56,10 +71,10 @@ func TestAppGetAccessTokenError(t *testing.T) {
 	setup()
 	defer teardown()
 
-	// app.Client isn't specified so NewClient called
+	// app.Client isn't specified so MustNewClient called
 	expectedError := errors.New("application_cannot_be_found")
 
-	token, err := app.GetAccessToken("fooshop", "")
+	token, err := app.GetAccessToken(context.Background(), "fooshop", "")
 
 	if err == nil || err.Error() != expectedError.Error() {
 		t.Errorf("Expected error %s got error %s", expectedError.Error(), err.Error())
@@ -70,7 +85,7 @@ func TestAppGetAccessTokenError(t *testing.T) {
 
 	expectedError = errors.New("parse ://example.com: missing protocol scheme")
 	accessTokenRelPath = "://example.com" // cause NewRequest to trip a parse error
-	token, err = app.GetAccessToken("fooshop", "")
+	token, err = app.GetAccessToken(context.Background(), "fooshop", "")
 	if err == nil || !strings.Contains(err.Error(), "missing protocol scheme") {
 		t.Errorf("Expected error %s got error %s", expectedError.Error(), err.Error())
 	}
@@ -151,8 +166,8 @@ func TestVerifyWebhookRequest(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
-		req, err := testClient.NewRequest("GET", "", c.message, nil)
+		testClient := MustNewClient(App{}, "", "")
+		req, err := testClient.NewRequest(context.Background(), "GET", "", c.message, nil)
 		if err != nil {
 			t.Fatalf("Webhook.verify err = %v, expected true", err)
 		}
@@ -166,7 +181,6 @@ func TestVerifyWebhookRequest(t *testing.T) {
 			t.Errorf("Webhook.verify was expecting %t got %t", c.expected, isValid)
 		}
 	}
-
 }
 
 func TestVerifyWebhookRequestVerbose(t *testing.T) {
@@ -204,13 +218,13 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 
 	for _, c := range cases {
 
-		testClient := NewClient(App{}, "", "")
+		testClient := MustNewClient(App{}, "", "")
 
 		// We actually want to test nil body's, not ""
 		if c.message == "" {
-			req, err = testClient.NewRequest("GET", "", nil, nil)
+			req, err = testClient.NewRequest(context.Background(), "GET", "", nil, nil)
 		} else {
-			req, err = testClient.NewRequest("GET", "", c.message, nil)
+			req, err = testClient.NewRequest(context.Background(), "GET", "", c.message, nil)
 		}
 
 		if err != nil {
@@ -259,5 +273,4 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 	if err == nil || isValid == true || err.Error() != errors.New("test-error").Error() {
 		t.Errorf("Expected error %s got %s", errors.New("test-error"), err)
 	}
-
 }

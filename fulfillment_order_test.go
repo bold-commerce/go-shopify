@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -11,10 +12,10 @@ import (
 )
 
 func FulfillmentOrderTests(t *testing.T, fulfillmentOrder FulfillmentOrder) {
-	// Check that ID is assigned to the returned fulfillment
-	expectedInt := int64(255858046) // in fulfillment_order.json fixture
+	// Check that Id is assigned to the returned fulfillment
+	expectedInt := uint64(255858046) // in fulfillment_order.json fixture
 	if fulfillmentOrder.Id != expectedInt {
-		t.Errorf("FulfillmentOrder.ID returned %+v, expected %+v", fulfillmentOrder.Id, expectedInt)
+		t.Errorf("FulfillmentOrder.Id returned %+v, expected %+v", fulfillmentOrder.Id, expectedInt)
 	}
 }
 
@@ -27,7 +28,7 @@ func TestFulfillmentOrderList(t *testing.T) {
 
 	fulfillmentService := &FulfillmentOrderServiceOp{client: client}
 
-	fulfillmentOrders, err := fulfillmentService.List(123, nil)
+	fulfillmentOrders, err := fulfillmentService.List(context.Background(), 123, nil)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.List returned error: %v", err)
 	}
@@ -48,7 +49,7 @@ func TestFulfillmentOrderGet(t *testing.T) {
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 
-	fulfillment, err := fulfillmentOrderService.Get(255858046, nil)
+	fulfillment, err := fulfillmentOrderService.Get(context.Background(), 255858046, nil)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Get returned error: %v", err)
 	}
@@ -73,7 +74,7 @@ func TestFulfillmentOrderCancel(t *testing.T) {
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 
-	returnedFulfillment, err := fulfillmentOrderService.Cancel(1)
+	returnedFulfillment, err := fulfillmentOrderService.Cancel(context.Background(), 1)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Cancel returned error: %v", err)
 	}
@@ -90,7 +91,7 @@ func TestFulfillmentOrderClose(t *testing.T) {
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 
-	returnedFulfillment, err := fulfillmentOrderService.Close(1, "test")
+	returnedFulfillment, err := fulfillmentOrderService.Close(context.Background(), 1, "test")
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Close returned error: %v", err)
 	}
@@ -107,7 +108,7 @@ func TestFulfillmentOrderHold(t *testing.T) {
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 
-	returnedFulfillment, err := fulfillmentOrderService.Hold(1, false, HoldReasonOutOfStock, "test")
+	returnedFulfillment, err := fulfillmentOrderService.Hold(context.Background(), 1, false, HoldReasonOutOfStock, "test")
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Hold returned error: %v", err)
 	}
@@ -131,7 +132,7 @@ func TestFulfillmentOrderMove(t *testing.T) {
 		},
 	}
 
-	result, err := fulfillmentOrderService.Move(1046000818, req)
+	result, err := fulfillmentOrderService.Move(context.Background(), 1046000818, req)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Move returned error: %v", err)
 	}
@@ -149,9 +150,9 @@ func TestFulfillmentOrderOpen(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 
-	result, err := fulfillmentOrderService.Open(fulfillmentId)
+	result, err := fulfillmentOrderService.Open(context.Background(), fulfillmentId)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Open returned error: %v", err)
 	}
@@ -169,9 +170,9 @@ func TestFulfillmentOrderReleaseHold(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 
-	result, err := fulfillmentOrderService.ReleaseHold(fulfillmentId)
+	result, err := fulfillmentOrderService.ReleaseHold(context.Background(), fulfillmentId)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.ReleaseHold returned error: %v", err)
 	}
@@ -189,9 +190,9 @@ func TestFulfillmentOrderReschedule(t *testing.T) {
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 
-	result, err := fulfillmentOrderService.Reschedule(fulfillmentId)
+	result, err := fulfillmentOrderService.Reschedule(context.Background(), fulfillmentId)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Reschedule returned error: %v", err)
 	}
@@ -209,9 +210,9 @@ func TestFulfillmentOrderSetDeadline(t *testing.T) {
 		httpmock.NewStringResponder(200, "{}"))
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-	fulfillmentId := int64(255858046)
+	fulfillmentId := uint64(255858046)
 	newDeadline := time.Now().Add(time.Hour * 24 * 7)
-	err := fulfillmentOrderService.SetDeadline([]int64{fulfillmentId}, newDeadline)
+	err := fulfillmentOrderService.SetDeadline(context.Background(), []uint64{fulfillmentId}, newDeadline)
 	if err != nil {
 		t.Errorf("FulfillmentOrder.SetDeadline returned error: %v", err)
 	}

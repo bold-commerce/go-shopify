@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -21,14 +22,13 @@ func TestAbandonedCheckoutList(t *testing.T) {
 		),
 	)
 
-	abandonedCheckouts, err := client.AbandonedCheckout.List(nil)
+	abandonedCheckouts, err := client.AbandonedCheckout.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("AbandonedCheckout.List returned error: %v", err)
 	}
 
-	expected := []AbandonedCheckout{{ID: 1}, {ID: 2}}
+	expected := []AbandonedCheckout{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(abandonedCheckouts, expected) {
 		t.Errorf("AbandonedCheckout.List returned %+v, expected %+v", abandonedCheckouts, expected)
 	}
-
 }

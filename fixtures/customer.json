@@ -39,6 +39,18 @@
                 "default": true
             }
         ],
+        "accepts_marketing_updated_at": "2017-09-23T18:15:47-00:00",
+        "email_marketing_consent": {
+            "state": "not_subscribed",
+            "opt_in_level": "single_opt_in",
+            "consent_updated_at": "2017-09-23T18:15:47-00:00"
+        },
+        "sms_marketing_consent": {
+            "state": "not_subscribed",
+            "opt_in_level": "single_opt_in",
+            "consent_updated_at": "2017-09-23T18:15:47-00:00",
+            "consent_collected_from": "OTHER"
+        },
         "default_address": {
             "id": 1,
             "customer_id": 1,
