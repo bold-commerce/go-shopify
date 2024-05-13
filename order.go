@@ -132,6 +132,68 @@ const (
 	OrderCancelReasonOther orderCancelReason = "other"
 )
 
+type discountAllocationMethod string
+
+const (
+	// The value is spread across all entitled lines.
+	DiscountAllocationMethodAcross discountAllocationMethod = "across"
+
+	// The value is applied onto every entitled line.
+	DiscountAllocationMethodEach discountAllocationMethod = "each"
+
+	// The value is applied onto a single line.
+	DiscountAllocationMethodOne discountAllocationMethod = "one"
+)
+
+type discountTargetSelection string
+
+const (
+	// The discount is allocated onto all lines
+	DiscountTargetSelectionAll discountTargetSelection = "all"
+
+	// The discount is allocated only onto lines it is entitled for.
+	DiscountTargetSelectionEntitled discountTargetSelection = "entitled"
+
+	// The discount is allocated onto explicitly selected lines.
+	DiscountTargetSelectionExplicit discountTargetSelection = "explicit"
+)
+
+type discountTargetType string
+
+const (
+	// The discount applies to line items.
+	DiscountTargetTypeLineItem discountTargetType = "line_item"
+
+	// The discount applies to shipping lines.
+	DiscountTargetTypeShippingLine discountTargetType = "shipping_line"
+)
+
+type discountType string
+
+const (
+	// The discount was applied automatically, such as by a Buy X Get Y automatic discount.
+	DiscountTypeAutomatic discountType = "automatic"
+
+	// The discount was applied by a discount code.
+	DiscountTypeDiscountCode discountType = "discount_code"
+
+	// The discount was manually applied by the merchant (for example, by using an app or creating a draft order).
+	DiscountTypeManual discountType = "manual"
+
+	// The discount was applied by a Shopify Script.
+	DiscountTypeScript discountType = "script"
+)
+
+type discountValueType string
+
+const (
+	// A fixed amount discount value in the currency of the order.
+	DiscountValueTypeFixedAmount discountValueType = "fixed_amount"
+
+	// A percentage discount value.
+	DiscountValueTypePercentage discountValueType = "percentage"
+)
+
 // A struct for all available order count options
 type OrderCountOptions struct {
 	Page              int                    `url:"page,omitempty"`
@@ -214,6 +276,7 @@ type Order struct {
 	CancelReason           orderCancelReason      `json:"cancel_reason,omitempty"`
 	NoteAttributes         []NoteAttribute        `json:"note_attributes,omitempty"`
 	DiscountCodes          []DiscountCode         `json:"discount_codes,omitempty"`
+	DiscountApplications   []DiscountApplication  `json:"discount_applications,omitempty"`
 	LineItems              []LineItem             `json:"line_items,omitempty"`
 	ShippingLines          []ShippingLines        `json:"shipping_lines,omitempty"`
 	Transactions           []Transaction          `json:"transactions,omitempty"`
@@ -269,6 +332,18 @@ type DiscountCode struct {
 	Amount *decimal.Decimal `json:"amount,omitempty"`
 	Code   string           `json:"code,omitempty"`
 	Type   string           `json:"type,omitempty"`
+}
+
+type DiscountApplication struct {
+	AllocationMethod discountAllocationMethod `json:"allocation_method,omitempty"`
+	Code             string                   `json:"code"`
+	Description      string                   `json:"description"`
+	TargetSelection  discountTargetSelection  `json:"target_selection"`
+	TargetType       discountTargetType       `json:"target_type"`
+	Title            string                   `json:"title"`
+	Type             discountType             `json:"type"`
+	Value            *decimal.Decimal         `json:"value"`
+	ValueType        discountValueType        `json:"value_type"`
 }
 
 type LineItem struct {
