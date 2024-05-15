@@ -487,7 +487,7 @@ type PaymentDetails struct {
 }
 
 type ShippingLines struct {
-	Id                            string           `json:"id,omitempty"`
+	Id                            uint64           `json:"id,omitempty"`
 	Title                         string           `json:"title,omitempty"`
 	Price                         *decimal.Decimal `json:"price,omitempty"`
 	PriceSet                      *AmountSet       `json:"price_set,omitempty"`
