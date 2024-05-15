@@ -1421,7 +1421,7 @@ func validShippingLines() ShippingLines {
 	tl2Rate := decimal.New(5, -2)
 
 	return ShippingLines{
-		Id:    "some-id",
+		Id:    123456789,
 		Title: "Small Packet International Air",
 		Price: &price,
 		PriceSet: &AmountSet{
