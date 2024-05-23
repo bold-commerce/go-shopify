@@ -2,7 +2,6 @@ package goshopify
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -15,7 +14,7 @@ func TestAccessScopesServiceOp_List(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/oauth/access_scopes.json", client.pathPrefix),
+		"https://fooshop.myshopify.com/admin/oauth/access_scopes.json",
 		httpmock.NewBytesResponder(200, loadFixture("access_scopes.json")),
 	)
 

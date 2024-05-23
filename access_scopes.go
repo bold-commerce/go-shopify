@@ -1,6 +1,8 @@
 package goshopify
 
-import "context"
+import (
+	"context"
+)
 
 type AccessScopesService interface {
 	List(context.Context, interface{}) ([]AccessScope, error)
@@ -23,8 +25,12 @@ type AccessScopesServiceOp struct {
 
 // List gets access scopes based on used oauth token
 func (s *AccessScopesServiceOp) List(ctx context.Context, options interface{}) ([]AccessScope, error) {
-	path := "oauth/access_scopes.json"
+	path := "admin/oauth/access_scopes.json"
 	resource := new(AccessScopesResource)
-	err := s.client.Get(ctx, path, resource, options)
+	req, err := s.client.NewRequest(ctx, "GET", path, nil, options)
+	if err != nil {
+		return nil, err
+	}
+	err = s.client.Do(req, resource)
 	return resource.AccessScopes, err
 }
