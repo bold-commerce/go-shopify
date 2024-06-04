@@ -497,7 +497,6 @@ type ShippingLines struct {
 	Source                        string           `json:"source,omitempty"`
 	Phone                         string           `json:"phone,omitempty"`
 	RequestedFulfillmentServiceId string           `json:"requested_fulfillment_service_id,omitempty"`
-	DeliveryCategory              string           `json:"delivery_category,omitempty"`
 	CarrierIdentifier             string           `json:"carrier_identifier,omitempty"`
 	TaxLines                      []TaxLine        `json:"tax_lines,omitempty"`
 	Handle                        string           `json:"handle,omitempty"`
