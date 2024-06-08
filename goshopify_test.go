@@ -987,8 +987,6 @@ func TestListWithPagination(t *testing.T) {
 		t.Fatalf("Expected pagination options but found at least one of them nil")
 	}
 
-	t.Logf("b: %#v \n", *pagination.NextPageOptions)
-
 	if pagination.NextPageOptions.PageInfo != "abc" {
 		t.Fatalf("Expected next page: %s   got: %s", "abc", pagination.NextPageOptions.PageInfo)
 	}

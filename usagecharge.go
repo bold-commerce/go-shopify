@@ -2,7 +2,6 @@ package goshopify
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -30,32 +29,11 @@ type UsageChargeServiceOp struct {
 type UsageCharge struct {
 	BalanceRemaining *decimal.Decimal `json:"balance_remaining,omitempty"`
 	BalanceUsed      *decimal.Decimal `json:"balance_used,omitempty"`
-	BillingOn        *time.Time       `json:"billing_on,omitempty"`
 	CreatedAt        *time.Time       `json:"created_at,omitempty"`
 	Description      string           `json:"description,omitempty"`
 	Id               uint64           `json:"id,omitempty"`
 	Price            *decimal.Decimal `json:"price,omitempty"`
 	RiskLevel        *decimal.Decimal `json:"risk_level,omitempty"`
-}
-
-func (r *UsageCharge) UnmarshalJSON(data []byte) error {
-	// This is a workaround for the API returning BillingOn date in the format of "YYYY-MM-DD"
-	// https://help.shopify.com/en/api/reference/billing/usagecharge#endpoints
-	// For a longer explanation of the hack check:
-	// http://choly.ca/post/go-json-marshalling/
-	type alias UsageCharge
-	aux := &struct {
-		BillingOn *string `json:"billing_on"`
-		*alias
-	}{alias: (*alias)(r)}
-
-	if err := json.Unmarshal(data, &aux); err != nil {
-		return err
-	}
-	if err := parse(&r.BillingOn, aux.BillingOn); err != nil {
-		return err
-	}
-	return nil
 }
 
 // UsageChargeResource represents the result from the

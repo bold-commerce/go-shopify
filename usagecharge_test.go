@@ -13,7 +13,6 @@ import (
 func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
 	price := decimal.NewFromFloat(1.0)
 	createdAt, _ := time.Parse(time.RFC3339, "2018-07-05T13:05:43-04:00")
-	billingOn, _ := time.Parse("2006-01-02", "2018-08-04")
 	balanceUsed := decimal.NewFromFloat(11.0)
 	balancedRemaining := decimal.NewFromFloat(89.0)
 	riskLevel := decimal.NewFromFloat(0.08)
@@ -23,7 +22,6 @@ func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
 		Description:      "Super Mega Plan 1000 emails",
 		Price:            &price,
 		CreatedAt:        &createdAt,
-		BillingOn:        &billingOn,
 		BalanceRemaining: &balancedRemaining,
 		BalanceUsed:      &balanceUsed,
 		RiskLevel:        &riskLevel,
@@ -40,9 +38,6 @@ func usageChargeTests(t *testing.T, usageCharge UsageCharge) {
 	}
 	if !usageCharge.CreatedAt.Equal(*expected.CreatedAt) {
 		t.Errorf("UsageCharge.CreatedAt returned %v, expected %v", usageCharge.CreatedAt, expected.CreatedAt)
-	}
-	if !usageCharge.BillingOn.Equal(*expected.BillingOn) {
-		t.Errorf("UsageCharge.BillingOn returned %v, expected %v", usageCharge.BillingOn, expected.BillingOn)
 	}
 	if !usageCharge.BalanceRemaining.Equal(*expected.BalanceRemaining) {
 		t.Errorf("UsageCharge.BalanceRemaining returned %v, expected %v", usageCharge.BalanceRemaining, expected.BalanceRemaining)
@@ -137,17 +132,6 @@ func TestUsageChargeServiceOp_GetBadFields(t *testing.T) {
 		),
 	)
 
-	if _, err := client.UsageCharge.Get(context.Background(), 455696195, 1034618210, nil); err == nil {
-		t.Errorf("UsageCharge.Get should have returned an error")
-	}
-
-	httpmock.RegisterResponder(
-		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/455696195/usage_charges/1034618210.json", client.pathPrefix),
-		httpmock.NewStringResponder(
-			200, `{"usage_charge":{"billing_on":"2018-14-01"}}`,
-		),
-	)
 	if _, err := client.UsageCharge.Get(context.Background(), 455696195, 1034618210, nil); err == nil {
 		t.Errorf("UsageCharge.Get should have returned an error")
 	}
