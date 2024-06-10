@@ -291,7 +291,7 @@ type PaymentTerms struct {
 	Currency         string            `json:"currency,omitempty"`
 	PaymentTermsName string            `json:"payment_terms_name,omitempty"`
 	PaymentTermsType string            `json:"payment_terms_type,omitempty"`
-	DueInDays        string            `json:"due_in_days,omitempty"`
+	DueInDays        int               `json:"due_in_days,omitempty"`
 	PaymentSchedules []PaymentSchedule `json:"payment_schedules,omitempty"`
 }
 
