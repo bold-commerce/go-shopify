@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -10,12 +11,12 @@ const redirectsBasePath = "redirects"
 // endpoints of the Shopify API.
 // See https://help.shopify.com/api/reference/online_store/redirect
 type RedirectService interface {
-	List(interface{}) ([]Redirect, error)
-	Count(interface{}) (int, error)
-	Get(int64, interface{}) (*Redirect, error)
-	Create(Redirect) (*Redirect, error)
-	Update(Redirect) (*Redirect, error)
-	Delete(int64) error
+	List(context.Context, interface{}) ([]Redirect, error)
+	Count(context.Context, interface{}) (int, error)
+	Get(context.Context, uint64, interface{}) (*Redirect, error)
+	Create(context.Context, Redirect) (*Redirect, error)
+	Update(context.Context, Redirect) (*Redirect, error)
+	Delete(context.Context, uint64) error
 }
 
 // RedirectServiceOp handles communication with the redirect related methods of the
@@ -26,7 +27,7 @@ type RedirectServiceOp struct {
 
 // Redirect represents a Shopify redirect.
 type Redirect struct {
-	ID     int64  `json:"id"`
+	Id     uint64 `json:"id"`
 	Path   string `json:"path"`
 	Target string `json:"target"`
 }
@@ -42,46 +43,46 @@ type RedirectsResource struct {
 }
 
 // List redirects
-func (s *RedirectServiceOp) List(options interface{}) ([]Redirect, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, redirectsBasePath)
+func (s *RedirectServiceOp) List(ctx context.Context, options interface{}) ([]Redirect, error) {
+	path := fmt.Sprintf("%s.json", redirectsBasePath)
 	resource := new(RedirectsResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Redirects, err
 }
 
 // Count redirects
-func (s *RedirectServiceOp) Count(options interface{}) (int, error) {
-	path := fmt.Sprintf("%s/%s/count.json", globalApiPathPrefix, redirectsBasePath)
-	return s.client.Count(path, options)
+func (s *RedirectServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
+	path := fmt.Sprintf("%s/count.json", redirectsBasePath)
+	return s.client.Count(ctx, path, options)
 }
 
 // Get individual redirect
-func (s *RedirectServiceOp) Get(redirectID int64, options interface{}) (*Redirect, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, redirectsBasePath, redirectID)
+func (s *RedirectServiceOp) Get(ctx context.Context, redirectId uint64, options interface{}) (*Redirect, error) {
+	path := fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectId)
 	resource := new(RedirectResource)
-	err := s.client.Get(path, resource, options)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Redirect, err
 }
 
 // Create a new redirect
-func (s *RedirectServiceOp) Create(redirect Redirect) (*Redirect, error) {
-	path := fmt.Sprintf("%s/%s.json", globalApiPathPrefix, redirectsBasePath)
+func (s *RedirectServiceOp) Create(ctx context.Context, redirect Redirect) (*Redirect, error) {
+	path := fmt.Sprintf("%s.json", redirectsBasePath)
 	wrappedData := RedirectResource{Redirect: &redirect}
 	resource := new(RedirectResource)
-	err := s.client.Post(path, wrappedData, resource)
+	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Redirect, err
 }
 
 // Update an existing redirect
-func (s *RedirectServiceOp) Update(redirect Redirect) (*Redirect, error) {
-	path := fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, redirectsBasePath, redirect.ID)
+func (s *RedirectServiceOp) Update(ctx context.Context, redirect Redirect) (*Redirect, error) {
+	path := fmt.Sprintf("%s/%d.json", redirectsBasePath, redirect.Id)
 	wrappedData := RedirectResource{Redirect: &redirect}
 	resource := new(RedirectResource)
-	err := s.client.Put(path, wrappedData, resource)
+	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Redirect, err
 }
 
 // Delete an existing redirect.
-func (s *RedirectServiceOp) Delete(redirectID int64) error {
-	return s.client.Delete(fmt.Sprintf("%s/%s/%d.json", globalApiPathPrefix, redirectsBasePath, redirectID))
+func (s *RedirectServiceOp) Delete(ctx context.Context, redirectId uint64) error {
+	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", redirectsBasePath, redirectId))
 }

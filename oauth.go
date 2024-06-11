@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -11,16 +12,23 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sort"
+	"strings"
 )
 
 const shopifyChecksumHeader = "X-Shopify-Hmac-Sha256"
+
+var accessTokenRelPath = "admin/oauth/access_token"
 
 // Returns a Shopify oauth authorization url for the given shopname and state.
 //
 // State is a unique value that can be used to check the authenticity during a
 // callback from Shopify.
-func (app App) AuthorizeUrl(shopName string, state string) string {
-	shopUrl, _ := url.Parse(ShopBaseUrl(shopName))
+func (app App) AuthorizeUrl(shopName string, state string) (string, error) {
+	shopUrl, err := url.Parse(ShopBaseUrl(shopName))
+	if err != nil {
+		return "", err
+	}
 	shopUrl.Path = "/admin/oauth/authorize"
 	query := shopUrl.Query()
 	query.Set("client_id", app.ApiKey)
@@ -28,10 +36,10 @@ func (app App) AuthorizeUrl(shopName string, state string) string {
 	query.Set("scope", app.Scope)
 	query.Set("state", state)
 	shopUrl.RawQuery = query.Encode()
-	return shopUrl.String()
+	return shopUrl.String(), nil
 }
 
-func (app App) GetAccessToken(shopName string, code string) (string, error) {
+func (app App) GetAccessToken(ctx context.Context, shopName string, code string) (string, error) {
 	type Token struct {
 		Token string `json:"access_token"`
 	}
@@ -46,8 +54,15 @@ func (app App) GetAccessToken(shopName string, code string) (string, error) {
 		Code:         code,
 	}
 
-	client := NewClient(app, shopName, "")
-	req, err := client.NewRequest("POST", "admin/oauth/access_token", data, nil)
+	client := app.Client
+	if client == nil {
+		client = MustNewClient(app, shopName, "")
+	}
+
+	req, err := client.NewRequest(ctx, "POST", accessTokenRelPath, data, nil)
+	if err != nil {
+		return "", err
+	}
 
 	token := new(Token)
 	err = client.Do(req, token)
@@ -138,4 +153,35 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	}
 
 	return HMACSame, nil
+}
+
+// Verifies an app proxy request, sent by Shopify.
+// When Shopify proxies HTTP requests to the proxy URL,
+// Shopify adds a signature paramter that is used to verify that the request was sent by Shopify.
+// https://shopify.dev/tutorials/display-dynamic-store-data-with-app-proxies
+func (app App) VerifySignature(u *url.URL) bool {
+	val := u.Query()
+	sig := val.Get("signature")
+	val.Del("signature")
+
+	keys := []string{}
+	for k, v := range val {
+		keys = append(keys, fmt.Sprintf("%s=%s", k, strings.Join(v, ",")))
+	}
+	sort.Strings(keys)
+
+	joined := strings.Join(keys, "")
+
+	return hmacSHA256([]byte(app.ApiSecret), []byte(joined), []byte(sig))
+}
+
+func hmacSHA256(key, body, expected []byte) bool {
+	mac := hmac.New(sha256.New, key)
+	mac.Write(body)
+	result := mac.Sum(nil)
+
+	dst := make([]byte, hex.EncodedLen(len(result)))
+	hex.Encode(dst, result)
+
+	return hmac.Equal(dst, expected)
 }

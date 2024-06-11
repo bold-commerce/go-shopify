@@ -1,10 +1,12 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
+	"strings"
 	"testing"
 
-	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/jarcoal/httpmock"
 )
 
 func inventoryItemTests(t *testing.T, item *InventoryItem) {
@@ -13,9 +15,9 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 		return
 	}
 
-	expectedInt := int64(808950810)
-	if item.ID != expectedInt {
-		t.Errorf("InventoryItem.ID returned %+v, expected %+v", item.ID, expectedInt)
+	expectedInt := uint64(808950810)
+	if item.Id != expectedInt {
+		t.Errorf("InventoryItem.Id returned %+v, expected %+v", item.Id, expectedInt)
 	}
 
 	expectedSKU := "new sku"
@@ -33,6 +35,28 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 	if costFloat != expectedCost {
 		t.Errorf("InventoryItem.Cost (float) is %+v, expected %+v", costFloat, expectedCost)
 	}
+
+	expectedOrigin := "US"
+	if *item.CountryCodeOfOrigin != expectedOrigin {
+		t.Errorf("InventoryItem.CountryCodeOfOrigin returned %+v, expected %+v", item.CountryCodeOfOrigin, expectedOrigin)
+	}
+
+	// strings.Join is used to compare slices since package's go.mod is set to 1.13
+	// which predates the experimental slices package that has a Compare() func.
+	expectedCountryHSCodes := strings.Join([]string{"8471.70.40.35", "8471.70.50.35"}, ",")
+	if strings.Join(item.CountryHarmonizedSystemCodes, ",") != expectedCountryHSCodes {
+		t.Errorf("InventoryItem.CountryHarmonizedSystemCodes returned %+v, expected %+v", item.CountryHarmonizedSystemCodes, expectedCountryHSCodes)
+	}
+
+	expectedHSCode := "8471.70.40.35"
+	if *item.HarmonizedSystemCode != expectedHSCode {
+		t.Errorf("InventoryItem.HarmonizedSystemCode returned %+v, expected %+v", item.CountryHarmonizedSystemCodes, expectedHSCode)
+	}
+
+	expectedProvince := "ON"
+	if *item.ProvinceCodeOfOrigin != expectedProvince {
+		t.Errorf("InventoryItem.ProvinceCodeOfOrigin returned %+v, expected %+v", item.ProvinceCodeOfOrigin, expectedHSCode)
+	}
 }
 
 func inventoryItemsTests(t *testing.T, items []InventoryItem) {
@@ -46,10 +70,10 @@ func TestInventoryItemsList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("inventory_items.json")))
 
-	items, err := client.InventoryItem.List(nil)
+	items, err := client.InventoryItem.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("InventoryItems.List returned error: %v", err)
 	}
@@ -57,7 +81,7 @@ func TestInventoryItemsList(t *testing.T) {
 	inventoryItemsTests(t, items)
 }
 
-func TestInventoryItemsListWithIDs(t *testing.T) {
+func TestInventoryItemsListWithIds(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -66,16 +90,16 @@ func TestInventoryItemsListWithIDs(t *testing.T) {
 	}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items.json", client.pathPrefix),
 		params,
 		httpmock.NewBytesResponder(200, loadFixture("inventory_items.json")),
 	)
 
 	options := ListOptions{
-		IDs: []int64{1, 2},
+		Ids: []uint64{1, 2},
 	}
 
-	items, err := client.InventoryItem.List(options)
+	items, err := client.InventoryItem.List(context.Background(), options)
 	if err != nil {
 		t.Errorf("InventoryItems.List returned error: %v", err)
 	}
@@ -87,28 +111,29 @@ func TestInventoryItemGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items/1.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("inventory_item.json")))
 
-	item, err := client.InventoryItem.Get(1, nil)
+	item, err := client.InventoryItem.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("InventoryItem.Get returned error: %v", err)
 	}
 
 	inventoryItemTests(t, item)
 }
+
 func TestInventoryItemUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items/1.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("inventory_item.json")))
 
 	item := InventoryItem{
-		ID: 1,
+		Id: 1,
 	}
 
-	updatedItem, err := client.InventoryItem.Update(item)
+	updatedItem, err := client.InventoryItem.Update(context.Background(), item)
 	if err != nil {
 		t.Errorf("InentoryItem.Update returned error: %v", err)
 	}

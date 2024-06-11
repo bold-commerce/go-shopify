@@ -1,19 +1,13 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
 
-	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/jarcoal/httpmock"
 )
-
-func assetTests(t *testing.T, asset Asset) {
-	expectedKey := "templates/index.liquid"
-	if asset.Key != expectedKey {
-		t.Errorf("Asset.Key returned %+v, expected %+v", asset.Key, expectedKey)
-	}
-}
 
 func TestAssetList(t *testing.T) {
 	setup()
@@ -21,14 +15,14 @@ func TestAssetList(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", client.pathPrefix),
 		httpmock.NewStringResponder(
 			200,
 			`{"assets": [{"key":"assets\/1.liquid"},{"key":"assets\/2.liquid"}]}`,
 		),
 	)
 
-	assets, err := client.Asset.List(1, nil)
+	assets, err := client.Asset.List(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Asset.List returned error: %v", err)
 	}
@@ -48,7 +42,7 @@ func TestAssetGet(t *testing.T) {
 	}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", client.pathPrefix),
 		params,
 		httpmock.NewStringResponder(
 			200,
@@ -56,7 +50,7 @@ func TestAssetGet(t *testing.T) {
 		),
 	)
 
-	asset, err := client.Asset.Get(1, "foo/bar.liquid")
+	asset, err := client.Asset.Get(context.Background(), 1, "foo/bar.liquid")
 	if err != nil {
 		t.Errorf("Asset.Get returned error: %v", err)
 	}
@@ -73,7 +67,7 @@ func TestAssetUpdate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"PUT",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", client.pathPrefix),
 		httpmock.NewBytesResponder(
 			200,
 			loadFixture("asset.json"),
@@ -85,7 +79,7 @@ func TestAssetUpdate(t *testing.T) {
 		Value: "content",
 	}
 
-	returnedAsset, err := client.Asset.Update(1, asset)
+	returnedAsset, err := client.Asset.Update(context.Background(), 1, asset)
 	if err != nil {
 		t.Errorf("Asset.Update returned error: %v", err)
 	}
@@ -101,12 +95,12 @@ func TestAssetDelete(t *testing.T) {
 	params := map[string]string{"asset[key]": "foo/bar.liquid"}
 	httpmock.RegisterResponderWithQuery(
 		"DELETE",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", client.pathPrefix),
 		params,
 		httpmock.NewStringResponder(200, "{}"),
 	)
 
-	err := client.Asset.Delete(1, "foo/bar.liquid")
+	err := client.Asset.Delete(context.Background(), 1, "foo/bar.liquid")
 	if err != nil {
 		t.Errorf("Asset.Delete returned error: %v", err)
 	}

@@ -1,12 +1,13 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
-	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/jarcoal/httpmock"
 )
 
 func webhookTests(t *testing.T, webhook Webhook) {
@@ -33,7 +34,17 @@ func webhookTests(t *testing.T, webhook Webhook) {
 
 	expectedArr = []string{"google", "inventory"}
 	if !reflect.DeepEqual(webhook.MetafieldNamespaces, expectedArr) {
-		t.Errorf("Webhook.Fields returned %+v, expected %+v", webhook.MetafieldNamespaces, expectedArr)
+		t.Errorf("Webhook.MetafieldNamespaces returned %+v, expected %+v", webhook.MetafieldNamespaces, expectedArr)
+	}
+
+	expectedArr = []string{"info-for", "my-app"}
+	if !reflect.DeepEqual(webhook.PrivateMetafieldNamespaces, expectedArr) {
+		t.Errorf("Webhook.PrivateMetafieldNamespaces returned %+v, expected %+v", webhook.PrivateMetafieldNamespaces, expectedArr)
+	}
+
+	expectedStr = "2021-01"
+	if webhook.ApiVersion != expectedStr {
+		t.Errorf("Webhook.ApiVersion returned %+v, expected %+v", webhook.ApiVersion, expectedStr)
 	}
 }
 
@@ -41,10 +52,10 @@ func TestWebhookList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("webhooks.json")))
 
-	webhooks, err := client.Webhook.List(nil)
+	webhooks, err := client.Webhook.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Webhook.List returned error: %v", err)
 	}
@@ -61,10 +72,10 @@ func TestWebhookGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/4759306.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/4759306.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("webhook.json")))
 
-	webhook, err := client.Webhook.Get(4759306, nil)
+	webhook, err := client.Webhook.Get(context.Background(), 4759306, nil)
 	if err != nil {
 		t.Errorf("Webhook.Get returned error: %v", err)
 	}
@@ -76,17 +87,17 @@ func TestWebhookCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/count.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/count.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 7}`))
 
 	params := map[string]string{"topic": "orders/paid"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/count.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/count.json", client.pathPrefix),
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Webhook.Count(nil)
+	cnt, err := client.Webhook.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Webhook.Count returned error: %v", err)
 	}
@@ -97,7 +108,7 @@ func TestWebhookCount(t *testing.T) {
 	}
 
 	options := WebhookOptions{Topic: "orders/paid"}
-	cnt, err = client.Webhook.Count(options)
+	cnt, err = client.Webhook.Count(context.Background(), options)
 	if err != nil {
 		t.Errorf("Webhook.Count returned error: %v", err)
 	}
@@ -112,7 +123,7 @@ func TestWebhookCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("webhook.json")))
 
 	webhook := Webhook{
@@ -120,7 +131,7 @@ func TestWebhookCreate(t *testing.T) {
 		Address: "http://example.com",
 	}
 
-	returnedWebhook, err := client.Webhook.Create(webhook)
+	returnedWebhook, err := client.Webhook.Create(context.Background(), webhook)
 	if err != nil {
 		t.Errorf("Webhook.Create returned error: %v", err)
 	}
@@ -132,16 +143,16 @@ func TestWebhookUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/4759306.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/4759306.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("webhook.json")))
 
 	webhook := Webhook{
-		ID:      4759306,
+		Id:      4759306,
 		Topic:   "orders/create",
 		Address: "http://example.com",
 	}
 
-	returnedWebhook, err := client.Webhook.Update(webhook)
+	returnedWebhook, err := client.Webhook.Update(context.Background(), webhook)
 	if err != nil {
 		t.Errorf("Webhook.Update returned error: %v", err)
 	}
@@ -153,10 +164,10 @@ func TestWebhookDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/4759306.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/webhooks/4759306.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Webhook.Delete(4759306)
+	err := client.Webhook.Delete(context.Background(), 4759306)
 	if err != nil {
 		t.Errorf("Webhook.Delete returned error: %v", err)
 	}

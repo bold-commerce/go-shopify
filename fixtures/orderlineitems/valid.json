@@ -1,0 +1,103 @@
+{
+    "fulfillable_quantity": 1,
+    "fulfillment_service": "manual",
+    "fulfillment_status": "partial",
+    "gift_card": true,
+    "grams": 100,
+    "id": 254721536,
+    "name": "Soda",
+    "pre_tax_price": "9.00",
+    "price": "12.34",
+    "product_exists": true,
+    "product_id": 111475476,
+    "properties": [
+      {
+        "name": "note 1",
+        "value": "one"
+      },
+      {
+        "name": "note 2",
+        "value": 2
+      }
+    ],
+    "quantity": 1,
+    "requires_shipping": true,
+    "sku": "sku-123",
+    "tax_lines": [
+          {
+            "price": 13.50,
+            "rate": 0.06,
+            "title": "State tax"
+          },
+          {
+            "price": 12.50,
+            "rate": 0.05,
+            "title": "Federal tax"
+          }
+    ],
+    "taxable": true,
+    "title": "Soda Title",
+    "total_discount": "1.23",
+    "variant_id": 1234,
+    "variant_inventory_management": "shopify",
+    "variant_title": "Test Variant",
+    "vendor": "Test Vendor",
+    "origin_location": {
+      "id": 123,
+      "address1": "100 some street",
+      "address2": "",
+      "city": "Winnipeg",
+      "company": "Acme Corporation",
+      "country": "Canada",
+      "country_code": "CA",
+      "first_name": "Bob",
+      "last_name": "Smith",
+      "latitude": 49.811550,
+      "longitude": -97.189480,
+      "name": "test address",
+      "phone": "8675309",
+      "province": "Manitoba",
+      "province_code": "MB",
+      "zip": "R3Y 0L6"
+    },
+    "destination_location": {
+      "id": 124,
+      "address1": "200 some street",
+      "address2": "",
+      "city": "Winnipeg",
+      "company": "Acme Corporation",
+      "country": "Canada",
+      "country_code": "CA",
+      "first_name": "Bob",
+      "last_name": "Smith",
+      "latitude": 49.811550,
+      "longitude": -97.189480,
+      "name": "test address",
+      "phone": "8675309",
+      "province": "Manitoba",
+      "province_code": "MB",
+      "zip": "R3Y 0L6"
+    },
+    "applied_discount": {
+      "title": "test discount",
+      "description": "my test discount",
+      "value": "0.05",
+      "value_type": "percent",
+      "amount": "25.00"
+    },
+    "discount_allocations": [
+        {
+          "amount": "5.5",
+          "amount_set": {
+            "shop_money": {
+              "amount": "5.5",
+              "currency_code": "EUR"
+            },
+            "presentment_money": {
+              "amount": "5.5",
+              "currency_code": "EUR"
+            }
+          }
+        }
+    ]
+}

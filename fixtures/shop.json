@@ -22,7 +22,7 @@
     "country_name": "United States",
     "currency": "USD",
     "timezone": "(GMT-05:00) Eastern Time (US & Canada)",
-    "iana_timezone": "America\/New_York",
+    "iana_timezone": "America/New_York",
     "shop_owner": "Steve Jobs",
     "money_format": "${{amount}}",
     "money_with_currency_format": "${{amount}} USD",
@@ -45,6 +45,7 @@
     "has_storefront": true,
     "eligible_for_card_reader_giveaway": false,
     "setup_required": false,
-    "force_ssl": false
+    "force_ssl": false,
+    "pre_launch_enabled": false
   }
 }

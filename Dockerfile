@@ -1,9 +1,5 @@
-FROM golang:1.9
+FROM golang:1.14-alpine
 
-# This is similar to the golang-onbuild image but with different paths and
-# test-dependencies loaded as well.
+ENV CGO_ENABLED=0
 RUN mkdir -p /go/src/github.com/bold-commerce/go-shopify
 WORKDIR /go/src/github.com/bold-commerce/go-shopify
-
-COPY . /go/src/github.com/bold-commerce/go-shopify
-RUN go get -v -d -t

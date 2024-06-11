@@ -2,7 +2,9 @@ package goshopify
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
+	"time"
 )
 
 // Return the full shop name, including .myshopify.com
@@ -30,23 +32,52 @@ func ShopBaseUrl(name string) string {
 }
 
 // Return the prefix for a metafield path
-func MetafieldPathPrefix(resource string, resourceID int64) string {
-	var prefix string
-	if resource == "" {
-		prefix = fmt.Sprintf("%s/metafields", globalApiPathPrefix)
-	} else {
-		prefix = fmt.Sprintf("%s/%s/%d/metafields", globalApiPathPrefix, resource, resourceID)
+func MetafieldPathPrefix(resource string, resourceId uint64) string {
+	prefix := "metafields"
+	if resource != "" {
+		prefix = fmt.Sprintf("%s/%d/metafields", resource, resourceId)
 	}
 	return prefix
 }
 
 // Return the prefix for a fulfillment path
-func FulfillmentPathPrefix(resource string, resourceID int64) string {
-	var prefix string
-	if resource == "" {
-		prefix = fmt.Sprintf("%s/fulfillments", globalApiPathPrefix)
-	} else {
-		prefix = fmt.Sprintf("%s/%s/%d/fulfillments", globalApiPathPrefix, resource, resourceID)
+func FulfillmentPathPrefix(resource string, resourceId uint64) string {
+	prefix := "fulfillments"
+	if resource != "" {
+		prefix = fmt.Sprintf("%s/%d/fulfillments", resource, resourceId)
 	}
 	return prefix
+}
+
+type OnlyDate struct {
+	time.Time
+}
+
+func (c *OnlyDate) UnmarshalJSON(b []byte) error {
+	value := strings.Trim(string(b), `"`)
+	if value == "" || value == "null" {
+		*c = OnlyDate{time.Time{}}
+		return nil
+	}
+
+	t, err := time.Parse("2006-01-02", value)
+	if err != nil {
+		return err
+	}
+	*c = OnlyDate{t}
+	return nil
+}
+
+func (c *OnlyDate) MarshalJSON() ([]byte, error) {
+	return []byte(c.String()), nil
+}
+
+// It seems shopify accepts both the date with double-quotes and without them, so we just stick to the double-quotes for now.
+func (c *OnlyDate) EncodeValues(key string, v *url.Values) error {
+	v.Add(key, c.String())
+	return nil
+}
+
+func (c *OnlyDate) String() string {
+	return `"` + c.Format("2006-01-02") + `"`
 }

@@ -1,19 +1,20 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
-	"gopkg.in/jarcoal/httpmock.v1"
+	"github.com/jarcoal/httpmock"
 )
 
 func redirectTests(t *testing.T, redirect Redirect) {
-	// Check that ID is assigned to the returned redirect
-	expectedInt := int64(1)
-	if redirect.ID != expectedInt {
-		t.Errorf("Redirect.ID returned %+v, expected %+v", redirect.ID, expectedInt)
+	// Check that Id is assigned to the returned redirect
+	expectedInt := uint64(1)
+	if redirect.Id != expectedInt {
+		t.Errorf("Redirect.Id returned %+v, expected %+v", redirect.Id, expectedInt)
 	}
 }
 
@@ -21,15 +22,15 @@ func TestRedirectList(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"redirects": [{"id":1},{"id":2}]}`))
 
-	redirects, err := client.Redirect.List(nil)
+	redirects, err := client.Redirect.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Redirect.List returned error: %v", err)
 	}
 
-	expected := []Redirect{{ID: 1}, {ID: 2}}
+	expected := []Redirect{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(redirects, expected) {
 		t.Errorf("Redirect.List returned %+v, expected %+v", redirects, expected)
 	}
@@ -39,17 +40,17 @@ func TestRedirectCount(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/count.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/count.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"count": 3}`))
 
 	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/count.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/count.json", client.pathPrefix),
 		params,
 		httpmock.NewStringResponder(200, `{"count": 2}`))
 
-	cnt, err := client.Redirect.Count(nil)
+	cnt, err := client.Redirect.Count(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Redirect.Count returned error: %v", err)
 	}
@@ -60,7 +61,7 @@ func TestRedirectCount(t *testing.T) {
 	}
 
 	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-	cnt, err = client.Redirect.Count(CountOptions{CreatedAtMin: date})
+	cnt, err = client.Redirect.Count(context.Background(), CountOptions{CreatedAtMin: date})
 	if err != nil {
 		t.Errorf("Redirect.Count returned error: %v", err)
 	}
@@ -75,15 +76,15 @@ func TestRedirectGet(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/1.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"redirect": {"id":1}}`))
 
-	redirect, err := client.Redirect.Get(1, nil)
+	redirect, err := client.Redirect.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Redirect.Get returned error: %v", err)
 	}
 
-	expected := &Redirect{ID: 1}
+	expected := &Redirect{Id: 1}
 	if !reflect.DeepEqual(redirect, expected) {
 		t.Errorf("Redirect.Get returned %+v, expected %+v", redirect, expected)
 	}
@@ -93,7 +94,7 @@ func TestRedirectCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("redirect.json")))
 
 	redirect := Redirect{
@@ -101,7 +102,7 @@ func TestRedirectCreate(t *testing.T) {
 		Target: "/to",
 	}
 
-	returnedRedirect, err := client.Redirect.Create(redirect)
+	returnedRedirect, err := client.Redirect.Create(context.Background(), redirect)
 	if err != nil {
 		t.Errorf("Redirect.Create returned error: %v", err)
 	}
@@ -113,14 +114,14 @@ func TestRedirectUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/1.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/1.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("redirect.json")))
 
 	redirect := Redirect{
-		ID: 1,
+		Id: 1,
 	}
 
-	returnedRedirect, err := client.Redirect.Update(redirect)
+	returnedRedirect, err := client.Redirect.Update(context.Background(), redirect)
 	if err != nil {
 		t.Errorf("Redirect.Update returned error: %v", err)
 	}
@@ -132,10 +133,10 @@ func TestRedirectDelete(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/1.json", globalApiPathPrefix),
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/redirects/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"))
 
-	err := client.Redirect.Delete(1)
+	err := client.Redirect.Delete(context.Background(), 1)
 	if err != nil {
 		t.Errorf("Redirect.Delete returned error: %v", err)
 	}

@@ -1,13 +1,14 @@
 package goshopify
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/jarcoal/httpmock"
 	"github.com/shopspring/decimal"
-	"gopkg.in/jarcoal/httpmock.v1"
 )
 
 // recurringApplicationChargeTests tests if fields are properly parsed.
@@ -21,9 +22,9 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(1029266948), charge.ID},
+		{"Id", uint64(1029266948), charge.Id},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientID", int64(755357713), charge.APIClientID},
+		{"APIClientId", uint64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -43,7 +44,7 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 		{
 			"ConfirmationURL",
 			fmt.Sprintf("https://apple.myshopify.com/%s/charges/1029266948/confirm_recurring_application_c"+
-				"harge?signature=BAhpBAReWT0%%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68", globalApiPathPrefix),
+				"harge?signature=BAhpBAReWT0%%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68", client.pathPrefix),
 			charge.ConfirmationURL,
 		},
 	}
@@ -60,8 +61,8 @@ func recurringApplicationChargeTests(t *testing.T, charge RecurringApplicationCh
 // parsed focusing on testing *time.Time fields, which in principle (see #91),
 // may not be parsed properly.
 func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
-	charge RecurringApplicationCharge) {
-
+	charge RecurringApplicationCharge,
+) {
 	var nilTest *bool
 
 	cases := []struct {
@@ -69,9 +70,9 @@ func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
 		expected interface{}
 		actual   interface{}
 	}{
-		{"ID", int64(1029266948), charge.ID},
+		{"Id", uint64(1029266948), charge.Id},
 		{"Name", "Super Duper Plan", charge.Name},
-		{"APIClientID", int64(755357713), charge.APIClientID},
+		{"APIClientId", uint64(755357713), charge.APIClientId},
 		{"Price", decimal.NewFromFloat(10.00).String(), charge.Price.String()},
 		{"Status", "pending", charge.Status},
 		{"ReturnURL", "http://super-duper.shopifyapps.com/", charge.ReturnURL},
@@ -91,7 +92,7 @@ func recurringApplicationChargeTestsAllFieldsAffected(t *testing.T,
 		{
 			"ConfirmationURL",
 			fmt.Sprintf("https://apple.myshopify.com/%s/charges/1029266948/confirm_recurring_application_c"+
-				"harge?signature=BAhpBAReWT0%%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68", globalApiPathPrefix),
+				"harge?signature=BAhpBAReWT0%%3D--b51a6db06a3792c4439783fcf0f2e89bf1c9df68", client.pathPrefix),
 			charge.ConfirmationURL,
 		},
 	}
@@ -110,7 +111,7 @@ func TestRecurringApplicationChargeServiceOp_Create(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges.json", client.pathPrefix),
 		httpmock.NewBytesResponder(
 			200, loadFixture("reccuringapplicationcharge/reccuringapplicationcharge.json"),
 		),
@@ -123,7 +124,7 @@ func TestRecurringApplicationChargeServiceOp_Create(t *testing.T) {
 		ReturnURL: "http://super-duper.shopifyapps.com",
 	}
 
-	returnedCharge, err := client.RecurringApplicationCharge.Create(charge)
+	returnedCharge, err := client.RecurringApplicationCharge.Create(context.Background(), charge)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Create returned an error: %v", err)
 	}
@@ -137,16 +138,16 @@ func TestRecurringApplicationChargeServiceOp_Get(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"recurring_application_charge": {"id":1}}`),
 	)
 
-	charge, err := client.RecurringApplicationCharge.Get(1, nil)
+	charge, err := client.RecurringApplicationCharge.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Get returned an error: %v", err)
 	}
 
-	expected := &RecurringApplicationCharge{ID: 1}
+	expected := &RecurringApplicationCharge{Id: 1}
 	if !reflect.DeepEqual(charge, expected) {
 		t.Errorf("RecurringApplicationCharge.Get returned %+v, expected %+v", charge, expected)
 	}
@@ -158,7 +159,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsAffected(t *testing.T) 
 
 	httpmock.RegisterResponder(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1029266948.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1029266948.json", client.pathPrefix),
 		httpmock.NewBytesResponder(
 			200, loadFixture(
 				"reccuringapplicationcharge/reccuringapplicationcharge_all_fields_affected.json",
@@ -166,7 +167,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsAffected(t *testing.T) 
 		),
 	)
 
-	charge, err := client.RecurringApplicationCharge.Get(1029266948, nil)
+	charge, err := client.RecurringApplicationCharge.Get(context.Background(), 1029266948, nil)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Get returned an error: %v", err)
 	}
@@ -189,7 +190,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsBad(t *testing.T) {
 
 		httpmock.RegisterResponder(
 			"GET",
-			fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1029266948.json", globalApiPathPrefix),
+			fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1029266948.json", client.pathPrefix),
 			httpmock.NewBytesResponder(
 				200,
 				loadFixture(
@@ -198,7 +199,7 @@ func TestRecurringApplicationChargeServiceOp_GetAllFieldsBad(t *testing.T) {
 			),
 		)
 
-		if _, err := client.RecurringApplicationCharge.Get(1029266948, nil); err == nil {
+		if _, err := client.RecurringApplicationCharge.Get(context.Background(), 1029266948, nil); err == nil {
 			t.Errorf("RecurringApplicationCharge.Get should have returned an error")
 		}
 
@@ -212,16 +213,16 @@ func TestRecurringApplicationChargeServiceOp_List(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, `{"recurring_application_charges": [{"id":1},{"id":2}]}`),
 	)
 
-	charges, err := client.RecurringApplicationCharge.List(nil)
+	charges, err := client.RecurringApplicationCharge.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.List returned an error: %v", err)
 	}
 
-	expected := []RecurringApplicationCharge{{ID: 1}, {ID: 2}}
+	expected := []RecurringApplicationCharge{{Id: 1}, {Id: 2}}
 	if !reflect.DeepEqual(charges, expected) {
 		t.Errorf("RecurringApplicationCharge.List returned %+v, expected %+v", charges, expected)
 	}
@@ -233,23 +234,23 @@ func TestRecurringApplicationChargeServiceOp_Activate(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"POST",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/455696195/activate.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/455696195/activate.json", client.pathPrefix),
 		httpmock.NewStringResponder(
 			200, `{"recurring_application_charge":{"id":455696195,"status":"active"}}`,
 		),
 	)
 
 	charge := RecurringApplicationCharge{
-		ID:     455696195,
+		Id:     455696195,
 		Status: "accepted",
 	}
 
-	returnedCharge, err := client.RecurringApplicationCharge.Activate(charge)
+	returnedCharge, err := client.RecurringApplicationCharge.Activate(context.Background(), charge)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Activate returned an error: %v", err)
 	}
 
-	expected := &RecurringApplicationCharge{ID: 455696195, Status: "active"}
+	expected := &RecurringApplicationCharge{Id: 455696195, Status: "active"}
 	if !reflect.DeepEqual(returnedCharge, expected) {
 		t.Errorf("RecurringApplicationCharge.Activate returned %+v, expected %+v", charge, expected)
 	}
@@ -261,11 +262,11 @@ func TestRecurringApplicationChargeServiceOp_Delete(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"DELETE",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1.json", client.pathPrefix),
 		httpmock.NewStringResponder(200, "{}"),
 	)
 
-	if err := client.RecurringApplicationCharge.Delete(1); err != nil {
+	if err := client.RecurringApplicationCharge.Delete(context.Background(), 1); err != nil {
 		t.Errorf("RecurringApplicationCharge.Delete returned an error: %v", err)
 	}
 }
@@ -276,20 +277,20 @@ func TestRecurringApplicationChargeServiceOp_Update(t *testing.T) {
 	params := map[string]string{"recurring_application_charge[capped_amount]": "100"}
 	httpmock.RegisterResponderWithQuery(
 		"PUT",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/455696195/customize.json", globalApiPathPrefix),
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/455696195/customize.json", client.pathPrefix),
 		params,
 		httpmock.NewStringResponder(
 			200, `{"recurring_application_charge":{"id":455696195,"capped_amount":"100.00"}}`,
 		),
 	)
 
-	charge, err := client.RecurringApplicationCharge.Update(455696195, 100)
+	charge, err := client.RecurringApplicationCharge.Update(context.Background(), 455696195, 100)
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Update returned an error: %v", err)
 	}
 
 	ca := decimal.NewFromFloat(100.00)
-	expected := &RecurringApplicationCharge{ID: 455696195, CappedAmount: &ca}
+	expected := &RecurringApplicationCharge{Id: 455696195, CappedAmount: &ca}
 	if expected.CappedAmount.String() != charge.CappedAmount.String() {
 		t.Errorf("RecurringApplicationCharge.Update returned %+v, expected %+v", charge, expected)
 	}

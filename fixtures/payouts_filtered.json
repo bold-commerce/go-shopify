@@ -1,0 +1,11 @@
+{
+  "payouts": [
+    {
+      "id": 854088011,
+      "status": "scheduled",
+      "date": "2013-11-01",
+      "currency": "USD",
+      "amount": "43.12"
+    }
+  ]
+}
