@@ -116,6 +116,7 @@ type Order struct {
 	Tags                  string           `json:"tags,omitempty"`
 	LocationId            int64            `json:"location_id,omitempty"`
 	PaymentGatewayNames   []string         `json:"payment_gateway_names,omitempty"`
+	PaymentTerms          *PaymentTerms    `json:"payment_terms,omitempty"`
 	ProcessingMethod      string           `json:"processing_method,omitempty"`
 	Refunds               []Refund         `json:"refunds,omitempty"`
 	UserId                int64            `json:"user_id,omitempty"`
@@ -283,6 +284,24 @@ type RefundLineItem struct {
 	LineItem   *LineItem        `json:"line_item,omitempty"`
 	Subtotal   *decimal.Decimal `json:"subtotal,omitempty"`
 	TotalTax   *decimal.Decimal `json:"total_tax,omitempty"`
+}
+
+type PaymentTerms struct {
+	Amount           *decimal.Decimal  `json:"amount,omitempty"`
+	Currency         string            `json:"currency,omitempty"`
+	PaymentTermsName string            `json:"payment_terms_name,omitempty"`
+	PaymentTermsType string            `json:"payment_terms_type,omitempty"`
+	DueInDays        int64             `json:"due_in_days,omitempty"`
+	PaymentSchedules []PaymentSchedule `json:"payment_schedules,omitempty"`
+}
+
+type PaymentSchedule struct {
+	Amount                *decimal.Decimal `json:"amount,omitempty"`
+	Currency              string           `json:"currency,omitempty"`
+	IssuedAt              *time.Time       `json:"issued_at,omitempty"`
+	DueAt                 *time.Time       `json:"due_at,omitempty"`
+	CompletedAt           *time.Time       `json:"completed_at,omitempty"`
+	ExpectedPaymentMethod string           `json:"expected_payment_method,omitempty"`
 }
 
 // List orders
