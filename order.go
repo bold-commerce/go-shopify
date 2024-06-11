@@ -291,16 +291,16 @@ type PaymentTerms struct {
 	Currency         string            `json:"currency,omitempty"`
 	PaymentTermsName string            `json:"payment_terms_name,omitempty"`
 	PaymentTermsType string            `json:"payment_terms_type,omitempty"`
-	DueInDays        int               `json:"due_in_days,omitempty"`
+	DueInDays        int64             `json:"due_in_days,omitempty"`
 	PaymentSchedules []PaymentSchedule `json:"payment_schedules,omitempty"`
 }
 
 type PaymentSchedule struct {
 	Amount                *decimal.Decimal `json:"amount,omitempty"`
 	Currency              string           `json:"currency,omitempty"`
-	IssuedAt              string           `json:"issued_at,omitempty"`
-	DueAt                 string           `json:"due_at,omitempty"`
-	CompletedAt           string           `json:"completed_at,omitempty"`
+	IssuedAt              *time.Time       `json:"issued_at,omitempty"`
+	DueAt                 *time.Time       `json:"due_at,omitempty"`
+	CompletedAt           *time.Time       `json:"completed_at,omitempty"`
 	ExpectedPaymentMethod string           `json:"expected_payment_method,omitempty"`
 }
 
