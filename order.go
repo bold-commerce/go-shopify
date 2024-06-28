@@ -374,6 +374,7 @@ type LineItem struct {
 	ProductId                  uint64                 `json:"product_id,omitempty"`
 	VariantId                  uint64                 `json:"variant_id,omitempty"`
 	Quantity                   int                    `json:"quantity,omitempty"`
+	CurrentQuantity            int                    `json:"current_quantity,omitempty"`
 	Price                      *decimal.Decimal       `json:"price,omitempty"`
 	TotalDiscount              *decimal.Decimal       `json:"total_discount,omitempty"`
 	Title                      string                 `json:"title,omitempty"`
