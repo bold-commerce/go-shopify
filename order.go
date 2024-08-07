@@ -60,80 +60,80 @@ const (
 	OrderStatusAny orderStatus = "any"
 )
 
-type orderFulfillmentStatus string
+type OrderFulfillmentStatus string
 
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
 const (
 	// Show orders that have been shipped.
-	OrderFulfillmentStatusShipped orderFulfillmentStatus = "shipped"
+	OrderFulfillmentStatusShipped OrderFulfillmentStatus = "shipped"
 
 	// Show partially shipped orders.
-	OrderFulfillmentStatusPartial orderFulfillmentStatus = "partial"
+	OrderFulfillmentStatusPartial OrderFulfillmentStatus = "partial"
 
 	// Show orders that have not yet been shipped.
-	OrderFulfillmentStatusUnshipped orderFulfillmentStatus = "unshipped"
+	OrderFulfillmentStatusUnshipped OrderFulfillmentStatus = "unshipped"
 
 	// Show orders of any fulfillment status.
-	OrderFulfillmentStatusAny orderFulfillmentStatus = "any"
+	OrderFulfillmentStatusAny OrderFulfillmentStatus = "any"
 
 	// Returns orders with fulfillment_status of null or partial.
-	OrderFulfillmentStatusUnfulfilled orderFulfillmentStatus = "unfulfilled"
+	OrderFulfillmentStatusUnfulfilled OrderFulfillmentStatus = "unfulfilled"
 
 	//"fulfilled" used to be an acceptable value? Was it deprecated? It isn't noted
 	//in the Shopify docs at the provided URL, but it was used in tests and still
 	//seems to function.
-	OrderFulfillmentStatusFulfilled orderFulfillmentStatus = "fulfilled"
+	OrderFulfillmentStatusFulfilled OrderFulfillmentStatus = "fulfilled"
 )
 
-type orderFinancialStatus string
+type OrderFinancialStatus string
 
 // https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
 const (
 	// Show only authorized orders.
-	OrderFinancialStatusAuthorized orderFinancialStatus = "authorized"
+	OrderFinancialStatusAuthorized OrderFinancialStatus = "authorized"
 
 	// Show only pending orders.
-	OrderFinancialStatusPending orderFinancialStatus = "pending"
+	OrderFinancialStatusPending OrderFinancialStatus = "pending"
 
 	// Show only paid orders.
-	OrderFinancialStatusPaid orderFinancialStatus = "paid"
+	OrderFinancialStatusPaid OrderFinancialStatus = "paid"
 
 	// Show only partially paid orders.
-	OrderFinancialStatusPartiallyPaid orderFinancialStatus = "partially_paid"
+	OrderFinancialStatusPartiallyPaid OrderFinancialStatus = "partially_paid"
 
 	// Show only refunded orders.
-	OrderFinancialStatusRefunded orderFinancialStatus = "refunded"
+	OrderFinancialStatusRefunded OrderFinancialStatus = "refunded"
 
 	// Show only voided orders.
-	OrderFinancialStatusVoided orderFinancialStatus = "voided"
+	OrderFinancialStatusVoided OrderFinancialStatus = "voided"
 
 	// Show only partially refunded orders.
-	OrderFinancialStatusPartiallyRefunded orderFinancialStatus = "partially_refunded"
+	OrderFinancialStatusPartiallyRefunded OrderFinancialStatus = "partially_refunded"
 
 	// Show orders of any financial status.
-	OrderFinancialStatusAny orderFinancialStatus = "any"
+	OrderFinancialStatusAny OrderFinancialStatus = "any"
 
 	// Show authorized and partially paid orders.
-	OrderFinancialStatusUnpaid orderFinancialStatus = "unpaid"
+	OrderFinancialStatusUnpaid OrderFinancialStatus = "unpaid"
 )
 
-type orderCancelReason string
+type OrderCancelReason string
 
 const (
 	// The customer canceled the order.
-	OrderCancelReasonCustomer orderCancelReason = "customer"
+	OrderCancelReasonCustomer OrderCancelReason = "customer"
 
 	// The order was fraudulent.
-	OrderCancelReasonFraud orderCancelReason = "fraud"
+	OrderCancelReasonFraud OrderCancelReason = "fraud"
 
 	// Items in the order were not in inventory.
-	OrderCancelReasonInventory orderCancelReason = "inventory"
+	OrderCancelReasonInventory OrderCancelReason = "inventory"
 
 	// The payment was declined.
-	OrderCancelReasonDeclined orderCancelReason = "declined"
+	OrderCancelReasonDeclined OrderCancelReason = "declined"
 
 	// Cancelled for some other reason.
-	OrderCancelReasonOther orderCancelReason = "other"
+	OrderCancelReasonOther OrderCancelReason = "other"
 )
 
 type discountAllocationMethod string
@@ -210,8 +210,8 @@ type OrderCountOptions struct {
 	Order             string                 `url:"order,omitempty"`
 	Fields            string                 `url:"fields,omitempty"`
 	Status            orderStatus            `url:"status,omitempty"`
-	FinancialStatus   orderFinancialStatus   `url:"financial_status,omitempty"`
-	FulfillmentStatus orderFulfillmentStatus `url:"fulfillment_status,omitempty"`
+	FinancialStatus   OrderFinancialStatus   `url:"financial_status,omitempty"`
+	FulfillmentStatus OrderFulfillmentStatus `url:"fulfillment_status,omitempty"`
 }
 
 // A struct for all available order list options.
@@ -219,8 +219,8 @@ type OrderCountOptions struct {
 type OrderListOptions struct {
 	ListOptions
 	Status            orderStatus            `url:"status,omitempty"`
-	FinancialStatus   orderFinancialStatus   `url:"financial_status,omitempty"`
-	FulfillmentStatus orderFulfillmentStatus `url:"fulfillment_status,omitempty"`
+	FinancialStatus   OrderFinancialStatus   `url:"financial_status,omitempty"`
+	FulfillmentStatus OrderFulfillmentStatus `url:"fulfillment_status,omitempty"`
 	ProcessedAtMin    time.Time              `url:"processed_at_min,omitempty"`
 	ProcessedAtMax    time.Time              `url:"processed_at_max,omitempty"`
 	Order             string                 `url:"order,omitempty"`
@@ -283,9 +283,9 @@ type Order struct {
 	CurrentTotalTaxSet       *AmountSet              `json:"current_total_tax_set,omitempty"`
 	TaxLines                 []TaxLine               `json:"tax_lines,omitempty"`
 	TotalWeight              int                     `json:"total_weight,omitempty"`
-	FinancialStatus          orderFinancialStatus    `json:"financial_status,omitempty"`
+	FinancialStatus          OrderFinancialStatus    `json:"financial_status,omitempty"`
 	Fulfillments             []Fulfillment           `json:"fulfillments,omitempty"`
-	FulfillmentStatus        orderFulfillmentStatus  `json:"fulfillment_status,omitempty"`
+	FulfillmentStatus        OrderFulfillmentStatus  `json:"fulfillment_status,omitempty"`
 	Token                    string                  `json:"token,omitempty"`
 	CartToken                string                  `json:"cart_token,omitempty"`
 	Number                   int                     `json:"number,omitempty"`
@@ -294,7 +294,7 @@ type Order struct {
 	Test                     bool                    `json:"test,omitempty"`
 	BrowserIp                string                  `json:"browser_ip,omitempty"`
 	BuyerAcceptsMarketing    bool                    `json:"buyer_accepts_marketing,omitempty"`
-	CancelReason             orderCancelReason       `json:"cancel_reason,omitempty"`
+	CancelReason             OrderCancelReason       `json:"cancel_reason,omitempty"`
 	NoteAttributes           []NoteAttribute         `json:"note_attributes,omitempty"`
 	DiscountCodes            []DiscountCode          `json:"discount_codes,omitempty"`
 	DiscountApplications     []DiscountApplication   `json:"discount_applications,omitempty"`
@@ -392,7 +392,7 @@ type LineItem struct {
 	ProductExists              bool                   `json:"product_exists,omitempty"`
 	FulfillableQuantity        int                    `json:"fulfillable_quantity,omitempty"`
 	Grams                      int                    `json:"grams,omitempty"`
-	FulfillmentStatus          orderFulfillmentStatus `json:"fulfillment_status,omitempty"`
+	FulfillmentStatus          OrderFulfillmentStatus `json:"fulfillment_status,omitempty"`
 	TaxLines                   []TaxLine              `json:"tax_lines,omitempty"`
 
 	// Deprecated: See 2022-10 release notes: https://shopify.dev/docs/api/release-notes/2022-10

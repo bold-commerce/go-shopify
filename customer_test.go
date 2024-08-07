@@ -353,26 +353,24 @@ func TestCustomerGet(t *testing.T) {
 	}
 
 	expectation := &Customer{
-		Id:                        1,
-		Email:                     "test@example.com",
-		FirstName:                 "Test",
-		LastName:                  "Citizen",
-		AcceptsMarketing:          true,
-		VerifiedEmail:             true,
-		TaxExempt:                 false,
-		OrdersCount:               4,
-		State:                     "enabled",
-		TotalSpent:                &totalSpent,
-		LastOrderId:               123,
-		Note:                      "",
-		Phone:                     "",
-		AcceptsMarketingUpdatedAt: &updatedAt,
-		EmailMarketingConsent:     &emailMarketingConsent1,
-		SMSMarketingConsent:       &smsMarketingConsent1,
-		DefaultAddress:            address1,
-		Addresses:                 []*CustomerAddress{address1},
-		CreatedAt:                 &createdAt,
-		UpdatedAt:                 &updatedAt,
+		Id:                    1,
+		Email:                 "test@example.com",
+		FirstName:             "Test",
+		LastName:              "Citizen",
+		VerifiedEmail:         true,
+		TaxExempt:             false,
+		OrdersCount:           4,
+		State:                 "enabled",
+		TotalSpent:            &totalSpent,
+		LastOrderId:           123,
+		Note:                  "",
+		Phone:                 "",
+		EmailMarketingConsent: &emailMarketingConsent1,
+		SMSMarketingConsent:   &smsMarketingConsent1,
+		DefaultAddress:        address1,
+		Addresses:             []*CustomerAddress{address1},
+		CreatedAt:             &createdAt,
+		UpdatedAt:             &updatedAt,
 	}
 
 	if customer.Id != expectation.Id {
@@ -386,9 +384,6 @@ func TestCustomerGet(t *testing.T) {
 	}
 	if customer.LastName != expectation.LastName {
 		t.Errorf("Customer.LastName returned %+v, expected %+v", customer.LastName, expectation.LastName)
-	}
-	if customer.AcceptsMarketing != expectation.AcceptsMarketing {
-		t.Errorf("Customer.AcceptsMarketing returned %+v, expected %+v", customer.AcceptsMarketing, expectation.AcceptsMarketing)
 	}
 	if !customer.CreatedAt.Equal(*expectation.CreatedAt) {
 		t.Errorf("Customer.CreatedAt returned %+v, expected %+v", customer.CreatedAt, expectation.CreatedAt)
@@ -480,9 +475,6 @@ func TestCustomerGet(t *testing.T) {
 	}
 	if len(customer.Addresses) != len(expectation.Addresses) {
 		t.Errorf("Customer.Addresses count returned %d, expected %d", len(customer.Addresses), len(expectation.Addresses))
-	}
-	if !customer.AcceptsMarketingUpdatedAt.Equal(*expectation.AcceptsMarketingUpdatedAt) {
-		t.Errorf("Customer.AcceptsMarketingUpdatedAt returned %+v, expected %+v", customer.AcceptsMarketingUpdatedAt, expectation.AcceptsMarketingUpdatedAt)
 	}
 	if customer.EmailMarketingConsent == nil {
 		t.Errorf("Customer.EmailMarketingConsent is nil, expected not nil")
