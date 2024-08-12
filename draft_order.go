@@ -107,7 +107,7 @@ type DraftOrderListOptions struct {
 	UpdatedAtMin *time.Time  `url:"updated_at_min,omitempty"`
 	UpdatedAtMax *time.Time  `url:"updated_at_max,omitempty"`
 	Ids          string      `url:"ids,omitempty"`
-	Status       orderStatus `url:"status,omitempty"`
+	Status       OrderStatus `url:"status,omitempty"`
 }
 
 // DraftOrderCountOptions represents the possible options to the count draft orders endpoint
@@ -116,7 +116,7 @@ type DraftOrderCountOptions struct {
 	Limit   int         `url:"limit,omitempty"`
 	SinceId uint64      `url:"since_id,omitempty"`
 	Ids     string      `url:"ids,omitempty"`
-	Status  orderStatus `url:"status,omitempty"`
+	Status  OrderStatus `url:"status,omitempty"`
 }
 
 // Create draft order

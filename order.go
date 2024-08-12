@@ -43,162 +43,191 @@ type OrderServiceOp struct {
 	client *Client
 }
 
-type orderStatus string
+// OrderStatus Filter orders by their status.
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#get-orders?status=any
+type OrderStatus string
 
-// https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#get-orders?status=any
 const (
-	// Show only open orders.
-	OrderStatusOpen orderStatus = "open"
+	// OrderStatusOpen Show only open orders.
+	OrderStatusOpen OrderStatus = "open"
 
-	// Show only closed orders.
-	OrderStatusClosed orderStatus = "closed"
+	// OrderStatusClosed Show only closed orders.
+	OrderStatusClosed OrderStatus = "closed"
 
-	// Show only cancelled orders.
-	OrderStatusCancelled orderStatus = "cancelled"
+	// OrderStatusCancelled Show only cancelled orders.
+	OrderStatusCancelled OrderStatus = "cancelled"
 
-	// Show orders of any status, open, closed, cancellerd, or archived.
-	OrderStatusAny orderStatus = "any"
+	// OrderStatusAny Show orders of any status, including archived orders.
+	OrderStatusAny OrderStatus = "any"
 )
 
+// OrderFulfillmentStatus Filter orders by their fulfillment status.
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#get-orders?status=any
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#resource-object
 type OrderFulfillmentStatus string
 
-// https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
 const (
-	// Show orders that have been shipped.
+	// OrderFulfillmentStatusShipped Show orders that have been shipped. Returns orders with `fulfillment_status` of `fulfilled`.
 	OrderFulfillmentStatusShipped OrderFulfillmentStatus = "shipped"
 
-	// Show partially shipped orders.
+	// OrderFulfillmentStatusPartial Show partially shipped orders.
 	OrderFulfillmentStatusPartial OrderFulfillmentStatus = "partial"
 
-	// Show orders that have not yet been shipped.
+	// OrderFulfillmentStatusUnshipped Show orders that have not yet been shipped. Returns orders with `fulfillment_status` of `null`.
 	OrderFulfillmentStatusUnshipped OrderFulfillmentStatus = "unshipped"
 
-	// Show orders of any fulfillment status.
+	// OrderFulfillmentStatusAny Show orders of any fulfillment status.
 	OrderFulfillmentStatusAny OrderFulfillmentStatus = "any"
 
-	// Returns orders with fulfillment_status of null or partial.
+	// OrderFulfillmentStatusUnfulfilled Returns orders with `fulfillment_status` of `null` or `partial`.
 	OrderFulfillmentStatusUnfulfilled OrderFulfillmentStatus = "unfulfilled"
 
-	//"fulfilled" used to be an acceptable value? Was it deprecated? It isn't noted
-	//in the Shopify docs at the provided URL, but it was used in tests and still
-	//seems to function.
+	// OrderFulfillmentStatusFulfilled `fulfilled` used to be an acceptable value? Was it deprecated? It isn't noted
+	// in the Shopify docs at the provided URL, but it was used in tests and still
+	// seems to function.
 	OrderFulfillmentStatusFulfilled OrderFulfillmentStatus = "fulfilled"
 )
 
+// OrderFinancialStatus Filter orders by their financial status.
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#resource-object
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#get-orders?status=any
 type OrderFinancialStatus string
 
-// https://shopify.dev/docs/api/admin-rest/2023-07/resources/order#get-orders?status=any
 const (
-	// Show only authorized orders.
+	// OrderFinancialStatusAuthorized Show only authorized orders.
 	OrderFinancialStatusAuthorized OrderFinancialStatus = "authorized"
 
-	// Show only pending orders.
+	// OrderFinancialStatusPending Show only pending orders.
 	OrderFinancialStatusPending OrderFinancialStatus = "pending"
 
-	// Show only paid orders.
+	// OrderFinancialStatusPaid Show only paid orders.
 	OrderFinancialStatusPaid OrderFinancialStatus = "paid"
 
-	// Show only partially paid orders.
+	// OrderFinancialStatusPartiallyPaid Show only partially paid orders.
 	OrderFinancialStatusPartiallyPaid OrderFinancialStatus = "partially_paid"
 
-	// Show only refunded orders.
+	// OrderFinancialStatusRefunded Show only refunded orders.
 	OrderFinancialStatusRefunded OrderFinancialStatus = "refunded"
 
-	// Show only voided orders.
+	// OrderFinancialStatusVoided Show only voided orders.
 	OrderFinancialStatusVoided OrderFinancialStatus = "voided"
 
-	// Show only partially refunded orders.
+	// OrderFinancialStatusPartiallyRefunded Show only partially refunded orders.
 	OrderFinancialStatusPartiallyRefunded OrderFinancialStatus = "partially_refunded"
 
-	// Show orders of any financial status.
+	// OrderFinancialStatusAny Show orders of any financial status.
 	OrderFinancialStatusAny OrderFinancialStatus = "any"
 
-	// Show authorized and partially paid orders.
+	// OrderFinancialStatusUnpaid Show authorized and partially paid orders.
 	OrderFinancialStatusUnpaid OrderFinancialStatus = "unpaid"
 )
 
+// OrderCancelReason The reason why the order was canceled.
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#resource-object
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#post-orders-order-id-cancel
 type OrderCancelReason string
 
 const (
-	// The customer canceled the order.
+	// OrderCancelReasonCustomer The customer canceled the order.
 	OrderCancelReasonCustomer OrderCancelReason = "customer"
 
-	// The order was fraudulent.
+	// OrderCancelReasonFraud The order was fraudulent.
 	OrderCancelReasonFraud OrderCancelReason = "fraud"
 
-	// Items in the order were not in inventory.
+	// OrderCancelReasonInventory Items in the order were not in inventory.
 	OrderCancelReasonInventory OrderCancelReason = "inventory"
 
-	// The payment was declined.
+	// OrderCancelReasonDeclined The payment was declined.
 	OrderCancelReasonDeclined OrderCancelReason = "declined"
 
-	// Cancelled for some other reason.
+	// OrderCancelReasonOther Cancelled for some other reason.
 	OrderCancelReasonOther OrderCancelReason = "other"
 )
 
-type discountAllocationMethod string
+// DiscountAllocationMethod
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#resource-object
+type DiscountAllocationMethod string
 
 const (
-	// The value is spread across all entitled lines.
-	DiscountAllocationMethodAcross discountAllocationMethod = "across"
+	// DiscountAllocationMethodAcross The value is spread across all entitled lines.
+	DiscountAllocationMethodAcross DiscountAllocationMethod = "across"
 
-	// The value is applied onto every entitled line.
-	DiscountAllocationMethodEach discountAllocationMethod = "each"
+	// DiscountAllocationMethodEach The value is applied onto every entitled line.
+	DiscountAllocationMethodEach DiscountAllocationMethod = "each"
 
-	// The value is applied onto a single line.
-	DiscountAllocationMethodOne discountAllocationMethod = "one"
+	// DiscountAllocationMethodOne The value is applied onto a single line.
+	DiscountAllocationMethodOne DiscountAllocationMethod = "one"
 )
 
-type discountTargetSelection string
+// DiscountTargetSelection The lines on the order, of the type defined by `target_type`, that the discount is allocated over
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#resource-object
+type DiscountTargetSelection string
 
 const (
-	// The discount is allocated onto all lines
-	DiscountTargetSelectionAll discountTargetSelection = "all"
+	// DiscountTargetSelectionAll The discount is allocated onto all lines
+	DiscountTargetSelectionAll DiscountTargetSelection = "all"
 
-	// The discount is allocated only onto lines it is entitled for.
-	DiscountTargetSelectionEntitled discountTargetSelection = "entitled"
+	// DiscountTargetSelectionEntitled The discount is allocated only onto lines it is entitled for.
+	DiscountTargetSelectionEntitled DiscountTargetSelection = "entitled"
 
-	// The discount is allocated onto explicitly selected lines.
-	DiscountTargetSelectionExplicit discountTargetSelection = "explicit"
+	// DiscountTargetSelectionExplicit The discount is allocated onto explicitly selected lines.
+	DiscountTargetSelectionExplicit DiscountTargetSelection = "explicit"
 )
 
-type discountTargetType string
+// DiscountTargetType The type of line on the order that the discount is applicable on
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#resource-object
+type DiscountTargetType string
 
 const (
-	// The discount applies to line items.
-	DiscountTargetTypeLineItem discountTargetType = "line_item"
+	// DiscountTargetTypeLineItem The discount applies to line items.
+	DiscountTargetTypeLineItem DiscountTargetType = "line_item"
 
-	// The discount applies to shipping lines.
-	DiscountTargetTypeShippingLine discountTargetType = "shipping_line"
+	// DiscountTargetTypeShippingLine The discount applies to shipping lines.
+	DiscountTargetTypeShippingLine DiscountTargetType = "shipping_line"
 )
 
-type discountType string
+// DiscountType The discount application type
+type DiscountType string
 
 const (
-	// The discount was applied automatically, such as by a Buy X Get Y automatic discount.
-	DiscountTypeAutomatic discountType = "automatic"
+	// DiscountTypeAutomatic The discount was applied automatically, such as by a Buy X Get Y automatic discount.
+	DiscountTypeAutomatic DiscountType = "automatic"
 
-	// The discount was applied by a discount code.
-	DiscountTypeDiscountCode discountType = "discount_code"
+	// DiscountTypeDiscountCode The discount was applied by a discount code.
+	DiscountTypeDiscountCode DiscountType = "discount_code"
 
-	// The discount was manually applied by the merchant (for example, by using an app or creating a draft order).
-	DiscountTypeManual discountType = "manual"
+	// DiscountTypeManual The discount was manually applied by the merchant (for example, by using an app or creating a draft order).
+	DiscountTypeManual DiscountType = "manual"
 
-	// The discount was applied by a Shopify Script.
-	DiscountTypeScript discountType = "script"
+	// DiscountTypeScript The discount was applied by a Shopify Script.
+	DiscountTypeScript DiscountType = "script"
 )
 
-type discountValueType string
+// DiscountValueType The type of value of the discount
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#resource-object
+type DiscountValueType string
 
 const (
-	// A fixed amount discount value in the currency of the order.
-	DiscountValueTypeFixedAmount discountValueType = "fixed_amount"
+	// DiscountValueTypeFixedAmount A fixed amount discount value in the currency of the order.
+	DiscountValueTypeFixedAmount DiscountValueType = "fixed_amount"
 
-	// A percentage discount value.
-	DiscountValueTypePercentage discountValueType = "percentage"
+	// DiscountValueTypePercentage A percentage discount value.
+	DiscountValueTypePercentage DiscountValueType = "percentage"
 )
 
-// A struct for all available order count options
+// OrderCountOptions A struct for all available order count options
 type OrderCountOptions struct {
 	Page              int                    `url:"page,omitempty"`
 	Limit             int                    `url:"limit,omitempty"`
@@ -209,16 +238,16 @@ type OrderCountOptions struct {
 	UpdatedAtMax      time.Time              `url:"updated_at_max,omitempty"`
 	Order             string                 `url:"order,omitempty"`
 	Fields            string                 `url:"fields,omitempty"`
-	Status            orderStatus            `url:"status,omitempty"`
+	Status            OrderStatus            `url:"status,omitempty"`
 	FinancialStatus   OrderFinancialStatus   `url:"financial_status,omitempty"`
 	FulfillmentStatus OrderFulfillmentStatus `url:"fulfillment_status,omitempty"`
 }
 
-// A struct for all available order list options.
+// OrderListOptions A struct for all available order list options.
 // See: https://help.shopify.com/api/reference/order#index
 type OrderListOptions struct {
 	ListOptions
-	Status            orderStatus            `url:"status,omitempty"`
+	Status            OrderStatus            `url:"status,omitempty"`
 	FinancialStatus   OrderFinancialStatus   `url:"financial_status,omitempty"`
 	FulfillmentStatus OrderFulfillmentStatus `url:"fulfillment_status,omitempty"`
 	ProcessedAtMin    time.Time              `url:"processed_at_min,omitempty"`
@@ -226,7 +255,7 @@ type OrderListOptions struct {
 	Order             string                 `url:"order,omitempty"`
 }
 
-// A struct of all available order cancel options.
+// OrderCancelOptions A struct of all available order cancel options.
 // See: https://help.shopify.com/api/reference/order#index
 type OrderCancelOptions struct {
 	Amount   *decimal.Decimal `json:"amount,omitempty"`
@@ -237,18 +266,20 @@ type OrderCancelOptions struct {
 	Refund   *Refund          `json:"refund,omitempty"`
 }
 
-// The behaviour to use when updating inventory.
-type orderInventoryBehaviour string
+// OrderInventoryBehaviour The behaviour to use when updating inventory.
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/order#post-orders
+type OrderInventoryBehaviour string
 
 const (
-	// Do not claim inventory.
-	OrderInventoryBehaviourBypass orderInventoryBehaviour = "bypass"
+	// OrderInventoryBehaviourBypass Do not claim inventory.
+	OrderInventoryBehaviourBypass OrderInventoryBehaviour = "bypass"
 
-	// Ignore the product's inventory policy and claim inventory.
-	OrderInventoryBehaviourDecrementIgnoringPolicy orderInventoryBehaviour = "decrement_ignoring_policy"
+	// OrderInventoryBehaviourDecrementIgnoringPolicy Ignore the product's inventory policy and claim inventory.
+	OrderInventoryBehaviourDecrementIgnoringPolicy OrderInventoryBehaviour = "decrement_ignoring_policy"
 
-	// Follow the product's inventory policy and claim inventory, if possible.
-	OrderInventoryBehaviourDecrementObeyingPolicy orderInventoryBehaviour = "decrement_obeying_policy"
+	// OrderInventoryBehaviourDecrementObeyingPolicy Follow the product's inventory policy and claim inventory, if possible.
+	OrderInventoryBehaviourDecrementObeyingPolicy OrderInventoryBehaviour = "decrement_obeying_policy"
 )
 
 // Order represents a Shopify order
@@ -329,7 +360,7 @@ type Order struct {
 	SendReceipt              bool                    `json:"send_receipt,omitempty"`
 	SendFulfillmentReceipt   bool                    `json:"send_fulfillment_receipt,omitempty"`
 	PresentmentCurrency      string                  `json:"presentment_currency,omitempty"`
-	InventoryBehaviour       orderInventoryBehaviour `json:"inventory_behaviour,omitempty"`
+	InventoryBehaviour       OrderInventoryBehaviour `json:"inventory_behaviour,omitempty"`
 }
 
 type Address struct {
@@ -358,15 +389,15 @@ type DiscountCode struct {
 }
 
 type DiscountApplication struct {
-	AllocationMethod discountAllocationMethod `json:"allocation_method,omitempty"`
+	AllocationMethod DiscountAllocationMethod `json:"allocation_method,omitempty"`
 	Code             string                   `json:"code"`
 	Description      string                   `json:"description"`
-	TargetSelection  discountTargetSelection  `json:"target_selection"`
-	TargetType       discountTargetType       `json:"target_type"`
+	TargetSelection  DiscountTargetSelection  `json:"target_selection"`
+	TargetType       DiscountTargetType       `json:"target_type"`
 	Title            string                   `json:"title"`
-	Type             discountType             `json:"type"`
+	Type             DiscountType             `json:"type"`
 	Value            *decimal.Decimal         `json:"value"`
-	ValueType        discountValueType        `json:"value_type"`
+	ValueType        DiscountValueType        `json:"value_type"`
 }
 
 type LineItem struct {

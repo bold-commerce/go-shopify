@@ -34,17 +34,19 @@ type VariantServiceOp struct {
 	client *Client
 }
 
-type variantInventoryPolicy string
+// VariantInventoryPolicy Whether customers are allowed to place an order for the product variant when it's out of stock
+//
+// https://shopify.dev/docs/api/admin-rest/2024-01/resources/product-variant#resource-object
+type VariantInventoryPolicy string
 
-// https://shopify.dev/docs/api/admin-rest/2023-07/resources/product-variant#resource-object
 const (
-	// Customers are not allowed to place orders for the product variant if it's out
-	// of stock. This is the default value.
-	VariantInventoryPolicyDeny variantInventoryPolicy = "deny"
+	// VariantInventoryPolicyDeny Customers are not allowed to place orders for the product variant if it's out of stock.
+	//
+	// This is the default value.
+	VariantInventoryPolicyDeny VariantInventoryPolicy = "deny"
 
-	// Customers are allowed to place orders for the product variant if it's out of
-	// stock.
-	VariantInventoryPolicyContinue variantInventoryPolicy = "continue"
+	// VariantInventoryPolicyContinue Customers are allowed to place orders for the product variant if it's out of stock.
+	VariantInventoryPolicyContinue VariantInventoryPolicy = "continue"
 )
 
 // Variant represents a Shopify variant
@@ -55,7 +57,7 @@ type Variant struct {
 	Sku                  string                 `json:"sku,omitempty"`
 	Position             int                    `json:"position,omitempty"`
 	Grams                int                    `json:"grams,omitempty"`
-	InventoryPolicy      variantInventoryPolicy `json:"inventory_policy,omitempty"`
+	InventoryPolicy      VariantInventoryPolicy `json:"inventory_policy,omitempty"`
 	Price                *decimal.Decimal       `json:"price,omitempty"`
 	CompareAtPrice       *decimal.Decimal       `json:"compare_at_price,omitempty"`
 	FulfillmentService   string                 `json:"fulfillment_service,omitempty"`
