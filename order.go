@@ -283,6 +283,14 @@ const (
 )
 
 // Order represents a Shopify order
+//
+// Docs:
+//
+//   - [The Order resource]
+//   - [Retrieve a specific order]
+//
+// [The Order resource]: https://shopify.dev/docs/api/admin-rest/2024-04/resources/order#resource-object
+// [Retrieve a specific order]: https://shopify.dev/docs/api/admin-rest/2024-04/resources/order#get-orders-order-id
 type Order struct {
 	Id                       uint64                  `json:"id,omitempty"`
 	Name                     string                  `json:"name,omitempty"`

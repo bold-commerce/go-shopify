@@ -38,17 +38,21 @@ type OrderRiskResource struct {
 type OrdersRisksResource struct {
 	OrderRisk []OrderRisk `json:"risks"`
 }
-type orderRiskRecommendation string
+
+// OrderRiskRecommendation The recommended action given to the merchant.
+//
+// https://shopify.dev/docs/api/admin-rest/2024-04/resources/order-risk#resource-object
+type OrderRiskRecommendation string
 
 const (
-	// order is fraudulent.
-	OrderRecommendationCancel orderRiskRecommendation = "cancel"
+	// OrderRecommendationCancel There is a high level of risk that this order is fraudulent. The merchant should cancel the order.
+	OrderRecommendationCancel OrderRiskRecommendation = "cancel"
 
-	// medium level of risk that this order is fraudulent.
-	OrderRecommendationInvestigate orderRiskRecommendation = "investigate"
+	// OrderRecommendationInvestigate There is a medium level of risk that this order is fraudulent. The merchant should investigate the order.
+	OrderRecommendationInvestigate OrderRiskRecommendation = "investigate"
 
-	// level of risk that this order is fraudulent.
-	OrderRecommendationAccept orderRiskRecommendation = "accept"
+	// OrderRecommendationAccept There is a low level of risk that this order is fraudulent. The order risk found no indication of fraud.
+	OrderRecommendationAccept OrderRiskRecommendation = "accept"
 )
 
 // A struct for all available order Risk list options.
@@ -68,7 +72,7 @@ type OrderRisk struct {
 	Message         string                  `json:"message,omitempty"`
 	Score           string                  `json:"score,omitempty"`
 	Source          string                  `json:"source,omitempty"`
-	Recommendation  orderRiskRecommendation `json:"recommendation,omitempty"`
+	Recommendation  OrderRiskRecommendation `json:"recommendation,omitempty"`
 }
 
 // List OrderRisk
