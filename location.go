@@ -6,7 +6,10 @@ import (
 	"time"
 )
 
-const locationsBasePath = "locations"
+const (
+	locationsBasePath     = "locations"
+	locationsResourceName = "locations"
+)
 
 // LocationService is an interface for interfacing with the location endpoints
 // of the Shopify API.
@@ -18,6 +21,9 @@ type LocationService interface {
 	Get(ctx context.Context, id uint64, options interface{}) (*Location, error)
 	// Retrieves a count of locations
 	Count(ctx context.Context, options interface{}) (int, error)
+
+	// MetafieldsService used for Location resource to communicate with Metafields resource
+	MetafieldsService
 }
 
 type Location struct {
@@ -98,6 +104,42 @@ func (s *LocationServiceOp) Get(ctx context.Context, id uint64, options interfac
 func (s *LocationServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", locationsBasePath)
 	return s.client.Count(ctx, path, options)
+}
+
+// ListMetafields for a Location resource.
+func (s *LocationServiceOp) ListMetafields(ctx context.Context, locationId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.List(ctx, options)
+}
+
+// Count metafields for a Location resource.
+func (s *LocationServiceOp) CountMetafields(ctx context.Context, locationId uint64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.Count(ctx, options)
+}
+
+// GetMetafield for a Location resource.
+func (s *LocationServiceOp) GetMetafield(ctx context.Context, locationId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.Get(ctx, metafieldId, options)
+}
+
+// CreateMetafield for a Location resource.
+func (s *LocationServiceOp) CreateMetafield(ctx context.Context, locationId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.Create(ctx, metafield)
+}
+
+// UpdateMetafield for a Location resource.
+func (s *LocationServiceOp) UpdateMetafield(ctx context.Context, locationId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.Update(ctx, metafield)
+}
+
+// DeleteMetafield for a Location resource.
+func (s *LocationServiceOp) DeleteMetafield(ctx context.Context, locationId uint64, metafieldId uint64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.Delete(ctx, metafieldId)
 }
 
 // Represents the result from the locations/X.json endpoint
