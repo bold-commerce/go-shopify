@@ -81,3 +81,7 @@ func (c *OnlyDate) EncodeValues(key string, v *url.Values) error {
 func (c *OnlyDate) String() string {
 	return `"` + c.Format("2006-01-02") + `"`
 }
+
+func TimePtr(v time.Time) *time.Time {
+	return &v
+}

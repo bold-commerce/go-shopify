@@ -23,14 +23,17 @@ func TestPageList(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages.json", client.pathPrefix),
-		httpmock.NewStringResponder(200, `{"pages": [{"id":1},{"id":2}]}`))
+		httpmock.NewStringResponder(200, `{"pages": [{"id":1,"published_at": "2008-07-15T20:00:00Z"},{"id":2,"published_at": "2008-07-15T21:00:00Z"}]}`))
 
 	pages, err := client.Page.List(context.Background(), nil)
 	if err != nil {
 		t.Errorf("Page.List returned error: %v", err)
 	}
 
-	expected := []Page{{Id: 1}, {Id: 2}}
+	expected := []Page{
+		{Id: 1, PublishedAt: TimePtr(time.Date(2008, 7, 15, 20, 0, 0, 0, time.UTC)), Published: true},
+		{Id: 2, PublishedAt: TimePtr(time.Date(2008, 7, 15, 21, 0, 0, 0, time.UTC)), Published: true},
+	}
 	if !reflect.DeepEqual(pages, expected) {
 		t.Errorf("Page.List returned %+v, expected %+v", pages, expected)
 	}
@@ -77,14 +80,14 @@ func TestPageGet(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/pages/1.json", client.pathPrefix),
-		httpmock.NewStringResponder(200, `{"page": {"id":1}}`))
+		httpmock.NewStringResponder(200, `{"page": {"id":1,"published_at": "2008-07-15T20:00:00Z"}}`))
 
 	page, err := client.Page.Get(context.Background(), 1, nil)
 	if err != nil {
 		t.Errorf("Page.Get returned error: %v", err)
 	}
 
-	expected := &Page{Id: 1}
+	expected := &Page{Id: 1, PublishedAt: TimePtr(time.Date(2008, 7, 15, 20, 0, 0, 0, time.UTC)), Published: true}
 	if !reflect.DeepEqual(page, expected) {
 		t.Errorf("Page.Get returned %+v, expected %+v", page, expected)
 	}
