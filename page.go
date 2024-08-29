@@ -35,18 +35,20 @@ type PageServiceOp struct {
 
 // Page represents a Shopify page.
 type Page struct {
-	Id             uint64      `json:"id,omitempty"`
-	Author         string      `json:"author,omitempty"`
-	Handle         string      `json:"handle,omitempty"`
-	Title          string      `json:"title,omitempty"`
-	CreatedAt      *time.Time  `json:"created_at,omitempty"`
-	UpdatedAt      *time.Time  `json:"updated_at,omitempty"`
-	BodyHTML       string      `json:"body_html,omitempty"`
-	TemplateSuffix string      `json:"template_suffix,omitempty"`
-	PublishedAt    *time.Time  `json:"published_at,omitempty"`
-	Published      bool        `json:"published,omitempty"` // Mainly used for create/update
-	ShopId         uint64      `json:"shop_id,omitempty"`
-	Metafields     []Metafield `json:"metafields,omitempty"`
+	Id             uint64     `json:"id,omitempty"`
+	Author         string     `json:"author,omitempty"`
+	Handle         string     `json:"handle,omitempty"`
+	Title          string     `json:"title,omitempty"`
+	CreatedAt      *time.Time `json:"created_at,omitempty"`
+	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
+	BodyHTML       string     `json:"body_html,omitempty"`
+	TemplateSuffix string     `json:"template_suffix,omitempty"`
+	PublishedAt    *time.Time `json:"published_at,omitempty"`
+	// Published can be set when creating a new page.
+	// It's not returned in the response
+	Published  *bool       `json:"published,omitempty"`
+	ShopId     uint64      `json:"shop_id,omitempty"`
+	Metafields []Metafield `json:"metafields,omitempty"`
 }
 
 // PageResource represents the result from the pages/X.json endpoint
@@ -64,11 +66,6 @@ func (s *PageServiceOp) List(ctx context.Context, options interface{}) ([]Page, 
 	path := fmt.Sprintf("%s.json", pagesBasePath)
 	resource := new(PagesResource)
 	err := s.client.Get(ctx, path, resource, options)
-	for i, page := range resource.Pages {
-		if page.PublishedAt != nil {
-			resource.Pages[i].Published = true
-		}
-	}
 	return resource.Pages, err
 }
 
@@ -83,9 +80,6 @@ func (s *PageServiceOp) Get(ctx context.Context, pageId uint64, options interfac
 	path := fmt.Sprintf("%s/%d.json", pagesBasePath, pageId)
 	resource := new(PageResource)
 	err := s.client.Get(ctx, path, resource, options)
-	if resource.Page != nil && resource.Page.PublishedAt != nil {
-		resource.Page.Published = true
-	}
 	return resource.Page, err
 }
 
@@ -95,9 +89,6 @@ func (s *PageServiceOp) Create(ctx context.Context, page Page) (*Page, error) {
 	wrappedData := PageResource{Page: &page}
 	resource := new(PageResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)
-	if resource.Page != nil && resource.Page.PublishedAt != nil {
-		resource.Page.Published = true
-	}
 	return resource.Page, err
 }
 
@@ -107,9 +98,6 @@ func (s *PageServiceOp) Update(ctx context.Context, page Page) (*Page, error) {
 	wrappedData := PageResource{Page: &page}
 	resource := new(PageResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
-	if resource.Page != nil && resource.Page.PublishedAt != nil {
-		resource.Page.Published = true
-	}
 	return resource.Page, err
 }
 

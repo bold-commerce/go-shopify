@@ -31,8 +31,8 @@ func TestPageList(t *testing.T) {
 	}
 
 	expected := []Page{
-		{Id: 1, PublishedAt: TimePtr(time.Date(2008, 7, 15, 20, 0, 0, 0, time.UTC)), Published: true},
-		{Id: 2, PublishedAt: TimePtr(time.Date(2008, 7, 15, 21, 0, 0, 0, time.UTC)), Published: true},
+		{Id: 1, PublishedAt: TimePtr(time.Date(2008, 7, 15, 20, 0, 0, 0, time.UTC))},
+		{Id: 2, PublishedAt: TimePtr(time.Date(2008, 7, 15, 21, 0, 0, 0, time.UTC))},
 	}
 	if !reflect.DeepEqual(pages, expected) {
 		t.Errorf("Page.List returned %+v, expected %+v", pages, expected)
@@ -87,7 +87,7 @@ func TestPageGet(t *testing.T) {
 		t.Errorf("Page.Get returned error: %v", err)
 	}
 
-	expected := &Page{Id: 1, PublishedAt: TimePtr(time.Date(2008, 7, 15, 20, 0, 0, 0, time.UTC)), Published: true}
+	expected := &Page{Id: 1, PublishedAt: TimePtr(time.Date(2008, 7, 15, 20, 0, 0, 0, time.UTC))}
 	if !reflect.DeepEqual(page, expected) {
 		t.Errorf("Page.Get returned %+v, expected %+v", page, expected)
 	}
