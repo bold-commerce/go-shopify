@@ -35,17 +35,20 @@ type PageServiceOp struct {
 
 // Page represents a Shopify page.
 type Page struct {
-	Id             uint64      `json:"id,omitempty"`
-	Author         string      `json:"author,omitempty"`
-	Handle         string      `json:"handle,omitempty"`
-	Title          string      `json:"title,omitempty"`
-	CreatedAt      *time.Time  `json:"created_at,omitempty"`
-	UpdatedAt      *time.Time  `json:"updated_at,omitempty"`
-	BodyHTML       string      `json:"body_html,omitempty"`
-	TemplateSuffix string      `json:"template_suffix,omitempty"`
-	PublishedAt    *time.Time  `json:"published_at,omitempty"`
-	ShopId         uint64      `json:"shop_id,omitempty"`
-	Metafields     []Metafield `json:"metafields,omitempty"`
+	Id             uint64     `json:"id,omitempty"`
+	Author         string     `json:"author,omitempty"`
+	Handle         string     `json:"handle,omitempty"`
+	Title          string     `json:"title,omitempty"`
+	CreatedAt      *time.Time `json:"created_at,omitempty"`
+	UpdatedAt      *time.Time `json:"updated_at,omitempty"`
+	BodyHTML       string     `json:"body_html,omitempty"`
+	TemplateSuffix string     `json:"template_suffix,omitempty"`
+	PublishedAt    *time.Time `json:"published_at,omitempty"`
+	// Published can be set when creating a new page.
+	// It's not returned in the response
+	Published  *bool       `json:"published,omitempty"`
+	ShopId     uint64      `json:"shop_id,omitempty"`
+	Metafields []Metafield `json:"metafields,omitempty"`
 }
 
 // PageResource represents the result from the pages/X.json endpoint
