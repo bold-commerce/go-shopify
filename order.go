@@ -322,6 +322,7 @@ type Order struct {
 	CurrentTotalTaxSet       *AmountSet              `json:"current_total_tax_set,omitempty"`
 	TaxLines                 []TaxLine               `json:"tax_lines,omitempty"`
 	TotalWeight              int                     `json:"total_weight,omitempty"`
+	TotalTipReceived         string                  `json:"total_tip_received,omitempty"`
 	FinancialStatus          OrderFinancialStatus    `json:"financial_status,omitempty"`
 	Fulfillments             []Fulfillment           `json:"fulfillments,omitempty"`
 	FulfillmentStatus        OrderFulfillmentStatus  `json:"fulfillment_status,omitempty"`
