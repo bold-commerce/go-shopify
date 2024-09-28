@@ -87,7 +87,8 @@ func MyCallbackHandler(w http.ResponseWriter, r *http.Request) {
     query := r.URL.Query()
     shopName := query.Get("shop")
     code := query.Get("code")
-    token, err := app.GetAccessToken(shopName, code)
+    ctx := context.TODO() // adds context which will be used in GetAccessToken below
+    token, err := app.GetAccessToken(ctx, shopName, code)
 
     // Do something with the token, like store it in a DB.
 }
