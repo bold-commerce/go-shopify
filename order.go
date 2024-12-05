@@ -311,10 +311,11 @@ type Order struct {
 	SubtotalPrice            *decimal.Decimal        `json:"subtotal_price,omitempty"`
 	CurrentSubtotalPrice     *decimal.Decimal        `json:"current_subtotal_price,omitempty"`
 	TotalDiscounts           *decimal.Decimal        `json:"total_discounts,omitempty"`
-	TotalDiscountSet         *AmountSet              `json:"total_discount_set,omitempty"`
+	TotalDiscountsSet        *AmountSet              `json:"total_discounts_set,omitempty"`
 	CurrentTotalDiscounts    *decimal.Decimal        `json:"current_total_discounts,omitempty"`
 	CurrentTotalDiscountsSet *AmountSet              `json:"current_total_discounts_set,omitempty"`
 	TotalLineItemsPrice      *decimal.Decimal        `json:"total_line_items_price,omitempty"`
+	TotalLineItemsPriceSet   *AmountSet              `json:"total_line_items_price_set,omitempty"`
 	TaxesIncluded            bool                    `json:"taxes_included,omitempty"`
 	TotalTax                 *decimal.Decimal        `json:"total_tax,omitempty"`
 	TotalTaxSet              *AmountSet              `json:"total_tax_set,omitempty"`
@@ -416,6 +417,7 @@ type LineItem struct {
 	Quantity                   int                    `json:"quantity,omitempty"`
 	CurrentQuantity            int                    `json:"current_quantity,omitempty"`
 	Price                      *decimal.Decimal       `json:"price,omitempty"`
+	PriceSet                   *AmountSet             `json:"price_set,omitempty"`
 	TotalDiscount              *decimal.Decimal       `json:"total_discount,omitempty"`
 	Title                      string                 `json:"title,omitempty"`
 	VariantTitle               string                 `json:"variant_title,omitempty"`
@@ -569,9 +571,10 @@ func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
 }
 
 type TaxLine struct {
-	Title string           `json:"title,omitempty"`
-	Price *decimal.Decimal `json:"price,omitempty"`
-	Rate  *decimal.Decimal `json:"rate,omitempty"`
+	Title    string           `json:"title,omitempty"`
+	Price    *decimal.Decimal `json:"price,omitempty"`
+	PriceSet *AmountSet       `json:"price_set,omitempty"`
+	Rate     *decimal.Decimal `json:"rate,omitempty"`
 }
 
 type Transaction struct {
