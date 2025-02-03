@@ -20,11 +20,8 @@
         "price": "0.00",
         "sku": "",
         "position": 1,
-        "grams": 0,
         "inventory_policy": "deny",
         "compare_at_price": null,
-        "fulfillment_service": "manual",
-        "inventory_management": null,
         "option1": "Default Title",
         "option2": null,
         "option3": null,
@@ -34,10 +31,7 @@
         "barcode": null,
         "image_id": null,
         "inventory_quantity": 1,
-        "weight": 0.0,
-        "weight_unit": "lb",
         "old_inventory_quantity": 1,
-        "requires_shipping": true,
         "admin_graphql_api_id": "gid://shopify/ProductVariant/1070325219"
       }
     ],

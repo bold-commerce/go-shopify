@@ -56,12 +56,9 @@ type Variant struct {
 	Title                string                 `json:"title,omitempty"`
 	Sku                  string                 `json:"sku,omitempty"`
 	Position             int                    `json:"position,omitempty"`
-	Grams                int                    `json:"grams,omitempty"`
 	InventoryPolicy      VariantInventoryPolicy `json:"inventory_policy,omitempty"`
 	Price                *decimal.Decimal       `json:"price,omitempty"`
 	CompareAtPrice       *decimal.Decimal       `json:"compare_at_price,omitempty"`
-	FulfillmentService   string                 `json:"fulfillment_service,omitempty"`
-	InventoryManagement  string                 `json:"inventory_management,omitempty"`
 	InventoryItemId      uint64                 `json:"inventory_item_id,omitempty"`
 	Option1              string                 `json:"option1,omitempty"`
 	Option2              string                 `json:"option2,omitempty"`
@@ -73,10 +70,7 @@ type Variant struct {
 	Barcode              string                 `json:"barcode,omitempty"`
 	ImageId              uint64                 `json:"image_id,omitempty"`
 	InventoryQuantity    int                    `json:"inventory_quantity,omitempty"`
-	Weight               *decimal.Decimal       `json:"weight,omitempty"`
-	WeightUnit           string                 `json:"weight_unit,omitempty"`
 	OldInventoryQuantity int                    `json:"old_inventory_quantity,omitempty"`
-	RequireShipping      bool                   `json:"requires_shipping"`
 	AdminGraphqlApiId    string                 `json:"admin_graphql_api_id,omitempty"`
 	Metafields           []Metafield            `json:"metafields,omitempty"`
 	PresentmentPrices    []presentmentPrices    `json:"presentment_prices,omitempty"`
