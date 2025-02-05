@@ -3,7 +3,6 @@ package goshopify
 import (
 	"context"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -41,11 +40,25 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 		t.Errorf("InventoryItem.CountryCodeOfOrigin returned %+v, expected %+v", item.CountryCodeOfOrigin, expectedOrigin)
 	}
 
-	// strings.Join is used to compare slices since package's go.mod is set to 1.13
-	// which predates the experimental slices package that has a Compare() func.
-	expectedCountryHSCodes := strings.Join([]string{"8471.70.40.35", "8471.70.50.35"}, ",")
-	if strings.Join(item.CountryHarmonizedSystemCodes, ",") != expectedCountryHSCodes {
-		t.Errorf("InventoryItem.CountryHarmonizedSystemCodes returned %+v, expected %+v", item.CountryHarmonizedSystemCodes, expectedCountryHSCodes)
+	expectedCodes := []CountryHarmonizedSystemCode{
+		{HarmonizedSystemCode: "8471.70.40.35", CountryCode: "US"},
+		{HarmonizedSystemCode: "8471.70.50.35", CountryCode: "CA"},
+	}
+
+	if len(item.CountryHarmonizedSystemCodes) != len(expectedCodes) {
+		t.Errorf("InventoryItem.CountryHarmonizedSystemCodes length is %d, expected %d",
+			len(item.CountryHarmonizedSystemCodes), len(expectedCodes))
+	}
+
+	for i, code := range item.CountryHarmonizedSystemCodes {
+		if code.HarmonizedSystemCode != expectedCodes[i].HarmonizedSystemCode {
+			t.Errorf("InventoryItem.CountryHarmonizedSystemCodes[%d].HarmonizedSystemCode is %s, expected %s",
+				i, code.HarmonizedSystemCode, expectedCodes[i].HarmonizedSystemCode)
+		}
+		if code.CountryCode != expectedCodes[i].CountryCode {
+			t.Errorf("InventoryItem.CountryHarmonizedSystemCodes[%d].CountryCode is %s, expected %s",
+				i, code.CountryCode, expectedCodes[i].CountryCode)
+		}
 	}
 
 	expectedHSCode := "8471.70.40.35"

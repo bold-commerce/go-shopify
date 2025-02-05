@@ -8,7 +8,16 @@
       "tracked": true,
       "admin_graphql_api_id": "gid://shopify/InventoryItem/808950810",
       "country_code_of_origin": "US",
-      "country_harmonized_system_codes": ["8471.70.40.35", "8471.70.50.35"],
+      "country_harmonized_system_codes": [
+        {
+          "harmonized_system_code": "8471.70.40.35",
+          "country_code": "US"
+        },
+        {
+          "harmonized_system_code": "8471.70.50.35",
+          "country_code": "CA"
+        }
+      ],
       "harmonized_system_code": "8471.70.40.35",
       "province_code_of_origin": "ON"
     }
