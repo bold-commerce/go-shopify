@@ -609,17 +609,24 @@ type ClientDetails struct {
 }
 
 type Refund struct {
-	Id               uint64            `json:"id,omitempty"`
-	OrderId          uint64            `json:"order_id,omitempty"`
-	CreatedAt        *time.Time        `json:"created_at,omitempty"`
-	Note             string            `json:"note,omitempty"`
-	Restock          bool              `json:"restock,omitempty"`
-	UserId           uint64            `json:"user_id,omitempty"`
-	RefundLineItems  []RefundLineItem  `json:"refund_line_items,omitempty"`
-	Transactions     []Transaction     `json:"transactions,omitempty"`
-	OrderAdjustments []OrderAdjustment `json:"order_adjustments,omitempty"`
+	Id                  uint64               `json:"id,omitempty"`
+	OrderId             uint64               `json:"order_id,omitempty"`
+	CreatedAt           *time.Time           `json:"created_at,omitempty"`
+	Note                string               `json:"note,omitempty"`
+	Restock             bool                 `json:"restock,omitempty"`
+	UserId              uint64               `json:"user_id,omitempty"`
+	RefundLineItems     []RefundLineItem     `json:"refund_line_items,omitempty"`
+	Transactions        []Transaction        `json:"transactions,omitempty"`
+	OrderAdjustments    []OrderAdjustment    `json:"order_adjustments,omitempty"`
+	RefundShippingLines []RefundShippingLine `json:"refund_shipping_lines,omitempty"`
 }
 
+type RefundShippingLine struct {
+	Id                uint64         `json:"id,omitempty"`
+	ShippingLine      *ShippingLines `json:"shipping_lines,omitempty"`
+	ShippingLineId    uint64         `json:"shipping_line_id,omitempty"`
+	SubtotalAmountSet *AmountSet     `json:"subtotal_amount_set,omitempty"`
+}
 type OrderAdjustment struct {
 	Id           uint64              `json:"id,omitempty"`
 	OrderId      uint64              `json:"order_id,omitempty"`
