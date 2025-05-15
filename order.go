@@ -575,25 +575,27 @@ type TaxLine struct {
 }
 
 type Transaction struct {
-	Id             uint64           `json:"id,omitempty"`
-	OrderId        uint64           `json:"order_id,omitempty"`
-	Amount         *decimal.Decimal `json:"amount,omitempty"`
-	Kind           string           `json:"kind,omitempty"`
-	Gateway        string           `json:"gateway,omitempty"`
-	Status         string           `json:"status,omitempty"`
-	Message        string           `json:"message,omitempty"`
-	CreatedAt      *time.Time       `json:"created_at,omitempty"`
-	Test           bool             `json:"test,omitempty"`
-	Authorization  string           `json:"authorization,omitempty"`
-	Currency       string           `json:"currency,omitempty"`
-	LocationId     *int64           `json:"location_id,omitempty"`
-	UserId         *int64           `json:"user_id,omitempty"`
-	ParentId       *int64           `json:"parent_id,omitempty"`
-	DeviceId       *int64           `json:"device_id,omitempty"`
-	ErrorCode      string           `json:"error_code,omitempty"`
-	SourceName     string           `json:"source_name,omitempty"`
-	Source         string           `json:"source,omitempty"`
-	PaymentDetails *PaymentDetails  `json:"payment_details,omitempty"`
+	Id             uint64                 `json:"id,omitempty"`
+	OrderId        uint64                 `json:"order_id,omitempty"`
+	Amount         *decimal.Decimal       `json:"amount,omitempty"`
+	Kind           string                 `json:"kind,omitempty"`
+	Gateway        string                 `json:"gateway,omitempty"`
+	Status         string                 `json:"status,omitempty"`
+	Message        string                 `json:"message,omitempty"`
+	CreatedAt      *time.Time             `json:"created_at,omitempty"`
+	Test           bool                   `json:"test,omitempty"`
+	Authorization  string                 `json:"authorization,omitempty"`
+	PaymentId      string                 `json:"payment_id,omitempty"`
+	Receipt        map[string]interface{} `json:"receipt,omitempty"`
+	Currency       string                 `json:"currency,omitempty"`
+	LocationId     *int64                 `json:"location_id,omitempty"`
+	UserId         *int64                 `json:"user_id,omitempty"`
+	ParentId       *int64                 `json:"parent_id,omitempty"`
+	DeviceId       *int64                 `json:"device_id,omitempty"`
+	ErrorCode      string                 `json:"error_code,omitempty"`
+	SourceName     string                 `json:"source_name,omitempty"`
+	Source         string                 `json:"source,omitempty"`
+	PaymentDetails *PaymentDetails        `json:"payment_details,omitempty"`
 }
 
 type ClientDetails struct {
