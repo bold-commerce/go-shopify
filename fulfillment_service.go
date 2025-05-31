@@ -10,7 +10,7 @@ const (
 )
 
 // FulfillmentServiceService is an interface for interfacing with the fulfillment service of the Shopify API.
-// https://help.shopify.com/api/reference/fulfillmentservice
+// https://shopify.dev/docs/api/admin-rest/latest/resources/fulfillmentservice
 type FulfillmentServiceService interface {
 	List(context.Context, interface{}) ([]FulfillmentServiceData, error)
 	Get(context.Context, uint64, interface{}) (*FulfillmentServiceData, error)

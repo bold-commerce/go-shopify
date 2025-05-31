@@ -13,7 +13,7 @@ const (
 
 // SmartCollectionService is an interface for interacting with the smart
 // collection endpoints of the Shopify API.
-// See https://help.shopify.com/api/reference/smartcollection
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/smartcollection
 type SmartCollectionService interface {
 	List(context.Context, interface{}) ([]SmartCollection, error)
 	Count(context.Context, interface{}) (int, error)

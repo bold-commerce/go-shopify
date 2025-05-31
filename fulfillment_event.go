@@ -11,7 +11,7 @@ const (
 
 // FulfillmentEventService is an interface for interfacing with the fulfillment event service
 // of the Shopify API.
-// https://help.shopify.com/api/reference/fulfillmentevent
+// https://shopify.dev/docs/api/admin-rest/latest/resources/fulfillmentevent
 type FulfillmentEventService interface {
 	List(ctx context.Context, orderId uint64, fulfillmentId uint64) ([]FulfillmentEvent, error)
 	Get(ctx context.Context, orderId uint64, fulfillmentId uint64, eventId uint64) (*FulfillmentEvent, error)

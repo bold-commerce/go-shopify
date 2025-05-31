@@ -10,7 +10,7 @@ const collectsBasePath = "collects"
 
 // CollectService is an interface for interfacing with the collect endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/products/collect
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/collect
 type CollectService interface {
 	List(context.Context, interface{}) ([]Collect, error)
 	Count(context.Context, interface{}) (int, error)

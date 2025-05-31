@@ -15,7 +15,7 @@ const (
 
 // DraftOrderService is an interface for interfacing with the draft orders endpoints of
 // the Shopify API.
-// See: https://help.shopify.com/api/reference/orders/draftorder
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/draftorder
 type DraftOrderService interface {
 	List(context.Context, interface{}) ([]DraftOrder, error)
 	Count(context.Context, interface{}) (int, error)

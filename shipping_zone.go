@@ -8,7 +8,7 @@ import (
 
 // ShippingZoneService is an interface for interfacing with the shipping zones endpoint
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/store-properties/shippingzone
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/shippingzone
 type ShippingZoneService interface {
 	List(context.Context) ([]ShippingZone, error)
 }

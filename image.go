@@ -8,7 +8,7 @@ import (
 
 // ImageService is an interface for interacting with the image endpoints
 // of the Shopify API.
-// See https://help.shopify.com/api/reference/product_image
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/product_image
 type ImageService interface {
 	List(context.Context, uint64, interface{}) ([]Image, error)
 	Count(context.Context, uint64, interface{}) (int, error)

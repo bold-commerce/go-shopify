@@ -12,7 +12,7 @@ const applicationChargesBasePath = "application_charges"
 
 // ApplicationChargeService is an interface for interacting with the
 // ApplicationCharge endpoints of the Shopify API.
-// See https://help.shopify.com/api/reference/billing/applicationcharge
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/applicationcharge
 type ApplicationChargeService interface {
 	Create(context.Context, ApplicationCharge) (*ApplicationCharge, error)
 	Get(context.Context, uint64, interface{}) (*ApplicationCharge, error)

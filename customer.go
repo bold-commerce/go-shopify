@@ -15,7 +15,7 @@ const (
 
 // CustomerService is an interface for interfacing with the customers endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/customer
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/customer
 type CustomerService interface {
 	List(context.Context, interface{}) ([]Customer, error)
 	ListAll(context.Context, interface{}) ([]Customer, error)

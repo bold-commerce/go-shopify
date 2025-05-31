@@ -15,7 +15,7 @@ const (
 
 // VariantService is an interface for interacting with the variant endpoints
 // of the Shopify API.
-// See https://help.shopify.com/api/reference/product_variant
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/product-variant
 type VariantService interface {
 	List(context.Context, uint64, interface{}) ([]Variant, error)
 	Count(context.Context, uint64, interface{}) (int, error)

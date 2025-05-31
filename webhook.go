@@ -10,7 +10,7 @@ const webhooksBasePath = "webhooks"
 
 // WebhookService is an interface for interfacing with the webhook endpoints of
 // the Shopify API.
-// See: https://help.shopify.com/api/reference/webhook
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/webhook
 type WebhookService interface {
 	List(context.Context, interface{}) ([]Webhook, error)
 	Count(context.Context, interface{}) (int, error)

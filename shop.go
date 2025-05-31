@@ -10,7 +10,7 @@ const shopResourceName = ""
 
 // ShopService is an interface for interfacing with the shop endpoint of the
 // Shopify API.
-// See: https://help.shopify.com/api/reference/shop
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/shop
 type ShopService interface {
 	Get(ctx context.Context, options interface{}) (*Shop, error)
 

@@ -10,7 +10,7 @@ const blogsBasePath = "blogs"
 
 // BlogService is an interface for interfacing with the blogs endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/online_store/blog
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/blog
 type BlogService interface {
 	List(context.Context, interface{}) ([]Blog, error)
 	Count(context.Context, interface{}) (int, error)

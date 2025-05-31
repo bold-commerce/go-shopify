@@ -7,7 +7,7 @@ import (
 
 // TransactionService is an interface for interfacing with the transactions endpoints of
 // the Shopify API.
-// See: https://help.shopify.com/api/reference/transaction
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/transaction
 type TransactionService interface {
 	List(context.Context, uint64, interface{}) ([]Transaction, error)
 	Count(context.Context, uint64, interface{}) (int, error)

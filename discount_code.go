@@ -10,7 +10,7 @@ const discountCodeBasePath = "price_rules/%d/discount_codes"
 
 // DiscountCodeService is an interface for interfacing with the discount endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/en/api/reference/discounts/PriceRuleDiscountCode
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/PriceRuleDiscountCode
 type DiscountCodeService interface {
 	Create(context.Context, uint64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)
 	Update(context.Context, uint64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)

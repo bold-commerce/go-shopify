@@ -13,7 +13,7 @@ const (
 
 // CustomCollectionService is an interface for interacting with the custom
 // collection endpoints of the Shopify API.
-// See https://help.shopify.com/api/reference/customcollection
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/customcollection
 type CustomCollectionService interface {
 	List(context.Context, interface{}) ([]CustomCollection, error)
 	Count(context.Context, interface{}) (int, error)

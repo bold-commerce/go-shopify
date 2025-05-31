@@ -8,7 +8,7 @@ import (
 
 // MetafieldService is an interface for interfacing with the metafield endpoints
 // of the Shopify API.
-// https://help.shopify.com/api/reference/metafield
+// https://shopify.dev/docs/api/admin-rest/latest/resources/metafield
 type MetafieldService interface {
 	List(context.Context, interface{}) ([]Metafield, error)
 	Count(context.Context, interface{}) (int, error)
@@ -20,7 +20,7 @@ type MetafieldService interface {
 
 // MetafieldsService is an interface for other Shopify resources
 // to interface with the metafield endpoints of the Shopify API.
-// https://help.shopify.com/api/reference/metafield
+// https://shopify.dev/docs/api/admin-rest/latest/resources/metafield
 type MetafieldsService interface {
 	ListMetafields(context.Context, uint64, interface{}) ([]Metafield, error)
 	CountMetafields(context.Context, uint64, interface{}) (int, error)

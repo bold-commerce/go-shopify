@@ -13,7 +13,7 @@ const (
 
 // PagesPageService is an interface for interacting with the pages
 // endpoints of the Shopify API.
-// See https://help.shopify.com/api/reference/online_store/page
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/page
 type PageService interface {
 	List(context.Context, interface{}) ([]Page, error)
 	Count(context.Context, interface{}) (int, error)

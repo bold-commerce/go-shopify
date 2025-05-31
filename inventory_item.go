@@ -12,7 +12,7 @@ const inventoryItemsBasePath = "inventory_items"
 
 // InventoryItemService is an interface for interacting with the
 // inventory items endpoints of the Shopify API
-// See https://help.shopify.com/en/api/reference/inventory/inventoryitem
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/inventoryitem
 type InventoryItemService interface {
 	List(context.Context, interface{}) ([]InventoryItem, error)
 	Get(context.Context, uint64, interface{}) (*InventoryItem, error)

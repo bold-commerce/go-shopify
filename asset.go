@@ -10,7 +10,7 @@ const assetsBasePath = "themes"
 
 // AssetService is an interface for interfacing with the asset endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/asset
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/asset
 type AssetService interface {
 	List(context.Context, uint64, interface{}) ([]Asset, error)
 	Get(context.Context, uint64, string) (*Asset, error)

@@ -698,7 +698,7 @@ func (c *Client) ListWithPagination(ctx context.Context, path string, resource, 
 
 // extractPagination extracts pagination info from linkHeader.
 // Details on the format are here:
-// https://help.shopify.com/en/api/guides/paginated-rest-results
+// https://shopify.dev/docs/api/admin-rest/latest/resources/paginated-rest-results
 func extractPagination(linkHeader string) (*Pagination, error) {
 	pagination := new(Pagination)
 

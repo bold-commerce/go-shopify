@@ -9,7 +9,7 @@ const apiPermissionsBasePath = "api_permissions"
 
 // ApiPermissionsService is an interface for interfacing with the API
 // permissions endpoints of the Shopify API.
-// See: https://help.shopify.com/api/reference/theme
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/theme
 type ApiPermissionsService interface {
 	Delete(context.Context) error
 }

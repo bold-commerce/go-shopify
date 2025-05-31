@@ -10,7 +10,7 @@ const collectionsBasePath = "collections"
 
 // CollectionService is an interface for interfacing with the collection endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/products/collection
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/collection
 type CollectionService interface {
 	Get(ctx context.Context, collectionId uint64, options interface{}) (*Collection, error)
 	ListProducts(ctx context.Context, collectionId uint64, options interface{}) ([]Product, error)

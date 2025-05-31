@@ -17,7 +17,7 @@ var linkRegex = regexp.MustCompile(`^ *<([^>]+)>; rel="(previous|next)" *$`)
 
 // ProductService is an interface for interfacing with the product endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/product
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/product
 type ProductService interface {
 	List(context.Context, interface{}) ([]Product, error)
 	ListAll(context.Context, interface{}) ([]Product, error)

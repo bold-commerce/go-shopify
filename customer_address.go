@@ -7,7 +7,7 @@ import (
 
 // CustomerAddressService is an interface for interfacing with the customer address endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/en/api/reference/customers/customer_address
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/customer_address
 type CustomerAddressService interface {
 	List(context.Context, uint64, interface{}) ([]CustomerAddress, error)
 	Get(context.Context, uint64, uint64, interface{}) (*CustomerAddress, error)

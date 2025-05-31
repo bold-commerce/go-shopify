@@ -8,7 +8,7 @@ import (
 
 // FulfillmentService is an interface for interfacing with the fulfillment endpoints
 // of the Shopify API.
-// https://help.shopify.com/api/reference/fulfillment
+// https://shopify.dev/docs/api/admin-rest/latest/resources/fulfillment
 type FulfillmentService interface {
 	List(context.Context, interface{}) ([]Fulfillment, error)
 	Count(context.Context, interface{}) (int, error)
@@ -22,7 +22,7 @@ type FulfillmentService interface {
 
 // FulfillmentsService is an interface for other Shopify resources
 // to interface with the fulfillment endpoints of the Shopify API.
-// https://help.shopify.com/api/reference/fulfillment
+// https://shopify.dev/docs/api/admin-rest/latest/resources/fulfillment
 type FulfillmentsService interface {
 	ListFulfillments(context.Context, uint64, interface{}) ([]Fulfillment, error)
 	CountFulfillments(context.Context, uint64, interface{}) (int, error)

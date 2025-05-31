@@ -10,7 +10,7 @@ const inventoryLevelsBasePath = "inventory_levels"
 
 // InventoryLevelService is an interface for interacting with the
 // inventory items endpoints of the Shopify API
-// See https://help.shopify.com/en/api/reference/inventory/inventorylevel
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/inventorylevel
 type InventoryLevelService interface {
 	List(context.Context, interface{}) ([]InventoryLevel, error)
 	Adjust(context.Context, interface{}) (*InventoryLevel, error)

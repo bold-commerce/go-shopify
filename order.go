@@ -16,7 +16,7 @@ const (
 
 // OrderService is an interface for interfacing with the orders endpoints of
 // the Shopify API.
-// See: https://help.shopify.com/api/reference/order
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/order
 type OrderService interface {
 	List(context.Context, interface{}) ([]Order, error)
 	ListAll(context.Context, interface{}) ([]Order, error)
@@ -244,7 +244,7 @@ type OrderCountOptions struct {
 }
 
 // OrderListOptions A struct for all available order list options.
-// See: https://help.shopify.com/api/reference/order#index
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/order#index
 type OrderListOptions struct {
 	ListOptions
 	Status            OrderStatus            `url:"status,omitempty"`
@@ -256,7 +256,7 @@ type OrderListOptions struct {
 }
 
 // OrderCancelOptions A struct of all available order cancel options.
-// See: https://help.shopify.com/api/reference/order#index
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/order#index
 type OrderCancelOptions struct {
 	Amount   *decimal.Decimal `json:"amount,omitempty"`
 	Currency string           `json:"currency,omitempty"`

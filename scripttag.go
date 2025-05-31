@@ -10,7 +10,7 @@ const scriptTagsBasePath = "script_tags"
 
 // ScriptTagService is an interface for interfacing with the ScriptTag endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/scripttag
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/scripttag
 type ScriptTagService interface {
 	List(context.Context, interface{}) ([]ScriptTag, error)
 	Count(context.Context, interface{}) (int, error)

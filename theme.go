@@ -16,7 +16,7 @@ type ThemeListOptions struct {
 
 // ThemeService is an interface for interfacing with the themes endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/api/reference/theme
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/theme
 type ThemeService interface {
 	List(context.Context, interface{}) ([]Theme, error)
 	Create(context.Context, Theme) (*Theme, error)

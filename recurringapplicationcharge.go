@@ -13,7 +13,7 @@ const recurringApplicationChargesBasePath = "recurring_application_charges"
 
 // RecurringApplicationChargeService is an interface for interacting with the
 // RecurringApplicationCharge endpoints of the Shopify API.
-// See https://help.shopify.com/api/reference/billing/recurringapplicationcharge
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/recurringapplicationcharge
 type RecurringApplicationChargeService interface {
 	Create(context.Context, RecurringApplicationCharge) (*RecurringApplicationCharge, error)
 	Get(context.Context, uint64, interface{}) (*RecurringApplicationCharge, error)

@@ -12,7 +12,7 @@ const usageChargesPath = "usage_charges"
 
 // UsageChargeService is an interface for interacting with the
 // UsageCharge endpoints of the Shopify API.
-// See https://help.shopify.com/en/api/reference/billing/usagecharge#endpoints
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/usagecharge#endpoints
 type UsageChargeService interface {
 	Create(context.Context, uint64, UsageCharge) (*UsageCharge, error)
 	Get(context.Context, uint64, uint64, interface{}) (*UsageCharge, error)

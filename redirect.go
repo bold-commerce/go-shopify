@@ -9,7 +9,7 @@ const redirectsBasePath = "redirects"
 
 // RedirectService is an interface for interacting with the redirects
 // endpoints of the Shopify API.
-// See https://help.shopify.com/api/reference/online_store/redirect
+// See https://shopify.dev/docs/api/admin-rest/latest/resources/redirect
 type RedirectService interface {
 	List(context.Context, interface{}) ([]Redirect, error)
 	Count(context.Context, interface{}) (int, error)

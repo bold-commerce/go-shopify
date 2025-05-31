@@ -13,7 +13,7 @@ const (
 
 // LocationService is an interface for interfacing with the location endpoints
 // of the Shopify API.
-// See: https://help.shopify.com/en/api/reference/inventory/location
+// See: https://shopify.dev/docs/api/admin-rest/latest/resources/location
 type LocationService interface {
 	// Retrieves a list of locations
 	List(ctx context.Context, options interface{}) ([]Location, error)
