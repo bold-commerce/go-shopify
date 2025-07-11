@@ -304,6 +304,7 @@ type Order struct {
 	BillingAddress           *Address                `json:"billing_address,omitempty"`
 	ShippingAddress          *Address                `json:"shipping_address,omitempty"`
 	Currency                 string                  `json:"currency,omitempty"`
+	TotalOutstanding         *decimal.Decimal        `json:"total_outstanding,omitempty"`
 	TotalPrice               *decimal.Decimal        `json:"total_price,omitempty"`
 	TotalPriceSet            *AmountSet              `json:"total_price_set,omitempty"`
 	TotalShippingPriceSet    *AmountSet              `json:"total_shipping_price_set,omitempty"`
