@@ -35,3 +35,17 @@ func TestAccessScopesServiceOp_List(t *testing.T) {
 		t.Errorf("AccessScopes.List returned %+v, expected %+v", expected, expected)
 	}
 }
+
+func TestAccessScopesServiceOp_ListError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	scopeResponse, err := client.AccessScopes.List(context.Background(), 123)
+	if scopeResponse != nil {
+		t.Errorf("AccessScopes.List returned scopes, expected nil: %v", scopeResponse)
+	}
+
+	if err == nil {
+		t.Errorf("AccessScopes.List err = nil, expected error")
+	}
+}
