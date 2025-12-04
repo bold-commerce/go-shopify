@@ -229,12 +229,10 @@ func (c *Client) NewRequest(ctx context.Context, method, relPath string, body, o
 		}
 	}
 
-	req, err := http.NewRequest(method, u.String(), bytes.NewBuffer(js))
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewBuffer(js))
 	if err != nil {
 		return nil, err
 	}
-
-	req = req.WithContext(ctx)
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")

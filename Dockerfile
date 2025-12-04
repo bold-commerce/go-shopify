@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine
+FROM golang:1.25-alpine
 
 ENV CGO_ENABLED=0
 RUN mkdir -p /go/src/github.com/bold-commerce/go-shopify
