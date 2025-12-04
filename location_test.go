@@ -103,3 +103,133 @@ func TestLocationServiceOp_Count(t *testing.T) {
 		t.Errorf("Location.Count returned %d, expected %d", cnt, expected)
 	}
 }
+
+func TestLocationListMetafields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/1/metafields.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"metafields": [{"id":1},{"id":2}]}`))
+
+	metafields, err := client.Location.ListMetafields(context.Background(), 1, nil)
+	if err != nil {
+		t.Errorf("Location.ListMetafields() returned error: %v", err)
+	}
+
+	expected := []Metafield{{Id: 1}, {Id: 2}}
+	if !reflect.DeepEqual(metafields, expected) {
+		t.Errorf("Location.ListMetafields() returned %+v, expected %+v", metafields, expected)
+	}
+}
+
+func TestLocationCountMetafields(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/1/metafields/count.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"count": 3}`))
+
+	params := map[string]string{"created_at_min": "2016-01-01T00:00:00Z"}
+	httpmock.RegisterResponderWithQuery(
+		"GET",
+		fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/1/metafields/count.json", client.pathPrefix),
+		params,
+		httpmock.NewStringResponder(200, `{"count": 2}`))
+
+	cnt, err := client.Location.CountMetafields(context.Background(), 1, nil)
+	if err != nil {
+		t.Errorf("Location.CountMetafields() returned error: %v", err)
+	}
+
+	expected := 3
+	if cnt != expected {
+		t.Errorf("Location.CountMetafields() returned %d, expected %d", cnt, expected)
+	}
+
+	date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
+	cnt, err = client.Location.CountMetafields(context.Background(), 1, CountOptions{CreatedAtMin: date})
+	if err != nil {
+		t.Errorf("Location.CountMetafields() returned error: %v", err)
+	}
+
+	expected = 2
+	if cnt != expected {
+		t.Errorf("Location.CountMetafields() returned %d, expected %d", cnt, expected)
+	}
+}
+
+func TestLocationGetMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/1/metafields/2.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"metafield": {"id":2}}`))
+
+	metafield, err := client.Location.GetMetafield(context.Background(), 1, 2, nil)
+	if err != nil {
+		t.Errorf("Location.GetMetafield() returned error: %v", err)
+	}
+
+	expected := &Metafield{Id: 2}
+	if !reflect.DeepEqual(metafield, expected) {
+		t.Errorf("Location.GetMetafield() returned %+v, expected %+v", metafield, expected)
+	}
+}
+
+func TestLocationCreateMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/1/metafields.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
+
+	metafield := Metafield{
+		Key:       "app_key",
+		Value:     "app_value",
+		Type:      MetafieldTypeSingleLineTextField,
+		Namespace: "affiliates",
+	}
+
+	returnedMetafield, err := client.Location.CreateMetafield(context.Background(), 1, metafield)
+	if err != nil {
+		t.Errorf("Location.CreateMetafield() returned error: %v", err)
+	}
+
+	MetafieldTests(t, *returnedMetafield)
+}
+
+func TestLocationUpdateMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/1/metafields/2.json", client.pathPrefix),
+		httpmock.NewBytesResponder(200, loadFixture("metafield.json")))
+
+	metafield := Metafield{
+		Id:        2,
+		Key:       "app_key",
+		Value:     "app_value",
+		Type:      MetafieldTypeSingleLineTextField,
+		Namespace: "affiliates",
+	}
+
+	returnedMetafield, err := client.Location.UpdateMetafield(context.Background(), 1, metafield)
+	if err != nil {
+		t.Errorf("Location.UpdateMetafield() returned error: %v", err)
+	}
+
+	MetafieldTests(t, *returnedMetafield)
+}
+
+func TestLocationDeleteMetafield(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/locations/1/metafields/2.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, "{}"))
+
+	err := client.Location.DeleteMetafield(context.Background(), 1, 2)
+	if err != nil {
+		t.Errorf("Location.DeleteMetafield() returned error: %v", err)
+	}
+}

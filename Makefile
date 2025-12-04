@@ -5,7 +5,7 @@ travis:
 test:
 	@docker-compose run --rm test
 coverage:
-	@docker-compose run --rm test sh -c 'go test -coverprofile=coverage.out ./... && go tool cover -html coverage.out -o coverage.html'
+	@docker-compose run --rm test sh -c 'go test -v -coverprofile=coverage.out ./... && go tool cover -html coverage.out -o coverage.html'
 	@open coverage.html
 clean:
 	@docker image rm go-shopify
