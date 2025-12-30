@@ -132,6 +132,78 @@ client, err := goshopify.NewClient(app, "shopname", "")
 numProducts, err := client.Product.Count(nil)
 ```
 
+#### Client Credentials Grant
+
+For server-to-server authentication where user interaction is not possible, you can use the [client credentials grant flow](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/client-credentials-grant). This is useful for background jobs, cron tasks, or services that need to access shop data without a user present.
+
+**Note:** The app must already be installed in the shop to use this flow.
+
+**Single token fetch:**
+
+```go
+// Create an app with your client credentials
+app := goshopify.App{
+    ApiKey:    "your-client-id",
+    ApiSecret: "your-client-secret",
+}
+
+// Fetch a token (expires after 24 hours)
+ctx := context.Background()
+response, err := app.GetClientCredentialsToken(ctx, "shopname")
+if err != nil {
+    log.Fatal(err)
+}
+
+// Use the token to create a client
+client, err := goshopify.NewClient(app, "shopname", response.AccessToken)
+```
+
+**Using TokenManager for automatic refresh:**
+
+For long-running services, use `TokenManager` to handle token caching and automatic refresh:
+
+```go
+app := goshopify.App{
+    ApiKey:    "your-client-id",
+    ApiSecret: "your-client-secret",
+}
+
+// Create a token manager (tokens are refreshed 1 hour before expiry by default)
+tokenManager := goshopify.NewTokenManager(app, "shopname")
+
+// Get a valid token (automatically refreshes if needed)
+token, err := tokenManager.GetAccessToken(context.Background())
+if err != nil {
+    log.Fatal(err)
+}
+
+// Create client with the token
+client, err := goshopify.NewClient(app, "shopname", token)
+
+// For subsequent API calls, get a fresh token
+token, _ = tokenManager.GetAccessToken(context.Background())
+// ... use token
+```
+
+**TokenManager options:**
+
+```go
+// Customize the refresh buffer (default is 1 hour before expiry)
+tokenManager := goshopify.NewTokenManager(app, "shopname", 
+    goshopify.WithRefreshBuffer(30*time.Minute),
+)
+
+// Force a token refresh
+newToken, err := tokenManager.ForceRefresh(context.Background())
+
+// Get token info for monitoring
+info := tokenManager.GetTokenInfo()
+fmt.Printf("Token valid: %v, expires in: %d seconds\n", info.IsValid, info.ExpiresInSeconds)
+
+// Clear cached token
+tokenManager.ClearToken()
+```
+
 ### Client Options
 
 When creating a client there are configuration options you can pass to NewClient. Simply use the last variadic param and
