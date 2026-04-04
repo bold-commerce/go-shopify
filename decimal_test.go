@@ -81,6 +81,25 @@ func TestFlexDecimal_MarshalJSON_Value(t *testing.T) {
 	}
 }
 
+func TestFlexDecimal_UnmarshalJSON_SingleQuoteEmpty(t *testing.T) {
+	var f FlexDecimal
+	err := f.UnmarshalJSON([]byte(`''`))
+	if err != nil {
+		t.Fatalf("expected no error for single-quote empty, got: %v", err)
+	}
+	if f.Decimal != nil {
+		t.Fatalf("expected nil decimal for single-quote empty, got: %v", f.Decimal)
+	}
+}
+
+func TestFlexDecimal_UnmarshalJSON_InvalidValue(t *testing.T) {
+	var f FlexDecimal
+	err := json.Unmarshal([]byte(`"notanumber"`), &f)
+	if err == nil {
+		t.Fatal("expected error for invalid decimal value, got nil")
+	}
+}
+
 func TestFlexDecimal_InStruct(t *testing.T) {
 	// Simulates the actual Shopify API response with empty flat_modifier
 	jsonData := `{

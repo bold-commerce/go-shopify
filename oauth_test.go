@@ -124,6 +124,23 @@ func TestAppGetAccessTokenWithClientCredentialsGrantError(t *testing.T) {
 	}
 }
 
+func TestAppGetAccessTokenWithClientCredentialsGrantNilClient(t *testing.T) {
+	setup()
+	defer teardown()
+
+	oldPath := accessTokenRelPath
+	accessTokenRelPath = "://example.com"
+	defer func() { accessTokenRelPath = oldPath }()
+
+	token, err := app.GetAccessTokenWithClientCredentialsGrant(context.Background(), "fooshop")
+	if err == nil || !strings.Contains(err.Error(), "missing protocol scheme") {
+		t.Errorf("Expected missing protocol scheme error, got: %v", err)
+	}
+	if token != nil {
+		t.Errorf("Expected nil token received %v", token)
+	}
+}
+
 func TestAppGetAccessTokenError(t *testing.T) {
 	setup()
 	defer teardown()
