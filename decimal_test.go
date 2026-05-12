@@ -58,6 +58,14 @@ func TestFlexDecimal_UnmarshalJSON_ValidNumber(t *testing.T) {
 	}
 }
 
+func TestFlexDecimal_UnmarshalJSON_Invalid(t *testing.T) {
+	var f FlexDecimal
+	err := json.Unmarshal([]byte(`"not-a-number"`), &f)
+	if err == nil {
+		t.Fatal("expected error for invalid decimal string, got nil")
+	}
+}
+
 func TestFlexDecimal_MarshalJSON_Nil(t *testing.T) {
 	f := FlexDecimal{Decimal: nil}
 	data, err := json.Marshal(f)
