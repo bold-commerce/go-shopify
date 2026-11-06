@@ -102,6 +102,106 @@ func (app App) GetAccessToken(ctx context.Context, shopName string, code string)
 	return token.Token, err
 }
 
+const (
+	tokenExchangeGrantType = "urn:ietf:params:oauth:grant-type:token-exchange"
+	offlineAccessTokenType = "urn:shopify:params:oauth:token-type:offline-access-token"
+)
+
+// ExpiringAccessToken is an expiring offline access token, together with the
+// refresh token that renews it.
+type ExpiringAccessToken struct {
+	AccessToken string `json:"access_token"`
+	Scope       string `json:"scope"`
+	// ExpiresIn is the lifetime of AccessToken in seconds.
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	// RefreshTokenExpiresIn is the lifetime of RefreshToken in seconds.
+	RefreshTokenExpiresIn int `json:"refresh_token_expires_in"`
+}
+
+// GetExpiringAccessToken exchanges an authorization code for an expiring
+// offline access token. It is the expiring counterpart of GetAccessToken.
+// Docs: https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens
+func (app App) GetExpiringAccessToken(ctx context.Context, shopName string, code string) (*ExpiringAccessToken, error) {
+	data := struct {
+		ClientId     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+		Code         string `json:"code"`
+		Expiring     string `json:"expiring"`
+	}{
+		ClientId:     app.ApiKey,
+		ClientSecret: app.ApiSecret,
+		Code:         code,
+		Expiring:     "1",
+	}
+
+	return app.requestExpiringAccessToken(ctx, shopName, data)
+}
+
+// RefreshAccessToken gets a new expiring offline access token using a refresh
+// token. Shopify rotates the refresh token on every refresh, so the returned
+// RefreshToken replaces the one that was passed in.
+// Docs: https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens
+func (app App) RefreshAccessToken(ctx context.Context, shopName string, refreshToken string) (*ExpiringAccessToken, error) {
+	data := struct {
+		ClientId     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+		GrantType    string `json:"grant_type"`
+		RefreshToken string `json:"refresh_token"`
+	}{
+		ClientId:     app.ApiKey,
+		ClientSecret: app.ApiSecret,
+		GrantType:    "refresh_token",
+		RefreshToken: refreshToken,
+	}
+
+	return app.requestExpiringAccessToken(ctx, shopName, data)
+}
+
+// MigrateToExpiringAccessToken exchanges a non-expiring offline access token
+// for an expiring one. Shopify invalidates the non-expiring token when the
+// exchange succeeds.
+// Docs: https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens
+func (app App) MigrateToExpiringAccessToken(ctx context.Context, shopName string, accessToken string) (*ExpiringAccessToken, error) {
+	data := struct {
+		ClientId           string `json:"client_id"`
+		ClientSecret       string `json:"client_secret"`
+		GrantType          string `json:"grant_type"`
+		SubjectToken       string `json:"subject_token"`
+		SubjectTokenType   string `json:"subject_token_type"`
+		RequestedTokenType string `json:"requested_token_type"`
+		Expiring           string `json:"expiring"`
+	}{
+		ClientId:           app.ApiKey,
+		ClientSecret:       app.ApiSecret,
+		GrantType:          tokenExchangeGrantType,
+		SubjectToken:       accessToken,
+		SubjectTokenType:   offlineAccessTokenType,
+		RequestedTokenType: offlineAccessTokenType,
+		Expiring:           "1",
+	}
+
+	return app.requestExpiringAccessToken(ctx, shopName, data)
+}
+
+func (app App) requestExpiringAccessToken(ctx context.Context, shopName string, data interface{}) (*ExpiringAccessToken, error) {
+	client := app.Client
+	if client == nil {
+		client = MustNewClient(app, shopName, "")
+	}
+
+	req, err := client.NewRequest(ctx, "POST", accessTokenRelPath, data, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	token := new(ExpiringAccessToken)
+	if err := client.Do(req, token); err != nil {
+		return nil, err
+	}
+	return token, nil
+}
+
 // Verify a message against a message HMAC
 func (app App) VerifyMessage(message, messageMAC string) bool {
 	mac := hmac.New(sha256.New, []byte(app.ApiSecret))

@@ -3,10 +3,12 @@ package goshopify
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -158,13 +160,158 @@ func TestAppGetAccessTokenError(t *testing.T) {
 	}
 
 	expectedError = errors.New("parse ://example.com: missing protocol scheme")
+	oldPath := accessTokenRelPath
 	accessTokenRelPath = "://example.com" // cause NewRequest to trip a parse error
+	defer func() { accessTokenRelPath = oldPath }()
 	token, err = app.GetAccessToken(context.Background(), "fooshop", "")
 	if err == nil || !strings.Contains(err.Error(), "missing protocol scheme") {
 		t.Errorf("Expected error %s got error %s", expectedError.Error(), err.Error())
 	}
 	if token != "" {
 		t.Errorf("Expected empty token received %s", token)
+	}
+}
+
+const expiringAccessTokenResponse = `{"access_token":"footoken","scope":"read_products","expires_in":3600,"refresh_token":"foorefresh","refresh_token_expires_in":7776000}`
+
+// expiringAccessTokenResponder responds with an expiring access token and
+// records the JSON body of the request in body.
+func expiringAccessTokenResponder(body *map[string]string) httpmock.Responder {
+	return func(req *http.Request) (*http.Response, error) {
+		if err := json.NewDecoder(req.Body).Decode(body); err != nil {
+			return nil, err
+		}
+		return httpmock.NewStringResponse(200, expiringAccessTokenResponse), nil
+	}
+}
+
+func expiringAccessTokenTest(t *testing.T, token *ExpiringAccessToken, body, expectedBody map[string]string) {
+	t.Helper()
+
+	expectedToken := ExpiringAccessToken{
+		AccessToken:           "footoken",
+		Scope:                 "read_products",
+		ExpiresIn:             3600,
+		RefreshToken:          "foorefresh",
+		RefreshTokenExpiresIn: 7776000,
+	}
+	if token == nil || *token != expectedToken {
+		t.Errorf("Token = %+v, expected %+v", token, expectedToken)
+	}
+	if !reflect.DeepEqual(body, expectedBody) {
+		t.Errorf("Request body = %v, expected %v", body, expectedBody)
+	}
+}
+
+func TestAppGetExpiringAccessToken(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var body map[string]string
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+		expiringAccessTokenResponder(&body))
+
+	app.Client = client
+	token, err := app.GetExpiringAccessToken(context.Background(), "fooshop", "foocode")
+	if err != nil {
+		t.Fatalf("App.GetExpiringAccessToken(): %v", err)
+	}
+
+	expiringAccessTokenTest(t, token, body, map[string]string{
+		"client_id":     "apikey",
+		"client_secret": "hush",
+		"code":          "foocode",
+		"expiring":      "1",
+	})
+}
+
+func TestAppRefreshAccessToken(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var body map[string]string
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+		expiringAccessTokenResponder(&body))
+
+	app.Client = client
+	token, err := app.RefreshAccessToken(context.Background(), "fooshop", "oldrefresh")
+	if err != nil {
+		t.Fatalf("App.RefreshAccessToken(): %v", err)
+	}
+
+	expiringAccessTokenTest(t, token, body, map[string]string{
+		"client_id":     "apikey",
+		"client_secret": "hush",
+		"grant_type":    "refresh_token",
+		"refresh_token": "oldrefresh",
+	})
+}
+
+func TestAppRefreshAccessTokenError(t *testing.T) {
+	setup()
+	defer teardown()
+
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+		httpmock.NewStringResponder(401, `{"error":"invalid_request","error_description":"This request requires an active refresh_token"}`))
+
+	app.Client = client
+	token, err := app.RefreshAccessToken(context.Background(), "fooshop", "expiredrefresh")
+
+	var responseError ResponseError
+	if !errors.As(err, &responseError) {
+		t.Fatalf("Expected a ResponseError, got: %v", err)
+	}
+	if responseError.Status != http.StatusUnauthorized {
+		t.Errorf("Status = %v, expected %v", responseError.Status, http.StatusUnauthorized)
+	}
+	if responseError.Message != "invalid_request" {
+		t.Errorf("Message = %v, expected invalid_request", responseError.Message)
+	}
+	if token != nil {
+		t.Errorf("Expected nil token received %v", token)
+	}
+}
+
+func TestAppMigrateToExpiringAccessToken(t *testing.T) {
+	setup()
+	defer teardown()
+
+	var body map[string]string
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+		expiringAccessTokenResponder(&body))
+
+	app.Client = client
+	token, err := app.MigrateToExpiringAccessToken(context.Background(), "fooshop", "nonexpiringtoken")
+	if err != nil {
+		t.Fatalf("App.MigrateToExpiringAccessToken(): %v", err)
+	}
+
+	expiringAccessTokenTest(t, token, body, map[string]string{
+		"client_id":            "apikey",
+		"client_secret":        "hush",
+		"grant_type":           "urn:ietf:params:oauth:grant-type:token-exchange",
+		"subject_token":        "nonexpiringtoken",
+		"subject_token_type":   "urn:shopify:params:oauth:token-type:offline-access-token",
+		"requested_token_type": "urn:shopify:params:oauth:token-type:offline-access-token",
+		"expiring":             "1",
+	})
+}
+
+func TestAppExpiringAccessTokenNilClient(t *testing.T) {
+	setup()
+	defer teardown()
+
+	oldPath := accessTokenRelPath
+	accessTokenRelPath = "://example.com" // cause NewRequest to trip a parse error
+	defer func() { accessTokenRelPath = oldPath }()
+
+	// app.Client isn't specified so MustNewClient called
+	token, err := app.GetExpiringAccessToken(context.Background(), "fooshop", "foocode")
+	if err == nil || !strings.Contains(err.Error(), "missing protocol scheme") {
+		t.Errorf("Expected missing protocol scheme error, got: %v", err)
+	}
+	if token != nil {
+		t.Errorf("Expected nil token received %v", token)
 	}
 }
 
