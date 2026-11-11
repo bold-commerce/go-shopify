@@ -94,6 +94,27 @@ func MyCallbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
+##### Expiring offline access tokens
+
+Shopify is replacing permanent offline access tokens with
+[expiring offline access tokens](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens)
+for public apps. An expiring token comes with a refresh token:
+
+```go
+// In the callback, fetch an expiring token instead of a permanent one.
+token, err := app.GetExpiringAccessToken(ctx, shopName, code)
+// Store token.AccessToken, token.RefreshToken and both lifetimes
+// (token.ExpiresIn and token.RefreshTokenExpiresIn, in seconds).
+
+// Before the access token expires, refresh it. The refresh token is rotated,
+// so store the returned token again.
+token, err = app.RefreshAccessToken(ctx, shopName, token.RefreshToken)
+
+// Exchange a permanent token that was stored earlier for an expiring one.
+// Shopify invalidates the permanent token.
+token, err = app.MigrateToExpiringAccessToken(ctx, shopName, permanentToken)
+```
+
 #### Api calls with a token
 
 With a permanent access token, you can make API calls like this:
