@@ -47,13 +47,6 @@ type ArticleImage struct {
 	Src       string     `json:"src,omitempty"`
 }
 
-type MetaFields struct {
-	Key       string `json:"key,omitempty"`
-	Value     string `json:"value,omitempty"`
-	Type      string `json:"type,omitempty"`
-	Namespace string `json:"namespace,omitempty"`
-}
-
 type Article struct {
 	Author      string        `json:"author,omitempty"`
 	BlogId      uint64        `json:"blog_id,omitempty"`
@@ -61,7 +54,7 @@ type Article struct {
 	Id          uint64        `json:"id,omitempty"`
 	Handle      string        `json:"handle,omitempty"`
 	Image       *ArticleImage `json:"image,omitempty"`
-	Metafields  *MetaFields   `json:"metafields"`
+	Metafields  []Metafield   `json:"metafields,omitempty"`
 	Published   bool          `json:"published,omitempty"`
 	SummaryHtml string        `json:"summary_html,omitempty"`
 	Tags        string        `json:"tags,omitempty"`
