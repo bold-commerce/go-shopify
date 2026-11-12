@@ -20,12 +20,12 @@ func smartCollectionTests(t *testing.T, collection SmartCollection) {
 		{"Id", uint64(30497275952), collection.Id},
 		{"Handle", "macbooks", collection.Handle},
 		{"Title", "Macbooks", collection.Title},
-		{"BodyHTML", "Macbook Body", collection.BodyHTML},
+		{"BodyHTML", "Macbook Body", *collection.BodyHTML},
 		{"SortOrder", "best-selling", collection.SortOrder},
 		{"Column", "title", collection.Rules[0].Column},
 		{"Relation", "contains", collection.Rules[0].Relation},
 		{"Condition", "mac", collection.Rules[0].Condition},
-		{"Disjunctive", true, collection.Disjunctive},
+		{"Disjunctive", true, *collection.Disjunctive},
 	}
 
 	for _, c := range cases {
