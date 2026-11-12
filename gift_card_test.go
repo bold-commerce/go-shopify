@@ -2,11 +2,56 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 )
+
+func TestGiftCardCustomerId(t *testing.T) {
+	setup()
+	defer teardown()
+	id := uint64(207119551)
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/gift_cards.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+		var body struct {
+			GiftCard struct {
+				CustomerId uint64 `json:"customer_id"`
+			} `json:"gift_card"`
+		}
+		if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		if body.GiftCard.CustomerId != id {
+			t.Errorf("customer_id = %d, want %d", body.GiftCard.CustomerId, id)
+		}
+		return httpmock.NewStringResponse(201, `{"gift_card":{"id":1,"customer_id":207119551}}`), nil
+	})
+	card, err := client.GiftCard.Create(context.Background(), GiftCard{CustomerId: &id})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if card.CustomerId == nil || *card.CustomerId != id {
+		t.Fatalf("customer_id = %v", card.CustomerId)
+	}
+	for _, data := range []string{`{}`, `{"customer_id":null}`} {
+		var card GiftCard
+		if err := json.Unmarshal([]byte(data), &card); err != nil {
+			t.Fatal(err)
+		}
+		if card.CustomerId != nil {
+			t.Fatalf("expected no customer for %s", data)
+		}
+		got, err := json.Marshal(card)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(got) != `{}` {
+			t.Fatalf("unset card = %s", got)
+		}
+	}
+}
 
 func TestGiftCardGet(t *testing.T) {
 	setup()
