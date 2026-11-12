@@ -3,6 +3,7 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"time"
 )
 
 const paymentsTransactionsBasePath = "shopify_payments/balance/transactions"
@@ -52,7 +53,7 @@ type PaymentsTransactions struct {
 	SourceType               string                    `json:"source_type,omitempty"`
 	SourceOrderTransactionId int                       `json:"source_order_transaction_id,omitempty"`
 	SourceOrderId            int                       `json:"source_order_id,omitempty"`
-	ProcessedAt              OnlyDate                  `json:"processed_at,omitempty"`
+	ProcessedAt              time.Time                 `json:"processed_at,omitempty"`
 }
 
 type PaymentsTransactionsTypes string

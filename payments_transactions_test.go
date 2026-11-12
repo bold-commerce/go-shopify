@@ -18,7 +18,7 @@ func TestPaymentsTransactionsList(t *testing.T) {
 
 	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/balance/transactions.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("payments_transactions.json")))
-	date1 := OnlyDate{time.Date(2013, 11, 0o1, 0, 0, 0, 0, time.UTC)}
+	date1 := time.Date(2024, 10, 31, 20, 0, 0, 0, time.FixedZone("", -4*60*60))
 	paymentsTransactions, err := client.PaymentsTransactions.List(context.Background(), PaymentsTransactionsListOptions{PayoutId: 623721858})
 	if err != nil {
 		t.Errorf("PaymentsTransactions.List returned error: %v", err)
@@ -229,7 +229,7 @@ func TestPaymentsTransactionsListWithPagination(t *testing.T) {
 	defer teardown()
 
 	listURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/balance/transactions.json", client.pathPrefix)
-	date1 := OnlyDate{time.Date(2013, 11, 0o1, 0, 0, 0, 0, time.UTC)}
+	date1 := time.Date(2024, 10, 31, 20, 0, 0, 0, time.FixedZone("", -4*60*60))
 
 	cases := []struct {
 		body                         string
@@ -399,7 +399,7 @@ func TestPaymentsTransactionsGet(t *testing.T) {
 	if err != nil {
 		t.Errorf("PaymentsTransactions.Get returned error: %v", err)
 	}
-	date1 := OnlyDate{time.Date(2013, 11, 0o1, 0, 0, 0, 0, time.UTC)}
+	date1 := time.Date(2024, 10, 31, 20, 0, 0, 0, time.FixedZone("", -4*60*60))
 
 	expected := &PaymentsTransactions{
 		Id:                       699519475,
