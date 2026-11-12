@@ -3,11 +3,34 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
 	"reflect"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 )
+
+func TestAssignedFulfillmentOrderLocationFilter(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, ids := range [][]uint64{nil, {24826418}, {24826418, 24826419}} {
+		httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/assigned_fulfillment_orders.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+			want := url.Values{}
+			for _, id := range ids {
+				want.Add("location_ids[]", fmt.Sprint(id))
+			}
+			if !reflect.DeepEqual(req.URL.Query(), want) {
+				t.Errorf("query = %v, want %v", req.URL.Query(), want)
+			}
+			return httpmock.NewStringResponse(200, `{"fulfillment_orders":[]}`), nil
+		})
+		_, err := client.AssignedFulfillmentOrder.Get(context.Background(), AssignedFulfillmentOrderOptions{LocationIds: ids})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
 
 func AssignedFulfillmentOrderTests(t *testing.T, assignedFulfillmentOrder AssignedFulfillmentOrder) {
 	// Check that Id is assigned to the returned fulfillment
