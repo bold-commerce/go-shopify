@@ -83,7 +83,7 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 
 		err := s.client.Post(ctx, "graphql.json", data, &gr)
 
-		// internal attempts count towards outer total
+		// Count the initial GraphQL request as well as each throttled retry.
 		attempts += 1
 
 		var retryAfterSecs float64
@@ -100,7 +100,7 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 
 			for _, err := range gr.Errors {
 				if err.Extensions != nil && err.Extensions.Code == graphQLErrorCodeThrottled {
-					if attempts >= s.client.retries {
+					if attempts > s.client.retries {
 						return RateLimitError{
 							RetryAfter: int(math.Ceil(retryAfterSecs)),
 							ResponseError: ResponseError{
@@ -120,7 +120,9 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 			if doRetry {
 				wait := time.Duration(math.Ceil(retryAfterSecs)) * time.Second
 				s.client.log.Debugf("rate limited waiting %s", wait.String())
-				time.Sleep(wait)
+				if err := waitForRetry(ctx, wait); err != nil {
+					return err
+				}
 				continue
 			}
 

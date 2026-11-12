@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"path"
@@ -392,7 +393,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		// retry scenario, close resp and any continue will retry
 		resp.Body.Close()
 
-		if retries <= 1 {
+		if retries <= 0 {
 			return nil, respErr
 		}
 
@@ -401,7 +402,9 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 
 			wait := time.Duration(rateLimitErr.RetryAfter) * time.Second
 			c.log.Debugf("rate limited waiting %s", wait.String())
-			time.Sleep(wait)
+			if err := waitForRetry(req.Context(), wait); err != nil {
+				return nil, err
+			}
 			retries--
 			continue
 		}
@@ -488,7 +491,7 @@ func wrapSpecificError(r *http.Response, err ResponseError) error {
 		f, _ := strconv.ParseFloat(r.Header.Get("Retry-After"), 64)
 		return RateLimitError{
 			ResponseError: err,
-			RetryAfter:    int(f),
+			RetryAfter:    int(math.Ceil(f)),
 		}
 	}
 

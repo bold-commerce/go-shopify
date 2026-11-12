@@ -21,6 +21,7 @@ func WithVersion(apiVersion string) Option {
 }
 
 // WithRetry sets the number of times a request will be retried if a rate limit or service unavailable error is returned.
+// The initial request does not count as a retry. Zero disables retries.
 // Rate limiting can be either REST API limits or GraphQL Cost limits
 func WithRetry(retries int) Option {
 	return func(c *Client) {
