@@ -289,12 +289,13 @@ func TestGraphQLQueryWithThrottledError(t *testing.T) {
 		t.Errorf("GraphQL.Query rle.RetryAfter is %d but expected %d", rle.RetryAfter, int(expectedRetryAfterSeconds))
 	}
 
-	if client.RateLimits.GraphQLCost == nil {
-		t.Errorf("GraphQL.Query should have assigned client.RateLimits.GraphQLCost")
+	limits := client.RateLimits()
+	if limits.GraphQLCost == nil {
+		t.Errorf("GraphQL.Query should have assigned client.RateLimits().GraphQLCost")
 	}
 
-	if client.RateLimits.RetryAfterSeconds != expectedRetryAfterSeconds {
-		t.Errorf("GraphQL.Query client.RateLimits.RetryAfterSeconds is %f but expected %f", client.RateLimits.RetryAfterSeconds, expectedRetryAfterSeconds)
+	if limits.RetryAfterSeconds != expectedRetryAfterSeconds {
+		t.Errorf("GraphQL.Query client.RateLimits().RetryAfterSeconds is %f but expected %f", limits.RetryAfterSeconds, expectedRetryAfterSeconds)
 	}
 }
 

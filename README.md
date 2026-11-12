@@ -180,6 +180,11 @@ before returning an error. `WithRetry` additionally supports retrying HTTP503 er
 client, err := goshopify.NewClient(app, "shopname", "", goshopify.WithRetry(3))
 ```
 
+Read recorded rate-limit information with `client.RateLimits()`. This method
+replaces the `client.RateLimits` field and returns an independent snapshot that
+is safe to read while other requests are in progress. Changes to the snapshot
+do not change the client.
+
 #### Query options
 
 Most API functions take an options `interface{}` as parameter. You can use one

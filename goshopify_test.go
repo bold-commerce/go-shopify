@@ -944,6 +944,7 @@ func TestDoRateLimit(t *testing.T) {
 			}
 			req, _ := client.NewRequest(context.Background(), "GET", c.url, nil, nil)
 			err := client.Do(req, reqBody)
+			limits := client.RateLimits()
 
 			if err != nil {
 				if e, ok := err.(*url.Error); ok {
@@ -955,8 +956,8 @@ func TestDoRateLimit(t *testing.T) {
 				if !reflect.DeepEqual(err, c.expected) {
 					t.Errorf("Do(): expected error %#v, actual %#v", c.expected, err)
 				}
-			} else if err == nil && !reflect.DeepEqual(client.RateLimits, c.expected) {
-				t.Errorf("%s: expected %#v, actual %#v", c.description, c.expected, client.RateLimits)
+			} else if err == nil && !reflect.DeepEqual(limits, c.expected) {
+				t.Errorf("%s: expected %#v, actual %#v", c.description, c.expected, limits)
 			}
 		})
 	}

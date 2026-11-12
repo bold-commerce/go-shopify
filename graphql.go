@@ -90,8 +90,10 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 
 		if gr.Extensions != nil {
 			retryAfterSecs = gr.Extensions.Cost.RetryAfterSeconds()
-			s.client.RateLimits.GraphQLCost = &gr.Extensions.Cost
-			s.client.RateLimits.RetryAfterSeconds = retryAfterSecs
+			s.client.rateLimitsMu.Lock()
+			s.client.rateLimits.GraphQLCost = &gr.Extensions.Cost
+			s.client.rateLimits.RetryAfterSeconds = retryAfterSecs
+			s.client.rateLimitsMu.Unlock()
 		}
 
 		if len(gr.Errors) > 0 {

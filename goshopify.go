@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -48,14 +49,8 @@ type App struct {
 	Client      *Client // see GetAccessToken
 }
 
-type RateLimitInfo struct {
-	RequestCount      int
-	BucketSize        int
-	GraphQLCost       *GraphQLCost
-	RetryAfterSeconds float64
-}
-
 // Client manages communication with the Shopify API.
+// A Client must not be copied after first use.
 type Client struct {
 	// HTTP client used to communicate with the Shopify API.
 	Client *http.Client
@@ -81,7 +76,8 @@ type Client struct {
 	// max number of retries, defaults to 0 for no retries see WithRetry option
 	retries int
 
-	RateLimits RateLimitInfo
+	rateLimitsMu sync.RWMutex
+	rateLimits   RateLimitInfo
 
 	// Services used for communicating with the API
 	Product                    ProductService
@@ -438,12 +434,14 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		}
 	}
 
+	c.rateLimitsMu.Lock()
 	if s := strings.Split(resp.Header.Get("X-Shopify-Shop-Api-Call-Limit"), "/"); len(s) == 2 {
-		c.RateLimits.RequestCount, _ = strconv.Atoi(s[0])
-		c.RateLimits.BucketSize, _ = strconv.Atoi(s[1])
+		c.rateLimits.RequestCount, _ = strconv.Atoi(s[0])
+		c.rateLimits.BucketSize, _ = strconv.Atoi(s[1])
 	}
 
-	c.RateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(resp.Header.Get("Retry-After"), 64)
+	c.rateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(resp.Header.Get("Retry-After"), 64)
+	c.rateLimitsMu.Unlock()
 
 	return resp.Header, nil
 }
