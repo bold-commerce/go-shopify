@@ -626,7 +626,7 @@ type Refund struct {
 
 type RefundShippingLine struct {
 	Id                uint64         `json:"id,omitempty"`
-	ShippingLine      *ShippingLines `json:"shipping_lines,omitempty"`
+	ShippingLine      *ShippingLines `json:"shipping_line,omitempty"`
 	ShippingLineId    uint64         `json:"shipping_line_id,omitempty"`
 	SubtotalAmountSet *AmountSet     `json:"subtotal_amount_set,omitempty"`
 }
