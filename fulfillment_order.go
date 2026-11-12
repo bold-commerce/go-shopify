@@ -18,7 +18,7 @@ type FulfillmentOrderService interface {
 	Hold(context.Context, uint64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
 	Open(context.Context, uint64) (*FulfillmentOrder, error)
 	ReleaseHold(context.Context, uint64) (*FulfillmentOrder, error)
-	Reschedule(context.Context, uint64) (*FulfillmentOrder, error)
+	Reschedule(context.Context, uint64, time.Time) (*FulfillmentOrder, error)
 	SetDeadline(context.Context, []uint64, time.Time) error
 	Move(context.Context, uint64, FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error)
 }
@@ -260,11 +260,17 @@ func (s *FulfillmentOrderServiceOp) ReleaseHold(ctx context.Context, fulfillment
 }
 
 // Reschedule reschedules the fulfill_at time of a scheduled fulfillment order
-func (s *FulfillmentOrderServiceOp) Reschedule(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrder, error) {
+func (s *FulfillmentOrderServiceOp) Reschedule(ctx context.Context, fulfillmentId uint64, newFulfillAt time.Time) (*FulfillmentOrder, error) {
+	type rescheduleRequest struct {
+		NewFulfillAt time.Time `json:"new_fulfill_at"`
+	}
+	req := struct {
+		FulfillmentOrder rescheduleRequest `json:"fulfillment_order"`
+	}{FulfillmentOrder: rescheduleRequest{NewFulfillAt: newFulfillAt}}
 	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/reschedule.json", prefix)
 	resource := new(FulfillmentOrderResource)
-	err := s.client.Post(ctx, path, nil, resource)
+	err := s.client.Post(ctx, path, req, resource)
 	return resource.FulfillmentOrder, err
 }
 
