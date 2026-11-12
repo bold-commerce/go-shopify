@@ -32,17 +32,17 @@ type CountryHarmonizedSystemCode struct {
 
 // InventoryItem represents a Shopify inventory item
 type InventoryItem struct {
-	Id                           uint64                        `json:"id,omitempty"`
-	SKU                          string                        `json:"sku,omitempty"`
-	CreatedAt                    *time.Time                    `json:"created_at,omitempty"`
-	UpdatedAt                    *time.Time                    `json:"updated_at,omitempty"`
-	Cost                         *decimal.Decimal              `json:"cost,omitempty"`
-	Tracked                      *bool                         `json:"tracked,omitempty"`
-	AdminGraphqlApiId            string                        `json:"admin_graphql_api_id,omitempty"`
-	CountryCodeOfOrigin          *string                       `json:"country_code_of_origin"`
-	CountryHarmonizedSystemCodes []CountryHarmonizedSystemCode `json:"country_harmonized_system_codes"`
-	HarmonizedSystemCode         *string                       `json:"harmonized_system_code"`
-	ProvinceCodeOfOrigin         *string                       `json:"province_code_of_origin"`
+	Id                           uint64                         `json:"id,omitempty"`
+	SKU                          string                         `json:"sku,omitempty"`
+	CreatedAt                    *time.Time                     `json:"created_at,omitempty"`
+	UpdatedAt                    *time.Time                     `json:"updated_at,omitempty"`
+	Cost                         *decimal.Decimal               `json:"cost,omitempty"`
+	Tracked                      *bool                          `json:"tracked,omitempty"`
+	AdminGraphqlApiId            string                         `json:"admin_graphql_api_id,omitempty"`
+	CountryCodeOfOrigin          *string                        `json:"country_code_of_origin,omitempty"`
+	CountryHarmonizedSystemCodes *[]CountryHarmonizedSystemCode `json:"country_harmonized_system_codes,omitempty"`
+	HarmonizedSystemCode         *string                        `json:"harmonized_system_code,omitempty"`
+	ProvinceCodeOfOrigin         *string                        `json:"province_code_of_origin,omitempty"`
 }
 
 // InventoryItemResource is used for handling single item requests and responses
