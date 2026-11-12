@@ -694,7 +694,7 @@ func (c *Client) ListWithPagination(ctx context.Context, path string, resource, 
 
 // extractPagination extracts pagination info from linkHeader.
 // Details on the format are here:
-// https://shopify.dev/docs/api/admin-rest/latest/resources/paginated-rest-results
+// https://shopify.dev/docs/api/admin-rest/usage/pagination
 func extractPagination(linkHeader string) (*Pagination, error) {
 	pagination := new(Pagination)
 
@@ -702,7 +702,26 @@ func extractPagination(linkHeader string) (*Pagination, error) {
 		return pagination, nil
 	}
 
-	for _, link := range strings.Split(linkHeader, ",") {
+	// Only commas outside <...> separate links. URLs can contain commas in fields.
+	var links []string
+	start := 0
+	inURL := false
+	for i, char := range linkHeader {
+		switch char {
+		case '<':
+			inURL = true
+		case '>':
+			inURL = false
+		case ',':
+			if !inURL {
+				links = append(links, linkHeader[start:i])
+				start = i + 1
+			}
+		}
+	}
+	links = append(links, linkHeader[start:])
+
+	for _, link := range links {
 		match := linkRegex.FindStringSubmatch(link)
 		// Make sure the link is not empty or invalid
 		if len(match) != 3 {
@@ -729,6 +748,7 @@ func extractPagination(linkHeader string) (*Pagination, error) {
 		}
 
 		paginationListOptions := ListOptions{}
+		paginationListOptions.Fields = params.Get("fields")
 
 		paginationListOptions.PageInfo = params.Get("page_info")
 		if paginationListOptions.PageInfo == "" {
