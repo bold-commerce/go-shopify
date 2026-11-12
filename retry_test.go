@@ -5,11 +5,53 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/jarcoal/httpmock"
 )
+
+func TestConcurrentRetryBudgets(t *testing.T) {
+	setup()
+	defer teardown()
+	client.retries = 2
+	const requests = 16
+	paths := make([]string, requests)
+	urls := make([]string, requests)
+	for i := range paths {
+		paths[i] = fmt.Sprintf("retry-test/%d.json", i)
+		urls[i] = fmt.Sprintf("https://fooshop.myshopify.com/%s/%s", client.pathPrefix, paths[i])
+		// Exhaust retries to isolate request counters from response rate-limit state.
+		httpmock.RegisterResponder("GET", urls[i], httpmock.NewStringResponder(503, `{"errors":"unavailable"}`))
+	}
+	start := make(chan struct{})
+	results := make(chan error, requests)
+	var wg sync.WaitGroup
+	for _, path := range paths {
+		wg.Add(1)
+		go func(path string) {
+			defer wg.Done()
+			<-start
+			results <- client.Get(context.Background(), path, nil, nil)
+		}(path)
+	}
+	close(start)
+	wg.Wait()
+	close(results)
+	for err := range results {
+		var responseErr ResponseError
+		if !errors.As(err, &responseErr) || responseErr.Status != 503 {
+			t.Errorf("expected exhausted 503 retries, got %v", err)
+		}
+	}
+	counts := httpmock.GetCallCountInfo()
+	for _, url := range urls {
+		if got := counts["GET "+url]; got != 3 {
+			t.Errorf("%s: got %d attempts, want 3", url, got)
+		}
+	}
+}
 
 func TestRetryBudget(t *testing.T) {
 	setup()

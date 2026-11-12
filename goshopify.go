@@ -79,8 +79,7 @@ type Client struct {
 	token string
 
 	// max number of retries, defaults to 0 for no retries see WithRetry option
-	retries  int
-	attempts int
+	retries int
 
 	RateLimits RateLimitInfo
 
@@ -363,7 +362,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	var resp *http.Response
 	var err error
 	retries := c.retries
-	c.attempts = 0
 	c.logRequest(req)
 
 	// copy request body so it can be re-used
@@ -377,7 +375,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	}
 
 	for {
-		c.attempts++
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 		resp, err = c.Client.Do(req)
 		c.logResponse(resp)

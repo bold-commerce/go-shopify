@@ -464,8 +464,9 @@ func TestRetry(t *testing.T) {
 
 		err = client.Do(req, body)
 
-		if client.attempts != c.retries+1 {
-			t.Errorf("Do(): got %d attempts, want %d", client.attempts, c.retries+1)
+		attempts := httpmock.GetCallCountInfo()["GET "+fmt.Sprintf(urlFormat, c.relPath)]
+		if attempts != c.retries+1 {
+			t.Errorf("Do(): got %d attempts, want %d", attempts, c.retries+1)
 		}
 
 		if err != nil {
