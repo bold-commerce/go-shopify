@@ -206,11 +206,12 @@ func (s *FulfillmentOrderServiceOp) Cancel(ctx context.Context, fulfillmentId ui
 
 // Close marks a fulfillment order as incomplete with an optional message
 func (s *FulfillmentOrderServiceOp) Close(ctx context.Context, fulfillmentId uint64, message string) (*FulfillmentOrder, error) {
-	req := struct {
-		Message string `json:"message,omitempty"`
-	}{
-		Message: message,
+	var req struct {
+		FulfillmentOrder struct {
+			Message string `json:"message,omitempty"`
+		} `json:"fulfillment_order"`
 	}
+	req.FulfillmentOrder.Message = message
 	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/close.json", prefix)
 	resource := new(FulfillmentOrderResource)

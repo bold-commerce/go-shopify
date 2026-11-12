@@ -106,18 +106,28 @@ func TestFulfillmentOrderCancel(t *testing.T) {
 func TestFulfillmentOrderClose(t *testing.T) {
 	setup()
 	defer teardown()
-
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/close.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
-
-	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-
-	returnedFulfillment, err := fulfillmentOrderService.Close(context.Background(), 1, "test")
-	if err != nil {
-		t.Errorf("FulfillmentOrder.Close returned error: %v", err)
+	for _, message := range []string{"Not enough inventory to complete this work.", ""} {
+		httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/close.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+			var got map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+				t.Fatal(err)
+			}
+			fields := map[string]interface{}{}
+			if message != "" {
+				fields["message"] = message
+			}
+			want := map[string]interface{}{"fulfillment_order": fields}
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("request = %#v, want %#v", got, want)
+			}
+			return httpmock.NewBytesResponse(200, loadFixture("fulfillment_order.json")), nil
+		})
+		got, err := client.FulfillmentOrder.Close(context.Background(), 1, message)
+		if err != nil {
+			t.Fatal(err)
+		}
+		FulfillmentOrderTests(t, *got)
 	}
-
-	FulfillmentOrderTests(t, *returnedFulfillment)
 }
 
 func TestFulfillmentOrderHold(t *testing.T) {
