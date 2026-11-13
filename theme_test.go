@@ -2,7 +2,9 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -120,7 +122,16 @@ func TestThemeUpdate(t *testing.T) {
 
 	httpmock.RegisterResponder("PUT",
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/%s/1.json", client.pathPrefix, themesBasePath),
-		httpmock.NewBytesResponder(200, loadFixture("theme.json")))
+		func(req *http.Request) (*http.Response, error) {
+			var body map[string]map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+				t.Fatal(err)
+			}
+			if _, ok := body["theme"]["src"]; ok {
+				t.Error("theme update included an unset src")
+			}
+			return httpmock.NewBytesResponse(200, loadFixture("theme.json")), nil
+		})
 
 	theme := getTheme()
 	expectation, err := client.Theme.Update(context.Background(), theme)
@@ -138,11 +149,22 @@ func TestThemeCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
+	const src = "https://example.com/theme.zip?version=2&download=true"
 	httpmock.RegisterResponder("POST",
 		fmt.Sprintf("https://fooshop.myshopify.com/%s/%s.json", client.pathPrefix, themesBasePath),
-		httpmock.NewBytesResponder(200, loadFixture("theme.json")))
+		func(req *http.Request) (*http.Response, error) {
+			var body map[string]map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+				t.Fatal(err)
+			}
+			if got := body["theme"]["src"]; got != src {
+				t.Errorf("theme.src = %v, want %q", got, src)
+			}
+			return httpmock.NewBytesResponse(http.StatusCreated, loadFixture("theme.json")), nil
+		})
 
 	theme := getTheme()
+	theme.Src = src
 	expectation, err := client.Theme.Create(context.Background(), theme)
 	if err != nil {
 		t.Errorf("Theme.Create returned error: %v", err)

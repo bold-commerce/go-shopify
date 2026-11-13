@@ -390,13 +390,13 @@ func TestRetry(t *testing.T) {
 	}{
 		{ // no retries
 			relPath:  "foo/1",
-			retries:  1,
+			retries:  0,
 			expected: &MyStruct{Foo: "bar"},
 			responder: func(req *http.Request) (*http.Response, error) {
 				return httpmock.NewStringResponse(http.StatusOK, `{"foo": "bar"}`), nil
 			},
 		},
-		{ // 2 retries rate limited, 3 succeeds
+		{ // 3 retries rate limited, 4th attempt succeeds
 			relPath:  "foo/2",
 			retries:  maxRetries,
 			expected: &MyStruct{Foo: "bar"},
@@ -427,7 +427,7 @@ func TestRetry(t *testing.T) {
 				return resp, nil
 			},
 		},
-		{ // 2 retries 503, 3 succeeds
+		{ // 3 retries 503, 4th attempt succeeds
 			relPath:  "foo/4",
 			retries:  maxRetries,
 			expected: &MyStruct{Foo: "bar"},
@@ -453,7 +453,8 @@ func TestRetry(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		retries = c.retries
+		retries = c.retries + 1
+		client.retries = c.retries
 		httpmock.RegisterResponder("GET", fmt.Sprintf(urlFormat, c.relPath), c.responder)
 		body := new(MyStruct)
 		req, err := client.NewRequest(context.Background(), "GET", c.relPath, nil, nil)
@@ -463,8 +464,9 @@ func TestRetry(t *testing.T) {
 
 		err = client.Do(req, body)
 
-		if client.attempts != c.retries {
-			t.Errorf("Do(): attempts do not match retries %#v, actual %#v", client.attempts, c.retries)
+		attempts := httpmock.GetCallCountInfo()["GET "+fmt.Sprintf(urlFormat, c.relPath)]
+		if attempts != c.retries+1 {
+			t.Errorf("Do(): got %d attempts, want %d", attempts, c.retries+1)
 		}
 
 		if err != nil {
@@ -942,6 +944,7 @@ func TestDoRateLimit(t *testing.T) {
 			}
 			req, _ := client.NewRequest(context.Background(), "GET", c.url, nil, nil)
 			err := client.Do(req, reqBody)
+			limits := client.RateLimits()
 
 			if err != nil {
 				if e, ok := err.(*url.Error); ok {
@@ -953,8 +956,8 @@ func TestDoRateLimit(t *testing.T) {
 				if !reflect.DeepEqual(err, c.expected) {
 					t.Errorf("Do(): expected error %#v, actual %#v", c.expected, err)
 				}
-			} else if err == nil && !reflect.DeepEqual(client.RateLimits, c.expected) {
-				t.Errorf("%s: expected %#v, actual %#v", c.description, c.expected, client.RateLimits)
+			} else if err == nil && !reflect.DeepEqual(limits, c.expected) {
+				t.Errorf("%s: expected %#v, actual %#v", c.description, c.expected, limits)
 			}
 		})
 	}

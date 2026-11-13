@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -105,18 +106,28 @@ func TestFulfillmentOrderCancel(t *testing.T) {
 func TestFulfillmentOrderClose(t *testing.T) {
 	setup()
 	defer teardown()
-
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/close.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
-
-	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
-
-	returnedFulfillment, err := fulfillmentOrderService.Close(context.Background(), 1, "test")
-	if err != nil {
-		t.Errorf("FulfillmentOrder.Close returned error: %v", err)
+	for _, message := range []string{"Not enough inventory to complete this work.", ""} {
+		httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/close.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+			var got map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+				t.Fatal(err)
+			}
+			fields := map[string]interface{}{}
+			if message != "" {
+				fields["message"] = message
+			}
+			want := map[string]interface{}{"fulfillment_order": fields}
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("request = %#v, want %#v", got, want)
+			}
+			return httpmock.NewBytesResponse(200, loadFixture("fulfillment_order.json")), nil
+		})
+		got, err := client.FulfillmentOrder.Close(context.Background(), 1, message)
+		if err != nil {
+			t.Fatal(err)
+		}
+		FulfillmentOrderTests(t, *got)
 	}
-
-	FulfillmentOrderTests(t, *returnedFulfillment)
 }
 
 func TestFulfillmentOrderHold(t *testing.T) {
@@ -207,12 +218,22 @@ func TestFulfillmentOrderReschedule(t *testing.T) {
 	defer teardown()
 
 	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/255858046/reschedule.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillment_order.json")))
+		func(req *http.Request) (*http.Response, error) {
+			var got map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+				t.Fatal(err)
+			}
+			want := map[string]interface{}{"fulfillment_order": map[string]interface{}{"new_fulfill_at": "2027-11-01T14:20:00-04:00"}}
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("request = %#v, want %#v", got, want)
+			}
+			return httpmock.NewBytesResponse(200, loadFixture("fulfillment_order.json")), nil
+		})
 
 	fulfillmentOrderService := &FulfillmentOrderServiceOp{client: client}
 	fulfillmentId := uint64(255858046)
 
-	result, err := fulfillmentOrderService.Reschedule(context.Background(), fulfillmentId)
+	result, err := fulfillmentOrderService.Reschedule(context.Background(), fulfillmentId, time.Date(2027, 11, 1, 14, 20, 0, 0, time.FixedZone("", -4*60*60)))
 	if err != nil {
 		t.Errorf("FulfillmentOrder.Reschedule returned error: %v", err)
 	}

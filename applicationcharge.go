@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,6 +11,9 @@ import (
 
 const applicationChargesBasePath = "application_charges"
 
+// ErrChargeActivationUnsupported indicates that manual charge activation is no longer supported.
+var ErrChargeActivationUnsupported = errors.New("Shopify activates charges after merchant approval; use Get to check the charge status")
+
 // ApplicationChargeService is an interface for interacting with the
 // ApplicationCharge endpoints of the Shopify API.
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/applicationcharge
@@ -17,6 +21,7 @@ type ApplicationChargeService interface {
 	Create(context.Context, ApplicationCharge) (*ApplicationCharge, error)
 	Get(context.Context, uint64, interface{}) (*ApplicationCharge, error)
 	List(context.Context, interface{}) ([]ApplicationCharge, error)
+	// Deprecated: Shopify activates charges after merchant approval. Use Get to check the status.
 	Activate(context.Context, ApplicationCharge) (*ApplicationCharge, error)
 }
 
@@ -40,7 +45,7 @@ type ApplicationCharge struct {
 }
 
 // ApplicationChargeResource represents the result from the
-// admin/application_charges{/X{/activate.json}.json}.json endpoints.
+// admin/application_charges/X.json endpoint.
 type ApplicationChargeResource struct {
 	Charge *ApplicationCharge `json:"application_charge"`
 }
@@ -72,9 +77,10 @@ func (a ApplicationChargeServiceOp) List(ctx context.Context, options interface{
 	return resource.Charges, a.client.Get(ctx, path, resource, options)
 }
 
-// Activate activates application charge.
+// Activate returns ErrChargeActivationUnsupported without sending a request.
+//
+// Deprecated: Shopify activates charges after merchant approval.
+// Use Get to check the charge status.
 func (a ApplicationChargeServiceOp) Activate(ctx context.Context, charge ApplicationCharge) (*ApplicationCharge, error) {
-	path := fmt.Sprintf("%s/%d/activate.json", applicationChargesBasePath, charge.Id)
-	resource := &ApplicationChargeResource{}
-	return resource.Charge, a.client.Post(ctx, path, ApplicationChargeResource{Charge: &charge}, resource)
+	return nil, ErrChargeActivationUnsupported
 }

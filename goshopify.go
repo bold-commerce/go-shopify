@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"path"
@@ -17,6 +18,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/go-querystring/query"
@@ -47,14 +49,8 @@ type App struct {
 	Client      *Client // see GetAccessToken
 }
 
-type RateLimitInfo struct {
-	RequestCount      int
-	BucketSize        int
-	GraphQLCost       *GraphQLCost
-	RetryAfterSeconds float64
-}
-
 // Client manages communication with the Shopify API.
+// A Client must not be copied after first use.
 type Client struct {
 	// HTTP client used to communicate with the Shopify API.
 	Client *http.Client
@@ -78,10 +74,10 @@ type Client struct {
 	token string
 
 	// max number of retries, defaults to 0 for no retries see WithRetry option
-	retries  int
-	attempts int
+	retries int
 
-	RateLimits RateLimitInfo
+	rateLimitsMu sync.RWMutex
+	rateLimits   RateLimitInfo
 
 	// Services used for communicating with the API
 	Product                    ProductService
@@ -362,7 +358,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	var resp *http.Response
 	var err error
 	retries := c.retries
-	c.attempts = 0
 	c.logRequest(req)
 
 	// copy request body so it can be re-used
@@ -376,7 +371,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	}
 
 	for {
-		c.attempts++
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 		resp, err = c.Client.Do(req)
 		c.logResponse(resp)
@@ -392,7 +386,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		// retry scenario, close resp and any continue will retry
 		resp.Body.Close()
 
-		if retries <= 1 {
+		if retries <= 0 {
 			return nil, respErr
 		}
 
@@ -401,7 +395,9 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 
 			wait := time.Duration(rateLimitErr.RetryAfter) * time.Second
 			c.log.Debugf("rate limited waiting %s", wait.String())
-			time.Sleep(wait)
+			if err := waitForRetry(req.Context(), wait); err != nil {
+				return nil, err
+			}
 			retries--
 			continue
 		}
@@ -438,12 +434,14 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		}
 	}
 
+	c.rateLimitsMu.Lock()
 	if s := strings.Split(resp.Header.Get("X-Shopify-Shop-Api-Call-Limit"), "/"); len(s) == 2 {
-		c.RateLimits.RequestCount, _ = strconv.Atoi(s[0])
-		c.RateLimits.BucketSize, _ = strconv.Atoi(s[1])
+		c.rateLimits.RequestCount, _ = strconv.Atoi(s[0])
+		c.rateLimits.BucketSize, _ = strconv.Atoi(s[1])
 	}
 
-	c.RateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(resp.Header.Get("Retry-After"), 64)
+	c.rateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(resp.Header.Get("Retry-After"), 64)
+	c.rateLimitsMu.Unlock()
 
 	return resp.Header, nil
 }
@@ -488,7 +486,7 @@ func wrapSpecificError(r *http.Response, err ResponseError) error {
 		f, _ := strconv.ParseFloat(r.Header.Get("Retry-After"), 64)
 		return RateLimitError{
 			ResponseError: err,
-			RetryAfter:    int(f),
+			RetryAfter:    int(math.Ceil(f)),
 		}
 	}
 
@@ -696,7 +694,7 @@ func (c *Client) ListWithPagination(ctx context.Context, path string, resource, 
 
 // extractPagination extracts pagination info from linkHeader.
 // Details on the format are here:
-// https://shopify.dev/docs/api/admin-rest/latest/resources/paginated-rest-results
+// https://shopify.dev/docs/api/admin-rest/usage/pagination
 func extractPagination(linkHeader string) (*Pagination, error) {
 	pagination := new(Pagination)
 
@@ -704,7 +702,26 @@ func extractPagination(linkHeader string) (*Pagination, error) {
 		return pagination, nil
 	}
 
-	for _, link := range strings.Split(linkHeader, ",") {
+	// Only commas outside <...> separate links. URLs can contain commas in fields.
+	var links []string
+	start := 0
+	inURL := false
+	for i, char := range linkHeader {
+		switch char {
+		case '<':
+			inURL = true
+		case '>':
+			inURL = false
+		case ',':
+			if !inURL {
+				links = append(links, linkHeader[start:i])
+				start = i + 1
+			}
+		}
+	}
+	links = append(links, linkHeader[start:])
+
+	for _, link := range links {
 		match := linkRegex.FindStringSubmatch(link)
 		// Make sure the link is not empty or invalid
 		if len(match) != 3 {
@@ -731,6 +748,7 @@ func extractPagination(linkHeader string) (*Pagination, error) {
 		}
 
 		paginationListOptions := ListOptions{}
+		paginationListOptions.Fields = params.Get("fields")
 
 		paginationListOptions.PageInfo = params.Get("page_info")
 		if paginationListOptions.PageInfo == "" {

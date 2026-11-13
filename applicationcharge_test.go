@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -117,28 +118,11 @@ func TestApplicationChargeServiceOp_List(t *testing.T) {
 func TestApplicationChargeServiceOp_Activate(t *testing.T) {
 	setup()
 	defer teardown()
-
-	httpmock.RegisterResponder(
-		"POST",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/application_charges/455696195/activate.json", client.pathPrefix),
-		httpmock.NewStringResponder(
-			200,
-			`{"application_charge":{"id":455696195,"status":"active"}}`,
-		),
-	)
-
-	charge := ApplicationCharge{
-		Id:     455696195,
-		Status: "accepted",
+	charge, err := client.ApplicationCharge.Activate(context.Background(), ApplicationCharge{Id: 455696195})
+	if charge != nil || !errors.Is(err, ErrChargeActivationUnsupported) {
+		t.Fatalf("expected unsupported activation, got %#v, %v", charge, err)
 	}
-
-	returnedCharge, err := client.ApplicationCharge.Activate(context.Background(), charge)
-	if err != nil {
-		t.Errorf("ApplicationCharge.Activate returned an error: %v", err)
-	}
-
-	expected := &ApplicationCharge{Id: 455696195, Status: "active"}
-	if !reflect.DeepEqual(returnedCharge, expected) {
-		t.Errorf("ApplicationCharge.Activate returned %+v, expected %+v", charge, expected)
+	if httpmock.GetTotalCallCount() != 0 {
+		t.Fatal("retired activation method sent a request")
 	}
 }

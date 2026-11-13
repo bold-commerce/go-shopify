@@ -2,7 +2,9 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -10,6 +12,35 @@ import (
 	"github.com/jarcoal/httpmock"
 	"github.com/shopspring/decimal"
 )
+
+func TestVariantUpdateRequiresShipping(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, value := range []*bool{nil, new(bool), func() *bool { v := true; return &v }()} {
+		httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/variants/1.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+			var body map[string]map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+				t.Fatal(err)
+			}
+			got, present := body["variant"]["requires_shipping"]
+			if value == nil {
+				if present {
+					t.Error("partial update must omit requires_shipping")
+				}
+			} else if !present || got != *value {
+				t.Errorf("requires_shipping = %v, want %v", got, *value)
+			}
+			return httpmock.NewStringResponse(200, `{"variant":{"id":1,"requires_shipping":true}}`), nil
+		})
+		got, err := client.Variant.Update(context.Background(), Variant{Id: 1, Sku: "new-sku", RequireShipping: value})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.RequireShipping == nil || !*got.RequireShipping {
+			t.Fatal("response lost requires_shipping")
+		}
+	}
+}
 
 func variantTests(t *testing.T, variant Variant) {
 	// Check that the Id is assigned to the returned variant

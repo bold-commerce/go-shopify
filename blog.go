@@ -28,18 +28,18 @@ type BlogServiceOp struct {
 
 // Blog represents a Shopify blog
 type Blog struct {
-	Id                 uint64     `json:"id"`
-	Title              string     `json:"title"`
-	Commentable        string     `json:"commentable"`
-	Feedburner         string     `json:"feedburner"`
-	FeedburnerLocation string     `json:"feedburner_location"`
-	Handle             string     `json:"handle"`
-	Metafield          Metafield  `json:"metafield"`
-	Tags               string     `json:"tags"`
-	TemplateSuffix     string     `json:"template_suffix"`
-	CreatedAt          *time.Time `json:"created_at"`
-	UpdatedAt          *time.Time `json:"updated_at"`
-	AdminGraphqlApiId  string     `json:"admin_graphql_api_id,omitempty"`
+	Id                 uint64      `json:"id"`
+	Title              string      `json:"title"`
+	Commentable        string      `json:"commentable"`
+	Feedburner         string      `json:"feedburner"`
+	FeedburnerLocation string      `json:"feedburner_location"`
+	Handle             string      `json:"handle"`
+	Metafields         []Metafield `json:"metafields,omitempty"`
+	Tags               string      `json:"tags"`
+	TemplateSuffix     string      `json:"template_suffix"`
+	CreatedAt          *time.Time  `json:"created_at"`
+	UpdatedAt          *time.Time  `json:"updated_at"`
+	AdminGraphqlApiId  string      `json:"admin_graphql_api_id,omitempty"`
 }
 
 // BlogsResource is the result from the blogs.json endpoint

@@ -20,7 +20,7 @@ func customCollectionTests(t *testing.T, collection CustomCollection) {
 		{"Id", uint64(30497275952), collection.Id},
 		{"Handle", "macbooks", collection.Handle},
 		{"Title", "Macbooks", collection.Title},
-		{"BodyHTML", "Macbook Body", collection.BodyHTML},
+		{"BodyHTML", "Macbook Body", *collection.BodyHTML},
 		{"SortOrder", "best-selling", collection.SortOrder},
 	}
 

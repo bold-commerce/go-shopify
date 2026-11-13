@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -18,9 +19,10 @@ type RecurringApplicationChargeService interface {
 	Create(context.Context, RecurringApplicationCharge) (*RecurringApplicationCharge, error)
 	Get(context.Context, uint64, interface{}) (*RecurringApplicationCharge, error)
 	List(context.Context, interface{}) ([]RecurringApplicationCharge, error)
+	// Deprecated: Shopify activates charges after merchant approval. Use Get to check the status.
 	Activate(context.Context, RecurringApplicationCharge) (*RecurringApplicationCharge, error)
 	Delete(context.Context, uint64) error
-	Update(context.Context, uint64, uint64) (*RecurringApplicationCharge, error)
+	Update(context.Context, uint64, decimal.Decimal) (*RecurringApplicationCharge, error)
 }
 
 // RecurringApplicationChargeServiceOp handles communication with the
@@ -115,7 +117,7 @@ func (r *RecurringApplicationCharge) UnmarshalJSON(data []byte) error {
 }
 
 // RecurringApplicationChargeResource represents the result from the
-// admin/recurring_application_charges{/X{/activate.json}.json}.json endpoints.
+// admin/recurring_application_charges/X.json endpoint.
 type RecurringApplicationChargeResource struct {
 	Charge *RecurringApplicationCharge `json:"recurring_application_charge"`
 }
@@ -157,15 +159,14 @@ func (r *RecurringApplicationChargeServiceOp) List(ctx context.Context, options 
 	return resource.Charges, err
 }
 
-// Activate activates recurring application charge.
+// Activate returns ErrChargeActivationUnsupported without sending a request.
+//
+// Deprecated: Shopify activates charges after merchant approval.
+// Use Get to check the charge status.
 func (r *RecurringApplicationChargeServiceOp) Activate(ctx context.Context, charge RecurringApplicationCharge) (
 	*RecurringApplicationCharge, error,
 ) {
-	path := fmt.Sprintf("%s/%d/activate.json", recurringApplicationChargesBasePath, charge.Id)
-	wrappedData := RecurringApplicationChargeResource{Charge: &charge}
-	resource := &RecurringApplicationChargeResource{}
-	err := r.client.Post(ctx, path, wrappedData, resource)
-	return resource.Charge, err
+	return nil, ErrChargeActivationUnsupported
 }
 
 // Delete deletes recurring application charge.
@@ -173,12 +174,14 @@ func (r *RecurringApplicationChargeServiceOp) Delete(ctx context.Context, charge
 	return r.client.Delete(ctx, fmt.Sprintf("%s/%d.json", recurringApplicationChargesBasePath, chargeId))
 }
 
-// Update updates recurring application charge.
-func (r *RecurringApplicationChargeServiceOp) Update(ctx context.Context, chargeId, newCappedAmount uint64) (
+// Update requests a new usage spending cap. The merchant must approve the change
+// at the returned UpdateCappedAmountURL before the new cap takes effect.
+func (r *RecurringApplicationChargeServiceOp) Update(ctx context.Context, chargeId uint64, newCappedAmount decimal.Decimal) (
 	*RecurringApplicationCharge, error,
 ) {
-	path := fmt.Sprintf("%s/%d/customize.json?recurring_application_charge[capped_amount]=%d",
-		recurringApplicationChargesBasePath, chargeId, newCappedAmount)
+	query := url.Values{"recurring_application_charge[capped_amount]": {newCappedAmount.String()}}
+	path := fmt.Sprintf("%s/%d/customize.json?%s",
+		recurringApplicationChargesBasePath, chargeId, query.Encode())
 	resource := &RecurringApplicationChargeResource{}
 	err := r.client.Put(ctx, path, nil, resource)
 	return resource.Charge, err

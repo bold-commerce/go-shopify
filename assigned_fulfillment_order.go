@@ -61,8 +61,8 @@ type AssignedFulfillmentOrdersResource struct {
 }
 
 type AssignedFulfillmentOrderOptions struct {
-	AssignmentStatus string `url:"assignment_status,omitempty"`
-	LocationIds      string `url:"location_ids,omitempty"`
+	AssignmentStatus string   `url:"assignment_status,omitempty"`
+	LocationIds      []uint64 `url:"location_ids[],omitempty"`
 }
 
 // AssignedFulfillmentOrderServiceOp handles communication with the AssignedFulfillmentOrderService

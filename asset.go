@@ -3,6 +3,7 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"time"
 )
 
@@ -85,6 +86,7 @@ func (s *AssetServiceOp) Update(ctx context.Context, themeId uint64, asset Asset
 
 // Delete an asset
 func (s *AssetServiceOp) Delete(ctx context.Context, themeId uint64, key string) error {
-	path := fmt.Sprintf("%s/%d/assets.json?asset[key]=%s", assetsBasePath, themeId, key)
+	query := url.Values{"asset[key]": {key}}
+	path := fmt.Sprintf("%s/%d/assets.json?%s", assetsBasePath, themeId, query.Encode())
 	return s.client.Delete(ctx, path)
 }

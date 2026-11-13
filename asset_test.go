@@ -3,6 +3,8 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
 	"reflect"
 	"testing"
 
@@ -103,5 +105,22 @@ func TestAssetDelete(t *testing.T) {
 	err := client.Asset.Delete(context.Background(), 1, "foo/bar.liquid")
 	if err != nil {
 		t.Errorf("Asset.Delete returned error: %v", err)
+	}
+}
+
+func TestAssetDeleteEscapesKey(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, key := range []string{"assets/a&b.css", "assets/a+b.css", "assets/a#b.css", "assets/a b.css", "assets/100%.css"} {
+		httpmock.RegisterResponder("DELETE", fmt.Sprintf("https://fooshop.myshopify.com/%s/themes/1/assets.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+			want := url.Values{"asset[key]": {key}}
+			if !reflect.DeepEqual(req.URL.Query(), want) || req.URL.Fragment != "" {
+				t.Errorf("key %q: request URL = %s", key, req.URL)
+			}
+			return httpmock.NewStringResponse(200, `{}`), nil
+		})
+		if err := client.Asset.Delete(context.Background(), 1, key); err != nil {
+			t.Fatal(err)
+		}
 	}
 }

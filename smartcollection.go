@@ -40,19 +40,19 @@ type Rule struct {
 
 // SmartCollection represents a Shopify smart collection.
 type SmartCollection struct {
-	Id             uint64      `json:"id"`
-	Handle         string      `json:"handle"`
-	Title          string      `json:"title"`
-	UpdatedAt      *time.Time  `json:"updated_at"`
-	BodyHTML       string      `json:"body_html"`
-	SortOrder      string      `json:"sort_order"`
-	TemplateSuffix string      `json:"template_suffix"`
-	Image          Image       `json:"image"`
-	Published      bool        `json:"published"`
-	PublishedAt    *time.Time  `json:"published_at"`
-	PublishedScope string      `json:"published_scope"`
-	Rules          []Rule      `json:"rules"`
-	Disjunctive    bool        `json:"disjunctive"`
+	Id             uint64      `json:"id,omitempty"`
+	Handle         string      `json:"handle,omitempty"`
+	Title          string      `json:"title,omitempty"`
+	UpdatedAt      *time.Time  `json:"updated_at,omitempty"`
+	BodyHTML       *string     `json:"body_html,omitempty"`
+	SortOrder      string      `json:"sort_order,omitempty"`
+	TemplateSuffix *string     `json:"template_suffix,omitempty"`
+	Image          *Image      `json:"image,omitempty"`
+	Published      *bool       `json:"published,omitempty"`
+	PublishedAt    *time.Time  `json:"published_at,omitempty"`
+	PublishedScope string      `json:"published_scope,omitempty"`
+	Rules          []Rule      `json:"rules,omitempty"`
+	Disjunctive    *bool       `json:"disjunctive,omitempty"`
 	Metafields     []Metafield `json:"metafields,omitempty"`
 }
 

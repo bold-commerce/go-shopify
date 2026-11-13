@@ -4,12 +4,13 @@ The new home of Conversio's Shopify Go library.
 
 **Note**: The library does not have implementations of all Shopify resources, but it is being used in production and should be stable for usage. PRs for new resources and endpoints are welcome, or you can simply implement some yourself as-you-go. See the section "Using your own models" for more info.
 
-[![Build Status](https://travis-ci.org/bold-commerce/go-shopify.svg?branch=master)](https://travis-ci.org/bold-commerce/go-shopify)
+[![Build Status](https://github.com/bold-commerce/go-shopify/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/bold-commerce/go-shopify/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/bold-commerce/go-shopify/branch/master/graph/badge.svg)](https://codecov.io/gh/bold-commerce/go-shopify) [![Join the chat at https://gitter.im/bold-commerce/go-shopify](https://badges.gitter.im/bold-commerce/go-shopify.svg)](https://gitter.im/bold-commerce/go-shopify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Supported Go Versions
 
-This library is tested automatically against the latest version of Go (currently 1.22) and the two previous versions (1.21, 1.20) but should also work with older versions.
+The Go versions tested by CI are listed in the [test workflow](.github/workflows/tests.yml).
+Older versions are not covered by CI.
 
 ## Install v4
 
@@ -55,12 +56,15 @@ This gives you access to the `goshopify` package.
 
 #### Oauth
 
-If you don't have an access token yet, you can obtain one with the oauth flow.
-Something like this will work:
+If you don't have an access token yet, you can obtain one with the OAuth flow.
+The handler fragments below show the library calls. Generate a random, single-use
+state value for each authorization attempt and store it in the user's session.
+In the callback, verify that the returned state matches the stored value before
+exchanging the code. The fixed state below is only a placeholder.
 
 ```go
 // Create an app somewhere.
-app := goshopify.App{
+var app = goshopify.App{
     ApiKey: "abcd",
     ApiSecret: "efgh",
     RedirectUrl: "https://example.com/shopify/callback",
@@ -72,12 +76,17 @@ app := goshopify.App{
 func MyHandler(w http.ResponseWriter, r *http.Request) {
     shopName := r.URL.Query().Get("shop")
     state := "nonce"
-    authUrl := app.AuthorizeUrl(shopName, state)
+    authUrl, err := app.AuthorizeUrl(shopName, state)
+    if err != nil {
+        http.Error(w, "Invalid shop", http.StatusBadRequest)
+        return
+    }
     http.Redirect(w, r, authUrl, http.StatusFound)
 }
 
 // Fetch a permanent access token in the callback
 func MyCallbackHandler(w http.ResponseWriter, r *http.Request) {
+    // Validate the single-use state against the user's session here.
     // Check that the callback signature is valid
     if ok, _ := app.VerifyAuthorizationURL(r.URL); !ok {
         http.Error(w, "Invalid Signature", http.StatusUnauthorized)
@@ -87,8 +96,12 @@ func MyCallbackHandler(w http.ResponseWriter, r *http.Request) {
     query := r.URL.Query()
     shopName := query.Get("shop")
     code := query.Get("code")
-    ctx := context.TODO() // adds context which will be used in GetAccessToken below
+    ctx := r.Context()
     token, err := app.GetAccessToken(ctx, shopName, code)
+    if err != nil {
+        http.Error(w, "Token exchange failed", http.StatusBadGateway)
+        return
+    }
 
     // Do something with the token, like store it in a DB.
 }
@@ -117,7 +130,9 @@ token, err = app.MigrateToExpiringAccessToken(ctx, shopName, permanentToken)
 
 #### Api calls with a token
 
-With a permanent access token, you can make API calls like this:
+With a valid access token, you can make API calls like this. These snippets use
+the v4 package. Import `context` and use a request context when available, or
+`context.Background()` for a standalone call.
 
 ```go
 // Create an app somewhere.
@@ -132,7 +147,7 @@ app := goshopify.App{
 client, err := goshopify.NewClient(app, "shopname", "token")
 
 // Fetch the number of products.
-numProducts, err := client.Product.Count(nil)
+numProducts, err := client.Product.Count(context.Background(), nil)
 ```
 
 #### Private App Auth
@@ -150,7 +165,7 @@ app := goshopify.App{
 client, err := goshopify.NewClient(app, "shopname", "")
 
 // Fetch the number of products.
-numProducts, err := client.Product.Count(nil)
+numProducts, err := client.Product.Count(context.Background(), nil)
 ```
 
 ### Client Options
@@ -161,17 +176,17 @@ for more details.
 
 #### WithVersion
 
-Read more details on the [Shopify API Versioning](https://shopify.dev/concepts/about-apis/versioning)
+Read more details on the [Shopify API Versioning](https://shopify.dev/docs/api/usage/versioning)
 to understand the format and release schedules. You can use `WithVersion` to specify a specific version
 of the API. If you do not use this option you will be defaulted to the oldest stable API.
 
 ```go
-client, err := goshopify.NewClient(app, "shopname", "", goshopify.WithVersion("2019-04"))
+client, err := goshopify.NewClient(app, "shopname", "token", goshopify.WithVersion("2026-10"))
 ```
 
 #### WithRetry
 
-Shopify [Rate Limits](https://shopify.dev/concepts/about-apis/rate-limits) their API and if this happens to you they
+Shopify [Rate Limits](https://shopify.dev/docs/api/admin-rest/usage/rate-limits) their API and if this happens to you they
 will send a back off (usually 2s) to tell you to retry your request. To support this functionality seamlessly within
 the client a `WithRetry` option exists where you can pass an `int` of how many times you wish to retry per-request
 before returning an error. `WithRetry` additionally supports retrying HTTP503 errors.
@@ -179,6 +194,11 @@ before returning an error. `WithRetry` additionally supports retrying HTTP503 er
 ```go
 client, err := goshopify.NewClient(app, "shopname", "", goshopify.WithRetry(3))
 ```
+
+Read recorded rate-limit information with `client.RateLimits()`. This method
+replaces the `client.RateLimits` field and returns an independent snapshot that
+is safe to read while other requests are in progress. Changes to the snapshot
+do not change the client.
 
 #### Query options
 
@@ -189,10 +209,10 @@ products created after January 1, 2016, you can do:
 ```go
 // Create standard CountOptions
 date := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
-options := goshopify.CountOptions{createdAtMin: date}
+options := goshopify.CountOptions{CreatedAtMin: date}
 
 // Use the options when calling the API.
-numProducts, err := client.Product.Count(options)
+numProducts, err := client.Product.Count(context.Background(), options)
 ```
 
 The options are parsed with Google's
@@ -207,15 +227,16 @@ options := struct {
 }{"any"}
 
 // Fetch the order count for orders with status="any"
-orderCount, err := client.Order.Count(options)
+orderCount, err := client.Order.Count(context.Background(), options)
 ```
 
 #### Using your own models
 
 Not all endpoints are implemented right now. In those case, feel free to
 implement them and make a PR, or you can create your own struct for the data
-and use `NewRequest` with the API client. This is how the existing endpoints
-are implemented.
+and use the client's `Get`, `Post`, `Put`, or `Delete` helpers. These helpers add
+the configured API path prefix. Pass a resource path such as `webhooks.json`,
+without `admin/` or `admin/api/<version>/`.
 
 For example, let's say you want to fetch webhooks. There's a helper function
 `Get` specifically for fetching stuff so this will work:
@@ -232,13 +253,16 @@ type WebhooksResource struct {
     Webhooks []Webhook `json:"webhooks"`
 }
 
-func FetchWebhooks() ([]Webhook, error) {
-    path := "admin/webhooks.json"
+func FetchWebhooks(ctx context.Context) ([]Webhook, error) {
+    path := "webhooks.json"
     resource := new(WebhooksResource)
-    client, _ := goshopify.NewClient(app, "shopname", "token")
+    client, err := goshopify.NewClient(app, "shopname", "token")
+    if err != nil {
+        return nil, err
+    }
 
     // resource gets modified when calling Get
-    err := client.Get(path, resource, nil)
+    err = client.Get(ctx, path, resource, nil)
 
     return resource.Webhooks, err
 }
@@ -289,13 +313,13 @@ docker-compose build test
 To run tests you can use run
 
 ```shell
-docker-compose run --rm tests
+docker-compose run --rm test
 ```
 
 To create a coverage profile run the following to generate a coverage.html
 
 ```
-docker-compose run --rm dev sh -c 'go test -coverprofile=coverage.out ./... && go tool cover -html coverage.out -o coverage.html'
+docker-compose run --rm test sh -c 'go test -coverprofile=coverage.out ./... && go tool cover -html coverage.out -o coverage.html'
 ```
 
 When done testing and you want to cleanup simply run

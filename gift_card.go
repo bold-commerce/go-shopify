@@ -35,7 +35,7 @@ type GiftCard struct {
 	InitalValue    *decimal.Decimal `json:"initial_value,omitempty"`
 	Code           string           `json:"code,omitempty"`
 	Currency       string           `json:"currency,omitempty"`
-	CustomerId     *CustomerId      `json:"customer_id,omitempty"`
+	CustomerId     *uint64          `json:"customer_id,omitempty"`
 	CreatedAt      *time.Time       `json:"created_at,omitempty"`
 	DisabledAt     *time.Time       `json:"disabled_at,omitempty"`
 	ExpiresOn      string           `json:"expires_on,omitempty"`
@@ -46,10 +46,6 @@ type GiftCard struct {
 	TemplateSuffix string           `json:"template_suffix,omitempty"`
 	UserId         uint64           `json:"user_id,omitempty"`
 	UpdatedAt      *time.Time       `json:"updated_at,omitempty"`
-}
-
-type CustomerId struct {
-	CustomerId uint64 `json:"customer_id,omitempty"`
 }
 
 // giftCardResource represents the result from the gift_cards/X.json endpoint

@@ -2,7 +2,11 @@ package goshopify
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"reflect"
 	"testing"
 	"time"
@@ -231,28 +235,12 @@ func TestRecurringApplicationChargeServiceOp_List(t *testing.T) {
 func TestRecurringApplicationChargeServiceOp_Activate(t *testing.T) {
 	setup()
 	defer teardown()
-
-	httpmock.RegisterResponder(
-		"POST",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/455696195/activate.json", client.pathPrefix),
-		httpmock.NewStringResponder(
-			200, `{"recurring_application_charge":{"id":455696195,"status":"active"}}`,
-		),
-	)
-
-	charge := RecurringApplicationCharge{
-		Id:     455696195,
-		Status: "accepted",
+	charge, err := client.RecurringApplicationCharge.Activate(context.Background(), RecurringApplicationCharge{Id: 455696195})
+	if charge != nil || !errors.Is(err, ErrChargeActivationUnsupported) {
+		t.Fatalf("expected unsupported activation, got %#v, %v", charge, err)
 	}
-
-	returnedCharge, err := client.RecurringApplicationCharge.Activate(context.Background(), charge)
-	if err != nil {
-		t.Errorf("RecurringApplicationCharge.Activate returned an error: %v", err)
-	}
-
-	expected := &RecurringApplicationCharge{Id: 455696195, Status: "active"}
-	if !reflect.DeepEqual(returnedCharge, expected) {
-		t.Errorf("RecurringApplicationCharge.Activate returned %+v, expected %+v", charge, expected)
+	if httpmock.GetTotalCallCount() != 0 {
+		t.Fatal("retired activation method sent a request")
 	}
 }
 
@@ -284,7 +272,7 @@ func TestRecurringApplicationChargeServiceOp_Update(t *testing.T) {
 		),
 	)
 
-	charge, err := client.RecurringApplicationCharge.Update(context.Background(), 455696195, 100)
+	charge, err := client.RecurringApplicationCharge.Update(context.Background(), 455696195, decimal.New(100, 0))
 	if err != nil {
 		t.Errorf("RecurringApplicationCharge.Update returned an error: %v", err)
 	}
@@ -293,5 +281,43 @@ func TestRecurringApplicationChargeServiceOp_Update(t *testing.T) {
 	expected := &RecurringApplicationCharge{Id: 455696195, CappedAmount: &ca}
 	if expected.CappedAmount.String() != charge.CappedAmount.String() {
 		t.Errorf("RecurringApplicationCharge.Update returned %+v, expected %+v", charge, expected)
+	}
+}
+
+func TestRecurringApplicationChargeDecimalCap(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, tc := range []struct {
+		amount decimal.Decimal
+		query  string
+	}{
+		{decimal.New(1999, -2), "19.99"},
+		{decimal.New(100, 0), "100"},
+		{decimal.New(1, -2), "0.01"},
+	} {
+		t.Run(tc.query, func(t *testing.T) {
+			httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/recurring_application_charges/1/customize.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+				want := url.Values{"recurring_application_charge[capped_amount]": {tc.query}}
+				if !reflect.DeepEqual(req.URL.Query(), want) {
+					t.Errorf("query = %v, want %v", req.URL.Query(), want)
+				}
+				body, err := ioutil.ReadAll(req.Body)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if len(body) != 0 {
+					t.Errorf("expected empty body, got %s", body)
+				}
+				// Return Shopify's current cap and approval URL, not the requested cap.
+				return httpmock.NewStringResponse(200, `{"recurring_application_charge":{"id":1,"capped_amount":"10.00","update_capped_amount_url":"https://fooshop.myshopify.com/admin/charges/confirm"}}`), nil
+			})
+			charge, err := client.RecurringApplicationCharge.Update(context.Background(), 1, tc.amount)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if charge == nil || charge.Id != 1 || charge.CappedAmount == nil || !charge.CappedAmount.Equal(decimal.New(10, 0)) || charge.UpdateCappedAmountURL != "https://fooshop.myshopify.com/admin/charges/confirm" {
+				t.Fatalf("response = %#v", charge)
+			}
+		})
 	}
 }

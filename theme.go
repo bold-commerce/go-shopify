@@ -38,6 +38,7 @@ type Theme struct {
 	Previewable       bool       `json:"previewable"`
 	Processing        bool       `json:"processing"`
 	Role              string     `json:"role"`
+	Src               string     `json:"src,omitempty"` // Public URL of the theme ZIP file used for creation.
 	ThemeStoreId      uint64     `json:"theme_store_id"`
 	AdminGraphqlApiId string     `json:"admin_graphql_api_id"`
 	CreatedAt         *time.Time `json:"created_at"`
@@ -62,7 +63,7 @@ func (s *ThemeServiceOp) List(ctx context.Context, options interface{}) ([]Theme
 	return resource.Themes, err
 }
 
-// Update a theme
+// Create a theme from the public ZIP URL in Src.
 func (s *ThemeServiceOp) Create(ctx context.Context, theme Theme) (*Theme, error) {
 	path := fmt.Sprintf("%s.json", themesBasePath)
 	wrappedData := ThemeResource{Theme: &theme}

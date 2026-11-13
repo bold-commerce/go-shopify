@@ -2,11 +2,46 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"reflect"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 )
+
+func TestInventoryItemPartialUpdate(t *testing.T) {
+	setup()
+	defer teardown()
+	country, province, code := "CA", "ON", "123456"
+	emptyCodes := []CountryHarmonizedSystemCode{}
+	for _, tc := range []struct {
+		item InventoryItem
+		body string
+	}{
+		{InventoryItem{Id: 1, SKU: "new-sku"}, `{"id":1,"sku":"new-sku"}`},
+		{InventoryItem{Id: 1, CountryCodeOfOrigin: &country, ProvinceCodeOfOrigin: &province, HarmonizedSystemCode: &code, CountryHarmonizedSystemCodes: &emptyCodes},
+			`{"id":1,"country_code_of_origin":"CA","province_code_of_origin":"ON","harmonized_system_code":"123456","country_harmonized_system_codes":[]}`},
+	} {
+		httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_items/1.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+			var got, want map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+				t.Fatal(err)
+			}
+			if err := json.Unmarshal([]byte(`{"inventory_item":`+tc.body+`}`), &want); err != nil {
+				t.Fatal(err)
+			}
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("request = %#v, want %#v", got, want)
+			}
+			return httpmock.NewStringResponse(200, `{"inventory_item":{"id":1}}`), nil
+		})
+		if _, err := client.InventoryItem.Update(context.Background(), tc.item); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
 
 func inventoryItemTests(t *testing.T, item *InventoryItem) {
 	if item == nil {
@@ -45,12 +80,12 @@ func inventoryItemTests(t *testing.T, item *InventoryItem) {
 		{HarmonizedSystemCode: "8471.70.50.35", CountryCode: "CA"},
 	}
 
-	if len(item.CountryHarmonizedSystemCodes) != len(expectedCodes) {
+	if len(*item.CountryHarmonizedSystemCodes) != len(expectedCodes) {
 		t.Errorf("InventoryItem.CountryHarmonizedSystemCodes length is %d, expected %d",
-			len(item.CountryHarmonizedSystemCodes), len(expectedCodes))
+			len(*item.CountryHarmonizedSystemCodes), len(expectedCodes))
 	}
 
-	for i, code := range item.CountryHarmonizedSystemCodes {
+	for i, code := range *item.CountryHarmonizedSystemCodes {
 		if code.HarmonizedSystemCode != expectedCodes[i].HarmonizedSystemCode {
 			t.Errorf("InventoryItem.CountryHarmonizedSystemCodes[%d].HarmonizedSystemCode is %s, expected %s",
 				i, code.HarmonizedSystemCode, expectedCodes[i].HarmonizedSystemCode)

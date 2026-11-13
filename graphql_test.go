@@ -81,7 +81,7 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 				return httpmock.NewStringResponse(200, `{"data":{"foo":"bar"}}`), nil
 			},
 			expected: MyStruct{Foo: "bar"},
-			retries:  1,
+			retries:  0,
 		},
 		{
 			description: "3 throttled retries",
@@ -111,7 +111,7 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 			retries: maxRetries,
 		},
 		{
-			description: "2 throttled then success",
+			description: "3 throttled retries then success",
 			responder: func(req *http.Request) (*http.Response, error) {
 				if retries > 1 {
 					retries--
@@ -137,7 +137,7 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 			retries:  maxRetries,
 		},
 		{
-			description: "1 503, 1 throttled then success",
+			description: "2 503s, 1 throttled then success",
 			responder: func(req *http.Request) (*http.Response, error) {
 				if retries > 2 {
 					retries--
@@ -169,7 +169,7 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 		},
 
 		{
-			description: "3 503s",
+			description: "4 503s",
 			responder: func(req *http.Request) (*http.Response, error) {
 				return httpmock.NewStringResponse(http.StatusServiceUnavailable, ""), nil
 			},
@@ -183,7 +183,8 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.description, func(t *testing.T) {
 			// used to track retries in case clojure
-			retries = c.retries
+			retries = c.retries + 1
+			client.retries = c.retries
 
 			requestURL := fmt.Sprintf("https://fooshop.myshopify.com/%s/graphql.json", client.pathPrefix)
 
@@ -200,8 +201,8 @@ func TestGraphQLQueryWithRetries(t *testing.T) {
 
 			attempts := callCountInfo[fmt.Sprintf("POST %s", requestURL)]
 
-			if attempts != c.retries {
-				t.Errorf("GraphQL.Query attempts equal %d but expected %d", attempts, c.retries)
+			if attempts != c.retries+1 {
+				t.Errorf("GraphQL.Query attempts equal %d but expected %d", attempts, c.retries+1)
 			}
 
 			if err != nil {
@@ -288,12 +289,13 @@ func TestGraphQLQueryWithThrottledError(t *testing.T) {
 		t.Errorf("GraphQL.Query rle.RetryAfter is %d but expected %d", rle.RetryAfter, int(expectedRetryAfterSeconds))
 	}
 
-	if client.RateLimits.GraphQLCost == nil {
-		t.Errorf("GraphQL.Query should have assigned client.RateLimits.GraphQLCost")
+	limits := client.RateLimits()
+	if limits.GraphQLCost == nil {
+		t.Errorf("GraphQL.Query should have assigned client.RateLimits().GraphQLCost")
 	}
 
-	if client.RateLimits.RetryAfterSeconds != expectedRetryAfterSeconds {
-		t.Errorf("GraphQL.Query client.RateLimits.RetryAfterSeconds is %f but expected %f", client.RateLimits.RetryAfterSeconds, expectedRetryAfterSeconds)
+	if limits.RetryAfterSeconds != expectedRetryAfterSeconds {
+		t.Errorf("GraphQL.Query client.RateLimits().RetryAfterSeconds is %f but expected %f", limits.RetryAfterSeconds, expectedRetryAfterSeconds)
 	}
 }
 
