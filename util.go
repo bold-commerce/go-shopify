@@ -72,9 +72,9 @@ func (c *OnlyDate) MarshalJSON() ([]byte, error) {
 	return []byte(c.String()), nil
 }
 
-// It seems shopify accepts both the date with double-quotes and without them, so we just stick to the double-quotes for now.
+// EncodeValues encodes the date as YYYY-MM-DD without JSON quotes.
 func (c *OnlyDate) EncodeValues(key string, v *url.Values) error {
-	v.Add(key, c.String())
+	v.Add(key, c.Format("2006-01-02"))
 	return nil
 }
 

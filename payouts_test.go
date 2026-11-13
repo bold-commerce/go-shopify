@@ -32,6 +32,32 @@ func TestPayoutsList(t *testing.T) {
 	}
 }
 
+func TestPayoutsListDateFilters(t *testing.T) {
+	setup()
+	defer teardown()
+
+	date := OnlyDate{time.Date(2023, time.March, 31, 0, 0, 0, 0, time.UTC)}
+	for _, tc := range []struct {
+		name    string
+		options PayoutsListOptions
+		query   map[string]string
+	}{
+		{"dates", PayoutsListOptions{Date: &date, DateMin: &date, DateMax: &date}, map[string]string{
+			"date": "2023-03-31", "date_min": "2023-03-31", "date_max": "2023-03-31",
+		}},
+		{"omitted", PayoutsListOptions{}, map[string]string{}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			httpmock.RegisterResponderWithQuery("GET",
+				fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/payouts.json", client.pathPrefix),
+				tc.query, httpmock.NewStringResponder(200, `{"payouts":[]}`))
+			if _, err := client.Payouts.List(context.Background(), tc.options); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
 func TestPayoutsListIncorrectDate(t *testing.T) {
 	setup()
 	defer teardown()

@@ -144,8 +144,8 @@ func TestOnlyDateEncode(t *testing.T) {
 		in       OnlyDate
 		expected string
 	}{
-		{OnlyDate{time.Date(2023, 03, 31, 0, 0, 0, 0, time.Local)}, "\"2023-03-31\""},
-		{OnlyDate{}, "\"0001-01-01\""},
+		{OnlyDate{time.Date(2023, 03, 31, 0, 0, 0, 0, time.Local)}, "2023-03-31"},
+		{OnlyDate{}, "0001-01-01"},
 	}
 
 	for _, c := range cases {
@@ -153,6 +153,9 @@ func TestOnlyDateEncode(t *testing.T) {
 		_ = c.in.EncodeValues("date", &urlVal)
 		if urlVal.Get("date") != c.expected {
 			t.Errorf("EncodeValues(%s): expected %s, actual %s", c.in.String(), c.expected, urlVal.Get("date"))
+		}
+		if got := urlVal.Encode(); got != "date="+c.expected {
+			t.Errorf("encoded query = %q, want %q", got, "date="+c.expected)
 		}
 	}
 }
