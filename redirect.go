@@ -12,6 +12,8 @@ const redirectsBasePath = "redirects"
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/redirect
 type RedirectService interface {
 	List(context.Context, interface{}) ([]Redirect, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]Redirect, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]Redirect, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Redirect, error)
 	Create(context.Context, Redirect) (*Redirect, error)
@@ -48,6 +50,33 @@ func (s *RedirectServiceOp) List(ctx context.Context, options interface{}) ([]Re
 	resource := new(RedirectsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Redirects, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *RedirectServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Redirect, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", redirectsBasePath)
+	resource := new(RedirectsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Redirects, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *RedirectServiceOp) ListAll(ctx context.Context, options interface{}) ([]Redirect, error) {
+	items := []Redirect{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count redirects

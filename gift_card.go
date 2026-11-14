@@ -18,6 +18,8 @@ type GiftCardService interface {
 	Create(context.Context, GiftCard) (*GiftCard, error)
 	Update(context.Context, GiftCard) (*GiftCard, error)
 	List(context.Context) ([]GiftCard, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]GiftCard, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]GiftCard, error)
 	Disable(context.Context, uint64) (*GiftCard, error)
 	Count(context.Context, interface{}) (int, error)
 }
@@ -72,6 +74,33 @@ func (s *GiftCardServiceOp) List(ctx context.Context) ([]GiftCard, error) {
 	resource := new(GiftCardsResource)
 	err := s.client.Get(ctx, path, resource, nil)
 	return resource.GiftCards, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *GiftCardServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]GiftCard, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", giftCardsBasePath)
+	resource := new(GiftCardsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.GiftCards, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *GiftCardServiceOp) ListAll(ctx context.Context, options interface{}) ([]GiftCard, error) {
+	items := []GiftCard{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Create creates a gift card

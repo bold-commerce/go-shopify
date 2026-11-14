@@ -16,6 +16,8 @@ const (
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/page
 type PageService interface {
 	List(context.Context, interface{}) ([]Page, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]Page, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]Page, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Page, error)
 	Create(context.Context, Page) (*Page, error)
@@ -67,6 +69,33 @@ func (s *PageServiceOp) List(ctx context.Context, options interface{}) ([]Page, 
 	resource := new(PagesResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Pages, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *PageServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Page, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", pagesBasePath)
+	resource := new(PagesResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Pages, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *PageServiceOp) ListAll(ctx context.Context, options interface{}) ([]Page, error) {
+	items := []Page{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count pages
@@ -140,4 +169,16 @@ func (s *PageServiceOp) UpdateMetafield(ctx context.Context, pageId uint64, meta
 func (s *PageServiceOp) DeleteMetafield(ctx context.Context, pageId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceId: pageId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *PageServiceOp) ListMetafieldsWithPagination(ctx context.Context, pageId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceId: pageId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *PageServiceOp) ListMetafieldsAll(ctx context.Context, pageId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: pagesResourceName, resourceId: pageId}
+	return metafieldService.ListAll(ctx, options)
 }

@@ -25,6 +25,8 @@ type FulfillmentService interface {
 // https://shopify.dev/docs/api/admin-rest/latest/resources/fulfillment
 type FulfillmentsService interface {
 	ListFulfillments(context.Context, uint64, interface{}) ([]Fulfillment, error)
+	ListFulfillmentsWithPagination(context.Context, uint64, interface{}) ([]Fulfillment, *Pagination, error)
+	ListFulfillmentsAll(context.Context, uint64, interface{}) ([]Fulfillment, error)
 	CountFulfillments(context.Context, uint64, interface{}) (int, error)
 	GetFulfillment(context.Context, uint64, uint64, interface{}) (*Fulfillment, error)
 	CreateFulfillment(context.Context, uint64, Fulfillment) (*Fulfillment, error)

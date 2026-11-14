@@ -850,3 +850,42 @@ func (s *OrderServiceOp) CancelFulfillment(ctx context.Context, orderId uint64, 
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Cancel(ctx, fulfillmentId)
 }
+
+// ListFulfillmentsWithPagination returns one page of fulfillments for an order.
+func (s *OrderServiceOp) ListFulfillmentsWithPagination(ctx context.Context, orderId uint64, options interface{}) ([]Fulfillment, *Pagination, error) {
+	path := fmt.Sprintf("orders/%d/fulfillments.json", orderId)
+	resource := new(FulfillmentsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Fulfillments, pagination, nil
+}
+
+// ListFulfillmentsAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *OrderServiceOp) ListFulfillmentsAll(ctx context.Context, orderId uint64, options interface{}) ([]Fulfillment, error) {
+	items := []Fulfillment{}
+	for {
+		page, pagination, err := s.ListFulfillmentsWithPagination(ctx, orderId, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *OrderServiceOp) ListMetafieldsWithPagination(ctx context.Context, orderId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *OrderServiceOp) ListMetafieldsAll(ctx context.Context, orderId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
+	return metafieldService.ListAll(ctx, options)
+}

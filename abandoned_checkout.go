@@ -15,6 +15,8 @@ const abandonedCheckoutsBasePath = "checkouts"
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/abandoned-checkouts
 type AbandonedCheckoutService interface {
 	List(context.Context, interface{}) ([]AbandonedCheckout, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]AbandonedCheckout, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]AbandonedCheckout, error)
 }
 
 // AbandonedCheckoutServiceOp handles communication with the checkout related methods of
@@ -105,4 +107,31 @@ func (s *AbandonedCheckoutServiceOp) List(ctx context.Context, options interface
 	resource := new(AbandonedCheckoutsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.AbandonedCheckouts, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *AbandonedCheckoutServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]AbandonedCheckout, *Pagination, error) {
+	path := fmt.Sprintf("/%s.json", abandonedCheckoutsBasePath)
+	resource := new(AbandonedCheckoutsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.AbandonedCheckouts, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *AbandonedCheckoutServiceOp) ListAll(ctx context.Context, options interface{}) ([]AbandonedCheckout, error) {
+	items := []AbandonedCheckout{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }

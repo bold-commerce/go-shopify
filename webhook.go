@@ -13,6 +13,8 @@ const webhooksBasePath = "webhooks"
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/webhook
 type WebhookService interface {
 	List(context.Context, interface{}) ([]Webhook, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]Webhook, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]Webhook, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Webhook, error)
 	Create(context.Context, Webhook) (*Webhook, error)
@@ -62,6 +64,33 @@ func (s *WebhookServiceOp) List(ctx context.Context, options interface{}) ([]Web
 	resource := new(WebhooksResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Webhooks, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *WebhookServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Webhook, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", webhooksBasePath)
+	resource := new(WebhooksResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Webhooks, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *WebhookServiceOp) ListAll(ctx context.Context, options interface{}) ([]Webhook, error) {
+	items := []Webhook{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count webhooks

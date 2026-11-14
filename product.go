@@ -238,3 +238,15 @@ func (s *ProductServiceOp) DeleteMetafield(ctx context.Context, productId uint64
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.Delete(ctx, metafieldId)
 }
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *ProductServiceOp) ListMetafieldsWithPagination(ctx context.Context, productId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *ProductServiceOp) ListMetafieldsAll(ctx context.Context, productId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
+	return metafieldService.ListAll(ctx, options)
+}

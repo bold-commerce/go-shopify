@@ -18,6 +18,8 @@ const (
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/product-variant
 type VariantService interface {
 	List(context.Context, uint64, interface{}) ([]Variant, error)
+	ListWithPagination(ctx context.Context, productId uint64, options interface{}) ([]Variant, *Pagination, error)
+	ListAll(ctx context.Context, productId uint64, options interface{}) ([]Variant, error)
 	Count(context.Context, uint64, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Variant, error)
 	Create(context.Context, uint64, Variant) (*Variant, error)
@@ -105,6 +107,33 @@ func (s *VariantServiceOp) List(ctx context.Context, productId uint64, options i
 	return resource.Variants, err
 }
 
+// ListWithPagination returns one page and its next/previous page options.
+func (s *VariantServiceOp) ListWithPagination(ctx context.Context, productId uint64, options interface{}) ([]Variant, *Pagination, error) {
+	path := fmt.Sprintf("%s/%d/variants.json", productsBasePath, productId)
+	resource := new(VariantsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Variants, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *VariantServiceOp) ListAll(ctx context.Context, productId uint64, options interface{}) ([]Variant, error) {
+	items := []Variant{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, productId, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
+}
+
 // Count variants
 func (s *VariantServiceOp) Count(ctx context.Context, productId uint64, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/%d/variants/count.json", productsBasePath, productId)
@@ -176,4 +205,16 @@ func (s *VariantServiceOp) UpdateMetafield(ctx context.Context, variantId uint64
 func (s *VariantServiceOp) DeleteMetafield(ctx context.Context, variantId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *VariantServiceOp) ListMetafieldsWithPagination(ctx context.Context, variantId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *VariantServiceOp) ListMetafieldsAll(ctx context.Context, variantId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
+	return metafieldService.ListAll(ctx, options)
 }

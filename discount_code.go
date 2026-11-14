@@ -15,6 +15,8 @@ type DiscountCodeService interface {
 	Create(context.Context, uint64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)
 	Update(context.Context, uint64, PriceRuleDiscountCode) (*PriceRuleDiscountCode, error)
 	List(context.Context, uint64) ([]PriceRuleDiscountCode, error)
+	ListWithPagination(ctx context.Context, priceRuleId uint64, options interface{}) ([]PriceRuleDiscountCode, *Pagination, error)
+	ListAll(ctx context.Context, priceRuleId uint64, options interface{}) ([]PriceRuleDiscountCode, error)
 	Get(context.Context, uint64, uint64) (*PriceRuleDiscountCode, error)
 	Delete(context.Context, uint64, uint64) error
 }
@@ -69,6 +71,33 @@ func (s *DiscountCodeServiceOp) List(ctx context.Context, priceRuleId uint64) ([
 	resource := new(DiscountCodesResource)
 	err := s.client.Get(ctx, path, resource, nil)
 	return resource.DiscountCodes, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *DiscountCodeServiceOp) ListWithPagination(ctx context.Context, priceRuleId uint64, options interface{}) ([]PriceRuleDiscountCode, *Pagination, error) {
+	path := fmt.Sprintf(discountCodeBasePath+".json", priceRuleId)
+	resource := new(DiscountCodesResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.DiscountCodes, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *DiscountCodeServiceOp) ListAll(ctx context.Context, priceRuleId uint64, options interface{}) ([]PriceRuleDiscountCode, error) {
+	items := []PriceRuleDiscountCode{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, priceRuleId, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Get a single discount code

@@ -16,6 +16,8 @@ const (
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/smartcollection
 type SmartCollectionService interface {
 	List(context.Context, interface{}) ([]SmartCollection, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]SmartCollection, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]SmartCollection, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*SmartCollection, error)
 	Create(context.Context, SmartCollection) (*SmartCollection, error)
@@ -72,6 +74,33 @@ func (s *SmartCollectionServiceOp) List(ctx context.Context, options interface{}
 	resource := new(SmartCollectionsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Collections, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *SmartCollectionServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]SmartCollection, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", smartCollectionsBasePath)
+	resource := new(SmartCollectionsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Collections, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *SmartCollectionServiceOp) ListAll(ctx context.Context, options interface{}) ([]SmartCollection, error) {
+	items := []SmartCollection{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count smart collections
@@ -146,4 +175,16 @@ func (s *SmartCollectionServiceOp) UpdateMetafield(ctx context.Context, smartCol
 func (s *SmartCollectionServiceOp) DeleteMetafield(ctx context.Context, smartCollectionId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: smartCollectionsResourceName, resourceId: smartCollectionId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *SmartCollectionServiceOp) ListMetafieldsWithPagination(ctx context.Context, smartCollectionId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: smartCollectionsResourceName, resourceId: smartCollectionId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *SmartCollectionServiceOp) ListMetafieldsAll(ctx context.Context, smartCollectionId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: smartCollectionsResourceName, resourceId: smartCollectionId}
+	return metafieldService.ListAll(ctx, options)
 }

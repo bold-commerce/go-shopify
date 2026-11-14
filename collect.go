@@ -13,6 +13,8 @@ const collectsBasePath = "collects"
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/collect
 type CollectService interface {
 	List(context.Context, interface{}) ([]Collect, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]Collect, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]Collect, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Collect, error)
 	Create(context.Context, Collect) (*Collect, error)
@@ -53,6 +55,33 @@ func (s *CollectServiceOp) List(ctx context.Context, options interface{}) ([]Col
 	resource := new(CollectsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Collects, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *CollectServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Collect, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", collectsBasePath)
+	resource := new(CollectsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Collects, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *CollectServiceOp) ListAll(ctx context.Context, options interface{}) ([]Collect, error) {
+	items := []Collect{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count collects

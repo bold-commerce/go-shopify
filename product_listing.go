@@ -18,6 +18,8 @@ type ProductListingService interface {
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*ProductListing, error)
 	GetProductIds(context.Context, interface{}) ([]uint64, error)
+	GetProductIdsWithPagination(ctx context.Context, options interface{}) ([]uint64, *Pagination, error)
+	GetProductIdsAll(ctx context.Context, options interface{}) ([]uint64, error)
 	Publish(context.Context, uint64) (*ProductListing, error)
 	Delete(context.Context, uint64) error
 }
@@ -140,6 +142,33 @@ func (s *ProductListingServiceOp) GetProductIds(ctx context.Context, options int
 	resource := new(ProductListingIdsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.ProductIds, err
+}
+
+// GetProductIdsWithPagination returns one page and its next/previous page options.
+func (s *ProductListingServiceOp) GetProductIdsWithPagination(ctx context.Context, options interface{}) ([]uint64, *Pagination, error) {
+	path := fmt.Sprintf("%s/product_ids.json", productListingBasePath)
+	resource := new(ProductListingIdsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.ProductIds, pagination, nil
+}
+
+// GetProductIdsAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *ProductListingServiceOp) GetProductIdsAll(ctx context.Context, options interface{}) ([]uint64, error) {
+	items := []uint64{}
+	for {
+		page, pagination, err := s.GetProductIdsWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Publish an existing product listing to your sales channel app

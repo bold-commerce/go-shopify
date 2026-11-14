@@ -13,6 +13,8 @@ const blogsBasePath = "blogs"
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/blog
 type BlogService interface {
 	List(context.Context, interface{}) ([]Blog, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]Blog, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]Blog, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Blog, error)
 	Create(context.Context, Blog) (*Blog, error)
@@ -58,6 +60,33 @@ func (s *BlogServiceOp) List(ctx context.Context, options interface{}) ([]Blog, 
 	resource := new(BlogsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Blogs, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *BlogServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Blog, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", blogsBasePath)
+	resource := new(BlogsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Blogs, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *BlogServiceOp) ListAll(ctx context.Context, options interface{}) ([]Blog, error) {
+	items := []Blog{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count blogs

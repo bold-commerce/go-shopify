@@ -18,6 +18,8 @@ const (
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/draftorder
 type DraftOrderService interface {
 	List(context.Context, interface{}) ([]DraftOrder, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]DraftOrder, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]DraftOrder, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*DraftOrder, error)
 	Create(context.Context, DraftOrder) (*DraftOrder, error)
@@ -136,6 +138,33 @@ func (s *DraftOrderServiceOp) List(ctx context.Context, options interface{}) ([]
 	return resource.DraftOrders, err
 }
 
+// ListWithPagination returns one page and its next/previous page options.
+func (s *DraftOrderServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]DraftOrder, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", draftOrdersBasePath)
+	resource := new(DraftOrdersResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.DraftOrders, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *DraftOrderServiceOp) ListAll(ctx context.Context, options interface{}) ([]DraftOrder, error) {
+	items := []DraftOrder{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
+}
+
 // Count draft orders
 func (s *DraftOrderServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", draftOrdersBasePath)
@@ -216,4 +245,16 @@ func (s *DraftOrderServiceOp) UpdateMetafield(ctx context.Context, draftOrderId 
 func (s *DraftOrderServiceOp) DeleteMetafield(ctx context.Context, draftOrderId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *DraftOrderServiceOp) ListMetafieldsWithPagination(ctx context.Context, draftOrderId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *DraftOrderServiceOp) ListMetafieldsAll(ctx context.Context, draftOrderId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
+	return metafieldService.ListAll(ctx, options)
 }
