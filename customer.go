@@ -17,6 +17,8 @@ const (
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/customer
 type CustomerService interface {
+	AccountActivationURL(ctx context.Context, customerId uint64) (string, error)
+	SendInvite(ctx context.Context, customerId uint64, invite CustomerInvite) (*CustomerInvite, error)
 	List(context.Context, interface{}) ([]Customer, error)
 	ListAll(context.Context, interface{}) ([]Customer, error)
 	ListWithPagination(ctx context.Context, options interface{}) ([]Customer, *Pagination, error)
@@ -247,4 +249,33 @@ func (s *CustomerServiceOp) UpdateMetafield(ctx context.Context, customerId uint
 func (s *CustomerServiceOp) DeleteMetafield(ctx context.Context, customerId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// CustomerInvite represents Shopify customer invite.
+type CustomerInvite struct {
+	To            string   `json:"to,omitempty"`
+	From          string   `json:"from,omitempty"`
+	Bcc           []string `json:"bcc,omitempty"`
+	Subject       string   `json:"subject,omitempty"`
+	CustomMessage string   `json:"custom_message,omitempty"`
+}
+
+// AccountActivationURL creates a URL that lets the customer activate their account.
+func (s *CustomerServiceOp) AccountActivationURL(ctx context.Context, customerId uint64) (string, error) {
+	var resource struct {
+		URL string `json:"account_activation_url"`
+	}
+	err := s.client.Post(ctx, fmt.Sprintf("customers/%d/account_activation_url.json", customerId), struct{}{}, &resource)
+	return resource.URL, err
+}
+
+// SendInvite sends an account invitation to the customer.
+func (s *CustomerServiceOp) SendInvite(ctx context.Context, customerId uint64, invite CustomerInvite) (*CustomerInvite, error) {
+	var resource struct {
+		Invite *CustomerInvite `json:"customer_invite"`
+	}
+	err := s.client.Post(ctx, fmt.Sprintf("customers/%d/send_invite.json", customerId), struct {
+		Invite CustomerInvite `json:"customer_invite"`
+	}{invite}, &resource)
+	return resource.Invite, err
 }

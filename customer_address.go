@@ -1,6 +1,10 @@
 package goshopify
 
 import (
+	"net/url"
+)
+
+import (
 	"context"
 	"fmt"
 )
@@ -9,6 +13,8 @@ import (
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/customer_address
 type CustomerAddressService interface {
+	SetDefault(ctx context.Context, customerId, addressId uint64) (*CustomerAddress, error)
+	BulkDestroy(ctx context.Context, customerId uint64, addressIds []uint64) error
 	List(context.Context, uint64, interface{}) ([]CustomerAddress, error)
 	Get(context.Context, uint64, uint64, interface{}) (*CustomerAddress, error)
 	Create(context.Context, uint64, CustomerAddress) (*CustomerAddress, error)
@@ -90,4 +96,22 @@ func (s *CustomerAddressServiceOp) Update(ctx context.Context, customerId uint64
 // Delete an existing address
 func (s *CustomerAddressServiceOp) Delete(ctx context.Context, customerId, addressId uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d/addresses/%d.json", customersBasePath, customerId, addressId))
+}
+
+// SetDefault sets the default address for a customer.
+func (s *CustomerAddressServiceOp) SetDefault(ctx context.Context, customerId, addressId uint64) (*CustomerAddress, error) {
+	var resource struct {
+		Address *CustomerAddress `json:"customer_address"`
+	}
+	err := s.client.Put(ctx, fmt.Sprintf("customers/%d/addresses/%d/default.json", customerId, addressId), nil, &resource)
+	return resource.Address, err
+}
+
+// BulkDestroy deletes the specified customer addresses.
+func (s *CustomerAddressServiceOp) BulkDestroy(ctx context.Context, customerId uint64, addressIds []uint64) error {
+	query := url.Values{"operation": {"destroy"}}
+	for _, id := range addressIds {
+		query.Add("address_ids[]", fmt.Sprint(id))
+	}
+	return s.client.Put(ctx, fmt.Sprintf("customers/%d/addresses/set.json?%s", customerId, query.Encode()), nil, nil)
 }
