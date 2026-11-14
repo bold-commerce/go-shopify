@@ -682,7 +682,7 @@ func (c *Client) ListWithPagination(ctx context.Context, path string, resource, 
 	}
 
 	// Extract pagination info from header
-	linkHeader := headers.Get("Link")
+	linkHeader := strings.Join(headers["Link"], ", ")
 
 	pagination, err := extractPagination(linkHeader)
 	if err != nil {
