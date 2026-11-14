@@ -131,6 +131,7 @@ type Client struct {
 	ApplicationCredit          ApplicationCreditService
 	Balance                    BalanceService
 	CancellationRequest        CancellationRequestService
+	CollectionListing          CollectionListingService
 	Comment                    CommentService
 	Country                    CountryService
 	Currency                   CurrencyService
@@ -140,10 +141,13 @@ type Client struct {
 	DisputeFileUpload          DisputeFileUploadService
 	Event                      EventService
 	LocationsForMove           LocationsForMoveService
+	MarketingEvent             MarketingEventService
 	MobilePlatformApplication  MobilePlatformApplicationService
 	Policy                     PolicyService
+	ProductResourceFeedback    ProductResourceFeedbackService
 	Province                   ProvinceService
 	Refund                     RefundService
+	ResourceFeedback           ResourceFeedbackService
 	TenderTransaction          TenderTransactionService
 	User                       UserService
 }
@@ -354,6 +358,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 	c.ApplicationCredit = &ApplicationCreditServiceOp{client: c}
 	c.Balance = &BalanceServiceOp{client: c}
 	c.CancellationRequest = &CancellationRequestServiceOp{client: c}
+	c.CollectionListing = &CollectionListingServiceOp{client: c}
 	c.Comment = &CommentServiceOp{client: c}
 	c.Country = &CountryServiceOp{client: c}
 	c.Currency = &CurrencyServiceOp{client: c}
@@ -363,10 +368,13 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 	c.DisputeFileUpload = &DisputeFileUploadServiceOp{client: c}
 	c.Event = &EventServiceOp{client: c}
 	c.LocationsForMove = &LocationsForMoveServiceOp{client: c}
+	c.MarketingEvent = &MarketingEventServiceOp{client: c}
 	c.MobilePlatformApplication = &MobilePlatformApplicationServiceOp{client: c}
 	c.Policy = &PolicyServiceOp{client: c}
+	c.ProductResourceFeedback = &ProductResourceFeedbackServiceOp{client: c}
 	c.Province = &ProvinceServiceOp{client: c}
 	c.Refund = &RefundServiceOp{client: c}
+	c.ResourceFeedback = &ResourceFeedbackServiceOp{client: c}
 	c.TenderTransaction = &TenderTransactionServiceOp{client: c}
 	c.User = &UserServiceOp{client: c}
 
