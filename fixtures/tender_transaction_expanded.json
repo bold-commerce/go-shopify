@@ -1,0 +1,20 @@
+{
+  "tender_transactions": [
+    {
+      "id": 9007199254740993,
+      "order_id": 11,
+      "amount": "-10.50",
+      "currency": "USD",
+      "user_id": 9007199254740995,
+      "test": true,
+      "processed_at": "2026-11-01T09:00:00-07:00",
+      "remote_reference": "gateway-123",
+      "payment_details": {
+        "credit_card_number": "•••• 1234",
+        "credit_card_company": "Visa"
+      },
+      "payment_method": "credit_card",
+      "future_payment_field": []
+    }
+  ]
+}
