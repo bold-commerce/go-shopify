@@ -15,6 +15,8 @@ const (
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/location
 type LocationService interface {
+	ListInventoryLevelsWithPagination(ctx context.Context, locationId uint64, options interface{}) ([]InventoryLevel, *Pagination, error)
+	ListInventoryLevels(ctx context.Context, locationId uint64, options interface{}) ([]InventoryLevel, error)
 	// Retrieves a list of locations
 	List(ctx context.Context, options interface{}) ([]Location, error)
 	// Retrieves a single location by its Id
@@ -150,4 +152,17 @@ type LocationResource struct {
 // Represents the result from the locations.json endpoint
 type LocationsResource struct {
 	Locations []Location `json:"locations"`
+}
+
+// ListInventoryLevels retrieves inventory levels at a location.
+func (s *LocationServiceOp) ListInventoryLevels(ctx context.Context, locationId uint64, options interface{}) ([]InventoryLevel, error) {
+	items, _, err := s.ListInventoryLevelsWithPagination(ctx, locationId, options)
+	return items, err
+}
+
+// ListInventoryLevelsWithPagination returns a page and its next/previous page options.
+func (s *LocationServiceOp) ListInventoryLevelsWithPagination(ctx context.Context, locationId uint64, options interface{}) ([]InventoryLevel, *Pagination, error) {
+	resource := new(InventoryLevelsResource)
+	pagination, err := s.client.ListWithPagination(ctx, fmt.Sprintf("locations/%d/inventory_levels.json", locationId), resource, options)
+	return resource.InventoryLevels, pagination, err
 }
