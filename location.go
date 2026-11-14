@@ -17,6 +17,8 @@ const (
 type LocationService interface {
 	// Retrieves a list of locations
 	List(ctx context.Context, options interface{}) ([]Location, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]Location, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]Location, error)
 	// Retrieves a single location by its Id
 	Get(ctx context.Context, id uint64, options interface{}) (*Location, error)
 	// Retrieves a count of locations
@@ -94,6 +96,33 @@ func (s *LocationServiceOp) List(ctx context.Context, options interface{}) ([]Lo
 	return resource.Locations, err
 }
 
+// ListWithPagination returns one page and its next/previous page options.
+func (s *LocationServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Location, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", locationsBasePath)
+	resource := new(LocationsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Locations, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *LocationServiceOp) ListAll(ctx context.Context, options interface{}) ([]Location, error) {
+	items := []Location{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
+}
+
 func (s *LocationServiceOp) Get(ctx context.Context, id uint64, options interface{}) (*Location, error) {
 	path := fmt.Sprintf("%s/%d.json", locationsBasePath, id)
 	resource := new(LocationResource)
@@ -150,4 +179,16 @@ type LocationResource struct {
 // Represents the result from the locations.json endpoint
 type LocationsResource struct {
 	Locations []Location `json:"locations"`
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *LocationServiceOp) ListMetafieldsWithPagination(ctx context.Context, locationId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *LocationServiceOp) ListMetafieldsAll(ctx context.Context, locationId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: locationsResourceName, resourceId: locationId}
+	return metafieldService.ListAll(ctx, options)
 }

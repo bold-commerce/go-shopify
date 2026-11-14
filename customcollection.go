@@ -16,6 +16,8 @@ const (
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/customcollection
 type CustomCollectionService interface {
 	List(context.Context, interface{}) ([]CustomCollection, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]CustomCollection, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]CustomCollection, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*CustomCollection, error)
 	Create(context.Context, CustomCollection) (*CustomCollection, error)
@@ -64,6 +66,33 @@ func (s *CustomCollectionServiceOp) List(ctx context.Context, options interface{
 	resource := new(CustomCollectionsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Collections, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *CustomCollectionServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]CustomCollection, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", customCollectionsBasePath)
+	resource := new(CustomCollectionsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Collections, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *CustomCollectionServiceOp) ListAll(ctx context.Context, options interface{}) ([]CustomCollection, error) {
+	items := []CustomCollection{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count custom collections
@@ -138,4 +167,16 @@ func (s *CustomCollectionServiceOp) UpdateMetafield(ctx context.Context, customC
 func (s *CustomCollectionServiceOp) DeleteMetafield(ctx context.Context, customCollectionId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customCollectionsResourceName, resourceId: customCollectionId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *CustomCollectionServiceOp) ListMetafieldsWithPagination(ctx context.Context, customCollectionId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: customCollectionsResourceName, resourceId: customCollectionId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *CustomCollectionServiceOp) ListMetafieldsAll(ctx context.Context, customCollectionId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: customCollectionsResourceName, resourceId: customCollectionId}
+	return metafieldService.ListAll(ctx, options)
 }

@@ -13,6 +13,8 @@ const inventoryLevelsBasePath = "inventory_levels"
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/inventorylevel
 type InventoryLevelService interface {
 	List(context.Context, interface{}) ([]InventoryLevel, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]InventoryLevel, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]InventoryLevel, error)
 	Adjust(context.Context, interface{}) (*InventoryLevel, error)
 	Delete(context.Context, uint64, uint64) error
 	Connect(context.Context, InventoryLevel) (*InventoryLevel, error)
@@ -65,6 +67,33 @@ func (s *InventoryLevelServiceOp) List(ctx context.Context, options interface{})
 	resource := new(InventoryLevelsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.InventoryLevels, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *InventoryLevelServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]InventoryLevel, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", inventoryLevelsBasePath)
+	resource := new(InventoryLevelsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.InventoryLevels, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *InventoryLevelServiceOp) ListAll(ctx context.Context, options interface{}) ([]InventoryLevel, error) {
+	items := []InventoryLevel{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Delete an inventory level

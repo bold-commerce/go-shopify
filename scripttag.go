@@ -13,6 +13,8 @@ const scriptTagsBasePath = "script_tags"
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/scripttag
 type ScriptTagService interface {
 	List(context.Context, interface{}) ([]ScriptTag, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]ScriptTag, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]ScriptTag, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*ScriptTag, error)
 	Create(context.Context, ScriptTag) (*ScriptTag, error)
@@ -67,6 +69,33 @@ func (s *ScriptTagServiceOp) List(ctx context.Context, options interface{}) ([]S
 	resource := &ScriptTagsResource{}
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.ScriptTags, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *ScriptTagServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]ScriptTag, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", scriptTagsBasePath)
+	resource := &ScriptTagsResource{}
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.ScriptTags, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *ScriptTagServiceOp) ListAll(ctx context.Context, options interface{}) ([]ScriptTag, error) {
+	items := []ScriptTag{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count script tags

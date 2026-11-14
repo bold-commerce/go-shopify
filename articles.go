@@ -12,13 +12,19 @@ const articlesBasePath = "articles"
 // See: https://shopify.dev/docs/api/admin-rest/stable/resources/article
 type ArticlesService interface {
 	List(context.Context, uint64, interface{}) ([]Article, error)
+	ListWithPagination(ctx context.Context, blogId uint64, options interface{}) ([]Article, *Pagination, error)
+	ListAll(ctx context.Context, blogId uint64, options interface{}) ([]Article, error)
 	Create(context.Context, uint64, Article) (*Article, error)
 	Get(context.Context, uint64, uint64) (*Article, error)
 	Update(context.Context, uint64, uint64, Article) (*Article, error)
 	Delete(context.Context, uint64, uint64) error
 	Count(context.Context, uint64, interface{}) (int, error)
 	ListTags(context.Context, interface{}) ([]string, error)
+	ListTagsWithPagination(ctx context.Context, options interface{}) ([]string, *Pagination, error)
+	ListTagsAll(ctx context.Context, options interface{}) ([]string, error)
 	ListBlogTags(context.Context, uint64, interface{}) ([]string, error)
+	ListBlogTagsWithPagination(ctx context.Context, blogId uint64, options interface{}) ([]string, *Pagination, error)
+	ListBlogTagsAll(ctx context.Context, blogId uint64, options interface{}) ([]string, error)
 }
 
 type ArticleResource struct {
@@ -73,6 +79,33 @@ func (s *ArticlesServiceOp) List(ctx context.Context, blogId uint64, options int
 	return resource.Articles, err
 }
 
+// ListWithPagination returns one page and its next/previous page options.
+func (s *ArticlesServiceOp) ListWithPagination(ctx context.Context, blogId uint64, options interface{}) ([]Article, *Pagination, error) {
+	path := fmt.Sprintf("%s/%d/%s.json", blogsBasePath, blogId, articlesBasePath)
+	resource := new(ArticlesResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Articles, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *ArticlesServiceOp) ListAll(ctx context.Context, blogId uint64, options interface{}) ([]Article, error) {
+	items := []Article{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, blogId, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
+}
+
 // Create a article in a blog.
 func (s *ArticlesServiceOp) Create(ctx context.Context, blogId uint64, article Article) (*Article, error) {
 	path := fmt.Sprintf("%s/%d/%s.json", blogsBasePath, blogId, articlesBasePath)
@@ -115,6 +148,33 @@ func (s *ArticlesServiceOp) ListTags(ctx context.Context, options interface{}) (
 	return articleTags.Tags, err
 }
 
+// ListTagsWithPagination returns one page and its next/previous page options.
+func (s *ArticlesServiceOp) ListTagsWithPagination(ctx context.Context, options interface{}) ([]string, *Pagination, error) {
+	path := fmt.Sprintf("%s/tags.json", articlesBasePath)
+	articleTags := new(ArticleTagsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, articleTags, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return articleTags.Tags, pagination, nil
+}
+
+// ListTagsAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *ArticlesServiceOp) ListTagsAll(ctx context.Context, options interface{}) ([]string, error) {
+	items := []string{}
+	for {
+		page, pagination, err := s.ListTagsWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
+}
+
 // Count Articles from a Blog.
 func (s *ArticlesServiceOp) Count(ctx context.Context, blogId uint64, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/%d/%s/count.json", blogsBasePath, blogId, articlesBasePath)
@@ -127,4 +187,31 @@ func (s *ArticlesServiceOp) ListBlogTags(ctx context.Context, blogId uint64, opt
 	articleTags := new(ArticleTagsResource)
 	err := s.client.Get(ctx, path, &articleTags, options)
 	return articleTags.Tags, err
+}
+
+// ListBlogTagsWithPagination returns one page and its next/previous page options.
+func (s *ArticlesServiceOp) ListBlogTagsWithPagination(ctx context.Context, blogId uint64, options interface{}) ([]string, *Pagination, error) {
+	path := fmt.Sprintf("%s/%d/%s/tags.json", blogsBasePath, blogId, articlesBasePath)
+	articleTags := new(ArticleTagsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, articleTags, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return articleTags.Tags, pagination, nil
+}
+
+// ListBlogTagsAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *ArticlesServiceOp) ListBlogTagsAll(ctx context.Context, blogId uint64, options interface{}) ([]string, error) {
+	items := []string{}
+	for {
+		page, pagination, err := s.ListBlogTagsWithPagination(ctx, blogId, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }

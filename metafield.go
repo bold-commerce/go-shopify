@@ -11,6 +11,8 @@ import (
 // https://shopify.dev/docs/api/admin-rest/latest/resources/metafield
 type MetafieldService interface {
 	List(context.Context, interface{}) ([]Metafield, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]Metafield, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]Metafield, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Metafield, error)
 	Create(context.Context, Metafield) (*Metafield, error)
@@ -23,6 +25,8 @@ type MetafieldService interface {
 // https://shopify.dev/docs/api/admin-rest/latest/resources/metafield
 type MetafieldsService interface {
 	ListMetafields(context.Context, uint64, interface{}) ([]Metafield, error)
+	ListMetafieldsWithPagination(context.Context, uint64, interface{}) ([]Metafield, *Pagination, error)
+	ListMetafieldsAll(context.Context, uint64, interface{}) ([]Metafield, error)
 	CountMetafields(context.Context, uint64, interface{}) (int, error)
 	GetMetafield(context.Context, uint64, uint64, interface{}) (*Metafield, error)
 	CreateMetafield(context.Context, uint64, Metafield) (*Metafield, error)
@@ -126,6 +130,34 @@ func (s *MetafieldServiceOp) List(ctx context.Context, options interface{}) ([]M
 	resource := new(MetafieldsResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Metafields, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *MetafieldServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Metafield, *Pagination, error) {
+	prefix := MetafieldPathPrefix(s.resource, s.resourceId)
+	path := fmt.Sprintf("%s.json", prefix)
+	resource := new(MetafieldsResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Metafields, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *MetafieldServiceOp) ListAll(ctx context.Context, options interface{}) ([]Metafield, error) {
+	items := []Metafield{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Count metafields

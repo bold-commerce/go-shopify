@@ -10,6 +10,8 @@ import (
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/customer_address
 type CustomerAddressService interface {
 	List(context.Context, uint64, interface{}) ([]CustomerAddress, error)
+	ListWithPagination(ctx context.Context, customerId uint64, options interface{}) ([]CustomerAddress, *Pagination, error)
+	ListAll(ctx context.Context, customerId uint64, options interface{}) ([]CustomerAddress, error)
 	Get(context.Context, uint64, uint64, interface{}) (*CustomerAddress, error)
 	Create(context.Context, uint64, CustomerAddress) (*CustomerAddress, error)
 	Update(context.Context, uint64, CustomerAddress) (*CustomerAddress, error)
@@ -59,6 +61,33 @@ func (s *CustomerAddressServiceOp) List(ctx context.Context, customerId uint64, 
 	resource := new(CustomerAddressesResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Addresses, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *CustomerAddressServiceOp) ListWithPagination(ctx context.Context, customerId uint64, options interface{}) ([]CustomerAddress, *Pagination, error) {
+	path := fmt.Sprintf("%s/%d/addresses.json", customersBasePath, customerId)
+	resource := new(CustomerAddressesResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Addresses, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *CustomerAddressServiceOp) ListAll(ctx context.Context, customerId uint64, options interface{}) ([]CustomerAddress, error) {
+	items := []CustomerAddress{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, customerId, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Get address

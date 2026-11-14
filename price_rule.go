@@ -18,6 +18,8 @@ type PriceRuleService interface {
 	Create(context.Context, PriceRule) (*PriceRule, error)
 	Update(context.Context, PriceRule) (*PriceRule, error)
 	List(context.Context) ([]PriceRule, error)
+	ListWithPagination(ctx context.Context, options interface{}) ([]PriceRule, *Pagination, error)
+	ListAll(ctx context.Context, options interface{}) ([]PriceRule, error)
 	Delete(context.Context, uint64) error
 }
 
@@ -166,6 +168,33 @@ func (s *PriceRuleServiceOp) List(ctx context.Context) ([]PriceRule, error) {
 	resource := new(PriceRulesResource)
 	err := s.client.Get(ctx, path, resource, nil)
 	return resource.PriceRules, err
+}
+
+// ListWithPagination returns one page and its next/previous page options.
+func (s *PriceRuleServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]PriceRule, *Pagination, error) {
+	path := fmt.Sprintf("%s.json", priceRulesBasePath)
+	resource := new(PriceRulesResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.PriceRules, pagination, nil
+}
+
+// ListAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *PriceRuleServiceOp) ListAll(ctx context.Context, options interface{}) ([]PriceRule, error) {
+	items := []PriceRule{}
+	for {
+		page, pagination, err := s.ListWithPagination(ctx, options)
+		if err != nil {
+			return items, err
+		}
+		items = append(items, page...)
+		if pagination.NextPageOptions == nil {
+			return items, nil
+		}
+		options = pagination.NextPageOptions
+	}
 }
 
 // Create creates a price rule
