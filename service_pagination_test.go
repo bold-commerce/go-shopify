@@ -295,6 +295,38 @@ func TestServicePagination(t *testing.T) {
 				return client.OrderRisk.ListAll(ctx, 42, options)
 			},
 		},
+		{name: "Article.ListMetafields", path: "articles/42/metafields.json", key: "metafields",
+			page: func(ctx context.Context, options interface{}) (interface{}, *Pagination, error) {
+				return client.Article.ListMetafieldsWithPagination(ctx, 42, options)
+			},
+			all: func(ctx context.Context, options interface{}) (interface{}, error) {
+				return client.Article.ListMetafieldsAll(ctx, 42, options)
+			},
+		},
+		{name: "Blog.ListMetafields", path: "blogs/42/metafields.json", key: "metafields",
+			page: func(ctx context.Context, options interface{}) (interface{}, *Pagination, error) {
+				return client.Blog.ListMetafieldsWithPagination(ctx, 42, options)
+			},
+			all: func(ctx context.Context, options interface{}) (interface{}, error) {
+				return client.Blog.ListMetafieldsAll(ctx, 42, options)
+			},
+		},
+		{name: "Image.ListMetafields", path: "product_images/42/metafields.json", key: "metafields",
+			page: func(ctx context.Context, options interface{}) (interface{}, *Pagination, error) {
+				return client.Image.ListMetafieldsWithPagination(ctx, 42, options)
+			},
+			all: func(ctx context.Context, options interface{}) (interface{}, error) {
+				return client.Image.ListMetafieldsAll(ctx, 42, options)
+			},
+		},
+		{name: "Collection.ListMetafields", path: "collections/42/metafields.json", key: "metafields",
+			page: func(ctx context.Context, options interface{}) (interface{}, *Pagination, error) {
+				return client.Collection.ListMetafieldsWithPagination(ctx, 42, options)
+			},
+			all: func(ctx context.Context, options interface{}) (interface{}, error) {
+				return client.Collection.ListMetafieldsAll(ctx, 42, options)
+			},
+		},
 		{name: "DraftOrder.ListMetafields", path: "draft_orders/42/metafields.json", key: "metafields",
 			page: func(ctx context.Context, options interface{}) (interface{}, *Pagination, error) {
 				return client.DraftOrder.ListMetafieldsWithPagination(ctx, 42, options)

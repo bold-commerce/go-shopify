@@ -128,6 +128,7 @@ type Client struct {
 	OrderRisk                  OrderRiskService
 	ApiPermissions             ApiPermissionsService
 	Article                    ArticlesService
+	Comment                    CommentService
 	Country                    CountryService
 	Currency                   CurrencyService
 	DeprecatedAPICall          DeprecatedAPICallService
@@ -341,6 +342,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 	c.ApiPermissions = &ApiPermissionsServiceOp{client: c}
 	c.Article = &ArticlesServiceOp{client: c}
 
+	c.Comment = &CommentServiceOp{client: c}
 	c.Country = &CountryServiceOp{client: c}
 	c.Currency = &CurrencyServiceOp{client: c}
 	c.DeprecatedAPICall = &DeprecatedAPICallServiceOp{client: c}

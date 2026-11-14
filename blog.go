@@ -12,6 +12,7 @@ const blogsBasePath = "blogs"
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/blog
 type BlogService interface {
+	MetafieldsService
 	List(context.Context, interface{}) ([]Blog, error)
 	ListWithPagination(ctx context.Context, options interface{}) ([]Blog, *Pagination, error)
 	ListAll(ctx context.Context, options interface{}) ([]Blog, error)
@@ -121,4 +122,52 @@ func (s *BlogServiceOp) Update(ctx context.Context, blog Blog) (*Blog, error) {
 // Delete an blog
 func (s *BlogServiceOp) Delete(ctx context.Context, blogId uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d.json", blogsBasePath, blogId))
+}
+
+// ListMetafields for a Blog resource.
+func (s *BlogServiceOp) ListMetafields(ctx context.Context, blogId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.List(ctx, options)
+}
+
+// Count metafields for a Blog resource.
+func (s *BlogServiceOp) CountMetafields(ctx context.Context, blogId uint64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.Count(ctx, options)
+}
+
+// GetMetafield for a Blog resource.
+func (s *BlogServiceOp) GetMetafield(ctx context.Context, blogId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.Get(ctx, metafieldId, options)
+}
+
+// CreateMetafield for a Blog resource.
+func (s *BlogServiceOp) CreateMetafield(ctx context.Context, blogId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.Create(ctx, metafield)
+}
+
+// UpdateMetafield for a Blog resource.
+func (s *BlogServiceOp) UpdateMetafield(ctx context.Context, blogId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.Update(ctx, metafield)
+}
+
+// DeleteMetafield for a Blog resource.
+func (s *BlogServiceOp) DeleteMetafield(ctx context.Context, blogId uint64, metafieldId uint64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *BlogServiceOp) ListMetafieldsWithPagination(ctx context.Context, blogId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *BlogServiceOp) ListMetafieldsAll(ctx context.Context, blogId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "blogs", resourceId: blogId}
+	return metafieldService.ListAll(ctx, options)
 }
