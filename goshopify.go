@@ -130,6 +130,7 @@ type Client struct {
 	Article                    ArticlesService
 	ApplicationCredit          ApplicationCreditService
 	Balance                    BalanceService
+	CancellationRequest        CancellationRequestService
 	Comment                    CommentService
 	Country                    CountryService
 	Currency                   CurrencyService
@@ -138,6 +139,7 @@ type Client struct {
 	DisputeEvidence            DisputeEvidenceService
 	DisputeFileUpload          DisputeFileUploadService
 	Event                      EventService
+	LocationsForMove           LocationsForMoveService
 	MobilePlatformApplication  MobilePlatformApplicationService
 	Policy                     PolicyService
 	Province                   ProvinceService
@@ -351,6 +353,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 
 	c.ApplicationCredit = &ApplicationCreditServiceOp{client: c}
 	c.Balance = &BalanceServiceOp{client: c}
+	c.CancellationRequest = &CancellationRequestServiceOp{client: c}
 	c.Comment = &CommentServiceOp{client: c}
 	c.Country = &CountryServiceOp{client: c}
 	c.Currency = &CurrencyServiceOp{client: c}
@@ -359,6 +362,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 	c.DisputeEvidence = &DisputeEvidenceServiceOp{client: c}
 	c.DisputeFileUpload = &DisputeFileUploadServiceOp{client: c}
 	c.Event = &EventServiceOp{client: c}
+	c.LocationsForMove = &LocationsForMoveServiceOp{client: c}
 	c.MobilePlatformApplication = &MobilePlatformApplicationServiceOp{client: c}
 	c.Policy = &PolicyServiceOp{client: c}
 	c.Province = &ProvinceServiceOp{client: c}
