@@ -1,0 +1,95 @@
+{
+  "refund": {
+    "duties": [],
+    "total_duties_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      }
+    },
+    "return": null,
+    "refund_shipping_lines": [
+      {
+        "id": null,
+        "shipping_line_id": 369256396,
+        "subtotal_amount_set": {
+          "shop_money": {
+            "amount": "2.00",
+            "currency_code": "USD"
+          },
+          "presentment_money": {
+            "amount": "2.00",
+            "currency_code": "USD"
+          }
+        },
+        "shipping_line": {
+          "id": 369256396,
+          "carrier_identifier": null,
+          "code": "Free Shipping",
+          "discounted_price": "5.00",
+          "discounted_price_set": {
+            "shop_money": {
+              "amount": "5.00",
+              "currency_code": "USD"
+            },
+            "presentment_money": {
+              "amount": "5.00",
+              "currency_code": "USD"
+            }
+          },
+          "is_removed": false,
+          "phone": null,
+          "price": "5.00",
+          "price_set": {
+            "shop_money": {
+              "amount": "5.00",
+              "currency_code": "USD"
+            },
+            "presentment_money": {
+              "amount": "5.00",
+              "currency_code": "USD"
+            }
+          },
+          "requested_fulfillment_service_id": null,
+          "source": "shopify",
+          "title": "Free Shipping",
+          "tax_lines": [],
+          "discount_allocations": []
+        }
+      }
+    ],
+    "shipping": {
+      "amount": "2.00",
+      "tax": "0.00",
+      "maximum_refundable": "5.00"
+    },
+    "additional_fees": [],
+    "total_additional_fees_set": {
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      },
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      }
+    },
+    "refund_line_items": [],
+    "transactions": [
+      {
+        "order_id": 450789469,
+        "kind": "suggested_refund",
+        "gateway": "bogus",
+        "parent_id": 801038806,
+        "amount": "2.00",
+        "currency": "USD",
+        "maximum_refundable": "41.94"
+      }
+    ],
+    "currency": "USD"
+  }
+}

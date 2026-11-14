@@ -141,6 +141,7 @@ type Client struct {
 	MobilePlatformApplication  MobilePlatformApplicationService
 	Policy                     PolicyService
 	Province                   ProvinceService
+	Refund                     RefundService
 	TenderTransaction          TenderTransactionService
 	User                       UserService
 }
@@ -361,6 +362,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 	c.MobilePlatformApplication = &MobilePlatformApplicationServiceOp{client: c}
 	c.Policy = &PolicyServiceOp{client: c}
 	c.Province = &ProvinceServiceOp{client: c}
+	c.Refund = &RefundServiceOp{client: c}
 	c.TenderTransaction = &TenderTransactionServiceOp{client: c}
 	c.User = &UserServiceOp{client: c}
 
