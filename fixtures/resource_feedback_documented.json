@@ -1,0 +1,16 @@
+{
+  "resource_feedback": [
+    {
+      "created_at": "2026-10-01T10:25:00-04:00",
+      "updated_at": "2026-10-01T10:25:00-04:00",
+      "resource_id": 548380009,
+      "resource_type": "Shop",
+      "resource_updated_at": null,
+      "messages": [
+        "is not connected. Connect your account to use this sales channel."
+      ],
+      "feedback_generated_at": "2026-10-01T10:25:00-04:00",
+      "state": "requires_action"
+    }
+  ]
+}

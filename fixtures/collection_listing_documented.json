@@ -1,0 +1,16 @@
+{
+  "collection_listing": {
+    "collection_id": 482865238,
+    "updated_at": "2026-10-01T10:20:57-04:00",
+    "body_html": "<p>The best selling ipod ever</p>",
+    "default_product_image": null,
+    "handle": "smart-ipods",
+    "image": {
+      "created_at": "2026-10-01T10:20:57-04:00",
+      "src": "https://cdn.shopify.com/s/files/1/0005/4838/0009/collections/ipod_nano_8gb.jpg?v=1790864457"
+    },
+    "title": "Smart iPods",
+    "sort_order": "manual",
+    "published_at": "2017-08-31T20:00:00-04:00"
+  }
+}
