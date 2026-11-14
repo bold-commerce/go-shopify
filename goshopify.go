@@ -128,6 +128,14 @@ type Client struct {
 	OrderRisk                  OrderRiskService
 	ApiPermissions             ApiPermissionsService
 	Article                    ArticlesService
+	Country                    CountryService
+	Currency                   CurrencyService
+	DeprecatedAPICall          DeprecatedAPICallService
+	Event                      EventService
+	MobilePlatformApplication  MobilePlatformApplicationService
+	Policy                     PolicyService
+	Province                   ProvinceService
+	User                       UserService
 }
 
 // A general response error that follows a similar layout to Shopify's response
@@ -332,6 +340,15 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 	c.OrderRisk = &OrderRiskServiceOp{client: c}
 	c.ApiPermissions = &ApiPermissionsServiceOp{client: c}
 	c.Article = &ArticlesServiceOp{client: c}
+
+	c.Country = &CountryServiceOp{client: c}
+	c.Currency = &CurrencyServiceOp{client: c}
+	c.DeprecatedAPICall = &DeprecatedAPICallServiceOp{client: c}
+	c.Event = &EventServiceOp{client: c}
+	c.MobilePlatformApplication = &MobilePlatformApplicationServiceOp{client: c}
+	c.Policy = &PolicyServiceOp{client: c}
+	c.Province = &ProvinceServiceOp{client: c}
+	c.User = &UserServiceOp{client: c}
 
 	// apply any options
 	for _, opt := range opts {
