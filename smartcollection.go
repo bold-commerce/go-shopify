@@ -15,6 +15,7 @@ const (
 // collection endpoints of the Shopify API.
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/smartcollection
 type SmartCollectionService interface {
+	Order(ctx context.Context, collectionId uint64, options SmartCollectionOrderOptions) error
 	List(context.Context, interface{}) ([]SmartCollection, error)
 	ListWithPagination(ctx context.Context, options interface{}) ([]SmartCollection, *Pagination, error)
 	ListAll(ctx context.Context, options interface{}) ([]SmartCollection, error)
@@ -184,4 +185,23 @@ func (s *SmartCollectionServiceOp) ListMetafieldsWithPagination(ctx context.Cont
 func (s *SmartCollectionServiceOp) ListMetafieldsAll(ctx context.Context, smartCollectionId uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: smartCollectionsResourceName, resourceId: smartCollectionId}
 	return metafieldService.ListAll(ctx, options)
+}
+
+// SmartCollectionOrderOptions selects a sort order or a manual product order.
+type SmartCollectionOrderOptions struct {
+	SortOrder string `url:"sort_order,omitempty"`
+	// A non-nil empty slice clears the existing manual product order.
+	Products []uint64 `url:"products[],omitempty"`
+}
+
+// Order sets a smart collection's sort order or manual product order.
+func (s *SmartCollectionServiceOp) Order(ctx context.Context, collectionId uint64, options SmartCollectionOrderOptions) error {
+	var data interface{}
+	if options.Products != nil && len(options.Products) == 0 {
+		// Query encoding omits empty slices, so send an explicit JSON array.
+		data = struct {
+			Products []uint64 `json:"products"`
+		}{Products: options.Products}
+	}
+	return s.client.CreateAndDo(ctx, "PUT", fmt.Sprintf("smart_collections/%d/order.json", collectionId), data, options, nil)
 }
