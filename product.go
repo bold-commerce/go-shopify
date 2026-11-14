@@ -133,24 +133,14 @@ func (s *ProductServiceOp) List(ctx context.Context, options interface{}) ([]Pro
 // ListAll Lists all products, iterating over pages
 func (s *ProductServiceOp) ListAll(ctx context.Context, options interface{}) ([]Product, error) {
 	collector := []Product{}
-
-	for {
+	err := forEachPage(options, func(options interface{}) (*Pagination, error) {
 		entities, pagination, err := s.ListWithPagination(ctx, options)
-
-		if err != nil {
-			return collector, err
+		if err == nil {
+			collector = append(collector, entities...)
 		}
-
-		collector = append(collector, entities...)
-
-		if pagination.NextPageOptions == nil {
-			break
-		}
-
-		options = pagination.NextPageOptions
-	}
-
-	return collector, nil
+		return pagination, err
+	})
+	return collector, err
 }
 
 // ListWithPagination lists products and return pagination to retrieve next/previous results.
@@ -237,4 +227,16 @@ func (s *ProductServiceOp) UpdateMetafield(ctx context.Context, productId uint64
 func (s *ProductServiceOp) DeleteMetafield(ctx context.Context, productId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *ProductServiceOp) ListMetafieldsWithPagination(ctx context.Context, productId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *ProductServiceOp) ListMetafieldsAll(ctx context.Context, productId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: productsResourceName, resourceId: productId}
+	return metafieldService.ListAll(ctx, options)
 }

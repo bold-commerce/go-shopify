@@ -673,6 +673,21 @@ func (c *Client) Get(ctx context.Context, path string, resource, options interfa
 	return c.CreateAndDo(ctx, "GET", path, nil, options, resource)
 }
 
+// forEachPage calls fetchPage with the initial options, then each next-page cursor.
+// The callback collects the results of each successful page.
+func forEachPage(options interface{}, fetchPage func(interface{}) (*Pagination, error)) error {
+	for {
+		pagination, err := fetchPage(options)
+		if err != nil {
+			return err
+		}
+		if pagination.NextPageOptions == nil {
+			return nil
+		}
+		options = pagination.NextPageOptions
+	}
+}
+
 // ListWithPagination performs a GET request for the given path and saves the result in the
 // given resource and returns the pagination.
 func (c *Client) ListWithPagination(ctx context.Context, path string, resource, options interface{}) (*Pagination, error) {

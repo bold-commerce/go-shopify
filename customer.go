@@ -23,10 +23,14 @@ type CustomerService interface {
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*Customer, error)
 	Search(context.Context, interface{}) ([]Customer, error)
+	SearchWithPagination(ctx context.Context, options interface{}) ([]Customer, *Pagination, error)
+	SearchAll(ctx context.Context, options interface{}) ([]Customer, error)
 	Create(context.Context, Customer) (*Customer, error)
 	Update(context.Context, Customer) (*Customer, error)
 	Delete(context.Context, uint64) error
 	ListOrders(context.Context, uint64, interface{}) ([]Order, error)
+	ListOrdersWithPagination(ctx context.Context, customerId uint64, options interface{}) ([]Order, *Pagination, error)
+	ListOrdersAll(ctx context.Context, customerId uint64, options interface{}) ([]Order, error)
 	ListTags(context.Context, interface{}) ([]string, error)
 
 	// MetafieldsService used for Customer resource to communicate with Metafields resource
@@ -118,24 +122,14 @@ func (s *CustomerServiceOp) List(ctx context.Context, options interface{}) ([]Cu
 // ListAll Lists all customers, iterating over pages
 func (s *CustomerServiceOp) ListAll(ctx context.Context, options interface{}) ([]Customer, error) {
 	collector := []Customer{}
-
-	for {
+	err := forEachPage(options, func(options interface{}) (*Pagination, error) {
 		entities, pagination, err := s.ListWithPagination(ctx, options)
-
-		if err != nil {
-			return collector, err
+		if err == nil {
+			collector = append(collector, entities...)
 		}
-
-		collector = append(collector, entities...)
-
-		if pagination.NextPageOptions == nil {
-			break
-		}
-
-		options = pagination.NextPageOptions
-	}
-
-	return collector, nil
+		return pagination, err
+	})
+	return collector, err
 }
 
 // ListWithPagination lists customers and return pagination to retrieve next/previous results.
@@ -197,12 +191,60 @@ func (s *CustomerServiceOp) Search(ctx context.Context, options interface{}) ([]
 	return resource.Customers, err
 }
 
+// SearchWithPagination returns one page and its next/previous page options.
+func (s *CustomerServiceOp) SearchWithPagination(ctx context.Context, options interface{}) ([]Customer, *Pagination, error) {
+	path := fmt.Sprintf("%s/search.json", customersBasePath)
+	resource := new(CustomersResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Customers, pagination, nil
+}
+
+// SearchAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *CustomerServiceOp) SearchAll(ctx context.Context, options interface{}) ([]Customer, error) {
+	items := []Customer{}
+	err := forEachPage(options, func(options interface{}) (*Pagination, error) {
+		page, pagination, err := s.SearchWithPagination(ctx, options)
+		if err == nil {
+			items = append(items, page...)
+		}
+		return pagination, err
+	})
+	return items, err
+}
+
 // ListOrders retrieves all orders from a customer
 func (s *CustomerServiceOp) ListOrders(ctx context.Context, customerId uint64, options interface{}) ([]Order, error) {
 	path := fmt.Sprintf("%s/%d/orders.json", customersBasePath, customerId)
 	resource := new(OrdersResource)
 	err := s.client.Get(ctx, path, resource, options)
 	return resource.Orders, err
+}
+
+// ListOrdersWithPagination returns one page and its next/previous page options.
+func (s *CustomerServiceOp) ListOrdersWithPagination(ctx context.Context, customerId uint64, options interface{}) ([]Order, *Pagination, error) {
+	path := fmt.Sprintf("%s/%d/orders.json", customersBasePath, customerId)
+	resource := new(OrdersResource)
+	pagination, err := s.client.ListWithPagination(ctx, path, resource, options)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resource.Orders, pagination, nil
+}
+
+// ListOrdersAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *CustomerServiceOp) ListOrdersAll(ctx context.Context, customerId uint64, options interface{}) ([]Order, error) {
+	items := []Order{}
+	err := forEachPage(options, func(options interface{}) (*Pagination, error) {
+		page, pagination, err := s.ListOrdersWithPagination(ctx, customerId, options)
+		if err == nil {
+			items = append(items, page...)
+		}
+		return pagination, err
+	})
+	return items, err
 }
 
 // ListTags retrieves all unique tags across all customers
@@ -247,4 +289,16 @@ func (s *CustomerServiceOp) UpdateMetafield(ctx context.Context, customerId uint
 func (s *CustomerServiceOp) DeleteMetafield(ctx context.Context, customerId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// ListMetafieldsWithPagination retrieves one page and its continuation options.
+func (s *CustomerServiceOp) ListMetafieldsWithPagination(ctx context.Context, customerId uint64, options interface{}) ([]Metafield, *Pagination, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
+	return metafieldService.ListWithPagination(ctx, options)
+}
+
+// ListMetafieldsAll retrieves all pages, returning completed pages on error.
+func (s *CustomerServiceOp) ListMetafieldsAll(ctx context.Context, customerId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: customersResourceName, resourceId: customerId}
+	return metafieldService.ListAll(ctx, options)
 }

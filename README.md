@@ -230,6 +230,72 @@ options := struct {
 orderCount, err := client.Order.Count(context.Background(), options)
 ```
 
+#### Pagination
+
+`List` returns one page. Use `ListWithPagination` to retrieve a page and its
+next/previous options, or `ListAll` to collect every page matching the initial
+filters. Existing `List` signatures are unchanged, including gift cards, price
+rules, and discount codes; their new pagination methods accept options.
+
+```go
+cards, page, err := client.GiftCard.ListWithPagination(ctx, goshopify.ListOptions{Limit: 100})
+if err != nil {
+    return err
+}
+// Process cards here.
+if page.NextPageOptions != nil {
+    cards, page, err = client.GiftCard.ListWithPagination(ctx, page.NextPageOptions)
+    // Handle err and process the next page.
+}
+
+// Or collect all matching pages in memory.
+cards, err = client.GiftCard.ListAll(ctx, goshopify.ListOptions{Limit: 100})
+```
+
+Pass the returned options unchanged to the **same method with the same parent
+IDs**. For a previous page, use `PreviousPageOptions`. A nil page option means
+there is no page in that direction. Do not merge the original filters into a
+cursor request. The returned options preserve the cursor, limit, and any field
+selection supplied in Shopify's link.
+
+The following existing operations now expose both page-by-page and all-page methods:
+
+| Service / operation | Page method | All-page method |
+|---|---|---|
+| AbandonedCheckout, Article, Blog, Collect, CustomCollection, CustomerAddress, DiscountCode, DraftOrder, GiftCard, InventoryItem, InventoryLevel, Location, Metafield, Page, PriceRule, Redirect, ScriptTag, SmartCollection, Variant, Webhook | `ListWithPagination` | `ListAll` |
+| Customer search | `SearchWithPagination` | `SearchAll` |
+| Customer orders | `ListOrdersWithPagination` | `ListOrdersAll` |
+| Collection products | `ListProductsWithPagination` | `ListProductsAll` |
+| Order fulfillments | `ListFulfillmentsWithPagination` | `ListFulfillmentsAll` |
+| Article tags | `ListTagsWithPagination` / `ListBlogTagsWithPagination` | `ListTagsAll` / `ListBlogTagsAll` |
+| ProductListing IDs | `GetProductIdsWithPagination` | `GetProductIdsAll` |
+| Existing metafield owners: Customer, CustomCollection, DraftOrder, Location, Order, Page, Product, Shop, SmartCollection, Variant | `ListMetafieldsWithPagination` | `ListMetafieldsAll` |
+
+Product, Customer, Order, ProductListing, Payouts, PaymentsTransactions, and
+OrderRisk retain their existing `ListWithPagination` and `ListAll` methods.
+Parent IDs are still required for nested resources. For example:
+
+```go
+variants, err := client.Variant.ListAll(ctx, productID, goshopify.ListOptions{Limit: 100})
+metafields, err := client.Product.ListMetafieldsAll(ctx, productID, nil)
+```
+
+The all-page methods return items from completed pages if a later request fails;
+always check the error. Use a context with a timeout or cancellation for long
+traversals. These methods collect results in memory; use page-by-page calls for
+large datasets. Required initial filters still apply: inventory-item lists need
+item IDs, and inventory-level lists need item IDs or location IDs.
+
+The affected service interfaces have new methods. Custom implementations and
+mocks must implement them. No new Go version or dependency is required.
+
+This covers existing operations documented with cursor pagination or a `limit`
+parameter, following [Shopify's pagination guide](https://shopify.dev/docs/api/admin-rest/usage/pagination).
+It does not add missing resource endpoints. List methods without a documented
+pagination contract, such as themes, assets, product images, fulfillment orders,
+and billing charges, are unchanged. The deferred fulfillment write-operation
+migration is also unchanged.
+
 #### Using your own models
 
 Not all endpoints are implemented right now. In those case, feel free to

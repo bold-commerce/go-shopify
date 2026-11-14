@@ -79,24 +79,14 @@ func (s *PayoutsServiceOp) List(ctx context.Context, options interface{}) ([]Pay
 // ListAll Lists all payouts, iterating over pages
 func (s *PayoutsServiceOp) ListAll(ctx context.Context, options interface{}) ([]Payout, error) {
 	collector := []Payout{}
-
-	for {
+	err := forEachPage(options, func(options interface{}) (*Pagination, error) {
 		entities, pagination, err := s.ListWithPagination(ctx, options)
-
-		if err != nil {
-			return collector, err
+		if err == nil {
+			collector = append(collector, entities...)
 		}
-
-		collector = append(collector, entities...)
-
-		if pagination.NextPageOptions == nil {
-			break
-		}
-
-		options = pagination.NextPageOptions
-	}
-
-	return collector, nil
+		return pagination, err
+	})
+	return collector, err
 }
 
 func (s *PayoutsServiceOp) ListWithPagination(ctx context.Context, options interface{}) ([]Payout, *Pagination, error) {

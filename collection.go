@@ -14,6 +14,7 @@ const collectionsBasePath = "collections"
 type CollectionService interface {
 	Get(ctx context.Context, collectionId uint64, options interface{}) (*Collection, error)
 	ListProducts(ctx context.Context, collectionId uint64, options interface{}) ([]Product, error)
+	ListProductsAll(ctx context.Context, collectionId uint64, options interface{}) ([]Product, error)
 	ListProductsWithPagination(ctx context.Context, collectionId uint64, options interface{}) ([]Product, *Pagination, error)
 }
 
@@ -70,4 +71,17 @@ func (s *CollectionServiceOp) ListProductsWithPagination(ctx context.Context, co
 	}
 
 	return resource.Products, pagination, nil
+}
+
+// ListProductsAll retrieves all pages. On error, it returns the items from completed pages.
+func (s *CollectionServiceOp) ListProductsAll(ctx context.Context, collectionId uint64, options interface{}) ([]Product, error) {
+	items := []Product{}
+	err := forEachPage(options, func(options interface{}) (*Pagination, error) {
+		page, pagination, err := s.ListProductsWithPagination(ctx, collectionId, options)
+		if err == nil {
+			items = append(items, page...)
+		}
+		return pagination, err
+	})
+	return items, err
 }
