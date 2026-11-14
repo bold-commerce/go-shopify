@@ -14,6 +14,7 @@ const priceRulesBasePath = "price_rules"
 // of the Shopify API.
 // See: https://shopify.dev/docs/admin-api/rest/reference/discounts/pricerule
 type PriceRuleService interface {
+	Count(ctx context.Context, options interface{}) (int, error)
 	Get(context.Context, uint64) (*PriceRule, error)
 	Create(context.Context, PriceRule) (*PriceRule, error)
 	Update(context.Context, PriceRule) (*PriceRule, error)
@@ -196,4 +197,9 @@ func (s *PriceRuleServiceOp) Delete(ctx context.Context, priceRuleId uint64) err
 func validateMoney(v string) bool {
 	_, err := decimal.NewFromString(v)
 	return err == nil
+}
+
+// Count counts price rule records.
+func (s *PriceRuleServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
+	return s.client.Count(ctx, "price_rules/count.json", options)
 }

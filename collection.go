@@ -12,6 +12,7 @@ const collectionsBasePath = "collections"
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/latest/resources/collection
 type CollectionService interface {
+	MetafieldsService
 	Get(ctx context.Context, collectionId uint64, options interface{}) (*Collection, error)
 	ListProducts(ctx context.Context, collectionId uint64, options interface{}) ([]Product, error)
 	ListProductsWithPagination(ctx context.Context, collectionId uint64, options interface{}) ([]Product, *Pagination, error)
@@ -70,4 +71,40 @@ func (s *CollectionServiceOp) ListProductsWithPagination(ctx context.Context, co
 	}
 
 	return resource.Products, pagination, nil
+}
+
+// ListMetafields for a Collection resource.
+func (s *CollectionServiceOp) ListMetafields(ctx context.Context, collectionId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "collections", resourceId: collectionId}
+	return metafieldService.List(ctx, options)
+}
+
+// Count metafields for a Collection resource.
+func (s *CollectionServiceOp) CountMetafields(ctx context.Context, collectionId uint64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "collections", resourceId: collectionId}
+	return metafieldService.Count(ctx, options)
+}
+
+// GetMetafield for a Collection resource.
+func (s *CollectionServiceOp) GetMetafield(ctx context.Context, collectionId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "collections", resourceId: collectionId}
+	return metafieldService.Get(ctx, metafieldId, options)
+}
+
+// CreateMetafield for a Collection resource.
+func (s *CollectionServiceOp) CreateMetafield(ctx context.Context, collectionId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "collections", resourceId: collectionId}
+	return metafieldService.Create(ctx, metafield)
+}
+
+// UpdateMetafield for a Collection resource.
+func (s *CollectionServiceOp) UpdateMetafield(ctx context.Context, collectionId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "collections", resourceId: collectionId}
+	return metafieldService.Update(ctx, metafield)
+}
+
+// DeleteMetafield for a Collection resource.
+func (s *CollectionServiceOp) DeleteMetafield(ctx context.Context, collectionId uint64, metafieldId uint64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "collections", resourceId: collectionId}
+	return metafieldService.Delete(ctx, metafieldId)
 }
