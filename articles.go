@@ -11,6 +11,8 @@ const articlesBasePath = "articles"
 // The ArticlesService allows you to create, publish, and edit articles on a shop's blog
 // See: https://shopify.dev/docs/api/admin-rest/stable/resources/article
 type ArticlesService interface {
+	MetafieldsService
+	ListAuthors(ctx context.Context, options interface{}) ([]string, error)
 	List(context.Context, uint64, interface{}) ([]Article, error)
 	Create(context.Context, uint64, Article) (*Article, error)
 	Get(context.Context, uint64, uint64) (*Article, error)
@@ -127,4 +129,49 @@ func (s *ArticlesServiceOp) ListBlogTags(ctx context.Context, blogId uint64, opt
 	articleTags := new(ArticleTagsResource)
 	err := s.client.Get(ctx, path, &articleTags, options)
 	return articleTags.Tags, err
+}
+
+// ListAuthors retrieves the authors of the shop's blog articles.
+func (s *ArticlesServiceOp) ListAuthors(ctx context.Context, options interface{}) ([]string, error) {
+	var resource struct {
+		Authors []string `json:"authors"`
+	}
+	err := s.client.Get(ctx, "articles/authors.json", &resource, options)
+	return resource.Authors, err
+}
+
+// ListMetafields for a Article resource.
+func (s *ArticlesServiceOp) ListMetafields(ctx context.Context, articleId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "articles", resourceId: articleId}
+	return metafieldService.List(ctx, options)
+}
+
+// Count metafields for a Article resource.
+func (s *ArticlesServiceOp) CountMetafields(ctx context.Context, articleId uint64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "articles", resourceId: articleId}
+	return metafieldService.Count(ctx, options)
+}
+
+// GetMetafield for a Article resource.
+func (s *ArticlesServiceOp) GetMetafield(ctx context.Context, articleId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "articles", resourceId: articleId}
+	return metafieldService.Get(ctx, metafieldId, options)
+}
+
+// CreateMetafield for a Article resource.
+func (s *ArticlesServiceOp) CreateMetafield(ctx context.Context, articleId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "articles", resourceId: articleId}
+	return metafieldService.Create(ctx, metafield)
+}
+
+// UpdateMetafield for a Article resource.
+func (s *ArticlesServiceOp) UpdateMetafield(ctx context.Context, articleId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "articles", resourceId: articleId}
+	return metafieldService.Update(ctx, metafield)
+}
+
+// DeleteMetafield for a Article resource.
+func (s *ArticlesServiceOp) DeleteMetafield(ctx context.Context, articleId uint64, metafieldId uint64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "articles", resourceId: articleId}
+	return metafieldService.Delete(ctx, metafieldId)
 }

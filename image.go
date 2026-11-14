@@ -10,6 +10,7 @@ import (
 // of the Shopify API.
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/product_image
 type ImageService interface {
+	MetafieldsService
 	List(context.Context, uint64, interface{}) ([]Image, error)
 	Count(context.Context, uint64, interface{}) (int, error)
 	Get(context.Context, uint64, uint64, interface{}) (*Image, error)
@@ -106,4 +107,40 @@ func (s *ImageServiceOp) Update(ctx context.Context, productId uint64, image Ima
 // Delete an existing image
 func (s *ImageServiceOp) Delete(ctx context.Context, productId uint64, imageId uint64) error {
 	return s.client.Delete(ctx, fmt.Sprintf("%s/%d/images/%d.json", productsBasePath, productId, imageId))
+}
+
+// ListMetafields for a Image resource.
+func (s *ImageServiceOp) ListMetafields(ctx context.Context, imageId uint64, options interface{}) ([]Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "product_images", resourceId: imageId}
+	return metafieldService.List(ctx, options)
+}
+
+// Count metafields for a Image resource.
+func (s *ImageServiceOp) CountMetafields(ctx context.Context, imageId uint64, options interface{}) (int, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "product_images", resourceId: imageId}
+	return metafieldService.Count(ctx, options)
+}
+
+// GetMetafield for a Image resource.
+func (s *ImageServiceOp) GetMetafield(ctx context.Context, imageId uint64, metafieldId uint64, options interface{}) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "product_images", resourceId: imageId}
+	return metafieldService.Get(ctx, metafieldId, options)
+}
+
+// CreateMetafield for a Image resource.
+func (s *ImageServiceOp) CreateMetafield(ctx context.Context, imageId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "product_images", resourceId: imageId}
+	return metafieldService.Create(ctx, metafield)
+}
+
+// UpdateMetafield for a Image resource.
+func (s *ImageServiceOp) UpdateMetafield(ctx context.Context, imageId uint64, metafield Metafield) (*Metafield, error) {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "product_images", resourceId: imageId}
+	return metafieldService.Update(ctx, metafield)
+}
+
+// DeleteMetafield for a Image resource.
+func (s *ImageServiceOp) DeleteMetafield(ctx context.Context, imageId uint64, metafieldId uint64) error {
+	metafieldService := &MetafieldServiceOp{client: s.client, resource: "product_images", resourceId: imageId}
+	return metafieldService.Delete(ctx, metafieldId)
 }
