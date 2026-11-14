@@ -14,6 +14,8 @@ const giftCardsBasePath = "gift_cards"
 // of the Shopify API.
 // See: https://shopify.dev/docs/api/admin-rest/2023-04/resources/gift-card
 type GiftCardService interface {
+	SearchWithPagination(ctx context.Context, options interface{}) ([]GiftCard, *Pagination, error)
+	Search(ctx context.Context, options interface{}) ([]GiftCard, error)
 	Get(context.Context, uint64) (*GiftCard, error)
 	Create(context.Context, GiftCard) (*GiftCard, error)
 	Update(context.Context, GiftCard) (*GiftCard, error)
@@ -56,6 +58,12 @@ type GiftCardResource struct {
 // giftCardsResource represents the result from the gift_cards.json endpoint
 type GiftCardsResource struct {
 	GiftCards []GiftCard `json:"gift_cards"`
+}
+
+// GiftCardSearchOptions controls filtering and pagination.
+type GiftCardSearchOptions struct {
+	ListOptions
+	Query string `url:"query,omitempty"`
 }
 
 // Get retrieves a single gift cards
@@ -105,4 +113,17 @@ func (s *GiftCardServiceOp) Disable(ctx context.Context, giftCardId uint64) (*Gi
 func (s *GiftCardServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	path := fmt.Sprintf("%s/count.json", giftCardsBasePath)
 	return s.client.Count(ctx, path, options)
+}
+
+// Search searches gift cards using the supplied filters.
+func (s *GiftCardServiceOp) Search(ctx context.Context, options interface{}) ([]GiftCard, error) {
+	items, _, err := s.SearchWithPagination(ctx, options)
+	return items, err
+}
+
+// SearchWithPagination returns a page and its next/previous page options.
+func (s *GiftCardServiceOp) SearchWithPagination(ctx context.Context, options interface{}) ([]GiftCard, *Pagination, error) {
+	resource := new(GiftCardsResource)
+	pagination, err := s.client.ListWithPagination(ctx, "gift_cards/search.json", resource, options)
+	return resource.GiftCards, pagination, err
 }

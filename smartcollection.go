@@ -15,6 +15,7 @@ const (
 // collection endpoints of the Shopify API.
 // See https://shopify.dev/docs/api/admin-rest/latest/resources/smartcollection
 type SmartCollectionService interface {
+	Order(ctx context.Context, collectionId uint64, options SmartCollectionOrderOptions) error
 	List(context.Context, interface{}) ([]SmartCollection, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*SmartCollection, error)
@@ -146,4 +147,15 @@ func (s *SmartCollectionServiceOp) UpdateMetafield(ctx context.Context, smartCol
 func (s *SmartCollectionServiceOp) DeleteMetafield(ctx context.Context, smartCollectionId uint64, metafieldId uint64) error {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: smartCollectionsResourceName, resourceId: smartCollectionId}
 	return metafieldService.Delete(ctx, metafieldId)
+}
+
+// SmartCollectionOrderOptions selects a sort order or a manual product order.
+type SmartCollectionOrderOptions struct {
+	SortOrder string   `url:"sort_order,omitempty"`
+	Products  []uint64 `url:"products[],omitempty"`
+}
+
+// Order sets a smart collection's sort order or manual product order.
+func (s *SmartCollectionServiceOp) Order(ctx context.Context, collectionId uint64, options SmartCollectionOrderOptions) error {
+	return s.client.CreateAndDo(ctx, "PUT", fmt.Sprintf("smart_collections/%d/order.json", collectionId), nil, options, nil)
 }
