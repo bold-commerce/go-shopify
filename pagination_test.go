@@ -81,3 +81,23 @@ func TestProductListAllPreservesFields(t *testing.T) {
 		}
 	}
 }
+
+func TestPaginationMultipleLinkHeaders(t *testing.T) {
+	setup()
+	defer teardown()
+	endpoint := fmt.Sprintf("https://fooshop.myshopify.com/%s/products.json", client.pathPrefix)
+	httpmock.RegisterResponder("GET", endpoint, func(req *http.Request) (*http.Response, error) {
+		response := httpmock.NewStringResponse(200, `{"products":[]}`)
+		response.Header.Add("Link", `<`+endpoint+`?page_info=previous&limit=1>; rel="previous"`)
+		response.Header.Add("Link", `<`+endpoint+`?page_info=next&limit=1>; rel="next"`)
+		return response, nil
+	})
+	_, pagination, err := client.Product.ListWithPagination(context.Background(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := &Pagination{PreviousPageOptions: &ListOptions{PageInfo: "previous", Limit: 1}, NextPageOptions: &ListOptions{PageInfo: "next", Limit: 1}}
+	if !reflect.DeepEqual(pagination, want) {
+		t.Fatalf("pagination = %#v, want %#v", pagination, want)
+	}
+}

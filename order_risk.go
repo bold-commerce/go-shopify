@@ -87,24 +87,14 @@ func (s *OrderRiskServiceOp) List(ctx context.Context, orderId uint64, options i
 // ListAll Lists all OrderRisk, iterating over pages
 func (s *OrderRiskServiceOp) ListAll(ctx context.Context, orderId uint64, options interface{}) ([]OrderRisk, error) {
 	collector := []OrderRisk{}
-
-	for {
+	err := forEachPage(options, func(options interface{}) (*Pagination, error) {
 		entities, pagination, err := s.ListWithPagination(ctx, orderId, options)
-
-		if err != nil {
-			return collector, err
+		if err == nil {
+			collector = append(collector, entities...)
 		}
-
-		collector = append(collector, entities...)
-
-		if pagination.NextPageOptions == nil {
-			break
-		}
-
-		options = pagination.NextPageOptions
-	}
-
-	return collector, nil
+		return pagination, err
+	})
+	return collector, err
 }
 
 func (s *OrderRiskServiceOp) ListWithPagination(ctx context.Context, orderId uint64, options interface{}) ([]OrderRisk, *Pagination, error) {
