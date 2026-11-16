@@ -76,6 +76,9 @@ type Fulfillment struct {
 	LineItems                   []LineItem                   `json:"line_items,omitempty"`
 	LineItemsByFulfillmentOrder []LineItemByFulfillmentOrder `json:"line_items_by_fulfillment_order,omitempty"`
 	NotifyCustomer              bool                         `json:"notify_customer"`
+	AdminGraphqlApiId           string                       `json:"admin_graphql_api_id,omitempty"`
+	Name                        string                       `json:"name,omitempty"`
+	OriginAddress               *Address                     `json:"origin_address,omitempty"`
 }
 
 // FulfillmentTrackingInfo represents the tracking information used to create a Fulfillment.

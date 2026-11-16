@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -42,6 +43,8 @@ type ApplicationCharge struct {
 	ChargeType         *string          `json:"charge_type"`
 	DecoratedReturnURL string           `json:"decorated_return_url"`
 	ConfirmationURL    string           `json:"confirmation_url"`
+	Currency           string           `json:"currency,omitempty"`
+	ExternalId         json.RawMessage  `json:"external_id,omitempty"`
 }
 
 // ApplicationChargeResource represents the result from the

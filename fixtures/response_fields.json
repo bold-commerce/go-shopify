@@ -1,0 +1,361 @@
+{
+  "AbandonedCheckout": {
+    "location_id": null,
+    "reservation_token": "0123456789abcdef0123456789zjkw",
+    "total_tax": "0.00"
+  },
+  "AbandonedCheckoutShippingLine": {
+    "api_client_id": null,
+    "applied_discounts": [],
+    "custom_tax_lines": null,
+    "delivery_category": null,
+    "delivery_expectation_range": null,
+    "delivery_expectation_type": null,
+    "delivery_option_group_type": null,
+    "estimated_delivery_time_range": null,
+    "markup": null,
+    "original_rate_price": null,
+    "original_shop_markup": null,
+    "original_shop_price": null,
+    "presentment_title": null,
+    "validation_context": null
+  },
+  "ApplicationCharge": {
+    "currency": "USD",
+    "external_id": null
+  },
+  "Article": {
+    "admin_graphql_api_id": "gid://shopify/Article/1051293786",
+    "template_suffix": null
+  },
+  "Asset": {
+    "checksum": "cd71db2e14df976c8aa44b44c8dae77b"
+  },
+  "AssignedFulfillmentOrder": {
+    "assigned_location": {
+      "address1": null,
+      "address2": null,
+      "city": null,
+      "country_code": "DE",
+      "location_id": 24826418,
+      "name": "Apple Api Shipwire",
+      "phone": null,
+      "province": null,
+      "zip": null
+    },
+    "created_at": "2026-10-01T10:21:24-04:00",
+    "delivery_method": null,
+    "fulfill_at": null,
+    "fulfill_by": null,
+    "fulfillment_holds": [],
+    "international_duties": null,
+    "outgoing_requests": [],
+    "supported_actions": [
+      "create_fulfillment",
+      "cancel_fulfillment_order"
+    ],
+    "updated_at": "2026-10-01T10:21:24-04:00"
+  },
+  "Collection": {
+    "admin_graphql_api_id": "gid://shopify/Collection/841564295",
+    "collection_type": "custom",
+    "products_count": 1
+  },
+  "CustomCollection": {
+    "admin_graphql_api_id": "gid://shopify/Collection/1063001331",
+    "products_count": 1
+  },
+  "DiscountAllocations": {
+    "application_type": "discount_code",
+    "created_at": null,
+    "description": "TENOFF",
+    "discount_class": "ORDER",
+    "id": null
+  },
+  "DraftOrder": {
+    "allow_discount_codes_in_checkout?": false,
+    "amount_due_later_set": {
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      }
+    },
+    "amount_due_now_set": {
+      "presentment_money": {
+        "amount": "31.80",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "31.80",
+        "currency_code": "USD"
+      }
+    },
+    "api_client_id": 755357713,
+    "b2b?": false,
+    "created_on_api_version_handle": "unstable",
+    "presentment_currency": "USD",
+    "subtotal_price_set": {
+      "presentment_money": {
+        "amount": "30.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "30.00",
+        "currency_code": "USD"
+      }
+    },
+    "total_additional_fees_set": null,
+    "total_discounts_set": {
+      "presentment_money": {
+        "amount": "10.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "10.00",
+        "currency_code": "USD"
+      }
+    },
+    "total_duties_set": null,
+    "total_line_items_price_set": {
+      "presentment_money": {
+        "amount": "40.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "40.00",
+        "currency_code": "USD"
+      }
+    },
+    "total_price_set": {
+      "presentment_money": {
+        "amount": "31.80",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "31.80",
+        "currency_code": "USD"
+      }
+    },
+    "total_shipping_price_set": {
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      }
+    },
+    "total_tax_set": {
+      "presentment_money": {
+        "amount": "1.80",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "1.80",
+        "currency_code": "USD"
+      }
+    }
+  },
+  "Fulfillment": {
+    "admin_graphql_api_id": "gid://shopify/Fulfillment/1069019893",
+    "name": "#1001.2",
+    "origin_address": {
+      "address1": "150 Elgin St",
+      "city": "Ottawa",
+      "country_code": "CA",
+      "province_code": "ON",
+      "zip": "K2P 1L4"
+    }
+  },
+  "FulfillmentEvent": {
+    "admin_graphql_api_id": "gid://shopify/FulfillmentEvent/944956391"
+  },
+  "FulfillmentOrder": {
+    "origin": {
+      "address1": null,
+      "address2": null,
+      "city": null,
+      "country_code": "DE",
+      "location_id": 24826418,
+      "name": "Apple Api Shipwire",
+      "phone": null,
+      "province": null,
+      "zip": null
+    },
+    "outgoing_requests": [
+      {
+        "kind": "fulfillment_request",
+        "message": "Fulfill this ASAP please.",
+        "request_options": {
+          "notify_customer": false
+        },
+        "sent_at": "2026-10-01T10:19:51-04:00"
+      }
+    ]
+  },
+  "FulfillmentOrderDeliveryMethod": {
+    "additional_information": {
+      "failed_carriers": null,
+      "instructions": null,
+      "phone": null,
+      "pickup_point_id": null
+    },
+    "detailed_branded_promise": null,
+    "presented_name": "Expedited Shipping",
+    "service_code": null,
+    "source_reference": null
+  },
+  "GiftCard": {
+    "notify": true
+  },
+  "LineItem": {
+    "admin_graphql_api_id": "gid://shopify/DraftOrderLineItem/1066630392",
+    "applied_discounts": [],
+    "attributed_staffs": [],
+    "compare_at_price": null,
+    "custom": true,
+    "destination_location_id": null,
+    "duties": [],
+    "fulfillment_line_item_id": 225088298,
+    "key": "f32827a8d00b0a8d",
+    "line_price": "199.00",
+    "origin_location_id": null,
+    "presentment_title": "IPod Nano - 8GB",
+    "presentment_variant_title": "Red",
+    "rank": null,
+    "total_discount_set": {
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      }
+    },
+    "unit_price_measurement": null,
+    "user_id": null,
+    "variant_price": null
+  },
+  "Location": {
+    "localized_country_name": "Canada",
+    "localized_province_name": "Ontario"
+  },
+  "Order": {
+    "admin_graphql_api_id": "gid://shopify/Order/1073459963",
+    "tax_exempt": false
+  },
+  "Page": {
+    "admin_graphql_api_id": "gid://shopify/Page/1025371370"
+  },
+  "PaymentDetails": {
+    "buyer_action_info": null,
+    "credit_card_expiration_month": null,
+    "credit_card_expiration_year": null,
+    "credit_card_name": null,
+    "credit_card_wallet": null,
+    "payment_method_name": "visa"
+  },
+  "PaymentSchedule": {
+    "balance_due": "217.89",
+    "balance_due_currency": "USD",
+    "created_at": "2020-12-31T19:00:00-05:00",
+    "outstanding_balance": "217.89",
+    "outstanding_balance_currency": "USD",
+    "payment_terms_id": 1054663032,
+    "reference_id": 994118539,
+    "reference_type": "DraftOrder",
+    "total_balance": "217.89",
+    "total_balance_currency": "USD",
+    "total_price": "217.89",
+    "total_price_currency": "USD",
+    "updated_at": "2020-12-31T19:00:00-05:00"
+  },
+  "PaymentTerms": {
+    "can_pay_early": true,
+    "created_at": "2020-12-31T19:00:00-05:00",
+    "updated_at": "2020-12-31T19:00:00-05:00"
+  },
+  "PriceRule": {
+    "admin_graphql_api_id": "gid://shopify/PriceRule/1057856659",
+    "customer_segment_prerequisite_ids": [],
+    "prerequisite_to_entitlement_purchase": {
+      "prerequisite_amount": null
+    }
+  },
+  "PriceRuleDiscountCode": {
+    "errors": {}
+  },
+  "ProductListing": {
+    "available": true
+  },
+  "Refund": {
+    "additional_fees": [],
+    "return": null,
+    "total_additional_fees_set": {
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      }
+    },
+    "total_duties_set": {
+      "presentment_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      },
+      "shop_money": {
+        "amount": "0.00",
+        "currency_code": "USD"
+      }
+    }
+  },
+  "ScriptTag": {
+    "cache": false
+  },
+  "ShippingLines": {
+    "custom": true,
+    "discount_allocations": [],
+    "is_removed": false
+  },
+  "Shop": {
+    "auto_configure_tax_inclusivity": null,
+    "enabled_presentment_currencies": [
+      "USD"
+    ],
+    "finances": true,
+    "marketing_email_consent_enabled_at_checkout": true,
+    "marketing_sms_consent_enabled_at_checkout": false,
+    "multi_location_enabled": true,
+    "transactional_sms_disabled": false
+  },
+  "SmartCollection": {
+    "admin_graphql_api_id": "gid://shopify/Collection/1063001321",
+    "products_count": 2
+  },
+  "TaxLine": {
+    "channel_liable": false
+  },
+  "Variant": {
+    "available": true,
+    "formatted_price": "$199.00",
+    "option_values": [
+      {
+        "name": "Color",
+        "option_id": 594680422,
+        "value": "Pink"
+      }
+    ]
+  },
+  "Webhook": {
+    "metafield_identifiers": []
+  }
+}

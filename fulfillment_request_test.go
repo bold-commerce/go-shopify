@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/jarcoal/httpmock"
 )
@@ -28,7 +29,16 @@ func TestFulfillmentRequestServiceOp_Send(t *testing.T) {
 		t.Errorf("FulfillmentRequest.Send returned error: %v", err)
 	}
 
+	sentAt, err := time.Parse(time.RFC3339, "2023-10-03T13:22:49-04:00")
+	if err != nil {
+		t.Fatal(err)
+	}
 	expected := &FulfillmentOrder{
+		Origin: &FulfillmentOrderAssignedLocation{CountryCode: "DE", LocationId: 24826418, Name: "Apple Api Shipwire"},
+		OutgoingRequests: []FulfillmentOrderOutgoingRequest{{
+			Kind: "fulfillment_request", Message: message, SentAt: &sentAt,
+			RequestOptions: json.RawMessage("{\n          \"notify_customer\": false\n        }"),
+		}},
 		Id:                 1046000829,
 		ShopId:             548380009,
 		OrderId:            450789469,
@@ -107,6 +117,8 @@ func TestFulfillmentRequestServiceOp_Accept(t *testing.T) {
 	}
 
 	expected := &FulfillmentOrder{
+		Origin:             &FulfillmentOrderAssignedLocation{CountryCode: "DE", LocationId: 24826418, Name: "Apple Api Shipwire"},
+		OutgoingRequests:   []FulfillmentOrderOutgoingRequest{},
 		Id:                 1046000828,
 		ShopId:             548380009,
 		OrderId:            450789469,
@@ -184,6 +196,8 @@ func TestFulfillmentRequestServiceOp_Reject(t *testing.T) {
 	}
 
 	expected := &FulfillmentOrder{
+		Origin:             &FulfillmentOrderAssignedLocation{CountryCode: "DE", LocationId: 24826418, Name: "Apple Api Shipwire"},
+		OutgoingRequests:   []FulfillmentOrderOutgoingRequest{},
 		Id:                 1046000830,
 		ShopId:             548380009,
 		OrderId:            450789469,

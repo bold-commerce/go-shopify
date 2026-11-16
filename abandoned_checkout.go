@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -77,21 +78,38 @@ type AbandonedCheckout struct {
 	SmsMarketingConsent      *SmsMarketingConsent            `json:"sms_marketing_consent,omitempty"`
 	AdminGraphqlApiId        string                          `json:"admin_graphql_api_id,omitempty"`
 	DefaultAddress           *CustomerAddress                `json:"default_address,omitempty"`
+	LocationId               *uint64                         `json:"location_id,omitempty"`
+	ReservationToken         string                          `json:"reservation_token,omitempty"`
+	TotalTax                 *decimal.Decimal                `json:"total_tax,omitempty"`
 }
 
 // AbandonedCheckoutShippingLine represents a checkout shipping rate.
 // Checkout shipping line IDs are strings, unlike order shipping line IDs.
 type AbandonedCheckoutShippingLine struct {
-	Id                            string           `json:"id,omitempty"`
-	Title                         string           `json:"title,omitempty"`
-	Code                          string           `json:"code,omitempty"`
-	Price                         *decimal.Decimal `json:"price,omitempty"`
-	Source                        string           `json:"source,omitempty"`
-	Phone                         string           `json:"phone,omitempty"`
-	CarrierIdentifier             string           `json:"carrier_identifier,omitempty"`
-	CarrierServiceId              *uint64          `json:"carrier_service_id,omitempty"`
-	RequestedFulfillmentServiceId *uint64          `json:"requested_fulfillment_service_id,omitempty"`
-	TaxLines                      []TaxLine        `json:"tax_lines,omitempty"`
+	Id                            string            `json:"id,omitempty"`
+	Title                         string            `json:"title,omitempty"`
+	Code                          string            `json:"code,omitempty"`
+	Price                         *decimal.Decimal  `json:"price,omitempty"`
+	Source                        string            `json:"source,omitempty"`
+	Phone                         string            `json:"phone,omitempty"`
+	CarrierIdentifier             string            `json:"carrier_identifier,omitempty"`
+	CarrierServiceId              *uint64           `json:"carrier_service_id,omitempty"`
+	RequestedFulfillmentServiceId *uint64           `json:"requested_fulfillment_service_id,omitempty"`
+	TaxLines                      []TaxLine         `json:"tax_lines,omitempty"`
+	ApiClientId                   *uint64           `json:"api_client_id,omitempty"`
+	AppliedDiscounts              []json.RawMessage `json:"applied_discounts,omitempty"`
+	CustomTaxLines                json.RawMessage   `json:"custom_tax_lines,omitempty"`
+	DeliveryCategory              string            `json:"delivery_category,omitempty"`
+	DeliveryExpectationRange      json.RawMessage   `json:"delivery_expectation_range,omitempty"`
+	DeliveryExpectationType       string            `json:"delivery_expectation_type,omitempty"`
+	DeliveryOptionGroupType       string            `json:"delivery_option_group_type,omitempty"`
+	EstimatedDeliveryTimeRange    json.RawMessage   `json:"estimated_delivery_time_range,omitempty"`
+	Markup                        *decimal.Decimal  `json:"markup,omitempty"`
+	OriginalRatePrice             *decimal.Decimal  `json:"original_rate_price,omitempty"`
+	OriginalShopMarkup            *decimal.Decimal  `json:"original_shop_markup,omitempty"`
+	OriginalShopPrice             *decimal.Decimal  `json:"original_shop_price,omitempty"`
+	PresentmentTitle              string            `json:"presentment_title,omitempty"`
+	ValidationContext             json.RawMessage   `json:"validation_context,omitempty"`
 }
 
 type SmsMarketingConsent struct {

@@ -50,6 +50,7 @@ type GiftCard struct {
 	TemplateSuffix string           `json:"template_suffix,omitempty"`
 	UserId         uint64           `json:"user_id,omitempty"`
 	UpdatedAt      *time.Time       `json:"updated_at,omitempty"`
+	Notify         *bool            `json:"notify,omitempty"`
 }
 
 // giftCardResource represents the result from the gift_cards/X.json endpoint

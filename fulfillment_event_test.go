@@ -30,6 +30,7 @@ func TestFulfillmentEventServiceOp_List(t *testing.T) {
 	expected := []FulfillmentEvent{
 		{
 			Id:                  944956391,
+			AdminGraphqlApiId:   "gid://shopify/FulfillmentEvent/944956391",
 			FulfillmentId:       255858046,
 			Status:              "in_transit",
 			Message:             "",
@@ -74,6 +75,7 @@ func TestFulfillmentEventServiceOp_Get(t *testing.T) {
 
 	expected := &FulfillmentEvent{
 		Id:                  944956393,
+		AdminGraphqlApiId:   "gid://shopify/FulfillmentEvent/944956393",
 		FulfillmentId:       255858046,
 		Status:              "in_transit",
 		Message:             "",
@@ -135,6 +137,7 @@ func TestFulfillmentEventServiceOp_Create(t *testing.T) {
 
 	expected := &FulfillmentEvent{
 		Id:                  944956393,
+		AdminGraphqlApiId:   "gid://shopify/FulfillmentEvent/944956393",
 		FulfillmentId:       255858046,
 		Status:              "in_transit",
 		Message:             "",

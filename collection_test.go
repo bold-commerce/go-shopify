@@ -49,6 +49,7 @@ func TestCollectionGet(t *testing.T) {
 
 	imageCreatedAt, _ := time.Parse(time.RFC3339, "2020-02-27T15:01:45-05:00")
 	expected := &Collection{
+		CollectionType: "smart",
 		Id:             25,
 		Handle:         "more-than-5",
 		Title:          "More than $5",

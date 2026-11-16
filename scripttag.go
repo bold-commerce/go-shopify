@@ -36,6 +36,7 @@ type ScriptTag struct {
 	Src          string     `json:"src"`
 	DisplayScope string     `json:"display_scope"`
 	UpdatedAt    *time.Time `json:"updated_at"`
+	Cache        *bool      `json:"cache,omitempty"`
 }
 
 // The options provided by Shopify.

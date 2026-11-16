@@ -56,21 +56,23 @@ type ArticleImage struct {
 }
 
 type Article struct {
-	Author      string        `json:"author,omitempty"`
-	BlogId      uint64        `json:"blog_id,omitempty"`
-	BodyHtml    string        `json:"body_html,omitempty"`
-	Id          uint64        `json:"id,omitempty"`
-	Handle      string        `json:"handle,omitempty"`
-	Image       *ArticleImage `json:"image,omitempty"`
-	Metafields  []Metafield   `json:"metafields,omitempty"`
-	Published   *bool         `json:"published,omitempty"`
-	SummaryHtml string        `json:"summary_html,omitempty"`
-	Tags        string        `json:"tags,omitempty"`
-	Title       string        `json:"title,omitempty"`
-	UpdatedAt   time.Time     `json:"updated_at,omitempty"`
-	UserId      int           `json:"user_id,omitempty"`
-	PublishedAt *time.Time    `json:"published_at,omitempty"`
-	CreatedAt   *time.Time    `json:"created_at,omitempty"`
+	Author            string        `json:"author,omitempty"`
+	BlogId            uint64        `json:"blog_id,omitempty"`
+	BodyHtml          string        `json:"body_html,omitempty"`
+	Id                uint64        `json:"id,omitempty"`
+	Handle            string        `json:"handle,omitempty"`
+	Image             *ArticleImage `json:"image,omitempty"`
+	Metafields        []Metafield   `json:"metafields,omitempty"`
+	Published         *bool         `json:"published,omitempty"`
+	SummaryHtml       string        `json:"summary_html,omitempty"`
+	Tags              string        `json:"tags,omitempty"`
+	Title             string        `json:"title,omitempty"`
+	UpdatedAt         time.Time     `json:"updated_at,omitempty"`
+	UserId            int           `json:"user_id,omitempty"`
+	PublishedAt       *time.Time    `json:"published_at,omitempty"`
+	CreatedAt         *time.Time    `json:"created_at,omitempty"`
+	AdminGraphqlApiId string        `json:"admin_graphql_api_id,omitempty"`
+	TemplateSuffix    string        `json:"template_suffix,omitempty"`
 }
 
 // List all the articles in a blog.

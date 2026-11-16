@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -53,10 +54,15 @@ type FulfillmentOrderMoveRequest struct {
 
 // FulfillmentOrderDeliveryMethod represents a delivery method for a FulfillmentOrder
 type FulfillmentOrderDeliveryMethod struct {
-	Id                  uint64    `json:"id,omitempty"`
-	MethodType          string    `json:"method_type,omitempty"`
-	MinDeliveryDateTime time.Time `json:"min_delivery_date_time,omitempty"`
-	MaxDeliveryDateTime time.Time `json:"max_delivery_date_time,omitempty"`
+	Id                     uint64          `json:"id,omitempty"`
+	MethodType             string          `json:"method_type,omitempty"`
+	MinDeliveryDateTime    time.Time       `json:"min_delivery_date_time,omitempty"`
+	MaxDeliveryDateTime    time.Time       `json:"max_delivery_date_time,omitempty"`
+	AdditionalInformation  json.RawMessage `json:"additional_information,omitempty"`
+	DetailedBrandedPromise json.RawMessage `json:"detailed_branded_promise,omitempty"`
+	PresentedName          string          `json:"presented_name,omitempty"`
+	ServiceCode            json.RawMessage `json:"service_code,omitempty"`
+	SourceReference        json.RawMessage `json:"source_reference,omitempty"`
 }
 
 // FulfillmentOrderDestination represents a destination for a FulfillmentOrder
@@ -142,6 +148,8 @@ type FulfillmentOrder struct {
 	SupportedActions    []string                            `json:"supported_actions,omitempty"`
 	CreatedAt           *time.Time                          `json:"created_at,omitempty"`
 	UpdatedAt           *time.Time                          `json:"updated_at,omitempty"`
+	Origin              *FulfillmentOrderAssignedLocation   `json:"origin,omitempty"`
+	OutgoingRequests    []FulfillmentOrderOutgoingRequest   `json:"outgoing_requests,omitempty"`
 }
 
 // FulfillmentOrdersResource represents the result from the fulfillment_orders.json endpoint
@@ -316,4 +324,13 @@ func (s *FulfillmentOrderServiceOp) Move(ctx context.Context, fulfillmentId uint
 	resource := new(FulfillmentOrderMoveResource)
 	err := s.client.Post(ctx, path, wrappedRequest, resource)
 	return resource, err
+}
+
+// FulfillmentOrderOutgoingRequest records a request sent to a fulfillment service.
+// RequestOptions varies with the request kind and retains the original JSON.
+type FulfillmentOrderOutgoingRequest struct {
+	Kind           string          `json:"kind,omitempty"`
+	Message        string          `json:"message,omitempty"`
+	SentAt         *time.Time      `json:"sent_at,omitempty"`
+	RequestOptions json.RawMessage `json:"request_options,omitempty"`
 }

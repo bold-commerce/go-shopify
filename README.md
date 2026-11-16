@@ -7,6 +7,8 @@ The new home of Conversio's Shopify Go library.
 [![Build Status](https://github.com/bold-commerce/go-shopify/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/bold-commerce/go-shopify/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/bold-commerce/go-shopify/branch/master/graph/badge.svg)](https://codecov.io/gh/bold-commerce/go-shopify) [![Join the chat at https://gitter.im/bold-commerce/go-shopify](https://badges.gitter.im/bold-commerce/go-shopify.svg)](https://gitter.im/bold-commerce/go-shopify?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+Response fields without a documented fixed shape use `json.RawMessage` (or a slice of it). This preserves their JSON, including large IDs, for callers to decode into their own types.
+
 ## Supported Go Versions
 
 The Go versions tested by CI are listed in the [test workflow](.github/workflows/tests.yml).

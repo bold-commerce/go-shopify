@@ -45,6 +45,7 @@ type ProductListing struct {
 	Options     []ProductOption `json:"options,omitempty"`
 	Variants    []Variant       `json:"variants,omitempty"`
 	Images      []Image         `json:"images,omitempty"`
+	Available   *bool           `json:"available,omitempty"`
 }
 
 // Represents the result from the product_listings/X.json endpoint

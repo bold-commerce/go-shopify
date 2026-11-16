@@ -59,6 +59,9 @@ type PriceRule struct {
 	PrerequisiteQuantityRange              *prerequisiteQuantityRange              `json:"prerequisite_quantity_range,omitempty"`
 	PrerequisiteShippingPriceRange         *prerequisiteShippingPriceRange         `json:"prerequisite_shipping_price_range,omitempty"`
 	PrerequisiteToEntitlementQuantityRatio *prerequisiteToEntitlementQuantityRatio `json:"prerequisite_to_entitlement_quantity_ratio,omitempty"`
+	AdminGraphqlApiId                      string                                  `json:"admin_graphql_api_id,omitempty"`
+	CustomerSegmentPrerequisiteIds         []uint64                                `json:"customer_segment_prerequisite_ids,omitempty"`
+	PrerequisiteToEntitlementPurchase      *PrerequisiteToEntitlementPurchase      `json:"prerequisite_to_entitlement_purchase,omitempty"`
 }
 
 type prerequisiteSubtotalRange struct {
@@ -228,4 +231,9 @@ func validateMoney(v string) bool {
 // Count counts price rule records.
 func (s *PriceRuleServiceOp) Count(ctx context.Context, options interface{}) (int, error) {
 	return s.client.Count(ctx, "price_rules/count.json", options)
+}
+
+// PrerequisiteToEntitlementPurchase is the minimum purchase amount for a price rule.
+type PrerequisiteToEntitlementPurchase struct {
+	PrerequisiteAmount *decimal.Decimal `json:"prerequisite_amount,omitempty"`
 }

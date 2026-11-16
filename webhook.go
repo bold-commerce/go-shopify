@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -30,16 +31,17 @@ type WebhookServiceOp struct {
 
 // Webhook represents a Shopify webhook
 type Webhook struct {
-	Id                         uint64     `json:"id"`
-	Address                    string     `json:"address"`
-	Topic                      string     `json:"topic"`
-	Format                     string     `json:"format"`
-	CreatedAt                  *time.Time `json:"created_at,omitempty"`
-	UpdatedAt                  *time.Time `json:"updated_at,omitempty"`
-	Fields                     []string   `json:"fields"`
-	MetafieldNamespaces        []string   `json:"metafield_namespaces"`
-	PrivateMetafieldNamespaces []string   `json:"private_metafield_namespaces"`
-	ApiVersion                 string     `json:"api_version,omitempty"`
+	Id                         uint64            `json:"id"`
+	Address                    string            `json:"address"`
+	Topic                      string            `json:"topic"`
+	Format                     string            `json:"format"`
+	CreatedAt                  *time.Time        `json:"created_at,omitempty"`
+	UpdatedAt                  *time.Time        `json:"updated_at,omitempty"`
+	Fields                     []string          `json:"fields"`
+	MetafieldNamespaces        []string          `json:"metafield_namespaces"`
+	PrivateMetafieldNamespaces []string          `json:"private_metafield_namespaces"`
+	ApiVersion                 string            `json:"api_version,omitempty"`
+	MetafieldIdentifiers       []json.RawMessage `json:"metafield_identifiers,omitempty"`
 }
 
 // WebhookOptions can be used for filtering webhooks on a List request.

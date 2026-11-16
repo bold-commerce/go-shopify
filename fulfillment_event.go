@@ -38,6 +38,7 @@ type FulfillmentEvent struct {
 	Status              string  `json:"status"`
 	UpdatedAt           string  `json:"updated_at"`
 	Zip                 string  `json:"zip"`
+	AdminGraphqlApiId   string  `json:"admin_graphql_api_id,omitempty"`
 }
 
 type FulfillmentEventCreateRequest struct {

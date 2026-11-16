@@ -3,6 +3,7 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"time"
 )
 
 const (
@@ -17,14 +18,24 @@ type AssignedFulfillmentOrderService interface {
 }
 
 type AssignedFulfillmentOrder struct {
-	Id                 uint64                              `json:"id,omitempty"`
-	AssignedLocationId uint64                              `json:"assigned_location_id,omitempty"`
-	Destination        AssignedFulfillmentOrderDestination `json:"destination,omitempty"`
-	LineItems          []AssignedFulfillmentOrderLineItem  `json:"line_items,omitempty"`
-	OrderId            uint64                              `json:"order_id,omitempty"`
-	RequestStatus      string                              `json:"request_status,omitempty"`
-	ShopId             uint64                              `json:"shop_id,omitempty"`
-	Status             string                              `json:"status,omitempty"`
+	Id                  uint64                               `json:"id,omitempty"`
+	AssignedLocationId  uint64                               `json:"assigned_location_id,omitempty"`
+	Destination         AssignedFulfillmentOrderDestination  `json:"destination,omitempty"`
+	LineItems           []AssignedFulfillmentOrderLineItem   `json:"line_items,omitempty"`
+	OrderId             uint64                               `json:"order_id,omitempty"`
+	RequestStatus       string                               `json:"request_status,omitempty"`
+	ShopId              uint64                               `json:"shop_id,omitempty"`
+	Status              string                               `json:"status,omitempty"`
+	AssignedLocation    *FulfillmentOrderAssignedLocation    `json:"assigned_location,omitempty"`
+	CreatedAt           *time.Time                           `json:"created_at,omitempty"`
+	DeliveryMethod      *FulfillmentOrderDeliveryMethod      `json:"delivery_method,omitempty"`
+	FulfillAt           *time.Time                           `json:"fulfill_at,omitempty"`
+	FulfillBy           *time.Time                           `json:"fulfill_by,omitempty"`
+	FulfillmentHolds    []FulfillmentOrderHold               `json:"fulfillment_holds,omitempty"`
+	InternationalDuties *FulfillmentOrderInternationalDuties `json:"international_duties,omitempty"`
+	OutgoingRequests    []FulfillmentOrderOutgoingRequest    `json:"outgoing_requests,omitempty"`
+	SupportedActions    []string                             `json:"supported_actions,omitempty"`
+	UpdatedAt           *time.Time                           `json:"updated_at,omitempty"`
 }
 
 // AssignedFulfillmentOrderDestination represents a destination for a AssignedFulfillmentOrder
