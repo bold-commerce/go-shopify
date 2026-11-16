@@ -34,6 +34,10 @@ type InventoryLevel struct {
 	CreatedAt         *time.Time `json:"created_at,omitempty"`
 	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
 	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
+	// Connect: allow relocation when a fulfillment-service location is involved.
+	RelocateIfNecessary bool `json:"relocate_if_necessary,omitempty"`
+	// Set: allow disconnecting other locations when a fulfillment-service location is involved.
+	DisconnectIfNecessary bool `json:"disconnect_if_necessary,omitempty"`
 }
 
 // InventoryLevelResource is used for handling single level requests and responses

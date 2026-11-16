@@ -258,3 +258,43 @@ func TestFulfillmentOrderSetDeadline(t *testing.T) {
 		t.Errorf("FulfillmentOrder.SetDeadline returned error: %v", err)
 	}
 }
+
+func TestFulfillmentOrderCancelWithResponse(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, replacement := range []string{`{"id":2}`, `null`} {
+		httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/cancel.json", client.pathPrefix), httpmock.NewStringResponder(200, `{"fulfillment_order":{"id":1},"replacement_fulfillment_order":`+replacement+`}`))
+		got, err := client.FulfillmentOrder.CancelWithResponse(context.Background(), 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.FulfillmentOrder == nil || got.FulfillmentOrder.Id != 1 {
+			t.Fatalf("cancelled = %+v", got.FulfillmentOrder)
+		}
+		if replacement == "null" {
+			if got.ReplacementFulfillmentOrder != nil {
+				t.Fatal("expected no replacement")
+			}
+		} else if got.ReplacementFulfillmentOrder == nil || got.ReplacementFulfillmentOrder.Id != 2 {
+			t.Fatalf("replacement = %+v", got.ReplacementFulfillmentOrder)
+		}
+	}
+}
+
+func TestFulfillmentOrderCancelErrors(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, body := range []string{`{"errors":"cannot cancel"}`, `invalid json`} {
+		status := 422
+		if body == "invalid json" {
+			status = 200
+		}
+		httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/cancel.json", client.pathPrefix), httpmock.NewStringResponder(status, body))
+		if _, err := client.FulfillmentOrder.CancelWithResponse(context.Background(), 1); err == nil {
+			t.Fatal("expected full response error")
+		}
+		if got, err := client.FulfillmentOrder.Cancel(context.Background(), 1); err == nil || got != nil {
+			t.Fatalf("Cancel = %+v, %v; want nil and error", got, err)
+		}
+	}
+}

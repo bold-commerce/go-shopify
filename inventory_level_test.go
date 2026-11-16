@@ -2,7 +2,10 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"reflect"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -212,4 +215,47 @@ func TestInventoryLevelSetZero(t *testing.T) {
 	}
 
 	inventoryLevelTests(t, level)
+}
+
+func TestInventoryLevelLocationFlags(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, enabled := range []bool{false, true} {
+		for _, action := range []string{"connect", "set"} {
+			t.Run(fmt.Sprintf("%s/%t", action, enabled), func(t *testing.T) {
+				want := map[string]interface{}{"inventory_item_id": float64(1), "location_id": float64(2), "available": float64(0)}
+				level := InventoryLevel{InventoryItemId: 1, LocationId: 2, Available: 0}
+				if action == "connect" {
+					level.RelocateIfNecessary = enabled
+					if enabled {
+						want["relocate_if_necessary"] = true
+					}
+				} else {
+					level.DisconnectIfNecessary = enabled
+					if enabled {
+						want["disconnect_if_necessary"] = true
+					}
+				}
+				httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_levels/%s.json", client.pathPrefix, action), func(req *http.Request) (*http.Response, error) {
+					var got map[string]interface{}
+					if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+						t.Fatal(err)
+					}
+					if !reflect.DeepEqual(got, want) {
+						t.Errorf("body = %#v, want %#v", got, want)
+					}
+					return httpmock.NewBytesResponse(200, loadFixture("inventory_level.json")), nil
+				})
+				call := client.InventoryLevel.Connect
+				if action == "set" {
+					call = client.InventoryLevel.Set
+				}
+				got, err := call(context.Background(), level)
+				if err != nil {
+					t.Fatal(err)
+				}
+				inventoryLevelTests(t, got)
+			})
+		}
+	}
 }

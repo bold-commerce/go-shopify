@@ -14,6 +14,7 @@ type FulfillmentOrderService interface {
 	Get(context.Context, uint64, interface{}) (*FulfillmentOrder, error)
 	Fulfillments(context.Context, uint64) ([]Fulfillment, error)
 	Cancel(context.Context, uint64) (*FulfillmentOrder, error)
+	CancelWithResponse(context.Context, uint64) (*FulfillmentOrderCancelResource, error)
 	Close(context.Context, uint64, string) (*FulfillmentOrder, error)
 	Hold(context.Context, uint64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
 	Open(context.Context, uint64) (*FulfillmentOrder, error)
@@ -153,6 +154,12 @@ type FulfillmentOrderResource struct {
 	FulfillmentOrder *FulfillmentOrder `json:"fulfillment_order"`
 }
 
+// FulfillmentOrderCancelResource includes the cancelled order and any replacement order.
+type FulfillmentOrderCancelResource struct {
+	FulfillmentOrder            *FulfillmentOrder `json:"fulfillment_order"`
+	ReplacementFulfillmentOrder *FulfillmentOrder `json:"replacement_fulfillment_order,omitempty"`
+}
+
 // FulfillmentOrderMoveResource represents the result from the move.json endpoint
 type FulfillmentOrderMoveResource struct {
 	OriginalFulfillmentOrder FulfillmentOrder `json:"original_fulfillment_order"`
@@ -195,13 +202,20 @@ func (s *FulfillmentOrderServiceOp) Fulfillments(ctx context.Context, fulfillmen
 	return resource.Fulfillments, err
 }
 
-// Cancel cancels a fulfillment order
+// Cancel cancels a fulfillment order and returns the cancelled order.
+// Use CancelWithResponse to also retrieve any replacement order.
 func (s *FulfillmentOrderServiceOp) Cancel(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrder, error) {
+	resource, err := s.CancelWithResponse(ctx, fulfillmentId)
+	return resource.FulfillmentOrder, err
+}
+
+// CancelWithResponse cancels a fulfillment order and returns the cancelled and replacement orders.
+func (s *FulfillmentOrderServiceOp) CancelWithResponse(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrderCancelResource, error) {
 	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/cancel.json", prefix)
-	resource := new(FulfillmentOrderResource)
+	resource := new(FulfillmentOrderCancelResource)
 	err := s.client.Post(ctx, path, nil, resource)
-	return resource.FulfillmentOrder, err
+	return resource, err
 }
 
 // Close marks a fulfillment order as incomplete with an optional message

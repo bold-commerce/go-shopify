@@ -68,6 +68,10 @@ type DraftOrder struct {
 	Status          string           `json:"status,omitempty"`
 	// only in request to flag using the customer's default address
 	UseCustomerDefaultAddress bool `json:"use_customer_default_address,omitempty"`
+
+	PaymentTerms      *PaymentTerms `json:"payment_terms,omitempty"`
+	SourceName        string        `json:"source_name,omitempty"`
+	AdminGraphqlApiId string        `json:"admin_graphql_api_id,omitempty"`
 }
 
 // AppliedDiscount is the discount applied to the line item or the draft order object.
@@ -100,25 +104,39 @@ type DraftOrderInvoiceResource struct {
 	DraftOrderInvoice *DraftOrderInvoice `json:"draft_order_invoice,omitempty"`
 }
 
+// DraftOrderStatus is a status used to filter draft orders.
+type DraftOrderStatus string
+
+const (
+	DraftOrderStatusOpen        DraftOrderStatus = "open"
+	DraftOrderStatusInvoiceSent DraftOrderStatus = "invoice_sent"
+	DraftOrderStatusCompleted   DraftOrderStatus = "completed"
+)
+
 // DraftOrderListOptions represents the possible options that can be used
 // to further query the list draft orders endpoint
 type DraftOrderListOptions struct {
-	Fields       string      `url:"fields,omitempty"`
-	Limit        int         `url:"limit,omitempty"`
-	SinceId      uint64      `url:"since_id,omitempty"`
-	UpdatedAtMin *time.Time  `url:"updated_at_min,omitempty"`
-	UpdatedAtMax *time.Time  `url:"updated_at_max,omitempty"`
-	Ids          string      `url:"ids,omitempty"`
-	Status       OrderStatus `url:"status,omitempty"`
+	Fields       string           `url:"fields,omitempty"`
+	Limit        int              `url:"limit,omitempty"`
+	SinceId      uint64           `url:"since_id,omitempty"`
+	UpdatedAtMin *time.Time       `url:"updated_at_min,omitempty"`
+	UpdatedAtMax *time.Time       `url:"updated_at_max,omitempty"`
+	Ids          string           `url:"ids,omitempty"`
+	Status       DraftOrderStatus `url:"status,omitempty"`
 }
 
 // DraftOrderCountOptions represents the possible options to the count draft orders endpoint
 type DraftOrderCountOptions struct {
-	Fields  string      `url:"fields,omitempty"`
-	Limit   int         `url:"limit,omitempty"`
-	SinceId uint64      `url:"since_id,omitempty"`
-	Ids     string      `url:"ids,omitempty"`
-	Status  OrderStatus `url:"status,omitempty"`
+	SinceId      uint64           `url:"since_id,omitempty"`
+	Status       DraftOrderStatus `url:"status,omitempty"`
+	UpdatedAtMin *time.Time       `url:"updated_at_min,omitempty"`
+	UpdatedAtMax *time.Time       `url:"updated_at_max,omitempty"`
+	// Deprecated: Shopify does not document fields for draft order counts.
+	Fields string `url:"fields,omitempty"`
+	// Deprecated: Shopify does not document limit for draft order counts.
+	Limit int `url:"limit,omitempty"`
+	// Deprecated: Shopify does not document ids for draft order counts.
+	Ids string `url:"ids,omitempty"`
 }
 
 // Create draft order

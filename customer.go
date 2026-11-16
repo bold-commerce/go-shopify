@@ -33,6 +33,7 @@ type CustomerService interface {
 	ListOrders(context.Context, uint64, interface{}) ([]Order, error)
 	ListOrdersWithPagination(ctx context.Context, customerId uint64, options interface{}) ([]Order, *Pagination, error)
 	ListOrdersAll(ctx context.Context, customerId uint64, options interface{}) ([]Order, error)
+	// Deprecated: Shopify does not document this endpoint. Read Tags from List results instead.
 	ListTags(context.Context, interface{}) ([]string, error)
 
 	// MetafieldsService used for Customer resource to communicate with Metafields resource
@@ -74,6 +75,8 @@ type Customer struct {
 	CreatedAt                 *time.Time             `json:"created_at,omitempty"`
 	UpdatedAt                 *time.Time             `json:"updated_at,omitempty"`
 	Metafields                []Metafield            `json:"metafields,omitempty"`
+
+	TaxExemptions *[]string `json:"tax_exemptions,omitempty"`
 }
 
 // Represents the result from the customers/X.json endpoint
@@ -249,7 +252,9 @@ func (s *CustomerServiceOp) ListOrdersAll(ctx context.Context, customerId uint64
 	return items, err
 }
 
-// ListTags retrieves all unique tags across all customers
+// ListTags retrieves all unique tags across all customers through an undocumented endpoint.
+//
+// Deprecated: Shopify does not document this endpoint. Read Tags from List results instead.
 func (s *CustomerServiceOp) ListTags(ctx context.Context, options interface{}) ([]string, error) {
 	path := fmt.Sprintf("%s/tags.json", customersBasePath)
 	resource := new(CustomerTagsResource)
