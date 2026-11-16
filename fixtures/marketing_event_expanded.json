@@ -1,0 +1,33 @@
+{
+  "marketing_event": {
+    "id": 7,
+    "remote_id": "remote-1",
+    "event_type": "ad",
+    "marketing_channel": "social",
+    "paid": true,
+    "referring_domain": "example.com",
+    "budget": "100.25",
+    "currency": "USD",
+    "budget_type": "lifetime",
+    "started_at": "2026-11-01T09:00:00-07:00",
+    "scheduled_to_end_at": "2026-11-02T09:00:00-07:00",
+    "ended_at": "2026-11-02T09:00:00-07:00",
+    "utm_campaign": "Summer & autumn",
+    "utm_source": "social",
+    "utm_medium": "cpc",
+    "description": "Campaign details",
+    "manage_url": "https://example.com/manage/7",
+    "preview_url": "https://example.com/preview/7",
+    "marketed_resources": [
+      {
+        "type": "product",
+        "id": 9007199254740993
+      },
+      {
+        "type": "collection",
+        "id": 11
+      }
+    ],
+    "future_campaign_field": false
+  }
+}

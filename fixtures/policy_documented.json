@@ -1,0 +1,12 @@
+{
+  "policies": [
+    {
+      "body": "You have 30 days to get a refund",
+      "created_at": "2026-10-01T10:21:42-04:00",
+      "updated_at": "2026-10-01T10:21:42-04:00",
+      "handle": "refund-policy",
+      "title": "Refund policy",
+      "url": "https://jsmith.myshopify.com/policies/refund-policy"
+    }
+  ]
+}

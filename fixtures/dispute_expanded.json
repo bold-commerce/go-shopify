@@ -1,0 +1,16 @@
+{
+  "dispute": {
+    "id": 7,
+    "order_id": 9007199254740993,
+    "type": "chargeback",
+    "amount": "0.01",
+    "currency": "USD",
+    "reason": "fraudulent",
+    "network_reason_code": "4827",
+    "status": "won",
+    "evidence_due_by": "2026-11-01T09:00:00-07:00",
+    "evidence_sent_on": "2026-11-01T09:00:00-07:00",
+    "finalized_on": "2026-11-02T09:00:00-07:00",
+    "initiated_at": "2026-11-01T09:00:00-07:00"
+  }
+}

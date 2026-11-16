@@ -1,0 +1,43 @@
+{
+  "users": [
+    {
+      "id": 548380009,
+      "first_name": "John",
+      "email": "j.smith@example.com",
+      "url": "www.example.com",
+      "im": null,
+      "screen_name": null,
+      "phone": null,
+      "last_name": "Smith",
+      "account_owner": true,
+      "receive_announcements": 1,
+      "bio": null,
+      "permissions": [
+        "applications",
+        "batches"
+      ],
+      "locale": "en",
+      "user_type": "regular",
+      "admin_graphql_api_id": "gid://shopify/AdminUserSerializer/548380009",
+      "tfa_enabled?": false
+    },
+    {
+      "id": 930143300,
+      "first_name": "John",
+      "email": "j.limited@example.com",
+      "url": "www.example.com",
+      "im": null,
+      "screen_name": null,
+      "phone": null,
+      "last_name": "Limited",
+      "account_owner": false,
+      "receive_announcements": 1,
+      "bio": null,
+      "permissions": [],
+      "locale": "en",
+      "user_type": "regular",
+      "admin_graphql_api_id": "gid://shopify/AdminUserSerializer/930143300",
+      "tfa_enabled?": false
+    }
+  ]
+}

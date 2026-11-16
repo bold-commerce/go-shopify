@@ -1,0 +1,17 @@
+{
+  "discount_code_creation": {
+    "id": 7,
+    "price_rule_id": 11,
+    "started_at": "2026-11-01T09:00:00-07:00",
+    "completed_at": "2026-11-01T09:00:01-07:00",
+    "created_at": "2026-11-01T09:00:00-07:00",
+    "updated_at": "2026-11-01T09:00:01-07:00",
+    "status": "completed",
+    "codes_count": 2,
+    "imported_count": 1,
+    "failed_count": 1,
+    "logs": [
+      "Price rule target selection can't be blank"
+    ]
+  }
+}
