@@ -45,6 +45,22 @@ type Payout struct {
 	Currency string          `json:"currency,omitempty"`
 	Amount   decimal.Decimal `json:"amount,omitempty"`
 	Status   PayoutStatus    `json:"status,omitempty"`
+
+	Summary *PayoutSummary `json:"summary,omitempty"`
+}
+
+// PayoutSummary contains the fees and gross amounts included in a payout.
+type PayoutSummary struct {
+	AdjustmentsFeeAmount      *decimal.Decimal `json:"adjustments_fee_amount,omitempty"`
+	AdjustmentsGrossAmount    *decimal.Decimal `json:"adjustments_gross_amount,omitempty"`
+	ChargesFeeAmount          *decimal.Decimal `json:"charges_fee_amount,omitempty"`
+	ChargesGrossAmount        *decimal.Decimal `json:"charges_gross_amount,omitempty"`
+	RefundsFeeAmount          *decimal.Decimal `json:"refunds_fee_amount,omitempty"`
+	RefundsGrossAmount        *decimal.Decimal `json:"refunds_gross_amount,omitempty"`
+	ReservedFundsFeeAmount    *decimal.Decimal `json:"reserved_funds_fee_amount,omitempty"`
+	ReservedFundsGrossAmount  *decimal.Decimal `json:"reserved_funds_gross_amount,omitempty"`
+	RetriedPayoutsFeeAmount   *decimal.Decimal `json:"retried_payouts_fee_amount,omitempty"`
+	RetriedPayoutsGrossAmount *decimal.Decimal `json:"retried_payouts_gross_amount,omitempty"`
 }
 
 type PayoutStatus string

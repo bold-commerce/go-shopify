@@ -282,6 +282,34 @@ const (
 	OrderInventoryBehaviourDecrementObeyingPolicy OrderInventoryBehaviour = "decrement_obeying_policy"
 )
 
+// OrderCompany identifies the company and location that placed a B2B order.
+type OrderCompany struct {
+	Id         uint64 `json:"id,omitempty"`
+	LocationId uint64 `json:"location_id,omitempty"`
+}
+
+// PaymentTerms describes the payment terms of an order or draft order.
+type PaymentTerms struct {
+	Id               uint64            `json:"id,omitempty"`
+	Amount           *decimal.Decimal  `json:"amount,omitempty"`
+	Currency         string            `json:"currency,omitempty"`
+	PaymentTermsName string            `json:"payment_terms_name,omitempty"`
+	PaymentTermsType string            `json:"payment_terms_type,omitempty"`
+	DueInDays        *int              `json:"due_in_days,omitempty"`
+	PaymentSchedules []PaymentSchedule `json:"payment_schedules,omitempty"`
+}
+
+// PaymentSchedule describes an installment due under payment terms.
+type PaymentSchedule struct {
+	Id                    uint64           `json:"id,omitempty"`
+	Amount                *decimal.Decimal `json:"amount,omitempty"`
+	Currency              string           `json:"currency,omitempty"`
+	IssuedAt              *time.Time       `json:"issued_at,omitempty"`
+	DueAt                 *time.Time       `json:"due_at,omitempty"`
+	CompletedAt           *time.Time       `json:"completed_at,omitempty"`
+	ExpectedPaymentMethod string           `json:"expected_payment_method,omitempty"`
+}
+
 // Order represents a Shopify order
 //
 // Docs:
@@ -372,6 +400,24 @@ type Order struct {
 	SendFulfillmentReceipt   bool                    `json:"send_fulfillment_receipt,omitempty"`
 	PresentmentCurrency      string                  `json:"presentment_currency,omitempty"`
 	InventoryBehaviour       OrderInventoryBehaviour `json:"inventory_behaviour,omitempty"`
+
+	Company                               *OrderCompany `json:"company,omitempty"`
+	ConfirmationNumber                    string        `json:"confirmation_number,omitempty"`
+	CurrentTotalAdditionalFeesSet         *AmountSet    `json:"current_total_additional_fees_set,omitempty"`
+	CurrentTotalDutiesSet                 *AmountSet    `json:"current_total_duties_set,omitempty"`
+	CurrentTotalPriceSet                  *AmountSet    `json:"current_total_price_set,omitempty"`
+	CurrentSubtotalPriceSet               *AmountSet    `json:"current_subtotal_price_set,omitempty"`
+	EstimatedTaxes                        *bool         `json:"estimated_taxes,omitempty"`
+	MerchantBusinessEntityId              string        `json:"merchant_business_entity_id,omitempty"`
+	MerchantOfRecordAppId                 *uint64       `json:"merchant_of_record_app_id,omitempty"`
+	OriginalTotalAdditionalFeesSet        *AmountSet    `json:"original_total_additional_fees_set,omitempty"`
+	OriginalTotalDutiesSet                *AmountSet    `json:"original_total_duties_set,omitempty"`
+	PaymentTerms                          *PaymentTerms `json:"payment_terms,omitempty"`
+	PoNumber                              string        `json:"po_number,omitempty"`
+	SubtotalPriceSet                      *AmountSet    `json:"subtotal_price_set,omitempty"`
+	DutiesIncluded                        *bool         `json:"duties_included,omitempty"`
+	TotalCashRoundingPaymentAdjustmentSet *AmountSet    `json:"total_cash_rounding_payment_adjustment_set,omitempty"`
+	TotalCashRoundingRefundAdjustmentSet  *AmountSet    `json:"total_cash_rounding_refund_adjustment_set,omitempty"`
 }
 
 type Address struct {
@@ -578,6 +624,38 @@ type TaxLine struct {
 	Rate     *decimal.Decimal `json:"rate,omitempty"`
 }
 
+// ExtendedAuthorizationAttributes contains the standard and extended authorization expiry times.
+type ExtendedAuthorizationAttributes struct {
+	StandardAuthorizationExpiresAt *time.Time `json:"standard_authorization_expires_at,omitempty"`
+	ExtendedAuthorizationExpiresAt *time.Time `json:"extended_authorization_expires_at,omitempty"`
+}
+
+// PaymentsRefundAttributes contains the refund status and acquirer reference.
+type PaymentsRefundAttributes struct {
+	Status                  string `json:"status,omitempty"`
+	AcquirerReferenceNumber string `json:"acquirer_reference_number,omitempty"`
+}
+
+// TransactionAmountSet uses currency, rather than the currency_code used by order amount sets.
+type TransactionAmountSet struct {
+	ShopMoney        TransactionAmountSetEntry `json:"shop_money"`
+	PresentmentMoney TransactionAmountSetEntry `json:"presentment_money"`
+}
+
+type TransactionAmountSetEntry struct {
+	Amount   *decimal.Decimal `json:"amount,omitempty"`
+	Currency string           `json:"currency,omitempty"`
+}
+
+// CurrencyExchangeAdjustment describes an adjustment caused by currency conversion.
+type CurrencyExchangeAdjustment struct {
+	Id             uint64           `json:"id,omitempty"`
+	Adjustment     *decimal.Decimal `json:"adjustment,omitempty"`
+	OriginalAmount *decimal.Decimal `json:"original_amount,omitempty"`
+	FinalAmount    *decimal.Decimal `json:"final_amount,omitempty"`
+	Currency       string           `json:"currency,omitempty"`
+}
+
 type Transaction struct {
 	MaximumRefundable *decimal.Decimal       `json:"maximum_refundable,omitempty"`
 	Id                uint64                 `json:"id,omitempty"`
@@ -601,6 +679,16 @@ type Transaction struct {
 	SourceName        string                 `json:"source_name,omitempty"`
 	Source            string                 `json:"source,omitempty"`
 	PaymentDetails    *PaymentDetails        `json:"payment_details,omitempty"`
+
+	ProcessedAt                     *time.Time                       `json:"processed_at,omitempty"`
+	AuthorizationExpiresAt          *time.Time                       `json:"authorization_expires_at,omitempty"`
+	ExtendedAuthorizationAttributes *ExtendedAuthorizationAttributes `json:"extended_authorization_attributes,omitempty"`
+	PaymentsRefundAttributes        *PaymentsRefundAttributes        `json:"payments_refund_attributes,omitempty"`
+	AmountRounding                  *decimal.Decimal                 `json:"amount_rounding,omitempty"`
+	ManualPaymentGateway            *bool                            `json:"manual_payment_gateway,omitempty"`
+	AdminGraphqlApiId               string                           `json:"admin_graphql_api_id,omitempty"`
+	TotalUnsettledSet               *TransactionAmountSet            `json:"total_unsettled_set,omitempty"`
+	CurrencyExchangeAdjustment      *CurrencyExchangeAdjustment      `json:"currency_exchange_adjustment,omitempty"`
 }
 
 type ClientDetails struct {
@@ -630,6 +718,14 @@ type Refund struct {
 	Transactions        []Transaction        `json:"transactions,omitempty"`
 	OrderAdjustments    []OrderAdjustment    `json:"order_adjustments,omitempty"`
 	RefundShippingLines []RefundShippingLine `json:"refund_shipping_lines,omitempty"`
+
+	Duties []RefundedDuty `json:"duties,omitempty"`
+}
+
+// RefundedDuty is a duty amount reimbursed as part of a refund.
+type RefundedDuty struct {
+	DutyId    uint64     `json:"duty_id,omitempty"`
+	AmountSet *AmountSet `json:"amount_set,omitempty"`
 }
 
 type RefundShippingLine struct {

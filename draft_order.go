@@ -68,6 +68,10 @@ type DraftOrder struct {
 	Status          string           `json:"status,omitempty"`
 	// only in request to flag using the customer's default address
 	UseCustomerDefaultAddress bool `json:"use_customer_default_address,omitempty"`
+
+	PaymentTerms      *PaymentTerms `json:"payment_terms,omitempty"`
+	SourceName        string        `json:"source_name,omitempty"`
+	AdminGraphqlApiId string        `json:"admin_graphql_api_id,omitempty"`
 }
 
 // AppliedDiscount is the discount applied to the line item or the draft order object.

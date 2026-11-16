@@ -60,6 +60,23 @@ type PaymentsTransactions struct {
 	SourceOrderTransactionId int                       `json:"source_order_transaction_id,omitempty"`
 	SourceOrderId            int                       `json:"source_order_id,omitempty"`
 	ProcessedAt              time.Time                 `json:"processed_at,omitempty"`
+
+	AdjustmentReason            string                               `json:"adjustment_reason,omitempty"`
+	AdjustmentOrderTransactions []PaymentsAdjustmentOrderTransaction `json:"adjustment_order_transactions,omitempty"`
+}
+
+// PaymentsAdjustmentOrderTransaction links a balance adjustment to an order transaction.
+type PaymentsAdjustmentOrderTransaction struct {
+	Id     uint64                   `json:"id,omitempty"`
+	Amount string                   `json:"amount,omitempty"`
+	Fee    string                   `json:"fee,omitempty"`
+	Net    string                   `json:"net,omitempty"`
+	Order  *PaymentsAdjustmentOrder `json:"order,omitempty"`
+}
+
+type PaymentsAdjustmentOrder struct {
+	Id   uint64 `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type PaymentsTransactionsTypes string
