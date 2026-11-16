@@ -63,7 +63,7 @@ type Article struct {
 	Handle      string        `json:"handle,omitempty"`
 	Image       *ArticleImage `json:"image,omitempty"`
 	Metafields  []Metafield   `json:"metafields,omitempty"`
-	Published   bool          `json:"published,omitempty"`
+	Published   *bool         `json:"published,omitempty"`
 	SummaryHtml string        `json:"summary_html,omitempty"`
 	Tags        string        `json:"tags,omitempty"`
 	Title       string        `json:"title,omitempty"`

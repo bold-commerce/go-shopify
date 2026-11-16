@@ -341,6 +341,14 @@ order reads, or `FulfillmentOrder.Fulfillments` for a fulfillment order. Unscope
 these operations; a fulfillment ID must not be passed to fulfillment-order
 operations as a substitute.
 
+#### Optional boolean settings
+
+Writable boolean settings use `*bool` when omission and `false` have different
+meanings. Leave the field `nil` to omit it, or use `goshopify.BoolPtr(false)` to
+explicitly disable it. Use `goshopify.BoolPtr(true)` to enable it. This includes
+variant tax, article visibility, customer tax exemptions, and fulfillment-service
+settings. When reading an optional boolean, check for `nil` before dereferencing.
+
 #### Using your own models
 
 Not all endpoints are implemented right now. In those case, feel free to

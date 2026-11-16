@@ -334,7 +334,7 @@ func TestCustomerGet(t *testing.T) {
 		Id: 1, CustomerId: 1, FirstName: "Test", LastName: "Citizen", Company: "",
 		Address1: "1 Smith St", Address2: "", City: "BRISBANE", Province: "Queensland", Country: "Australia",
 		Zip: "4000", Phone: "1111 111 111", Name: "Test Citizen", ProvinceCode: "QLD", CountryCode: "AU",
-		CountryName: "Australia", Default: true,
+		CountryName: "Australia", Default: BoolPtr(true),
 	}
 	createdAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
 	updatedAt := time.Date(2017, time.September, 23, 18, 15, 47, 0, time.UTC)
@@ -357,8 +357,8 @@ func TestCustomerGet(t *testing.T) {
 		Email:                 "test@example.com",
 		FirstName:             "Test",
 		LastName:              "Citizen",
-		VerifiedEmail:         true,
-		TaxExempt:             false,
+		VerifiedEmail:         BoolPtr(true),
+		TaxExempt:             BoolPtr(false),
 		OrdersCount:           4,
 		State:                 "enabled",
 		TotalSpent:            &totalSpent,
@@ -406,10 +406,10 @@ func TestCustomerGet(t *testing.T) {
 	if customer.Note != expectation.Note {
 		t.Errorf("Customer.Note returned %+v, expected %+v", customer.Note, expectation.Note)
 	}
-	if customer.VerifiedEmail != expectation.VerifiedEmail {
+	if !reflect.DeepEqual(customer.VerifiedEmail, expectation.VerifiedEmail) {
 		t.Errorf("Customer.Note returned %+v, expected %+v", customer.VerifiedEmail, expectation.VerifiedEmail)
 	}
-	if customer.TaxExempt != expectation.TaxExempt {
+	if !reflect.DeepEqual(customer.TaxExempt, expectation.TaxExempt) {
 		t.Errorf("Customer.TaxExempt returned %+v, expected %+v", customer.TaxExempt, expectation.TaxExempt)
 	}
 	if customer.Phone != expectation.Phone {
@@ -469,7 +469,7 @@ func TestCustomerGet(t *testing.T) {
 		if customer.DefaultAddress.CountryName != expectation.DefaultAddress.CountryName {
 			t.Errorf("Customer.DefaultAddress.CountryName returned %+v, expected %+v", customer.DefaultAddress.CountryName, expectation.DefaultAddress.CountryName)
 		}
-		if customer.DefaultAddress.Default != expectation.DefaultAddress.Default {
+		if !reflect.DeepEqual(customer.DefaultAddress.Default, expectation.DefaultAddress.Default) {
 			t.Errorf("Customer.DefaultAddress.Default returned %+v, expected %+v", customer.DefaultAddress.Default, expectation.DefaultAddress.Default)
 		}
 	}

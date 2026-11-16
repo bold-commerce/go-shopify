@@ -85,3 +85,6 @@ func (c *OnlyDate) String() string {
 func TimePtr(v time.Time) *time.Time {
 	return &v
 }
+
+// BoolPtr returns a pointer for an optional boolean request field.
+func BoolPtr(v bool) *bool { return &v }

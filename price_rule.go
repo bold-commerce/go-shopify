@@ -40,7 +40,7 @@ type PriceRule struct {
 	TargetSelection                        string                                  `json:"target_selection,omitempty"`
 	AllocationMethod                       string                                  `json:"allocation_method,omitempty"`
 	AllocationLimit                        int                                     `json:"allocation_limit,omitempty"`
-	OncePerCustomer                        bool                                    `json:"once_per_customer,omitempty"`
+	OncePerCustomer                        *bool                                   `json:"once_per_customer,omitempty"`
 	UsageLimit                             int                                     `json:"usage_limit,omitempty"`
 	StartsAt                               *time.Time                              `json:"starts_at,omitempty"`
 	EndsAt                                 *time.Time                              `json:"ends_at,omitempty"`

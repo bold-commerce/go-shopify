@@ -90,7 +90,7 @@ func verifyAddress(t *testing.T, address CustomerAddress) {
 	}
 
 	expectedDefault := true
-	if address.Default != expectedDefault {
+	if address.Default == nil || *address.Default != expectedDefault {
 		t.Errorf("CustomerAddress.Default returned %+v, expected %+v", address.Default, expectedDefault)
 	}
 }

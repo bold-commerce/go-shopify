@@ -102,7 +102,7 @@ func TestDraftOrderUpdate(t *testing.T) {
 	draftOrder := DraftOrder{
 		Id:            1,
 		Note:          "slow order",
-		TaxesIncluded: true,
+		TaxesIncluded: BoolPtr(true),
 	}
 
 	d, err := client.DraftOrder.Update(context.Background(), draftOrder)

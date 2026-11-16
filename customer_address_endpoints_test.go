@@ -12,7 +12,7 @@ func TestCustomerAddressAddedEndpoints(t *testing.T) {
 			method:   "PUT",
 			path:     "customers/11/addresses/7/default.json",
 			response: `{"customer_address":{"id":7,"default":true}}`,
-			want:     &CustomerAddress{Id: 7, Default: true},
+			want:     &CustomerAddress{Id: 7, Default: BoolPtr(true)},
 			call: func(ctx context.Context) (interface{}, error) {
 				return client.CustomerAddress.SetDefault(ctx, 11, 7)
 			},

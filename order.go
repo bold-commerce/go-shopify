@@ -260,7 +260,7 @@ type OrderListOptions struct {
 type OrderCancelOptions struct {
 	Amount   *decimal.Decimal `json:"amount,omitempty"`
 	Currency string           `json:"currency,omitempty"`
-	Restock  bool             `json:"restock,omitempty"`
+	Restock  *bool            `json:"restock,omitempty"`
 	Reason   string           `json:"reason,omitempty"`
 	Email    bool             `json:"email,omitempty"`
 	Refund   *Refund          `json:"refund,omitempty"`
@@ -345,7 +345,7 @@ type Order struct {
 	CurrentTotalDiscountsSet *AmountSet              `json:"current_total_discounts_set,omitempty"`
 	TotalLineItemsPrice      *decimal.Decimal        `json:"total_line_items_price,omitempty"`
 	TotalLineItemsPriceSet   *AmountSet              `json:"total_line_items_price_set,omitempty"`
-	TaxesIncluded            bool                    `json:"taxes_included,omitempty"`
+	TaxesIncluded            *bool                   `json:"taxes_included,omitempty"`
 	TotalTax                 *decimal.Decimal        `json:"total_tax,omitempty"`
 	TotalTaxSet              *AmountSet              `json:"total_tax_set,omitempty"`
 	CurrentTotalTax          *decimal.Decimal        `json:"current_total_tax,omitempty"`
@@ -363,7 +363,7 @@ type Order struct {
 	Note                     string                  `json:"note,omitempty"`
 	Test                     bool                    `json:"test,omitempty"`
 	BrowserIp                string                  `json:"browser_ip,omitempty"`
-	BuyerAcceptsMarketing    bool                    `json:"buyer_accepts_marketing,omitempty"`
+	BuyerAcceptsMarketing    *bool                   `json:"buyer_accepts_marketing,omitempty"`
 	CancelReason             OrderCancelReason       `json:"cancel_reason,omitempty"`
 	NoteAttributes           []NoteAttribute         `json:"note_attributes,omitempty"`
 	DiscountCodes            []DiscountCode          `json:"discount_codes,omitempty"`
@@ -472,9 +472,9 @@ type LineItem struct {
 	SKU                        string                 `json:"sku,omitempty"`
 	Vendor                     string                 `json:"vendor,omitempty"`
 	GiftCard                   bool                   `json:"gift_card,omitempty"`
-	Taxable                    bool                   `json:"taxable,omitempty"`
+	Taxable                    *bool                  `json:"taxable,omitempty"`
 	FulfillmentService         string                 `json:"fulfillment_service,omitempty"`
-	RequiresShipping           bool                   `json:"requires_shipping,omitempty"`
+	RequiresShipping           *bool                  `json:"requires_shipping,omitempty"`
 	VariantInventoryManagement string                 `json:"variant_inventory_management,omitempty"`
 	PreTaxPrice                *decimal.Decimal       `json:"pre_tax_price,omitempty"`
 	Properties                 []NoteAttribute        `json:"properties,omitempty"`

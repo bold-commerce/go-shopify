@@ -70,7 +70,7 @@ type Variant struct {
 	Option3              string                 `json:"option3,omitempty"`
 	CreatedAt            *time.Time             `json:"created_at,omitempty"`
 	UpdatedAt            *time.Time             `json:"updated_at,omitempty"`
-	Taxable              bool                   `json:"taxable,omitempty"`
+	Taxable              *bool                  `json:"taxable,omitempty"`
 	TaxCode              string                 `json:"tax_code,omitempty"`
 	Barcode              string                 `json:"barcode,omitempty"`
 	ImageId              uint64                 `json:"image_id,omitempty"`

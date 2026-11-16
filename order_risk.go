@@ -66,8 +66,8 @@ type OrderRisk struct {
 	Id              uint64                  `json:"id,omitempty"`
 	CheckoutId      uint64                  `json:"checkout_id,omitempty"`
 	OrderId         uint64                  `json:"order_id,omitempty"`
-	CauseCancel     bool                    `json:"cause_cancel,omitempty"`
-	Display         bool                    `json:"display,omitempty"`
+	CauseCancel     *bool                   `json:"cause_cancel,omitempty"`
+	Display         *bool                   `json:"display,omitempty"`
 	MerchantMessage string                  `json:"merchant_message,omitempty"`
 	Message         string                  `json:"message,omitempty"`
 	Score           string                  `json:"score,omitempty"`

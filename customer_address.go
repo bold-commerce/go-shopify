@@ -48,7 +48,7 @@ type CustomerAddress struct {
 	ProvinceCode string `json:"province_code,omitempty"`
 	CountryCode  string `json:"country_code,omitempty"`
 	CountryName  string `json:"country_name,omitempty"`
-	Default      bool   `json:"default,omitempty"`
+	Default      *bool  `json:"default,omitempty"`
 }
 
 // CustomerAddressResoruce represents the result from the addresses/X.json endpoint

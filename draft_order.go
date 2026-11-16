@@ -57,7 +57,7 @@ type DraftOrder struct {
 	Tags            string           `json:"tags,omitempty"`
 	TaxLines        []TaxLine        `json:"tax_lines,omitempty"`
 	AppliedDiscount *AppliedDiscount `json:"applied_discount,omitempty"`
-	TaxesIncluded   bool             `json:"taxes_included,omitempty"`
+	TaxesIncluded   *bool            `json:"taxes_included,omitempty"`
 	TotalTax        string           `json:"total_tax,omitempty"`
 	TaxExempt       *bool            `json:"tax_exempt,omitempty"`
 	TotalPrice      string           `json:"total_price,omitempty"`
@@ -67,7 +67,7 @@ type DraftOrder struct {
 	UpdatedAt       *time.Time       `json:"updated_at,omitempty"`
 	Status          string           `json:"status,omitempty"`
 	// only in request to flag using the customer's default address
-	UseCustomerDefaultAddress bool `json:"use_customer_default_address,omitempty"`
+	UseCustomerDefaultAddress *bool `json:"use_customer_default_address,omitempty"`
 
 	PaymentTerms      *PaymentTerms `json:"payment_terms,omitempty"`
 	SourceName        string        `json:"source_name,omitempty"`
