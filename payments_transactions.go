@@ -15,6 +15,7 @@ type PaymentsTransactionsService interface {
 	List(context.Context, interface{}) ([]PaymentsTransactions, error)
 	ListAll(context.Context, interface{}) ([]PaymentsTransactions, error)
 	ListWithPagination(context.Context, interface{}) ([]PaymentsTransactions, *Pagination, error)
+	// Deprecated: Shopify does not document an individual balance transaction endpoint. Use List.
 	Get(context.Context, uint64, interface{}) (*PaymentsTransactions, error)
 }
 
@@ -24,7 +25,8 @@ type PaymentsTransactionsServiceOp struct {
 	client *Client
 }
 
-// A struct for all available PaymentsTransactions list options
+// PaymentsTransactionsListOptions filters balance transactions.
+// https://shopify.dev/docs/api/admin-rest/latest/resources/transactions#get-shopify-payments-balance-transactions
 type PaymentsTransactionsListOptions struct {
 	PageInfo     string       `url:"page_info,omitempty"`
 	Limit        int          `url:"limit,omitempty"`
@@ -33,9 +35,13 @@ type PaymentsTransactionsListOptions struct {
 	SinceId      uint64       `url:"since_id,omitempty"`
 	PayoutId     uint64       `url:"payout_id,omitempty"`
 	PayoutStatus PayoutStatus `url:"payout_status,omitempty"`
-	DateMin      *OnlyDate    `url:"date_min,omitempty"`
-	DateMax      *OnlyDate    `url:"date_max,omitempty"`
-	ProcessedAt  *OnlyDate    `json:"processed_at,omitempty"`
+	Test         *bool        `url:"test,omitempty"`
+	// Deprecated: Shopify does not document date_min for balance transactions.
+	DateMin *OnlyDate `url:"date_min,omitempty"`
+	// Deprecated: Shopify does not document date_max for balance transactions.
+	DateMax *OnlyDate `url:"date_max,omitempty"`
+	// Deprecated: Shopify does not document processed_at as a balance transaction filter.
+	ProcessedAt *OnlyDate `url:"processed_at,omitempty"`
 }
 
 // PaymentsTransactions represents a Shopify Transactions
@@ -115,7 +121,9 @@ func (s *PaymentsTransactionsServiceOp) ListWithPagination(ctx context.Context, 
 	return resource.PaymentsTransactions, pagination, nil
 }
 
-// Get individual PaymentsTransactions
+// Get retrieves an individual balance transaction through an undocumented endpoint.
+//
+// Deprecated: Shopify documents only the list endpoint. Use List instead.
 func (s *PaymentsTransactionsServiceOp) Get(ctx context.Context, payoutId uint64, options interface{}) (*PaymentsTransactions, error) {
 	path := fmt.Sprintf("%s/%d.json", paymentsTransactionsBasePath, payoutId)
 	resource := new(PaymentsTransactionResource)

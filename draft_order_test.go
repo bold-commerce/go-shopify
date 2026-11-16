@@ -139,7 +139,7 @@ func TestDraftOrderCount(t *testing.T) {
 		t.Errorf("DraftOrder.Count returned %d, expected %d", cnt, expected)
 	}
 
-	status := OrderStatusOpen
+	status := DraftOrderStatusOpen
 	cnt, err = client.DraftOrder.Count(context.Background(), DraftOrderCountOptions{Status: status})
 	if err != nil {
 		t.Errorf("DraftOrder.Count returned an error: %v", err)
@@ -176,7 +176,7 @@ func TestDraftOrderListOptions(t *testing.T) {
 	params := map[string]string{
 		"fields": "id,name",
 		"limit":  "250",
-		"status": "any",
+		"status": "invoice_sent",
 	}
 	httpmock.RegisterResponderWithQuery(
 		"GET",
@@ -186,7 +186,7 @@ func TestDraftOrderListOptions(t *testing.T) {
 
 	options := DraftOrderListOptions{
 		Limit:  250,
-		Status: OrderStatusAny,
+		Status: DraftOrderStatusInvoiceSent,
 		Fields: "id,name",
 	}
 
@@ -404,5 +404,40 @@ func TestDraftOrderDeleteMetafield(t *testing.T) {
 	err := client.DraftOrder.DeleteMetafield(context.Background(), 1, 2)
 	if err != nil {
 		t.Errorf("Order.DeleteMetafield() returned error: %v", err)
+	}
+}
+
+func TestDraftOrderStatusFilters(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, status := range []DraftOrderStatus{DraftOrderStatusOpen, DraftOrderStatusInvoiceSent, DraftOrderStatusCompleted} {
+		for _, count := range []bool{false, true} {
+			path, body := "draft_orders.json", `{"draft_orders":[]}`
+			if count {
+				path, body = "draft_orders/count.json", `{"count":0}`
+			}
+			httpmock.RegisterResponderWithQuery("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/%s", client.pathPrefix, path), map[string]string{"status": string(status)}, httpmock.NewStringResponder(200, body))
+			var err error
+			if count {
+				_, err = client.DraftOrder.Count(context.Background(), DraftOrderCountOptions{Status: status})
+			} else {
+				_, err = client.DraftOrder.List(context.Background(), DraftOrderListOptions{Status: status})
+			}
+			if err != nil {
+				t.Fatalf("status %s, count %t: %v", status, count, err)
+			}
+		}
+	}
+}
+
+func TestDraftOrderCountDateFilters(t *testing.T) {
+	setup()
+	defer teardown()
+	min := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	max := min.Add(24 * time.Hour)
+	httpmock.RegisterResponderWithQuery("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/draft_orders/count.json", client.pathPrefix), map[string]string{"since_id": "42", "status": "completed", "updated_at_min": min.Format(time.RFC3339), "updated_at_max": max.Format(time.RFC3339)}, httpmock.NewStringResponder(200, `{"count":3}`))
+	got, err := client.DraftOrder.Count(context.Background(), DraftOrderCountOptions{SinceId: 42, Status: DraftOrderStatusCompleted, UpdatedAtMin: &min, UpdatedAtMax: &max})
+	if err != nil || got != 3 {
+		t.Fatalf("Count = %d, %v; want 3, nil", got, err)
 	}
 }

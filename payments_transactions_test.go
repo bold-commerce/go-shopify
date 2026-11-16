@@ -421,3 +421,48 @@ func TestPaymentsTransactionsGet(t *testing.T) {
 		t.Errorf("PaymentsTransactions.Get returned %+v, expected %+v", paymentsTransactions, expected)
 	}
 }
+
+func TestPaymentsTransactionsTestFilter(t *testing.T) {
+	setup()
+	defer teardown()
+	yes, no := true, false
+	for _, tc := range []struct {
+		name  string
+		test  *bool
+		query map[string]string
+	}{
+		{"omitted", nil, map[string]string{}},
+		{"test", &yes, map[string]string{"test": "true"}},
+		{"live", &no, map[string]string{"test": "false"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/balance/transactions.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+				got := req.URL.Query()
+				if len(got) != len(tc.query) {
+					t.Errorf("query = %v, want %v", got, tc.query)
+				}
+				for k, v := range tc.query {
+					if got.Get(k) != v {
+						t.Errorf("%s = %q, want %q", k, got.Get(k), v)
+					}
+				}
+				return httpmock.NewStringResponse(200, `{"transactions":[]}`), nil
+			})
+			if _, err := client.PaymentsTransactions.List(context.Background(), PaymentsTransactionsListOptions{Test: tc.test}); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestPaymentsTransactionsLegacyDateQuery(t *testing.T) {
+	setup()
+	defer teardown()
+	date := OnlyDate{Time: time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)}
+	httpmock.RegisterResponderWithQuery("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/shopify_payments/balance/transactions.json", client.pathPrefix), map[string]string{"processed_at": "2026-01-02", "date_min": "2026-01-02", "date_max": "2026-01-02"}, httpmock.NewStringResponder(200, `{"transactions":[]}`))
+	// Deprecated fields remain encodable for callers using undocumented filters.
+	_, err := client.PaymentsTransactions.List(context.Background(), PaymentsTransactionsListOptions{ProcessedAt: &date, DateMin: &date, DateMax: &date})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
