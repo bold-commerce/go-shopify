@@ -293,8 +293,53 @@ This covers existing operations documented with cursor pagination or a `limit`
 parameter, following [Shopify's pagination guide](https://shopify.dev/docs/api/admin-rest/usage/pagination).
 It does not add missing resource endpoints. List methods without a documented
 pagination contract, such as themes, assets, product images, fulfillment orders,
-and billing charges, are unchanged. The deferred fulfillment write-operation
-migration is also unchanged.
+and billing charges, are unchanged.
+
+#### Fulfillment API migration
+
+Fulfillment method signatures and service interfaces are unchanged. Writes use
+Shopify's current REST endpoints. See [Shopify's migration guide](https://www.shopify.com/partners/blog/fulfillment-orders-api-migration)
+and the [Fulfillment reference](https://shopify.dev/docs/api/admin-rest/latest/resources/fulfillment).
+
+Use `FulfillmentOrder.List(ctx, orderID, nil)` to get the fulfillment orders that
+your app can access. Select the fulfillment orders and quantities to ship, then
+pass their IDs to `Fulfillment.Create` or `Order.CreateFulfillment`:
+
+```go
+fulfillment, err := client.Order.CreateFulfillment(ctx, orderID, goshopify.Fulfillment{
+    LineItemsByFulfillmentOrder: []goshopify.LineItemByFulfillmentOrder{{
+        FulfillmentOrderId: fulfillmentOrderID,
+        FulfillmentOrderLineItems: []goshopify.LineItemByFulfillmentOrderItemQuantity{{
+            Id:       fulfillmentOrderLineItemID,
+            Quantity: 1,
+        }},
+    }},
+    TrackingInfo: goshopify.FulfillmentTrackingInfo{Number: "123456789"},
+})
+```
+
+Fulfillment-order IDs and line-item IDs differ from order IDs and order line-item
+IDs. Omitting `FulfillmentOrderLineItems` fulfills all remaining items in that
+fulfillment order. Legacy `LineItems` are rejected. `LocationId` is not sent;
+Shopify uses the fulfillment orders' assigned location. Apps need the relevant
+fulfillment-order access scopes described in the linked documentation.
+
+`Update` and `Order.UpdateFulfillment` now update tracking information and
+`NotifyCustomer` only. A nonempty `TrackingInfo` takes precedence over all legacy
+tracking fields. Otherwise, the singular legacy fields or single-element tracking
+slices are converted. Multiple tracking numbers or URLs require GraphQL and
+return an error instead of being truncated.
+
+Order-scoped create, update and cancel calls make an additional read to check
+order membership before writing. Read errors stop the write. Use
+`Order.ListFulfillments`, `Order.CountFulfillments` and `Order.GetFulfillment` for
+order reads, or `FulfillmentOrder.Fulfillments` for a fulfillment order. Unscoped
+`Fulfillment.List`, `Count` and `Get` return `ErrFulfillmentRequiresOrder`.
+
+`Complete`, `Transition` and their order wrappers return
+`ErrFulfillmentOperationUnsupported` without sending a request. Shopify removed
+these operations; a fulfillment ID must not be passed to fulfillment-order
+operations as a substitute.
 
 #### Using your own models
 

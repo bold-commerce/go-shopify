@@ -789,90 +789,62 @@ func TestOrderGetFulfillment(t *testing.T) {
 func TestOrderCreateFulfillment(t *testing.T) {
 	setup()
 	defer teardown()
-
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillment_orders.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"fulfillment_orders":[{"id":10,"order_id":1},{"id":11,"order_id":1}]}`))
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillments.json", client.pathPrefix),
+		fulfillmentWriteResponder(t, `{"fulfillment":{"line_items_by_fulfillment_order":[{"fulfillment_order_id":10,"fulfillment_order_line_items":[{"id":20,"quantity":2}]},{"fulfillment_order_id":11}],"tracking_info":{"number":"123456789"},"notify_customer":true}}`))
 
 	fulfillment := Fulfillment{
 		LocationId:     905684977,
 		TrackingNumber: "123456789",
-		TrackingUrls: []string{
-			"https://shipping.xyz/track.php?num=123456789",
-			"https://anothershipper.corp/track.php?code=abc",
-		},
 		NotifyCustomer: true,
+		LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{
+			{FulfillmentOrderId: 10, FulfillmentOrderLineItems: []LineItemByFulfillmentOrderItemQuantity{{Id: 20, Quantity: 2}}},
+			{FulfillmentOrderId: 11},
+		},
 	}
-
-	returnedFulfillment, err := client.Order.CreateFulfillment(context.Background(), 1, fulfillment)
+	got, err := client.Order.CreateFulfillment(context.Background(), 1, fulfillment)
 	if err != nil {
-		t.Errorf("Order.CreateFulfillment() returned error: %v", err)
+		t.Fatal(err)
 	}
-
-	FulfillmentTests(t, *returnedFulfillment)
+	FulfillmentTests(t, *got)
+	if httpmock.GetTotalCallCount() != 2 {
+		t.Fatal("expected membership check and creation")
+	}
 }
 
 func TestOrderUpdateFulfillment(t *testing.T) {
 	setup()
 	defer teardown()
-
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments/1022782888.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
-
-	fulfillment := Fulfillment{
-		Id:             1022782888,
-		TrackingNumber: "987654321",
-	}
-	returnedFulfillment, err := client.Order.UpdateFulfillment(context.Background(), 1, fulfillment)
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments/1022782888.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"fulfillment":{"id":1022782888,"order_id":1}}`))
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillments/1022782888/update_tracking.json", client.pathPrefix),
+		fulfillmentWriteResponder(t, `{"fulfillment":{"tracking_info":{"number":"987654321"},"notify_customer":false}}`))
+	got, err := client.Order.UpdateFulfillment(context.Background(), 1, Fulfillment{Id: 1022782888, TrackingNumber: "987654321"})
 	if err != nil {
-		t.Errorf("Order.UpdateFulfillment() returned error: %v", err)
+		t.Fatal(err)
 	}
-
-	FulfillmentTests(t, *returnedFulfillment)
-}
-
-func TestOrderCompleteFulfillment(t *testing.T) {
-	setup()
-	defer teardown()
-
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments/2/complete.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
-
-	returnedFulfillment, err := client.Order.CompleteFulfillment(context.Background(), 1, 2)
-	if err != nil {
-		t.Errorf("Order.CompleteFulfillment() returned error: %v", err)
+	FulfillmentTests(t, *got)
+	if httpmock.GetTotalCallCount() != 2 {
+		t.Fatal("expected membership check and update")
 	}
-
-	FulfillmentTests(t, *returnedFulfillment)
-}
-
-func TestOrderTransitionFulfillment(t *testing.T) {
-	setup()
-	defer teardown()
-
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments/2/open.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
-
-	returnedFulfillment, err := client.Order.TransitionFulfillment(context.Background(), 1, 2)
-	if err != nil {
-		t.Errorf("Order.TransitionFulfillment() returned error: %v", err)
-	}
-
-	FulfillmentTests(t, *returnedFulfillment)
 }
 
 func TestOrderCancelFulfillment(t *testing.T) {
 	setup()
 	defer teardown()
-
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments/2/cancel.json", client.pathPrefix),
+	httpmock.RegisterResponder("GET", fmt.Sprintf("https://fooshop.myshopify.com/%s/orders/1/fulfillments/2.json", client.pathPrefix),
+		httpmock.NewStringResponder(200, `{"fulfillment":{"id":2,"order_id":1}}`))
+	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillments/2/cancel.json", client.pathPrefix),
 		httpmock.NewBytesResponder(200, loadFixture("fulfillment.json")))
-
-	returnedFulfillment, err := client.Order.CancelFulfillment(context.Background(), 1, 2)
+	got, err := client.Order.CancelFulfillment(context.Background(), 1, 2)
 	if err != nil {
-		t.Errorf("Order.CancelFulfillment() returned error: %v", err)
+		t.Fatal(err)
 	}
-
-	FulfillmentTests(t, *returnedFulfillment)
+	FulfillmentTests(t, *got)
+	if httpmock.GetTotalCallCount() != 2 {
+		t.Fatal("expected membership check and cancellation")
+	}
 }
 
 func TestOrderDelete(t *testing.T) {
