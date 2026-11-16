@@ -822,31 +822,36 @@ func (s *OrderServiceOp) GetFulfillment(ctx context.Context, orderId uint64, ful
 	return fulfillmentService.Get(ctx, fulfillmentId, options)
 }
 
-// Create a new fulfillment for an order
+// CreateFulfillment creates a fulfillment from explicit LineItemsByFulfillmentOrder.
+// It first checks that each fulfillment order belongs to orderId and is accessible.
 func (s *OrderServiceOp) CreateFulfillment(ctx context.Context, orderId uint64, fulfillment Fulfillment) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Create(ctx, fulfillment)
 }
 
-// Update an existing fulfillment for an order
+// UpdateFulfillment updates tracking information after checking order membership.
 func (s *OrderServiceOp) UpdateFulfillment(ctx context.Context, orderId uint64, fulfillment Fulfillment) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Update(ctx, fulfillment)
 }
 
-// Complete an existing fulfillment for an order
+// CompleteFulfillment returns ErrFulfillmentOperationUnsupported.
+//
+// Deprecated: Shopify removed this operation. Use the fulfillment-order workflow.
 func (s *OrderServiceOp) CompleteFulfillment(ctx context.Context, orderId uint64, fulfillmentId uint64) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Complete(ctx, fulfillmentId)
 }
 
-// Transition an existing fulfillment for an order
+// TransitionFulfillment returns ErrFulfillmentOperationUnsupported.
+//
+// Deprecated: Shopify removed this operation. Fulfillment-order IDs are not fulfillment IDs.
 func (s *OrderServiceOp) TransitionFulfillment(ctx context.Context, orderId uint64, fulfillmentId uint64) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Transition(ctx, fulfillmentId)
 }
 
-// Cancel an existing fulfillment for an order
+// CancelFulfillment cancels a fulfillment after checking order membership.
 func (s *OrderServiceOp) CancelFulfillment(ctx context.Context, orderId uint64, fulfillmentId uint64) (*Fulfillment, error) {
 	fulfillmentService := &FulfillmentServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return fulfillmentService.Cancel(ctx, fulfillmentId)
