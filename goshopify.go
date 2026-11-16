@@ -512,17 +512,21 @@ func (c *Client) logResponse(res *http.Response) {
 }
 
 func (c *Client) logBody(body *io.ReadCloser, format string) {
-	if body == nil {
+	if body == nil || *body == nil {
 		return
 	}
-	b, err := ioutil.ReadAll(*body)
+	original := *body
+	b, err := ioutil.ReadAll(original)
 	if err != nil && !errors.Is(err, io.EOF) {
 		return
 	}
 	if len(b) > 0 {
 		c.log.Debugf(format, string(b))
 	}
-	*body = ioutil.NopCloser(bytes.NewBuffer(b))
+	*body = struct {
+		io.Reader
+		io.Closer
+	}{bytes.NewReader(b), original}
 }
 
 func wrapSpecificError(r *http.Response, err ResponseError) error {
