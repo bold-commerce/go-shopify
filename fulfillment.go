@@ -79,6 +79,8 @@ type Fulfillment struct {
 	AdminGraphqlApiId           string                       `json:"admin_graphql_api_id,omitempty"`
 	Name                        string                       `json:"name,omitempty"`
 	OriginAddress               *Address                     `json:"origin_address,omitempty"`
+	// Message is sent when creating a fulfillment.
+	Message string `json:"message,omitempty"`
 }
 
 // FulfillmentTrackingInfo represents the tracking information used to create a Fulfillment.
@@ -155,6 +157,7 @@ func (s *FulfillmentServiceOp) Get(ctx context.Context, fulfillmentId uint64, op
 // Create creates a fulfillment using LineItemsByFulfillmentOrder. For a partial
 // fulfillment, use fulfillment-order line-item IDs, not order line-item IDs.
 // LocationId is not sent: Shopify uses the fulfillment orders' assigned location.
+// Message and OriginAddress are optional. OriginAddress requires CountryCode.
 func (s *FulfillmentServiceOp) Create(ctx context.Context, fulfillment Fulfillment) (*Fulfillment, error) {
 	if len(fulfillment.LineItemsByFulfillmentOrder) == 0 {
 		return nil, ErrFulfillmentRequiresFulfillmentOrders
@@ -191,11 +194,15 @@ func (s *FulfillmentServiceOp) Create(ctx context.Context, fulfillment Fulfillme
 			LineItemsByFulfillmentOrder []LineItemByFulfillmentOrder `json:"line_items_by_fulfillment_order"`
 			TrackingInfo                FulfillmentTrackingInfo      `json:"tracking_info"`
 			NotifyCustomer              bool                         `json:"notify_customer"`
+			Message                     string                       `json:"message,omitempty"`
+			OriginAddress               *Address                     `json:"origin_address,omitempty"`
 		} `json:"fulfillment"`
 	}{}
 	wrappedData.Fulfillment.LineItemsByFulfillmentOrder = fulfillment.LineItemsByFulfillmentOrder
 	wrappedData.Fulfillment.TrackingInfo = tracking
 	wrappedData.Fulfillment.NotifyCustomer = fulfillment.NotifyCustomer
+	wrappedData.Fulfillment.Message = fulfillment.Message
+	wrappedData.Fulfillment.OriginAddress = fulfillment.OriginAddress
 	resource := new(FulfillmentResource)
 	err = s.client.Post(ctx, "fulfillments.json", wrappedData, resource)
 	return resource.Fulfillment, err

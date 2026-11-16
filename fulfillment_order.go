@@ -18,6 +18,7 @@ type FulfillmentOrderService interface {
 	CancelWithResponse(context.Context, uint64) (*FulfillmentOrderCancelResource, error)
 	Close(context.Context, uint64, string) (*FulfillmentOrder, error)
 	Hold(context.Context, uint64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
+	HoldWithOptions(context.Context, uint64, FulfillmentOrderHoldOptions) (*FulfillmentOrder, error)
 	Open(context.Context, uint64) (*FulfillmentOrder, error)
 	ReleaseHold(context.Context, uint64) (*FulfillmentOrder, error)
 	Reschedule(context.Context, uint64, time.Time) (*FulfillmentOrder, error)
@@ -50,6 +51,15 @@ type FulfillmentOrderLineItemQuantity struct {
 type FulfillmentOrderMoveRequest struct {
 	NewLocationId uint64                             `json:"new_location_id"`
 	LineItems     []FulfillmentOrderLineItemQuantity `json:"fulfillment_order_line_items,omitempty"`
+}
+
+// FulfillmentOrderHoldOptions specifies the reason and optional line items for a hold.
+// Omit LineItems to hold all remaining items. IDs are fulfillment-order line-item IDs.
+type FulfillmentOrderHoldOptions struct {
+	Reason         FulfillmentOrderHoldReason         `json:"reason"`
+	ReasonNotes    string                             `json:"reason_notes,omitempty"`
+	NotifyMerchant bool                               `json:"notify_merchant"`
+	LineItems      []FulfillmentOrderLineItemQuantity `json:"fulfillment_order_line_items,omitempty"`
 }
 
 // FulfillmentOrderDeliveryMethod represents a delivery method for a FulfillmentOrder
@@ -243,20 +253,18 @@ func (s *FulfillmentOrderServiceOp) Close(ctx context.Context, fulfillmentId uin
 
 // Hold applies a fulfillment hold on an open fulfillment order
 func (s *FulfillmentOrderServiceOp) Hold(ctx context.Context, fulfillmentId uint64, notify bool, reason FulfillmentOrderHoldReason, notes string) (*FulfillmentOrder, error) {
-	type holdRequest struct {
-		Reason         FulfillmentOrderHoldReason `json:"reason"`
-		ReasonNotes    string                     `json:"reason_notes,omitempty"`
-		NotifyMerchant bool                       `json:"notify_merchant"`
-	}
+	return s.HoldWithOptions(ctx, fulfillmentId, FulfillmentOrderHoldOptions{
+		Reason:         reason,
+		ReasonNotes:    notes,
+		NotifyMerchant: notify,
+	})
+}
+
+// HoldWithOptions applies a hold to all remaining items or selected quantities.
+func (s *FulfillmentOrderServiceOp) HoldWithOptions(ctx context.Context, fulfillmentId uint64, options FulfillmentOrderHoldOptions) (*FulfillmentOrder, error) {
 	req := struct {
-		FulfillmentHold holdRequest `json:"fulfillment_hold"`
-	}{
-		FulfillmentHold: holdRequest{
-			Reason:         reason,
-			ReasonNotes:    notes,
-			NotifyMerchant: notify,
-		},
-	}
+		FulfillmentHold FulfillmentOrderHoldOptions `json:"fulfillment_hold"`
+	}{FulfillmentHold: options}
 	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/hold.json", prefix)
 	resource := new(FulfillmentOrderResource)
