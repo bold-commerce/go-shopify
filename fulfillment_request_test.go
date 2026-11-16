@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -238,5 +239,66 @@ func TestFulfillmentRequestServiceOp_Reject(t *testing.T) {
 	}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("FulfillmentRequest.Reject returned %+v, expected %+v", result, expected)
+	}
+}
+
+func TestFulfillmentRequestSendWithResponse(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, tc := range []struct {
+		name, body             string
+		submitted, unsubmitted uint64
+	}{
+		{"split", `{"original_fulfillment_order":{"id":1},"submitted_fulfillment_order":{"id":2},"unsubmitted_fulfillment_order":{"id":3}}`, 2, 3},
+		{"whole", `{"original_fulfillment_order":{"id":1},"submitted_fulfillment_order":{"id":1},"unsubmitted_fulfillment_order":null}`, 1, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/fulfillment_request.json", client.pathPrefix), func(req *http.Request) (*http.Response, error) {
+				var body map[string]interface{}
+				if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+					t.Fatal(err)
+				}
+				want := map[string]interface{}{"fulfillment_request": map[string]interface{}{"message": "please fulfill"}}
+				if !reflect.DeepEqual(body, want) {
+					t.Errorf("body = %#v, want %#v", body, want)
+				}
+				return httpmock.NewStringResponse(200, tc.body), nil
+			})
+			got, err := client.FulfillmentRequest.SendWithResponse(context.Background(), 1, FulfillmentRequest{Message: "please fulfill"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got.OriginalFulfillmentOrder == nil || got.OriginalFulfillmentOrder.Id != 1 {
+				t.Fatalf("original = %+v", got.OriginalFulfillmentOrder)
+			}
+			if got.SubmittedFulfillmentOrder == nil || got.SubmittedFulfillmentOrder.Id != tc.submitted {
+				t.Fatalf("submitted = %+v", got.SubmittedFulfillmentOrder)
+			}
+			if tc.unsubmitted == 0 {
+				if got.UnsubmittedFulfillmentOrder != nil {
+					t.Fatal("expected no unsubmitted order")
+				}
+			} else if got.UnsubmittedFulfillmentOrder == nil || got.UnsubmittedFulfillmentOrder.Id != tc.unsubmitted {
+				t.Fatalf("unsubmitted = %+v", got.UnsubmittedFulfillmentOrder)
+			}
+		})
+	}
+}
+
+func TestFulfillmentRequestSendErrors(t *testing.T) {
+	setup()
+	defer teardown()
+	for _, body := range []string{`{"errors":"cannot submit"}`, `invalid json`} {
+		status := 422
+		if body == "invalid json" {
+			status = 200
+		}
+		httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/fulfillment_orders/1/fulfillment_request.json", client.pathPrefix), httpmock.NewStringResponder(status, body))
+		if _, err := client.FulfillmentRequest.SendWithResponse(context.Background(), 1, FulfillmentRequest{}); err == nil {
+			t.Fatal("expected full response error")
+		}
+		if got, err := client.FulfillmentRequest.Send(context.Background(), 1, FulfillmentRequest{}); err == nil || got != nil {
+			t.Fatalf("Send = %+v, %v; want nil and error", got, err)
+		}
 	}
 }
