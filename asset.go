@@ -38,6 +38,7 @@ type Asset struct {
 	Value       string     `json:"value,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+	Checksum    string     `json:"checksum,omitempty"`
 }
 
 // AssetResource is the result from the themes/x/assets.json?asset[key]= endpoint

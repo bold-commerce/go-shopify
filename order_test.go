@@ -1096,7 +1096,7 @@ func testLineItem(t *testing.T, expected, actual LineItem) {
 		t.Errorf("LineItem.GiftCard should be (%v), was (%v)", expected.GiftCard, actual.GiftCard)
 	}
 
-	if actual.Taxable != expected.Taxable {
+	if !reflect.DeepEqual(actual.Taxable, expected.Taxable) {
 		t.Errorf("LineItem.Taxable should be (%v), was (%v)", expected.Taxable, actual.Taxable)
 	}
 
@@ -1104,7 +1104,7 @@ func testLineItem(t *testing.T, expected, actual LineItem) {
 		t.Errorf("LineItem.FulfillmentService should be (%v), was (%v)", expected.FulfillmentService, actual.FulfillmentService)
 	}
 
-	if actual.RequiresShipping != expected.RequiresShipping {
+	if !reflect.DeepEqual(actual.RequiresShipping, expected.RequiresShipping) {
 		t.Errorf("LineItem.RequiresShipping should be (%v), was (%v)", expected.RequiresShipping, actual.RequiresShipping)
 	}
 
@@ -1288,9 +1288,9 @@ func validLineItem() LineItem {
 		SKU:                        "sku-123",
 		Vendor:                     "Test Vendor",
 		GiftCard:                   true,
-		Taxable:                    true,
+		Taxable:                    BoolPtr(true),
 		FulfillmentService:         "manual",
-		RequiresShipping:           true,
+		RequiresShipping:           BoolPtr(true),
 		VariantInventoryManagement: "shopify",
 		PreTaxPrice:                &preTaxPrice,
 		Properties: []NoteAttribute{

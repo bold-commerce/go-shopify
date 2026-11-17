@@ -70,7 +70,7 @@ type Variant struct {
 	Option3              string                 `json:"option3,omitempty"`
 	CreatedAt            *time.Time             `json:"created_at,omitempty"`
 	UpdatedAt            *time.Time             `json:"updated_at,omitempty"`
-	Taxable              bool                   `json:"taxable,omitempty"`
+	Taxable              *bool                  `json:"taxable,omitempty"`
 	TaxCode              string                 `json:"tax_code,omitempty"`
 	Barcode              string                 `json:"barcode,omitempty"`
 	ImageId              uint64                 `json:"image_id,omitempty"`
@@ -82,6 +82,9 @@ type Variant struct {
 	AdminGraphqlApiId    string                 `json:"admin_graphql_api_id,omitempty"`
 	Metafields           []Metafield            `json:"metafields,omitempty"`
 	PresentmentPrices    []presentmentPrices    `json:"presentment_prices,omitempty"`
+	Available            *bool                  `json:"available,omitempty"`
+	FormattedPrice       string                 `json:"formatted_price,omitempty"`
+	OptionValues         []VariantOptionValue   `json:"option_values,omitempty"`
 }
 
 type presentmentPrices struct {
@@ -214,4 +217,11 @@ func (s *VariantServiceOp) ListMetafieldsWithPagination(ctx context.Context, var
 func (s *VariantServiceOp) ListMetafieldsAll(ctx context.Context, variantId uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: variantsResourceName, resourceId: variantId}
 	return metafieldService.ListAll(ctx, options)
+}
+
+// VariantOptionValue describes a variant option in a sales-channel listing.
+type VariantOptionValue struct {
+	Name     string `json:"name,omitempty"`
+	OptionId uint64 `json:"option_id,omitempty"`
+	Value    string `json:"value,omitempty"`
 }

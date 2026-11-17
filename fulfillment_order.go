@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -17,6 +18,7 @@ type FulfillmentOrderService interface {
 	CancelWithResponse(context.Context, uint64) (*FulfillmentOrderCancelResource, error)
 	Close(context.Context, uint64, string) (*FulfillmentOrder, error)
 	Hold(context.Context, uint64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
+	HoldWithOptions(context.Context, uint64, FulfillmentOrderHoldOptions) (*FulfillmentOrder, error)
 	Open(context.Context, uint64) (*FulfillmentOrder, error)
 	ReleaseHold(context.Context, uint64) (*FulfillmentOrder, error)
 	Reschedule(context.Context, uint64, time.Time) (*FulfillmentOrder, error)
@@ -51,12 +53,26 @@ type FulfillmentOrderMoveRequest struct {
 	LineItems     []FulfillmentOrderLineItemQuantity `json:"fulfillment_order_line_items,omitempty"`
 }
 
+// FulfillmentOrderHoldOptions specifies the reason and optional line items for a hold.
+// Omit LineItems to hold all remaining items. IDs are fulfillment-order line-item IDs.
+type FulfillmentOrderHoldOptions struct {
+	Reason         FulfillmentOrderHoldReason         `json:"reason"`
+	ReasonNotes    string                             `json:"reason_notes,omitempty"`
+	NotifyMerchant bool                               `json:"notify_merchant"`
+	LineItems      []FulfillmentOrderLineItemQuantity `json:"fulfillment_order_line_items,omitempty"`
+}
+
 // FulfillmentOrderDeliveryMethod represents a delivery method for a FulfillmentOrder
 type FulfillmentOrderDeliveryMethod struct {
-	Id                  uint64    `json:"id,omitempty"`
-	MethodType          string    `json:"method_type,omitempty"`
-	MinDeliveryDateTime time.Time `json:"min_delivery_date_time,omitempty"`
-	MaxDeliveryDateTime time.Time `json:"max_delivery_date_time,omitempty"`
+	Id                     uint64          `json:"id,omitempty"`
+	MethodType             string          `json:"method_type,omitempty"`
+	MinDeliveryDateTime    time.Time       `json:"min_delivery_date_time,omitempty"`
+	MaxDeliveryDateTime    time.Time       `json:"max_delivery_date_time,omitempty"`
+	AdditionalInformation  json.RawMessage `json:"additional_information,omitempty"`
+	DetailedBrandedPromise json.RawMessage `json:"detailed_branded_promise,omitempty"`
+	PresentedName          string          `json:"presented_name,omitempty"`
+	ServiceCode            json.RawMessage `json:"service_code,omitempty"`
+	SourceReference        json.RawMessage `json:"source_reference,omitempty"`
 }
 
 // FulfillmentOrderDestination represents a destination for a FulfillmentOrder
@@ -142,6 +158,8 @@ type FulfillmentOrder struct {
 	SupportedActions    []string                            `json:"supported_actions,omitempty"`
 	CreatedAt           *time.Time                          `json:"created_at,omitempty"`
 	UpdatedAt           *time.Time                          `json:"updated_at,omitempty"`
+	Origin              *FulfillmentOrderAssignedLocation   `json:"origin,omitempty"`
+	OutgoingRequests    []FulfillmentOrderOutgoingRequest   `json:"outgoing_requests,omitempty"`
 }
 
 // FulfillmentOrdersResource represents the result from the fulfillment_orders.json endpoint
@@ -235,20 +253,18 @@ func (s *FulfillmentOrderServiceOp) Close(ctx context.Context, fulfillmentId uin
 
 // Hold applies a fulfillment hold on an open fulfillment order
 func (s *FulfillmentOrderServiceOp) Hold(ctx context.Context, fulfillmentId uint64, notify bool, reason FulfillmentOrderHoldReason, notes string) (*FulfillmentOrder, error) {
-	type holdRequest struct {
-		Reason         FulfillmentOrderHoldReason `json:"reason"`
-		ReasonNotes    string                     `json:"reason_notes,omitempty"`
-		NotifyMerchant bool                       `json:"notify_merchant"`
-	}
+	return s.HoldWithOptions(ctx, fulfillmentId, FulfillmentOrderHoldOptions{
+		Reason:         reason,
+		ReasonNotes:    notes,
+		NotifyMerchant: notify,
+	})
+}
+
+// HoldWithOptions applies a hold to all remaining items or selected quantities.
+func (s *FulfillmentOrderServiceOp) HoldWithOptions(ctx context.Context, fulfillmentId uint64, options FulfillmentOrderHoldOptions) (*FulfillmentOrder, error) {
 	req := struct {
-		FulfillmentHold holdRequest `json:"fulfillment_hold"`
-	}{
-		FulfillmentHold: holdRequest{
-			Reason:         reason,
-			ReasonNotes:    notes,
-			NotifyMerchant: notify,
-		},
-	}
+		FulfillmentHold FulfillmentOrderHoldOptions `json:"fulfillment_hold"`
+	}{FulfillmentHold: options}
 	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/hold.json", prefix)
 	resource := new(FulfillmentOrderResource)
@@ -316,4 +332,13 @@ func (s *FulfillmentOrderServiceOp) Move(ctx context.Context, fulfillmentId uint
 	resource := new(FulfillmentOrderMoveResource)
 	err := s.client.Post(ctx, path, wrappedRequest, resource)
 	return resource, err
+}
+
+// FulfillmentOrderOutgoingRequest records a request sent to a fulfillment service.
+// RequestOptions varies with the request kind and retains the original JSON.
+type FulfillmentOrderOutgoingRequest struct {
+	Kind           string          `json:"kind,omitempty"`
+	Message        string          `json:"message,omitempty"`
+	SentAt         *time.Time      `json:"sent_at,omitempty"`
+	RequestOptions json.RawMessage `json:"request_options,omitempty"`
 }

@@ -260,7 +260,7 @@ type OrderListOptions struct {
 type OrderCancelOptions struct {
 	Amount   *decimal.Decimal `json:"amount,omitempty"`
 	Currency string           `json:"currency,omitempty"`
-	Restock  bool             `json:"restock,omitempty"`
+	Restock  *bool            `json:"restock,omitempty"`
 	Reason   string           `json:"reason,omitempty"`
 	Email    bool             `json:"email,omitempty"`
 	Refund   *Refund          `json:"refund,omitempty"`
@@ -297,17 +297,33 @@ type PaymentTerms struct {
 	PaymentTermsType string            `json:"payment_terms_type,omitempty"`
 	DueInDays        *int              `json:"due_in_days,omitempty"`
 	PaymentSchedules []PaymentSchedule `json:"payment_schedules,omitempty"`
+	CanPayEarly      *bool             `json:"can_pay_early,omitempty"`
+	CreatedAt        *time.Time        `json:"created_at,omitempty"`
+	UpdatedAt        *time.Time        `json:"updated_at,omitempty"`
 }
 
 // PaymentSchedule describes an installment due under payment terms.
 type PaymentSchedule struct {
-	Id                    uint64           `json:"id,omitempty"`
-	Amount                *decimal.Decimal `json:"amount,omitempty"`
-	Currency              string           `json:"currency,omitempty"`
-	IssuedAt              *time.Time       `json:"issued_at,omitempty"`
-	DueAt                 *time.Time       `json:"due_at,omitempty"`
-	CompletedAt           *time.Time       `json:"completed_at,omitempty"`
-	ExpectedPaymentMethod string           `json:"expected_payment_method,omitempty"`
+	Id                         uint64           `json:"id,omitempty"`
+	Amount                     *decimal.Decimal `json:"amount,omitempty"`
+	Currency                   string           `json:"currency,omitempty"`
+	IssuedAt                   *time.Time       `json:"issued_at,omitempty"`
+	DueAt                      *time.Time       `json:"due_at,omitempty"`
+	CompletedAt                *time.Time       `json:"completed_at,omitempty"`
+	ExpectedPaymentMethod      string           `json:"expected_payment_method,omitempty"`
+	BalanceDue                 *decimal.Decimal `json:"balance_due,omitempty"`
+	BalanceDueCurrency         string           `json:"balance_due_currency,omitempty"`
+	CreatedAt                  *time.Time       `json:"created_at,omitempty"`
+	OutstandingBalance         *decimal.Decimal `json:"outstanding_balance,omitempty"`
+	OutstandingBalanceCurrency string           `json:"outstanding_balance_currency,omitempty"`
+	PaymentTermsId             uint64           `json:"payment_terms_id,omitempty"`
+	ReferenceId                uint64           `json:"reference_id,omitempty"`
+	ReferenceType              string           `json:"reference_type,omitempty"`
+	TotalBalance               *decimal.Decimal `json:"total_balance,omitempty"`
+	TotalBalanceCurrency       string           `json:"total_balance_currency,omitempty"`
+	TotalPrice                 *decimal.Decimal `json:"total_price,omitempty"`
+	TotalPriceCurrency         string           `json:"total_price_currency,omitempty"`
+	UpdatedAt                  *time.Time       `json:"updated_at,omitempty"`
 }
 
 // Order represents a Shopify order
@@ -345,7 +361,7 @@ type Order struct {
 	CurrentTotalDiscountsSet *AmountSet              `json:"current_total_discounts_set,omitempty"`
 	TotalLineItemsPrice      *decimal.Decimal        `json:"total_line_items_price,omitempty"`
 	TotalLineItemsPriceSet   *AmountSet              `json:"total_line_items_price_set,omitempty"`
-	TaxesIncluded            bool                    `json:"taxes_included,omitempty"`
+	TaxesIncluded            *bool                   `json:"taxes_included,omitempty"`
 	TotalTax                 *decimal.Decimal        `json:"total_tax,omitempty"`
 	TotalTaxSet              *AmountSet              `json:"total_tax_set,omitempty"`
 	CurrentTotalTax          *decimal.Decimal        `json:"current_total_tax,omitempty"`
@@ -363,7 +379,7 @@ type Order struct {
 	Note                     string                  `json:"note,omitempty"`
 	Test                     bool                    `json:"test,omitempty"`
 	BrowserIp                string                  `json:"browser_ip,omitempty"`
-	BuyerAcceptsMarketing    bool                    `json:"buyer_accepts_marketing,omitempty"`
+	BuyerAcceptsMarketing    *bool                   `json:"buyer_accepts_marketing,omitempty"`
 	CancelReason             OrderCancelReason       `json:"cancel_reason,omitempty"`
 	NoteAttributes           []NoteAttribute         `json:"note_attributes,omitempty"`
 	DiscountCodes            []DiscountCode          `json:"discount_codes,omitempty"`
@@ -418,6 +434,8 @@ type Order struct {
 	DutiesIncluded                        *bool         `json:"duties_included,omitempty"`
 	TotalCashRoundingPaymentAdjustmentSet *AmountSet    `json:"total_cash_rounding_payment_adjustment_set,omitempty"`
 	TotalCashRoundingRefundAdjustmentSet  *AmountSet    `json:"total_cash_rounding_refund_adjustment_set,omitempty"`
+	AdminGraphqlApiId                     string        `json:"admin_graphql_api_id,omitempty"`
+	TaxExempt                             *bool         `json:"tax_exempt,omitempty"`
 }
 
 type Address struct {
@@ -472,9 +490,9 @@ type LineItem struct {
 	SKU                        string                 `json:"sku,omitempty"`
 	Vendor                     string                 `json:"vendor,omitempty"`
 	GiftCard                   bool                   `json:"gift_card,omitempty"`
-	Taxable                    bool                   `json:"taxable,omitempty"`
+	Taxable                    *bool                  `json:"taxable,omitempty"`
 	FulfillmentService         string                 `json:"fulfillment_service,omitempty"`
-	RequiresShipping           bool                   `json:"requires_shipping,omitempty"`
+	RequiresShipping           *bool                  `json:"requires_shipping,omitempty"`
 	VariantInventoryManagement string                 `json:"variant_inventory_management,omitempty"`
 	PreTaxPrice                *decimal.Decimal       `json:"pre_tax_price,omitempty"`
 	Properties                 []NoteAttribute        `json:"properties,omitempty"`
@@ -490,14 +508,37 @@ type LineItem struct {
 	// Deprecated: See 2022-10 release notes: https://shopify.dev/docs/api/release-notes/2022-10
 	DestinationLocation *Address `json:"destination_location,omitempty"`
 
-	AppliedDiscount     *AppliedDiscount      `json:"applied_discount,omitempty"`
-	DiscountAllocations []DiscountAllocations `json:"discount_allocations,omitempty"`
+	AppliedDiscount         *AppliedDiscount      `json:"applied_discount,omitempty"`
+	DiscountAllocations     []DiscountAllocations `json:"discount_allocations,omitempty"`
+	AdminGraphqlApiId       string                `json:"admin_graphql_api_id,omitempty"`
+	AppliedDiscounts        []json.RawMessage     `json:"applied_discounts,omitempty"`
+	AttributedStaffs        []AttributedStaff     `json:"attributed_staffs,omitempty"`
+	CompareAtPrice          *decimal.Decimal      `json:"compare_at_price,omitempty"`
+	Custom                  *bool                 `json:"custom,omitempty"`
+	DestinationLocationId   *uint64               `json:"destination_location_id,omitempty"`
+	Duties                  []json.RawMessage     `json:"duties,omitempty"`
+	FulfillmentLineItemId   uint64                `json:"fulfillment_line_item_id,omitempty"`
+	Key                     string                `json:"key,omitempty"`
+	LinePrice               *decimal.Decimal      `json:"line_price,omitempty"`
+	OriginLocationId        *uint64               `json:"origin_location_id,omitempty"`
+	PresentmentTitle        string                `json:"presentment_title,omitempty"`
+	PresentmentVariantTitle string                `json:"presentment_variant_title,omitempty"`
+	Rank                    *int                  `json:"rank,omitempty"`
+	TotalDiscountSet        *AmountSet            `json:"total_discount_set,omitempty"`
+	UnitPriceMeasurement    json.RawMessage       `json:"unit_price_measurement,omitempty"`
+	UserId                  *uint64               `json:"user_id,omitempty"`
+	VariantPrice            *decimal.Decimal      `json:"variant_price,omitempty"`
 }
 
 type DiscountAllocations struct {
 	Amount                   *decimal.Decimal `json:"amount,omitempty"`
 	DiscountApplicationIndex int              `json:"discount_application_index,omitempty"`
 	AmountSet                *AmountSet       `json:"amount_set,omitempty"`
+	ApplicationType          string           `json:"application_type,omitempty"`
+	CreatedAt                *time.Time       `json:"created_at,omitempty"`
+	Description              string           `json:"description,omitempty"`
+	DiscountClass            string           `json:"discount_class,omitempty"`
+	Id                       *uint64          `json:"id,omitempty"`
 }
 
 type AmountSet struct {
@@ -569,27 +610,36 @@ type OrdersResource struct {
 }
 
 type PaymentDetails struct {
-	AVSResultCode     string `json:"avs_result_code,omitempty"`
-	CreditCardBin     string `json:"credit_card_bin,omitempty"`
-	CVVResultCode     string `json:"cvv_result_code,omitempty"`
-	CreditCardNumber  string `json:"credit_card_number,omitempty"`
-	CreditCardCompany string `json:"credit_card_company,omitempty"`
+	AVSResultCode             string          `json:"avs_result_code,omitempty"`
+	CreditCardBin             string          `json:"credit_card_bin,omitempty"`
+	CVVResultCode             string          `json:"cvv_result_code,omitempty"`
+	CreditCardNumber          string          `json:"credit_card_number,omitempty"`
+	CreditCardCompany         string          `json:"credit_card_company,omitempty"`
+	BuyerActionInfo           json.RawMessage `json:"buyer_action_info,omitempty"`
+	CreditCardExpirationMonth *int            `json:"credit_card_expiration_month,omitempty"`
+	CreditCardExpirationYear  *int            `json:"credit_card_expiration_year,omitempty"`
+	CreditCardName            string          `json:"credit_card_name,omitempty"`
+	CreditCardWallet          string          `json:"credit_card_wallet,omitempty"`
+	PaymentMethodName         string          `json:"payment_method_name,omitempty"`
 }
 
 type ShippingLines struct {
-	Id                            uint64           `json:"id,omitempty"`
-	Title                         string           `json:"title,omitempty"`
-	Price                         *decimal.Decimal `json:"price,omitempty"`
-	PriceSet                      *AmountSet       `json:"price_set,omitempty"`
-	DiscountedPrice               *decimal.Decimal `json:"discounted_price,omitempty"`
-	DiscountedPriceSet            *AmountSet       `json:"discounted_price_set,omitempty"`
-	Code                          string           `json:"code,omitempty"`
-	Source                        string           `json:"source,omitempty"`
-	Phone                         string           `json:"phone,omitempty"`
-	RequestedFulfillmentServiceId string           `json:"requested_fulfillment_service_id,omitempty"`
-	CarrierIdentifier             string           `json:"carrier_identifier,omitempty"`
-	TaxLines                      []TaxLine        `json:"tax_lines,omitempty"`
-	Handle                        string           `json:"handle,omitempty"`
+	Id                            uint64                `json:"id,omitempty"`
+	Title                         string                `json:"title,omitempty"`
+	Price                         *decimal.Decimal      `json:"price,omitempty"`
+	PriceSet                      *AmountSet            `json:"price_set,omitempty"`
+	DiscountedPrice               *decimal.Decimal      `json:"discounted_price,omitempty"`
+	DiscountedPriceSet            *AmountSet            `json:"discounted_price_set,omitempty"`
+	Code                          string                `json:"code,omitempty"`
+	Source                        string                `json:"source,omitempty"`
+	Phone                         string                `json:"phone,omitempty"`
+	RequestedFulfillmentServiceId string                `json:"requested_fulfillment_service_id,omitempty"`
+	CarrierIdentifier             string                `json:"carrier_identifier,omitempty"`
+	TaxLines                      []TaxLine             `json:"tax_lines,omitempty"`
+	Handle                        string                `json:"handle,omitempty"`
+	Custom                        *bool                 `json:"custom,omitempty"`
+	DiscountAllocations           []DiscountAllocations `json:"discount_allocations,omitempty"`
+	IsRemoved                     *bool                 `json:"is_removed,omitempty"`
 }
 
 // UnmarshalJSON custom unmarshaller for ShippingLines implemented
@@ -618,10 +668,11 @@ func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
 }
 
 type TaxLine struct {
-	Title    string           `json:"title,omitempty"`
-	Price    *decimal.Decimal `json:"price,omitempty"`
-	PriceSet *AmountSet       `json:"price_set,omitempty"`
-	Rate     *decimal.Decimal `json:"rate,omitempty"`
+	Title         string           `json:"title,omitempty"`
+	Price         *decimal.Decimal `json:"price,omitempty"`
+	PriceSet      *AmountSet       `json:"price_set,omitempty"`
+	Rate          *decimal.Decimal `json:"rate,omitempty"`
+	ChannelLiable *bool            `json:"channel_liable,omitempty"`
 }
 
 // ExtendedAuthorizationAttributes contains the standard and extended authorization expiry times.
@@ -719,7 +770,11 @@ type Refund struct {
 	OrderAdjustments    []OrderAdjustment    `json:"order_adjustments,omitempty"`
 	RefundShippingLines []RefundShippingLine `json:"refund_shipping_lines,omitempty"`
 
-	Duties []RefundedDuty `json:"duties,omitempty"`
+	Duties                 []RefundedDuty    `json:"duties,omitempty"`
+	AdditionalFees         []json.RawMessage `json:"additional_fees,omitempty"`
+	Return                 json.RawMessage   `json:"return,omitempty"`
+	TotalAdditionalFeesSet *AmountSet        `json:"total_additional_fees_set,omitempty"`
+	TotalDutiesSet         *AmountSet        `json:"total_duties_set,omitempty"`
 }
 
 // RefundedDuty is a duty amount reimbursed as part of a refund.
@@ -987,4 +1042,10 @@ func (s *OrderServiceOp) ListMetafieldsWithPagination(ctx context.Context, order
 func (s *OrderServiceOp) ListMetafieldsAll(ctx context.Context, orderId uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: ordersResourceName, resourceId: orderId}
 	return metafieldService.ListAll(ctx, options)
+}
+
+// AttributedStaff records the staff member credited for a line-item quantity.
+type AttributedStaff struct {
+	Id       string `json:"id,omitempty"`
+	Quantity int    `json:"quantity,omitempty"`
 }

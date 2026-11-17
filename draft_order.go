@@ -57,7 +57,7 @@ type DraftOrder struct {
 	Tags            string           `json:"tags,omitempty"`
 	TaxLines        []TaxLine        `json:"tax_lines,omitempty"`
 	AppliedDiscount *AppliedDiscount `json:"applied_discount,omitempty"`
-	TaxesIncluded   bool             `json:"taxes_included,omitempty"`
+	TaxesIncluded   *bool            `json:"taxes_included,omitempty"`
 	TotalTax        string           `json:"total_tax,omitempty"`
 	TaxExempt       *bool            `json:"tax_exempt,omitempty"`
 	TotalPrice      string           `json:"total_price,omitempty"`
@@ -67,11 +67,26 @@ type DraftOrder struct {
 	UpdatedAt       *time.Time       `json:"updated_at,omitempty"`
 	Status          string           `json:"status,omitempty"`
 	// only in request to flag using the customer's default address
-	UseCustomerDefaultAddress bool `json:"use_customer_default_address,omitempty"`
+	UseCustomerDefaultAddress *bool `json:"use_customer_default_address,omitempty"`
 
-	PaymentTerms      *PaymentTerms `json:"payment_terms,omitempty"`
-	SourceName        string        `json:"source_name,omitempty"`
-	AdminGraphqlApiId string        `json:"admin_graphql_api_id,omitempty"`
+	PaymentTerms                 *PaymentTerms `json:"payment_terms,omitempty"`
+	SourceName                   string        `json:"source_name,omitempty"`
+	AdminGraphqlApiId            string        `json:"admin_graphql_api_id,omitempty"`
+	AllowDiscountCodesInCheckout *bool         `json:"allow_discount_codes_in_checkout?,omitempty"`
+	AmountDueLaterSet            *AmountSet    `json:"amount_due_later_set,omitempty"`
+	AmountDueNowSet              *AmountSet    `json:"amount_due_now_set,omitempty"`
+	ApiClientId                  uint64        `json:"api_client_id,omitempty"`
+	B2B                          *bool         `json:"b2b?,omitempty"`
+	CreatedOnApiVersionHandle    string        `json:"created_on_api_version_handle,omitempty"`
+	PresentmentCurrency          string        `json:"presentment_currency,omitempty"`
+	SubtotalPriceSet             *AmountSet    `json:"subtotal_price_set,omitempty"`
+	TotalAdditionalFeesSet       *AmountSet    `json:"total_additional_fees_set,omitempty"`
+	TotalDiscountsSet            *AmountSet    `json:"total_discounts_set,omitempty"`
+	TotalDutiesSet               *AmountSet    `json:"total_duties_set,omitempty"`
+	TotalLineItemsPriceSet       *AmountSet    `json:"total_line_items_price_set,omitempty"`
+	TotalPriceSet                *AmountSet    `json:"total_price_set,omitempty"`
+	TotalShippingPriceSet        *AmountSet    `json:"total_shipping_price_set,omitempty"`
+	TotalTaxSet                  *AmountSet    `json:"total_tax_set,omitempty"`
 }
 
 // AppliedDiscount is the discount applied to the line item or the draft order object.

@@ -54,14 +54,14 @@ type Customer struct {
 	LastName                  string                 `json:"last_name,omitempty"`
 	State                     string                 `json:"state,omitempty"`
 	Note                      string                 `json:"note,omitempty"`
-	VerifiedEmail             bool                   `json:"verified_email,omitempty"`
+	VerifiedEmail             *bool                  `json:"verified_email,omitempty"`
 	MultipassIdentifier       string                 `json:"multipass_identifier,omitempty"`
 	OrdersCount               int                    `json:"orders_count,omitempty"`
-	TaxExempt                 bool                   `json:"tax_exempt,omitempty"`
+	TaxExempt                 *bool                  `json:"tax_exempt,omitempty"`
 	TotalSpent                *decimal.Decimal       `json:"total_spent,omitempty"`
 	Phone                     string                 `json:"phone,omitempty"`
 	Currency                  string                 `json:"currency,omitempty"`
-	AcceptsMarketing          bool                   `json:"accepts_marketing,omitempty"`
+	AcceptsMarketing          *bool                  `json:"accepts_marketing,omitempty"`
 	AcceptsMarketingUpdatedAt *time.Time             `json:"accepts_marketing_updated_at,omitempty"`
 	MarketingOptInLevel       bool                   `json:"marketing_opt_in_level,omitempty"`
 	AdminGraphqlApiId         string                 `json:"admin_graphql_api_id,omitempty"`

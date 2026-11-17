@@ -25,16 +25,16 @@ type FulfillmentServiceData struct {
 	Email                  string `json:"email,omitempty"`
 	ServiceName            string `json:"service_name,omitempty"`
 	Handle                 string `json:"handle,omitempty"`
-	FulfillmentOrdersOptIn bool   `json:"fulfillment_orders_opt_in,omitempty"`
-	IncludePendingStock    bool   `json:"include_pending_stock,omitempty"`
+	FulfillmentOrdersOptIn *bool  `json:"fulfillment_orders_opt_in,omitempty"`
+	IncludePendingStock    *bool  `json:"include_pending_stock,omitempty"`
 	ProviderId             uint64 `json:"provider_id,omitempty"`
 	LocationId             uint64 `json:"location_id,omitempty"`
 	CallbackURL            string `json:"callback_url,omitempty"`
-	TrackingSupport        bool   `json:"tracking_support,omitempty"`
-	InventoryManagement    bool   `json:"inventory_management,omitempty"`
+	TrackingSupport        *bool  `json:"tracking_support,omitempty"`
+	InventoryManagement    *bool  `json:"inventory_management,omitempty"`
 	AdminGraphqlApiId      string `json:"admin_graphql_api_id,omitempty"`
-	PermitsSkuSharing      bool   `json:"permits_sku_sharing,omitempty"`
-	RequiresShippingMethod bool   `json:"requires_shipping_method,omitempty"`
+	PermitsSkuSharing      *bool  `json:"permits_sku_sharing,omitempty"`
+	RequiresShippingMethod *bool  `json:"requires_shipping_method,omitempty"`
 	Format                 string `json:"format,omitempty"`
 }
 

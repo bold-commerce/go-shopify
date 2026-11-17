@@ -82,7 +82,9 @@ type Location struct {
 	// The zip or postal code.
 	Zip string `json:"zip"`
 
-	AdminGraphqlApiId string `json:"admin_graphql_api_id"`
+	AdminGraphqlApiId     string `json:"admin_graphql_api_id"`
+	LocalizedCountryName  string `json:"localized_country_name,omitempty"`
+	LocalizedProvinceName string `json:"localized_province_name,omitempty"`
 }
 
 // LocationServiceOp handles communication with the location related methods of

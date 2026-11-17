@@ -27,16 +27,19 @@ type CollectionServiceOp struct {
 
 // Collection represents a Shopify collection
 type Collection struct {
-	Id             uint64     `json:"id"`
-	Handle         string     `json:"handle"`
-	Title          string     `json:"title"`
-	UpdatedAt      *time.Time `json:"updated_at"`
-	BodyHTML       string     `json:"body_html"`
-	SortOrder      string     `json:"sort_order"`
-	TemplateSuffix string     `json:"template_suffix"`
-	Image          Image      `json:"image"`
-	PublishedAt    *time.Time `json:"published_at"`
-	PublishedScope string     `json:"published_scope"`
+	Id                uint64     `json:"id"`
+	Handle            string     `json:"handle"`
+	Title             string     `json:"title"`
+	UpdatedAt         *time.Time `json:"updated_at"`
+	BodyHTML          string     `json:"body_html"`
+	SortOrder         string     `json:"sort_order"`
+	TemplateSuffix    string     `json:"template_suffix"`
+	Image             Image      `json:"image"`
+	PublishedAt       *time.Time `json:"published_at"`
+	PublishedScope    string     `json:"published_scope"`
+	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
+	CollectionType    string     `json:"collection_type,omitempty"`
+	ProductsCount     int        `json:"products_count,omitempty"`
 }
 
 // Represents the result from the collections/X.json endpoint

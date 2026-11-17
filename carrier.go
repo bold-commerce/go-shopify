@@ -48,7 +48,7 @@ type CarrierService struct {
 	Name string `json:"name,omitempty"`
 
 	// Whether merchants are able to send dummy data to your service through the Shopify admin to see shipping rate examples.
-	ServiceDiscovery bool `json:"service_discovery,omitempty"`
+	ServiceDiscovery *bool `json:"service_discovery,omitempty"`
 
 	AdminGraphqlApiId string `json:"admin_graphql_api_id,omitempty"`
 }

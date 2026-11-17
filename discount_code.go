@@ -34,12 +34,13 @@ type DiscountCodeServiceOp struct {
 
 // PriceRuleDiscountCode represents a Shopify Discount Code
 type PriceRuleDiscountCode struct {
-	Id          uint64     `json:"id,omitempty"`
-	PriceRuleId uint64     `json:"price_rule_id,omitempty"`
-	Code        string     `json:"code,omitempty"`
-	UsageCount  int        `json:"usage_count,omitempty"`
-	CreatedAt   *time.Time `json:"created_at,omitempty"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+	Id          uint64              `json:"id,omitempty"`
+	PriceRuleId uint64              `json:"price_rule_id,omitempty"`
+	Code        string              `json:"code,omitempty"`
+	UsageCount  int                 `json:"usage_count,omitempty"`
+	CreatedAt   *time.Time          `json:"created_at,omitempty"`
+	UpdatedAt   *time.Time          `json:"updated_at,omitempty"`
+	Errors      map[string][]string `json:"errors,omitempty"`
 }
 
 // DiscountCodesResource is the result from the discount_codes.json endpoint
