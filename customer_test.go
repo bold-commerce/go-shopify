@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -771,5 +773,24 @@ func TestCustomerMarketingOptInLevel(t *testing.T) {
 	}
 	if customer.MarketingOptInLevel != "confirmed_opt_in" {
 		t.Fatalf("unexpected opt-in level %q", customer.MarketingOptInLevel)
+	}
+}
+
+func TestCustomerCreateWithAccountOptions(t *testing.T) {
+	var log bytes.Buffer
+	testFeatureEndpoint(t, featureEndpoint{
+		method: "POST", path: "customers.json",
+		request:  `{"customer":{"email":"buyer@example.com","email_marketing_consent":null,"sms_marketing_consent":null,"password":"test-password","password_confirmation":"test-password","send_email_invite":true,"send_email_welcome":false}}`,
+		response: `{"customer":{"id":7,"email":"response@example.com"}}`, want: &Customer{Id: 7, Email: "response@example.com"},
+		call: func(ctx context.Context) (interface{}, error) {
+			client.log = &LeveledLogger{Level: LevelDebug, stdoutOverride: &log}
+			return client.Customer.CreateWithOptions(ctx, Customer{Email: "buyer@example.com"}, CustomerCreateOptions{
+				Password: "test-password", PasswordConfirmation: "test-password",
+				SendEmailInvite: BoolPtr(true), SendEmailWelcome: BoolPtr(false),
+			})
+		},
+	})
+	if strings.Contains(log.String(), "test-password") || strings.Contains(log.String(), "response@example.com") {
+		t.Error("customer create body appeared in the debug log")
 	}
 }

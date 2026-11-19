@@ -432,7 +432,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry503 bool) (
 		if err != nil {
 			return nil, err
 		}
-		c.logResponse(resp, responseBody)
+		c.logResponse(req, resp, responseBody)
 
 		if http.StatusOK <= resp.StatusCode && resp.StatusCode < http.StatusMultipleChoices {
 			break

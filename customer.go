@@ -28,6 +28,7 @@ type CustomerService interface {
 	SearchWithPagination(ctx context.Context, options interface{}) ([]Customer, *Pagination, error)
 	SearchAll(ctx context.Context, options interface{}) ([]Customer, error)
 	Create(context.Context, Customer) (*Customer, error)
+	CreateWithOptions(ctx context.Context, customer Customer, options CustomerCreateOptions) (*Customer, error)
 	Update(context.Context, Customer) (*Customer, error)
 	Delete(context.Context, uint64) error
 	ListOrders(context.Context, uint64, interface{}) ([]Order, error)
@@ -164,12 +165,27 @@ func (s *CustomerServiceOp) Get(ctx context.Context, customerId uint64, options 
 	return resource.Customer, err
 }
 
-// Create a new customer
+// CustomerCreateOptions controls account setup and notification emails on creation.
+type CustomerCreateOptions struct {
+	Password             string `json:"password,omitempty"`
+	PasswordConfirmation string `json:"password_confirmation,omitempty"`
+	SendEmailInvite      *bool  `json:"send_email_invite,omitempty"`
+	SendEmailWelcome     *bool  `json:"send_email_welcome,omitempty"`
+}
+
+// Create a new customer.
 func (s *CustomerServiceOp) Create(ctx context.Context, customer Customer) (*Customer, error) {
-	path := fmt.Sprintf("%s.json", customersBasePath)
-	wrappedData := CustomerResource{Customer: &customer}
+	return s.CreateWithOptions(ctx, customer, CustomerCreateOptions{})
+}
+
+// CreateWithOptions creates a customer with account setup and email options.
+func (s *CustomerServiceOp) CreateWithOptions(ctx context.Context, customer Customer, options CustomerCreateOptions) (*Customer, error) {
+	fields := struct {
+		Customer
+		CustomerCreateOptions
+	}{customer, options}
 	resource := new(CustomerResource)
-	err := s.client.Post(ctx, path, wrappedData, resource)
+	err := s.client.Post(ctx, customersBasePath+".json", map[string]interface{}{"customer": fields}, resource)
 	return resource.Customer, err
 }
 
