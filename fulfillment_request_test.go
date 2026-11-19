@@ -316,3 +316,25 @@ func TestFulfillmentRequestSendErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestFulfillmentRequestNotifyCustomer(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		notify *bool
+		body   string
+	}{
+		{"default", nil, `{"fulfillment_request":{}}`},
+		{"notify", BoolPtr(true), `{"fulfillment_request":{"notify_customer":true}}`},
+		{"silent", BoolPtr(false), `{"fulfillment_request":{"notify_customer":false}}`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			testFeatureEndpoint(t, featureEndpoint{
+				method: "POST", path: "fulfillment_orders/7/fulfillment_request.json",
+				request: tc.body, response: `{"original_fulfillment_order":{"id":7}}`, want: &FulfillmentOrder{Id: 7},
+				call: func(ctx context.Context) (interface{}, error) {
+					return client.FulfillmentRequest.Send(ctx, 7, FulfillmentRequest{NotifyCustomer: tc.notify})
+				},
+			})
+		})
+	}
+}
