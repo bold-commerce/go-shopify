@@ -1066,3 +1066,12 @@ func TestServiceUnavailableRetryByMethod(t *testing.T) {
 		})
 	}
 }
+
+func TestResponseErrorPreservesOtherFieldErrors(t *testing.T) {
+	body := `{"errors":{"email":null,"name":["required"]}}`
+	err := CheckResponseError(httpmock.NewStringResponse(422, body))
+	var response ResponseError
+	if !errors.As(err, &response) || response.Status != 422 || response.Message != "name: required" || !reflect.DeepEqual(response.Errors, []string{"name: required"}) {
+		t.Fatalf("unexpected response error: %#v", err)
+	}
+}
