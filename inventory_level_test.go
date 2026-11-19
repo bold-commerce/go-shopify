@@ -2,10 +2,7 @@ package goshopify
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"reflect"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -30,9 +27,9 @@ func inventoryLevelTests(t *testing.T, item *InventoryLevel) {
 	}
 
 	expectedAvailable := 6
-	if item.Available != expectedAvailable {
+	if item.Available == nil || *item.Available != expectedAvailable {
 		t.Errorf("InventoryLevel.Available is %+v, expected %+v",
-			item.Available, expectedInt)
+			item.Available, expectedAvailable)
 	}
 }
 
@@ -183,30 +180,7 @@ func TestInventoryLevelSet(t *testing.T) {
 	options := InventoryLevel{
 		InventoryItemId: 1,
 		LocationId:      1,
-	}
-
-	level, err := client.InventoryLevel.Set(context.Background(), options)
-	if err != nil {
-		t.Errorf("InventoryLevels.Set returned error: %v", err)
-	}
-
-	inventoryLevelTests(t, level)
-}
-
-func TestInventoryLevelSetZero(t *testing.T) {
-	setup()
-	defer teardown()
-
-	httpmock.RegisterResponder(
-		"POST",
-		fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_levels/set.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("inventory_level.json")),
-	)
-
-	options := InventoryLevel{
-		InventoryItemId: 1,
-		LocationId:      1,
-		Available:       0,
+		Available:       IntPtr(3),
 	}
 
 	level, err := client.InventoryLevel.Set(context.Background(), options)
@@ -218,44 +192,30 @@ func TestInventoryLevelSetZero(t *testing.T) {
 }
 
 func TestInventoryLevelLocationFlags(t *testing.T) {
-	setup()
-	defer teardown()
-	for _, enabled := range []bool{false, true} {
-		for _, action := range []string{"connect", "set"} {
-			t.Run(fmt.Sprintf("%s/%t", action, enabled), func(t *testing.T) {
-				want := map[string]interface{}{"inventory_item_id": float64(1), "location_id": float64(2), "available": float64(0)}
-				level := InventoryLevel{InventoryItemId: 1, LocationId: 2, Available: 0}
-				if action == "connect" {
-					level.RelocateIfNecessary = enabled
-					if enabled {
-						want["relocate_if_necessary"] = true
-					}
-				} else {
-					level.DisconnectIfNecessary = enabled
-					if enabled {
-						want["disconnect_if_necessary"] = true
-					}
-				}
-				httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/inventory_levels/%s.json", client.pathPrefix, action), func(req *http.Request) (*http.Response, error) {
-					var got map[string]interface{}
-					if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
-						t.Fatal(err)
-					}
-					if !reflect.DeepEqual(got, want) {
-						t.Errorf("body = %#v, want %#v", got, want)
-					}
-					return httpmock.NewBytesResponse(200, loadFixture("inventory_level.json")), nil
-				})
-				call := client.InventoryLevel.Connect
-				if action == "set" {
-					call = client.InventoryLevel.Set
-				}
-				got, err := call(context.Background(), level)
-				if err != nil {
-					t.Fatal(err)
-				}
-				inventoryLevelTests(t, got)
+	for _, tc := range []struct {
+		name, action, body string
+		enabled            bool
+		call               func(InventoryLevelService, context.Context, InventoryLevel) (*InventoryLevel, error)
+	}{
+		{"connect", "connect", `{"inventory_item_id":1,"location_id":2}`, false, InventoryLevelService.Connect},
+		{"relocate", "connect", `{"inventory_item_id":1,"location_id":2,"relocate_if_necessary":true}`, true, InventoryLevelService.Connect},
+		{"set zero", "set", `{"inventory_item_id":1,"location_id":2,"available":0}`, false, InventoryLevelService.Set},
+		{"disconnect", "set", `{"inventory_item_id":1,"location_id":2,"available":0,"disconnect_if_necessary":true}`, true, InventoryLevelService.Set},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			level := InventoryLevel{InventoryItemId: 1, LocationId: 2, Available: IntPtr(0),
+				RelocateIfNecessary: tc.enabled, DisconnectIfNecessary: tc.enabled, AdminGraphqlApiId: "read-only"}
+			testFeatureEndpoint(t, featureEndpoint{
+				method: "POST", path: "inventory_levels/" + tc.action + ".json", request: tc.body,
+				response: `{"inventory_level":{"location_id":2}}`, want: &InventoryLevel{LocationId: 2},
+				call: func(ctx context.Context) (interface{}, error) { return tc.call(client.InventoryLevel, ctx, level) },
 			})
-		}
+		})
+	}
+}
+
+func TestInventoryLevelSetRequiresQuantity(t *testing.T) {
+	if _, err := (&InventoryLevelServiceOp{}).Set(context.Background(), InventoryLevel{}); err == nil {
+		t.Fatal("set accepted an unknown quantity")
 	}
 }

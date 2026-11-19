@@ -104,3 +104,6 @@ func (s *stringOrNumber) UnmarshalJSON(data []byte) error {
 	*s = stringOrNumber(n)
 	return nil
 }
+
+// IntPtr returns a pointer to an integer, including zero.
+func IntPtr(v int) *int { return &v }
