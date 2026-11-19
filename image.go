@@ -27,19 +27,20 @@ type ImageServiceOp struct {
 
 // Image represents a Shopify product's image.
 type Image struct {
-	Id                uint64     `json:"id,omitempty"`
-	ProductId         uint64     `json:"product_id,omitempty"`
-	Position          int        `json:"position,omitempty"`
-	CreatedAt         *time.Time `json:"created_at,omitempty"`
-	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
-	Width             int        `json:"width,omitempty"`
-	Height            int        `json:"height,omitempty"`
-	Src               string     `json:"src,omitempty"`
-	Attachment        string     `json:"attachment,omitempty"`
-	Filename          string     `json:"filename,omitempty"`
-	Alt               string     `json:"alt,omitempty"`
-	VariantIds        []uint64   `json:"variant_ids,omitempty"`
-	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
+	Id                uint64      `json:"id,omitempty"`
+	ProductId         uint64      `json:"product_id,omitempty"`
+	Position          int         `json:"position,omitempty"`
+	CreatedAt         *time.Time  `json:"created_at,omitempty"`
+	UpdatedAt         *time.Time  `json:"updated_at,omitempty"`
+	Width             int         `json:"width,omitempty"`
+	Height            int         `json:"height,omitempty"`
+	Src               string      `json:"src,omitempty"`
+	Attachment        string      `json:"attachment,omitempty"`
+	Filename          string      `json:"filename,omitempty"`
+	Alt               string      `json:"alt,omitempty"`
+	Metafields        []Metafield `json:"metafields,omitempty"`
+	VariantIds        []uint64    `json:"variant_ids,omitempty"`
+	AdminGraphqlApiId string      `json:"admin_graphql_api_id,omitempty"`
 }
 
 // ImageResource represents the result form the products/X/images/Y.json endpoint

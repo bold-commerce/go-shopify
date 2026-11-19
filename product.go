@@ -67,6 +67,7 @@ type Product struct {
 	Handle                         string          `json:"handle,omitempty"`
 	CreatedAt                      *time.Time      `json:"created_at,omitempty"`
 	UpdatedAt                      *time.Time      `json:"updated_at,omitempty"`
+	Published                      *bool           `json:"published,omitempty"`
 	PublishedAt                    *time.Time      `json:"published_at,omitempty"`
 	PublishedScope                 string          `json:"published_scope,omitempty"`
 	Tags                           string          `json:"tags,omitempty"`
