@@ -191,7 +191,7 @@ client, err := goshopify.NewClient(app, "shopname", "token", goshopify.WithVersi
 Shopify [Rate Limits](https://shopify.dev/docs/api/admin-rest/usage/rate-limits) their API and if this happens to you they
 will send a back off (usually 2s) to tell you to retry your request. To support this functionality seamlessly within
 the client a `WithRetry` option exists where you can pass an `int` of how many times you wish to retry per-request
-before returning an error. `WithRetry` additionally supports retrying HTTP503 errors.
+before returning an error. `WithRetry` also retries GET, HEAD, OPTIONS, and identifiable GraphQL read queries after HTTP 503. Write requests return the first 503 because Shopify may already have applied the change.
 
 ```go
 client, err := goshopify.NewClient(app, "shopname", "", goshopify.WithRetry(3))

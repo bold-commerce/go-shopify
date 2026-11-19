@@ -1033,3 +1033,36 @@ func TestPlainTextThrottleRetries(t *testing.T) {
 		t.Fatalf("calls=%d, error=%v", calls, err)
 	}
 }
+
+func TestServiceUnavailableRetryByMethod(t *testing.T) {
+	for _, tc := range []struct {
+		method string
+		calls  int
+	}{
+		{"GET", 2}, {"HEAD", 2}, {"OPTIONS", 2}, {"POST", 1}, {"PUT", 1}, {"PATCH", 1}, {"DELETE", 1},
+	} {
+		t.Run(tc.method, func(t *testing.T) {
+			calls := 0
+			transport := bodyLifecycleTransport(func(r *http.Request) (*http.Response, error) {
+				calls++
+				if calls == 1 {
+					return httpmock.NewStringResponse(503, ""), nil
+				}
+				return httpmock.NewStringResponse(200, ""), nil
+			})
+			c := MustNewClient(App{}, "test", "", WithRetry(1), WithHTTPClient(&http.Client{Transport: transport}))
+			err := c.CreateAndDo(context.Background(), tc.method, "orders.json", nil, nil, nil)
+			if calls != tc.calls {
+				t.Fatalf("calls = %d, want %d", calls, tc.calls)
+			}
+			if tc.calls == 1 {
+				var apiErr ResponseError
+				if !errors.As(err, &apiErr) || apiErr.Status != 503 {
+					t.Fatalf("expected HTTP 503, got %v", err)
+				}
+			} else if err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}

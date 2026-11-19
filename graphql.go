@@ -3,6 +3,8 @@ package goshopify
 import (
 	"context"
 	"math"
+	"net/http"
+	"regexp"
 	"time"
 )
 
@@ -63,6 +65,10 @@ type graphQLErrorLocation struct {
 	Column int `json:"column"`
 }
 
+// This client sends no operationName, so Shopify can execute only a single operation.
+// Retry a POST only when its first definition explicitly identifies a read query.
+var graphQLReadQuery = regexp.MustCompile(`^(?:[\s,\x{FEFF}]|#[^\r\n]*[\r\n])*(?:query\b|\{)`)
+
 // Query creates a graphql query against the Shopify API
 // the "data" portion of the response is unmarshalled into resp
 func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp interface{}) error {
@@ -74,6 +80,7 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 		Variables: vars,
 	}
 
+	retry503 := graphQLReadQuery.MatchString(q)
 	attempts := 0
 
 	for {
@@ -81,7 +88,7 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 			Data: resp,
 		}
 
-		err := s.client.Post(ctx, "graphql.json", data, &gr)
+		_, err := s.client.createAndDoGetHeaders(ctx, http.MethodPost, "graphql.json", data, nil, &gr, retry503)
 
 		// Count the initial GraphQL request as well as each throttled retry.
 		attempts += 1

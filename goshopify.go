@@ -388,7 +388,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 // response. It does not make much sense to call Do without a prepared
 // interface instance.
 func (c *Client) Do(req *http.Request, v interface{}) error {
-	_, err := c.doGetHeaders(req, v)
+	_, err := c.doGetHeaders(req, v, readOnlyMethod(req.Method))
 	if err != nil {
 		return err
 	}
@@ -396,8 +396,12 @@ func (c *Client) Do(req *http.Request, v interface{}) error {
 	return nil
 }
 
+func readOnlyMethod(method string) bool {
+	return method == "" || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
+}
+
 // doGetHeaders executes a request, decoding the response into `v` and also returns any response headers.
-func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, error) {
+func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry503 bool) (http.Header, error) {
 	var resp *http.Response
 	var err error
 	retries := c.retries
@@ -451,19 +455,12 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 			continue
 		}
 
-		var doRetry bool
-		switch resp.StatusCode {
-		case http.StatusServiceUnavailable:
+		// A write may have succeeded before Shopify returned the 503.
+		if retry503 && resp.StatusCode == http.StatusServiceUnavailable {
 			c.log.Debugf("service unavailable, retrying")
-			doRetry = true
 			retries--
-		}
-
-		if doRetry {
 			continue
 		}
-
-		// no retry attempts, just return the err
 		return nil, respErr
 	}
 
@@ -653,7 +650,7 @@ func (c *Client) Count(ctx context.Context, path string, options interface{}) (i
 // parameters like created_at_min
 // Any data returned from Shopify will be marshalled into resource argument.
 func (c *Client) CreateAndDo(ctx context.Context, method, relPath string, data, options, resource interface{}) error {
-	_, err := c.createAndDoGetHeaders(ctx, method, relPath, data, options, resource)
+	_, err := c.createAndDoGetHeaders(ctx, method, relPath, data, options, resource, readOnlyMethod(method))
 	if err != nil {
 		return err
 	}
@@ -661,7 +658,7 @@ func (c *Client) CreateAndDo(ctx context.Context, method, relPath string, data, 
 }
 
 // createAndDoGetHeaders creates an executes a request while returning the response headers.
-func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath string, data, options, resource interface{}) (http.Header, error) {
+func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath string, data, options, resource interface{}, retry503 bool) (http.Header, error) {
 	if strings.HasPrefix(relPath, "/") {
 		// make sure it's a relative path
 		relPath = strings.TrimLeft(relPath, "/")
@@ -673,7 +670,7 @@ func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath stri
 		return nil, err
 	}
 
-	return c.doGetHeaders(req, resource)
+	return c.doGetHeaders(req, resource, retry503)
 }
 
 // Get performs a GET request for the given path and saves the result in the
@@ -700,7 +697,7 @@ func forEachPage(options interface{}, fetchPage func(interface{}) (*Pagination, 
 // ListWithPagination performs a GET request for the given path and saves the result in the
 // given resource and returns the pagination.
 func (c *Client) ListWithPagination(ctx context.Context, path string, resource, options interface{}) (*Pagination, error) {
-	headers, err := c.createAndDoGetHeaders(ctx, "GET", path, nil, options, resource)
+	headers, err := c.createAndDoGetHeaders(ctx, "GET", path, nil, options, resource, true)
 	if err != nil {
 		return nil, err
 	}

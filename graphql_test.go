@@ -373,3 +373,27 @@ func TestGraphQLCostRetryAfterSeconds(t *testing.T) {
 func makeIntPointer(v int) *int {
 	return &v
 }
+
+func TestGraphQLServiceUnavailableByOperation(t *testing.T) {
+	for _, tc := range []struct {
+		document string
+		attempts int
+	}{
+		{"# a read query\n query Shop { shop { id } }", 2},
+		{"{ shop { id } }", 2},
+		{"mutation Create { create { id } }", 1},
+		{"# query { shop { id } }\nmutation Create { create { id } }", 1},
+		{"fragment Fields on Shop { id } mutation Create { create { id } }", 1},
+	} {
+		calls := 0
+		transport := bodyLifecycleTransport(func(r *http.Request) (*http.Response, error) {
+			calls++
+			return httpmock.NewStringResponse(503, ""), nil
+		})
+		c := MustNewClient(App{}, "test", "", WithRetry(1), WithHTTPClient(&http.Client{Transport: transport}))
+		err := c.GraphQL.Query(context.Background(), tc.document, nil, nil)
+		if err == nil || calls != tc.attempts {
+			t.Errorf("%q: got %d attempts and %v, want %d attempts and an error", tc.document, calls, err, tc.attempts)
+		}
+	}
+}
