@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -78,9 +79,59 @@ type Fulfillment struct {
 	NotifyCustomer              bool                         `json:"notify_customer"`
 	AdminGraphqlApiId           string                       `json:"admin_graphql_api_id,omitempty"`
 	Name                        string                       `json:"name,omitempty"`
-	OriginAddress               *Address                     `json:"origin_address,omitempty"`
+	// OriginAddress is the address sent on create, or the first address returned by Shopify.
+	OriginAddress *Address `json:"origin_address,omitempty"`
+	// AdditionalOriginAddresses holds the remaining entries when Shopify returns an array.
+	AdditionalOriginAddresses []Address `json:"-"`
 	// Message is sent when creating a fulfillment.
 	Message string `json:"message,omitempty"`
+}
+
+// UnmarshalJSON accepts the object and array forms of origin_address.
+func (f *Fulfillment) UnmarshalJSON(data []byte) error {
+	type plain Fulfillment
+	var wire struct {
+		*plain
+		Origin json.RawMessage `json:"origin_address"`
+	}
+	wire.plain = (*plain)(f)
+	if err := json.Unmarshal(data, &wire); err != nil {
+		return err
+	}
+	if len(wire.Origin) == 0 {
+		return nil
+	}
+	if wire.Origin[0] != '[' {
+		f.AdditionalOriginAddresses = nil
+		return json.Unmarshal(wire.Origin, &f.OriginAddress)
+	}
+	var origins []Address
+	if err := json.Unmarshal(wire.Origin, &origins); err != nil {
+		return err
+	}
+	f.OriginAddress = nil
+	if len(origins) > 0 {
+		f.OriginAddress = &origins[0]
+		origins = origins[1:]
+	}
+	f.AdditionalOriginAddresses = origins
+	return nil
+}
+
+// MarshalJSON preserves an origin_address array when re-encoding a response.
+func (f Fulfillment) MarshalJSON() ([]byte, error) {
+	type plain Fulfillment
+	origins := f.AdditionalOriginAddresses
+	if origins == nil {
+		return json.Marshal(plain(f))
+	}
+	if f.OriginAddress != nil {
+		origins = append([]Address{*f.OriginAddress}, origins...)
+	}
+	return json.Marshal(struct {
+		plain
+		Origin []Address `json:"origin_address"`
+	}{plain(f), origins})
 }
 
 // FulfillmentTrackingInfo represents the tracking information used to create a Fulfillment.
