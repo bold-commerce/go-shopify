@@ -649,7 +649,7 @@ func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
 	type alias ShippingLines
 	aux := &struct {
 		*alias
-		RequestedFulfillmentServiceId interface{} `json:"requested_fulfillment_service_id"`
+		RequestedFulfillmentServiceId stringOrNumber `json:"requested_fulfillment_service_id"`
 	}{alias: (*alias)(sl)}
 
 	err := json.Unmarshal(data, &aux)
@@ -657,12 +657,7 @@ func (sl *ShippingLines) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	switch aux.RequestedFulfillmentServiceId.(type) {
-	case nil:
-		sl.RequestedFulfillmentServiceId = ""
-	default:
-		sl.RequestedFulfillmentServiceId = fmt.Sprintf("%v", aux.RequestedFulfillmentServiceId)
-	}
+	sl.RequestedFulfillmentServiceId = string(aux.RequestedFulfillmentServiceId)
 
 	return nil
 }
