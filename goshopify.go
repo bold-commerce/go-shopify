@@ -423,6 +423,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 			return nil, err // http client errors, not api responses
 		}
 
+		c.recordRateLimitHeaders(resp.Header)
 		responseBody, err = ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
@@ -480,15 +481,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		}
 	}
 
-	c.rateLimitsMu.Lock()
-	if s := strings.Split(resp.Header.Get("X-Shopify-Shop-Api-Call-Limit"), "/"); len(s) == 2 {
-		c.rateLimits.RequestCount, _ = strconv.Atoi(s[0])
-		c.rateLimits.BucketSize, _ = strconv.Atoi(s[1])
-	}
-
-	c.rateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(resp.Header.Get("Retry-After"), 64)
-	c.rateLimitsMu.Unlock()
-
 	return resp.Header, nil
 }
 
@@ -538,6 +530,9 @@ func decodeResponseError(r *http.Response, bodyBytes []byte) error {
 	if len(bodyBytes) > 0 {
 		err := json.Unmarshal(bodyBytes, &shopifyError)
 		if err != nil {
+			if r.StatusCode == http.StatusTooManyRequests {
+				return wrapSpecificError(r, ResponseError{Status: r.StatusCode, Message: strings.TrimSpace(string(bodyBytes))})
+			}
 			return ResponseDecodingError{
 				Body:    bodyBytes,
 				Message: err.Error(),
