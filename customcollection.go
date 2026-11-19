@@ -47,6 +47,7 @@ type CustomCollection struct {
 	Published         *bool       `json:"published,omitempty"`
 	PublishedAt       *time.Time  `json:"published_at,omitempty"`
 	PublishedScope    string      `json:"published_scope,omitempty"`
+	Collects          []Collect   `json:"collects,omitempty"`
 	Metafields        []Metafield `json:"metafields,omitempty"`
 	AdminGraphqlApiId string      `json:"admin_graphql_api_id,omitempty"`
 	ProductsCount     int         `json:"products_count,omitempty"`

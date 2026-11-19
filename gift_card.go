@@ -50,6 +50,9 @@ type GiftCard struct {
 	TemplateSuffix string           `json:"template_suffix,omitempty"`
 	UserId         uint64           `json:"user_id,omitempty"`
 	UpdatedAt      *time.Time       `json:"updated_at,omitempty"`
+	RecipientId    uint64           `json:"recipient_id,omitempty"`
+	Message        string           `json:"message,omitempty"`
+	SendOn         *OnlyDate        `json:"send_on,omitempty"`
 	Notify         *bool            `json:"notify,omitempty"`
 }
 

@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -231,17 +232,8 @@ func (app App) VerifyAuthorizationURL(u *url.URL) (bool, error) {
 // Verifies a webhook http request, sent by Shopify.
 // The body of the request is still readable after invoking the method.
 func (app App) VerifyWebhookRequest(httpRequest *http.Request) bool {
-	shopifySha256 := httpRequest.Header.Get(shopifyChecksumHeader)
-	actualMac := []byte(shopifySha256)
-
-	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
-	requestBody, _ := ioutil.ReadAll(httpRequest.Body)
-	httpRequest.Body = ioutil.NopCloser(bytes.NewBuffer(requestBody))
-	mac.Write(requestBody)
-	macSum := mac.Sum(nil)
-	expectedMac := []byte(base64.StdEncoding.EncodeToString(macSum))
-
-	return hmac.Equal(actualMac, expectedMac)
+	valid, _ := app.VerifyWebhookRequestVerbose(httpRequest)
+	return valid
 }
 
 // Verifies a webhook http request, sent by Shopify.
@@ -250,6 +242,10 @@ func (app App) VerifyWebhookRequest(httpRequest *http.Request) bool {
 func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, error) {
 	if app.ApiSecret == "" {
 		return false, errors.New("ApiSecret is empty")
+	}
+
+	if httpRequest == nil || httpRequest.Body == nil {
+		return false, errors.New("request body is empty")
 	}
 
 	shopifySha256 := httpRequest.Header.Get(shopifyChecksumHeader)
@@ -271,7 +267,10 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 		return false, err
 	}
 
-	httpRequest.Body = ioutil.NopCloser(bytes.NewBuffer(requestBody))
+	httpRequest.Body = struct {
+		io.Reader
+		io.Closer
+	}{bytes.NewReader(requestBody), httpRequest.Body}
 	if len(requestBody) == 0 {
 		return false, errors.New("request body is empty")
 	}
@@ -279,13 +278,10 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	// Sha256 write doesn't actually return an error
 	mac.Write(requestBody)
 
-	computedHMAC := mac.Sum(nil)
-	HMACSame := hmac.Equal(decodedReceivedHMAC, computedHMAC)
-	if !HMACSame {
-		return HMACSame, fmt.Errorf("expected hash %x does not equal %x", computedHMAC, decodedReceivedHMAC)
+	if !hmac.Equal(decodedReceivedHMAC, mac.Sum(nil)) {
+		return false, errors.New("webhook HMAC mismatch")
 	}
-
-	return HMACSame, nil
+	return true, nil
 }
 
 // Verifies an app proxy request, sent by Shopify.

@@ -2,6 +2,9 @@ package goshopify
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -10,6 +13,17 @@ type RateLimitInfo struct {
 	BucketSize        int
 	GraphQLCost       *GraphQLCost
 	RetryAfterSeconds float64
+}
+
+func (c *Client) recordRateLimitHeaders(header http.Header) {
+	c.rateLimitsMu.Lock()
+	defer c.rateLimitsMu.Unlock()
+	if s := strings.Split(header.Get("X-Shopify-Shop-Api-Call-Limit"), "/"); len(s) == 2 {
+		c.rateLimits.RequestCount, _ = strconv.Atoi(s[0])
+		c.rateLimits.BucketSize, _ = strconv.Atoi(s[1])
+	}
+
+	c.rateLimits.RetryAfterSeconds, _ = strconv.ParseFloat(header.Get("Retry-After"), 64)
 }
 
 // RateLimits returns an independent snapshot of the latest recorded rate-limit

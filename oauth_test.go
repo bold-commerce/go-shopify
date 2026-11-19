@@ -418,7 +418,6 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 		err                         error
 	)
 	shortHMACBytes, _ := base64.StdEncoding.DecodeString(shortHMAC)
-	validHMACBytes, _ := base64.StdEncoding.DecodeString(validHMACSignature)
 	longHMACBytes, _ := base64.StdEncoding.DecodeString(longHMAC)
 
 	cases := []struct {
@@ -432,7 +431,7 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 		{shortHMAC, "my secret message", false, fmt.Errorf("received HMAC is not of length 32, it is of length %d", len(shortHMACBytes))},
 		{longHMAC, "my secret message", false, fmt.Errorf("received HMAC is not of length 32, it is of length %d", len(longHMACBytes))},
 		{shortHMAC, "", false, fmt.Errorf("received HMAC is not of length 32, it is of length %d", len(shortHMACBytes))},
-		{validHMACSignature, "my invalid message", false, fmt.Errorf("expected hash %s does not equal %x", "ac3560a67dd9ed3f46cf1807856b78f27c9543b5ae98f5292d8eccf6252254f0", validHMACBytes)},
+		{validHMACSignature, "my invalid message", false, errors.New("webhook HMAC mismatch")},
 		{"", "", false, fmt.Errorf("header %s not set", shopifyChecksumHeader)},
 		{validHMACSignatureEmptyBody, "", false, errors.New("request body is empty")},
 	}
@@ -480,8 +479,14 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 	}
 
 	// Other error cases
+	if app.VerifyWebhookRequest(nil) {
+		t.Fatal("accepted a missing request")
+	}
 	oldSecret := app.ApiSecret
 	app.ApiSecret = ""
+	if app.VerifyWebhookRequest(req) {
+		t.Fatal("accepted an empty secret")
+	}
 	isValid, err := app.VerifyWebhookRequestVerbose(req)
 	if err == nil || isValid == true || err.Error() != errors.New("ApiSecret is empty").Error() {
 		t.Errorf("Expected error %s got nil or true", errors.New("ApiSecret is empty"))
@@ -490,6 +495,9 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 	app.ApiSecret = oldSecret
 
 	req.Body = errReader{}
+	if app.VerifyWebhookRequest(req) {
+		t.Fatal("accepted an unreadable body")
+	}
 	isValid, err = app.VerifyWebhookRequestVerbose(req)
 	if err == nil || isValid == true || err.Error() != errors.New("test-error").Error() {
 		t.Errorf("Expected error %s got %s", errors.New("test-error"), err)

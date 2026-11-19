@@ -3,7 +3,9 @@ package goshopify
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"path"
 )
 
 // idea from https://github.com/stripe/stripe-go/blob/master/log.go
@@ -82,4 +84,27 @@ func (l *LeveledLogger) stdout() io.Writer {
 	}
 
 	return os.Stdout
+}
+
+func (c *Client) logRequest(req *http.Request, body []byte) {
+	if req.URL != nil {
+		c.log.Debugf("%s: %s", req.Method, req.URL.String())
+	}
+	c.logBody(req, "SENT", body)
+}
+
+func (c *Client) logResponse(req *http.Request, res *http.Response, body []byte) {
+	c.log.Debugf("Shopify X-Request-Id: %s", res.Header.Get("X-Request-Id"))
+	c.log.Debugf("RECV %d: %s", res.StatusCode, res.Status)
+	c.logBody(req, "RESP", body)
+}
+
+func (c *Client) logBody(req *http.Request, direction string, body []byte) {
+	// Customer creation can send credentials, which an error response could echo.
+	if req.Method == http.MethodPost && req.URL != nil && path.Base(req.URL.Path) == customersBasePath+".json" {
+		return
+	}
+	if len(body) > 0 {
+		c.log.Debugf("%s: %s", direction, body)
+	}
 }

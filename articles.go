@@ -18,6 +18,7 @@ type ArticlesService interface {
 	ListAll(ctx context.Context, blogId uint64, options interface{}) ([]Article, error)
 	Create(context.Context, uint64, Article) (*Article, error)
 	Get(context.Context, uint64, uint64) (*Article, error)
+	GetWithOptions(ctx context.Context, blogId, articleId uint64, options interface{}) (*Article, error)
 	Update(context.Context, uint64, uint64, Article) (*Article, error)
 	Delete(context.Context, uint64, uint64) error
 	Count(context.Context, uint64, interface{}) (int, error)
@@ -48,11 +49,12 @@ type ArticleTagsResource struct {
 }
 
 type ArticleImage struct {
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	Alt       string     `json:"alt,omitempty"`
-	Width     int        `json:"width,omitempty"`
-	Height    int        `json:"height,omitempty"`
-	Src       string     `json:"src,omitempty"`
+	Attachment string     `json:"attachment,omitempty"`
+	CreatedAt  *time.Time `json:"created_at,omitempty"`
+	Alt        string     `json:"alt,omitempty"`
+	Width      int        `json:"width,omitempty"`
+	Height     int        `json:"height,omitempty"`
+	Src        string     `json:"src,omitempty"`
 }
 
 type Article struct {
@@ -107,31 +109,44 @@ func (s *ArticlesServiceOp) ListAll(ctx context.Context, blogId uint64, options 
 	return items, err
 }
 
+// writeRequest uses a pointer on the wire so a zero time can be omitted.
+func (article *Article) writeRequest() map[string]interface{} {
+	fields := struct {
+		*Article
+		UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	}{Article: article}
+	if !article.UpdatedAt.IsZero() {
+		fields.UpdatedAt = &article.UpdatedAt
+	}
+	return map[string]interface{}{"article": fields}
+}
+
 // Create a article in a blog.
 func (s *ArticlesServiceOp) Create(ctx context.Context, blogId uint64, article Article) (*Article, error) {
 	path := fmt.Sprintf("%s/%d/%s.json", blogsBasePath, blogId, articlesBasePath)
-	body := ArticleResource{
-		Article: &article,
-	}
 	resource := new(ArticleResource)
-	err := s.client.Post(ctx, path, body, resource)
+	err := s.client.Post(ctx, path, article.writeRequest(), resource)
 	return resource.Article, err
 }
 
 // Get an article by blog id and article id.
 func (s *ArticlesServiceOp) Get(ctx context.Context, blogId uint64, articleId uint64) (*Article, error) {
+	return s.GetWithOptions(ctx, blogId, articleId, nil)
+}
+
+// GetWithOptions retrieves an article with optional query fields.
+func (s *ArticlesServiceOp) GetWithOptions(ctx context.Context, blogId, articleId uint64, options interface{}) (*Article, error) {
 	path := fmt.Sprintf("%s/%d/%s/%d.json", blogsBasePath, blogId, articlesBasePath, articleId)
 	resource := new(ArticleResource)
-	err := s.client.Get(ctx, path, resource, nil)
+	err := s.client.Get(ctx, path, resource, options)
 	return resource.Article, err
 }
 
 // Update an article in a blog.
 func (s *ArticlesServiceOp) Update(ctx context.Context, blogId uint64, articleId uint64, article Article) (*Article, error) {
 	path := fmt.Sprintf("%s/%d/%s/%d.json", blogsBasePath, blogId, articlesBasePath, articleId)
-	wrappedData := ArticleResource{Article: &article}
 	resource := new(ArticleResource)
-	err := s.client.Put(ctx, path, wrappedData, resource)
+	err := s.client.Put(ctx, path, article.writeRequest(), resource)
 	return resource.Article, err
 }
 
