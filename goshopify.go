@@ -5,9 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -403,34 +401,39 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	var resp *http.Response
 	var err error
 	retries := c.retries
-	c.logRequest(req)
 
 	// copy request body so it can be re-used
-	var body []byte
+	var body, responseBody []byte
 	if req.Body != nil {
 		body, err = ioutil.ReadAll(req.Body)
-		defer req.Body.Close()
+		req.Body.Close()
 		if err != nil {
 			return nil, err
 		}
 	}
 
+	c.logRequest(req, body)
+
 	for {
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+		if req.Body != nil && req.Body != http.NoBody {
+			req.Body = ioutil.NopCloser(bytes.NewReader(body))
+		}
 		resp, err = c.Client.Do(req)
-		c.logResponse(resp)
 		if err != nil {
 			return nil, err // http client errors, not api responses
 		}
 
-		respErr := CheckResponseError(resp)
-		if respErr == nil {
-			break // no errors, break out of the retry loop
-		}
-
-		// retry scenario, close resp and any continue will retry
+		responseBody, err = ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
+		if err != nil {
+			return nil, err
+		}
+		c.logResponse(resp, responseBody)
 
+		if http.StatusOK <= resp.StatusCode && resp.StatusCode < http.StatusMultipleChoices {
+			break
+		}
+		respErr := decodeResponseError(resp, responseBody)
 		if retries <= 0 {
 			return nil, respErr
 		}
@@ -463,8 +466,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 		return nil, respErr
 	}
 
-	defer resp.Body.Close()
-
 	if c.apiVersion == defaultApiVersion && resp.Header.Get("X-Shopify-API-Version") != "" {
 		// if using stable on first request set the api version
 		c.apiVersion = resp.Header.Get("X-Shopify-API-Version")
@@ -472,7 +473,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	}
 
 	if v != nil {
-		decoder := json.NewDecoder(resp.Body)
+		decoder := json.NewDecoder(bytes.NewReader(responseBody))
 		err := decoder.Decode(&v)
 		if err != nil {
 			return nil, err
@@ -489,44 +490,6 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}) (http.Header, er
 	c.rateLimitsMu.Unlock()
 
 	return resp.Header, nil
-}
-
-func (c *Client) logRequest(req *http.Request) {
-	if req == nil {
-		return
-	}
-	if req.URL != nil {
-		c.log.Debugf("%s: %s", req.Method, req.URL.String())
-	}
-	c.logBody(&req.Body, "SENT: %s")
-}
-
-func (c *Client) logResponse(res *http.Response) {
-	if res == nil {
-		return
-	}
-
-	c.log.Debugf("Shopify X-Request-Id: %s", res.Header.Get("X-Request-Id"))
-	c.log.Debugf("RECV %d: %s", res.StatusCode, res.Status)
-	c.logBody(&res.Body, "RESP: %s")
-}
-
-func (c *Client) logBody(body *io.ReadCloser, format string) {
-	if body == nil || *body == nil {
-		return
-	}
-	original := *body
-	b, err := ioutil.ReadAll(original)
-	if err != nil && !errors.Is(err, io.EOF) {
-		return
-	}
-	if len(b) > 0 {
-		c.log.Debugf(format, string(b))
-	}
-	*body = struct {
-		io.Reader
-		io.Closer
-	}{bytes.NewReader(b), original}
 }
 
 func wrapSpecificError(r *http.Response, err ResponseError) error {
@@ -557,15 +520,17 @@ func CheckResponseError(r *http.Response) error {
 		return nil
 	}
 
-	// Create an anonoymous struct to parse the JSON data into.
-	shopifyError := struct {
-		Error  string      `json:"error"`
-		Errors interface{} `json:"errors"`
-	}{}
-
-	bodyBytes, err := ioutil.ReadAll(r.Body)
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return err
+	}
+	return decodeResponseError(r, body)
+}
+
+func decodeResponseError(r *http.Response, bodyBytes []byte) error {
+	var shopifyError struct {
+		Error  string      `json:"error"`
+		Errors interface{} `json:"errors"`
 	}
 
 	// empty body, this probably means shopify returned an error with no body

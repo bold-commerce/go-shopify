@@ -3,10 +3,10 @@ package goshopify
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"testing"
+	"testing/iotest"
 )
 
 type bodyLifecycleTransport func(*http.Request) (*http.Response, error)
@@ -62,22 +62,27 @@ func TestBodyLifecycle(t *testing.T) {
 	}
 }
 
-func TestBodyLoggingPreservesClose(t *testing.T) {
-	c := MustNewClient(App{}, "test", "token")
-	original := &trackedBody{Reader: strings.NewReader("payload")}
-	var body io.ReadCloser = original
-	c.logBody(&body, "%s")
-	data, err := ioutil.ReadAll(body)
-	if err != nil || string(data) != "payload" {
-		t.Fatalf("body=%q error=%v", data, err)
-	}
-	if original.closes != 0 {
-		t.Fatal("closed before caller finished")
-	}
-	if err := body.Close(); err != nil {
-		t.Fatal(err)
-	}
-	if original.closes != 1 {
-		t.Fatal("original close was lost")
+func TestBodyReadErrorsStopRequest(t *testing.T) {
+	for _, side := range []string{"request", "response"} {
+		t.Run(side, func(t *testing.T) {
+			broken := &trackedBody{Reader: iotest.TimeoutReader(strings.NewReader("partial"))}
+			transport := bodyLifecycleTransport(func(r *http.Request) (*http.Response, error) {
+				if side == "request" {
+					t.Fatal("sent a request after its body failed to read")
+				}
+				return &http.Response{StatusCode: 200, Body: broken}, nil
+			})
+			c := MustNewClient(App{}, "test", "", WithHTTPClient(&http.Client{Transport: transport}))
+			req, _ := http.NewRequest("POST", "https://test.myshopify.com", nil)
+			if side == "request" {
+				req.Body = broken
+			}
+			if err := c.Do(req, nil); err != iotest.ErrTimeout {
+				t.Fatalf("got %v, want %v", err, iotest.ErrTimeout)
+			}
+			if broken.closes != 1 {
+				t.Fatalf("body closed %d times", broken.closes)
+			}
+		})
 	}
 }

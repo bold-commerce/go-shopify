@@ -3,6 +3,7 @@ package goshopify
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 )
 
@@ -82,4 +83,21 @@ func (l *LeveledLogger) stdout() io.Writer {
 	}
 
 	return os.Stdout
+}
+
+func (c *Client) logRequest(req *http.Request, body []byte) {
+	if req.URL != nil {
+		c.log.Debugf("%s: %s", req.Method, req.URL.String())
+	}
+	if len(body) > 0 {
+		c.log.Debugf("SENT: %s", string(body))
+	}
+}
+
+func (c *Client) logResponse(res *http.Response, body []byte) {
+	c.log.Debugf("Shopify X-Request-Id: %s", res.Header.Get("X-Request-Id"))
+	c.log.Debugf("RECV %d: %s", res.StatusCode, res.Status)
+	if len(body) > 0 {
+		c.log.Debugf("RESP: %s", string(body))
+	}
 }

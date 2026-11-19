@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -75,51 +74,19 @@ func TestLeveledLogger(t *testing.T) {
 }
 
 func TestDoGetHeadersDebug(t *testing.T) {
-	err := &bytes.Buffer{}
-	out := &bytes.Buffer{}
-	logger := &LeveledLogger{Level: LevelDebug, stderrOverride: err, stdoutOverride: out}
-
-	reqExpected := "[DEBUG] GET: //http:%2F%2Ftest.com/foo/1\n[DEBUG] SENT: request body\n"
-	resExpected := "[DEBUG] Shopify X-Request-Id: 00000000-0000-0000-0000-000000000000\n[DEBUG] RECV 200: OK\n[DEBUG] RESP: response body\n"
-
-	client := MustNewClient(app, "fooshop", "abcd", WithLogger(logger))
-
-	client.logBody(nil, "")
-	if out.String() != "" {
-		t.Errorf("logBody expected empty log output but received \"%s\"", out.String())
-	}
-
-	client.logRequest(nil)
-	if out.String() != "" {
-		t.Errorf("logRequest expected empty log output received \"%s\"", out.String())
-	}
-
-	client.logRequest(&http.Request{
-		Method: "GET",
-		URL:    &url.URL{Host: "http://test.com", Path: "/foo/1"},
-		Body:   ioutil.NopCloser(strings.NewReader("request body")),
+	var out bytes.Buffer
+	logger := &LeveledLogger{Level: LevelDebug, stdoutOverride: &out}
+	transport := bodyLifecycleTransport(func(*http.Request) (*http.Response, error) {
+		return &http.Response{StatusCode: 200, Status: "OK", Header: http.Header{"X-Request-Id": {"abc"}}, Body: ioutil.NopCloser(strings.NewReader("response body"))}, nil
 	})
-
-	if out.String() != reqExpected {
-		t.Errorf("doGetHeadersDebug expected stdout \"%s\" received \"%s\"", reqExpected, out)
+	client := MustNewClient(app, "fooshop", "abcd", WithLogger(logger), WithHTTPClient(&http.Client{Transport: transport}))
+	req, _ := http.NewRequest("POST", "https://test.com/foo", strings.NewReader("request body"))
+	if err := client.Do(req, nil); err != nil {
+		t.Fatal(err)
 	}
-
-	err.Reset()
-	out.Reset()
-
-	client.logResponse(nil)
-	if out.String() != "" {
-		t.Errorf("logResponse expected empty log output received \"%s\"", out.String())
-	}
-
-	client.logResponse(&http.Response{
-		Status:     http.StatusText(http.StatusOK),
-		StatusCode: http.StatusOK,
-		Header:     map[string][]string{"X-Request-Id": {"00000000-0000-0000-0000-000000000000"}},
-		Body:       ioutil.NopCloser(strings.NewReader("response body")),
-	})
-
-	if out.String() != resExpected {
-		t.Errorf("doGetHeadersDebug expected stdout \"%s\" received \"%s\"", resExpected, out.String())
+	for _, want := range []string{"POST: https://test.com/foo", "SENT: request body", "X-Request-Id: abc", "RECV 200: OK", "RESP: response body"} {
+		if !strings.Contains(out.String(), want) {
+			t.Errorf("missing %q in %q", want, out.String())
+		}
 	}
 }
