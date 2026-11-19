@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -760,5 +761,15 @@ func TestCustomerListTags(t *testing.T) {
 	// Check correct tag was read
 	if len(tags) > 0 && tags[0] != "tag1" {
 		t.Errorf("Customer.ListTags got %v as the first tag, expected: 'tag1'", tags[0])
+	}
+}
+
+func TestCustomerMarketingOptInLevel(t *testing.T) {
+	var customer Customer
+	if err := json.Unmarshal([]byte(`{"marketing_opt_in_level":"confirmed_opt_in"}`), &customer); err != nil {
+		t.Fatal(err)
+	}
+	if customer.MarketingOptInLevel != "confirmed_opt_in" {
+		t.Fatalf("unexpected opt-in level %q", customer.MarketingOptInLevel)
 	}
 }

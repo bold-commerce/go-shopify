@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -88,3 +89,18 @@ func TimePtr(v time.Time) *time.Time {
 
 // BoolPtr returns a pointer for an optional boolean request field.
 func BoolPtr(v bool) *bool { return &v }
+
+// stringOrNumber preserves the text of fields Shopify can send as a string or a JSON number.
+type stringOrNumber string
+
+func (s *stringOrNumber) UnmarshalJSON(data []byte) error {
+	if data[0] == '"' {
+		return json.Unmarshal(data, (*string)(s))
+	}
+	var n json.Number
+	if err := json.Unmarshal(data, &n); err != nil {
+		return err
+	}
+	*s = stringOrNumber(n)
+	return nil
+}

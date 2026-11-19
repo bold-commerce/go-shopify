@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -47,6 +48,20 @@ type InventoryItem struct {
 	ProvinceCodeOfOrigin         *string                        `json:"province_code_of_origin,omitempty"`
 
 	RequiresShipping *bool `json:"requires_shipping,omitempty"`
+}
+
+// UnmarshalJSON accepts both numeric and quoted harmonized system codes.
+func (item *InventoryItem) UnmarshalJSON(data []byte) error {
+	type plain InventoryItem
+	wire := struct {
+		*plain
+		Code *stringOrNumber `json:"harmonized_system_code"`
+	}{(*plain)(item), (*stringOrNumber)(item.HarmonizedSystemCode)}
+	if err := json.Unmarshal(data, &wire); err != nil {
+		return err
+	}
+	item.HarmonizedSystemCode = (*string)(wire.Code)
+	return nil
 }
 
 // InventoryItemResource is used for handling single item requests and responses

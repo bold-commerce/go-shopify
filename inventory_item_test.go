@@ -188,3 +188,26 @@ func TestInventoryItemUpdate(t *testing.T) {
 
 	inventoryItemTests(t, updatedItem)
 }
+
+func TestInventoryItemHarmonizedSystemCode(t *testing.T) {
+	var item InventoryItem
+	for _, tc := range []struct{ input, want string }{
+		{`{"harmonized_system_code":123456}`, "123456"},
+		{`{"harmonized_system_code":"001234"}`, "001234"},
+		{`{}`, "001234"},
+		{`{"harmonized_system_code":"8471.70.40.35"}`, "8471.70.40.35"},
+	} {
+		if err := json.Unmarshal([]byte(tc.input), &item); err != nil {
+			t.Fatal(err)
+		}
+		if item.HarmonizedSystemCode == nil || *item.HarmonizedSystemCode != tc.want {
+			t.Fatalf("unexpected code for %s", tc.input)
+		}
+	}
+	if err := json.Unmarshal([]byte(`{"harmonized_system_code":null}`), &item); err != nil || item.HarmonizedSystemCode != nil {
+		t.Fatalf("null code: %+v, %v", item, err)
+	}
+	if err := json.Unmarshal([]byte(`{"harmonized_system_code":true}`), &item); err == nil {
+		t.Fatal("accepted boolean code")
+	}
+}

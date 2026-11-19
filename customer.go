@@ -63,7 +63,7 @@ type Customer struct {
 	Currency                  string                 `json:"currency,omitempty"`
 	AcceptsMarketing          *bool                  `json:"accepts_marketing,omitempty"`
 	AcceptsMarketingUpdatedAt *time.Time             `json:"accepts_marketing_updated_at,omitempty"`
-	MarketingOptInLevel       bool                   `json:"marketing_opt_in_level,omitempty"`
+	MarketingOptInLevel       string                 `json:"marketing_opt_in_level,omitempty"`
 	AdminGraphqlApiId         string                 `json:"admin_graphql_api_id,omitempty"`
 	Tags                      string                 `json:"tags,omitempty"`
 	LastOrderId               uint64                 `json:"last_order_id,omitempty"`
