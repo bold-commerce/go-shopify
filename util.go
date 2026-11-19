@@ -69,7 +69,7 @@ func (c *OnlyDate) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (c *OnlyDate) MarshalJSON() ([]byte, error) {
+func (c OnlyDate) MarshalJSON() ([]byte, error) {
 	return []byte(c.String()), nil
 }
 

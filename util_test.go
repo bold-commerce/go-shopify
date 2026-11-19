@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"encoding/json"
 	"net/url"
 	"testing"
 	"time"
@@ -113,9 +114,11 @@ func TestOnlyDateMarshal(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual, _ := c.in.MarshalJSON()
-		if string(actual) != c.expected {
-			t.Errorf("MarshalJSON(%s): expected %s, actual %s", c.in.String(), c.expected, string(actual))
+		for _, value := range []interface{}{c.in, &c.in} {
+			data, err := json.Marshal(value)
+			if err != nil || string(data) != c.expected {
+				t.Errorf("%T: got %s (%v), want %s", value, data, err, c.expected)
+			}
 		}
 	}
 }
