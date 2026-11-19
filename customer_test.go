@@ -780,7 +780,7 @@ func TestCustomerCreateWithAccountOptions(t *testing.T) {
 	var log bytes.Buffer
 	testFeatureEndpoint(t, featureEndpoint{
 		method: "POST", path: "customers.json",
-		request:  `{"customer":{"email":"buyer@example.com","email_marketing_consent":null,"sms_marketing_consent":null,"password":"test-password","password_confirmation":"test-password","send_email_invite":true,"send_email_welcome":false}}`,
+		request:  `{"customer":{"email":"buyer@example.com","password":"test-password","password_confirmation":"test-password","send_email_invite":true,"send_email_welcome":false}}`,
 		response: `{"customer":{"id":7,"email":"response@example.com"}}`, want: &Customer{Id: 7, Email: "response@example.com"},
 		call: func(ctx context.Context) (interface{}, error) {
 			client.log = &LeveledLogger{Level: LevelDebug, stdoutOverride: &log}

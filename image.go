@@ -3,6 +3,7 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -41,6 +42,16 @@ type Image struct {
 	Metafields        []Metafield `json:"metafields,omitempty"`
 	VariantIds        []uint64    `json:"variant_ids,omitempty"`
 	AdminGraphqlApiId string      `json:"admin_graphql_api_id,omitempty"`
+}
+
+// isEmpty reports whether the image would encode as an empty JSON object.
+func (image Image) isEmpty() bool {
+	if len(image.Metafields) > 0 || len(image.VariantIds) > 0 {
+		return false
+	}
+	// The JSON encoder omits both nil and empty slices.
+	image.Metafields, image.VariantIds = nil, nil
+	return reflect.ValueOf(image).IsZero()
 }
 
 // ImageResource represents the result form the products/X/images/Y.json endpoint

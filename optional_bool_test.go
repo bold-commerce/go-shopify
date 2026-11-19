@@ -62,10 +62,10 @@ func TestDisableBooleanSettingsOverHTTP(t *testing.T) {
 		{name: "variant tax", method: "PUT", path: "variants/7.json", request: `{"variant":{"id":7,"taxable":false}}`, response: `{"variant":{"id":7,"taxable":false}}`, want: &Variant{Id: 7, Taxable: BoolPtr(false)}, call: func(ctx context.Context) (interface{}, error) {
 			return client.Variant.Update(ctx, Variant{Id: 7, Taxable: BoolPtr(false)})
 		}},
-		{name: "customer tax", method: "PUT", path: "customers/7.json", request: `{"customer":{"id":7,"tax_exempt":false,"email_marketing_consent":null,"sms_marketing_consent":null}}`, response: `{"customer":{"id":7,"tax_exempt":false}}`, want: &Customer{Id: 7, TaxExempt: BoolPtr(false)}, call: func(ctx context.Context) (interface{}, error) {
+		{name: "customer tax", method: "PUT", path: "customers/7.json", request: `{"customer":{"id":7,"tax_exempt":false}}`, response: `{"customer":{"id":7,"tax_exempt":false}}`, want: &Customer{Id: 7, TaxExempt: BoolPtr(false)}, call: func(ctx context.Context) (interface{}, error) {
 			return client.Customer.Update(ctx, Customer{Id: 7, TaxExempt: BoolPtr(false)})
 		}},
-		{name: "article visibility", method: "PUT", path: "blogs/11/articles/7.json", request: `{"article":{"id":7,"published":false,"updated_at":"0001-01-01T00:00:00Z"}}`, response: `{"article":{"id":7,"published":false}}`, want: &Article{Id: 7, Published: BoolPtr(false)}, call: func(ctx context.Context) (interface{}, error) {
+		{name: "article visibility", method: "PUT", path: "blogs/11/articles/7.json", request: `{"article":{"id":7,"published":false}}`, response: `{"article":{"id":7,"published":false}}`, want: &Article{Id: 7, Published: BoolPtr(false)}, call: func(ctx context.Context) (interface{}, error) {
 			return client.Article.Update(ctx, 11, 7, Article{Id: 7, Published: BoolPtr(false)})
 		}},
 	} {

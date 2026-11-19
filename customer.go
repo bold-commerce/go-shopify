@@ -69,8 +69,8 @@ type Customer struct {
 	Tags                      string                 `json:"tags,omitempty"`
 	LastOrderId               uint64                 `json:"last_order_id,omitempty"`
 	LastOrderName             string                 `json:"last_order_name,omitempty"`
-	EmailMarketingConsent     *EmailMarketingConsent `json:"email_marketing_consent"`
-	SMSMarketingConsent       *SMSMarketingConsent   `json:"sms_marketing_consent"`
+	EmailMarketingConsent     *EmailMarketingConsent `json:"email_marketing_consent,omitempty"`
+	SMSMarketingConsent       *SMSMarketingConsent   `json:"sms_marketing_consent,omitempty"`
 	DefaultAddress            *CustomerAddress       `json:"default_address,omitempty"`
 	Addresses                 []*CustomerAddress     `json:"addresses,omitempty"`
 	CreatedAt                 *time.Time             `json:"created_at,omitempty"`
@@ -106,15 +106,15 @@ type CustomerSearchOptions struct {
 
 type EmailMarketingConsent struct {
 	State            string     `json:"state"`
-	OptInLevel       string     `json:"opt_in_level"`
-	ConsentUpdatedAt *time.Time `json:"consent_updated_at"`
+	OptInLevel       string     `json:"opt_in_level,omitempty"`
+	ConsentUpdatedAt *time.Time `json:"consent_updated_at,omitempty"`
 }
 
 type SMSMarketingConsent struct {
 	State                string     `json:"state"`
-	OptInLevel           string     `json:"opt_in_level"`
-	ConsentUpdatedAt     *time.Time `json:"consent_updated_at"`
-	ConsentCollectedFrom string     `json:"consent_collected_from"`
+	OptInLevel           string     `json:"opt_in_level,omitempty"`
+	ConsentUpdatedAt     *time.Time `json:"consent_updated_at,omitempty"`
+	ConsentCollectedFrom string     `json:"consent_collected_from,omitempty"`
 }
 
 // List customers
