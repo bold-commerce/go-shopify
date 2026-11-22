@@ -16,8 +16,14 @@ type FulfillmentEventService interface {
 	List(ctx context.Context, orderId uint64, fulfillmentId uint64) ([]FulfillmentEvent, error)
 	Get(ctx context.Context, orderId uint64, fulfillmentId uint64, eventId uint64) (*FulfillmentEvent, error)
 	Create(ctx context.Context, orderId uint64, fulfillmentId uint64, event FulfillmentEvent) (*FulfillmentEvent, error)
-	CreateWithOptions(ctx context.Context, orderId uint64, fulfillmentId uint64, options FulfillmentEventCreateOptions) (*FulfillmentEvent, error)
 	Delete(ctx context.Context, orderId uint64, fulfillmentId uint64, eventId uint64) error
+}
+
+// FulfillmentEventServiceWithOptions extends the original service with explicit create fields.
+// NewClient installs a service that implements both interfaces.
+type FulfillmentEventServiceWithOptions interface {
+	FulfillmentEventService
+	CreateWithOptions(ctx context.Context, orderId uint64, fulfillmentId uint64, options FulfillmentEventCreateOptions) (*FulfillmentEvent, error)
 }
 
 // FulfillmentEvent represents a Shopify fulfillment event.

@@ -120,15 +120,14 @@ type FulfillmentOrderFinancialSummary struct {
 
 // FulfillmentOrderLineItem represents a line item for a FulfillmentOrder
 type FulfillmentOrderLineItem struct {
-	FinancialSummaries  []FulfillmentOrderFinancialSummary `json:"financial_summaries,omitempty"`
-	Id                  uint64                             `json:"id,omitempty"`
-	ShopId              uint64                             `json:"shop_id,omitempty"`
-	FulfillmentOrderId  uint64                             `json:"fulfillment_order_id,omitempty"`
-	LineItemId          uint64                             `json:"line_item_id,omitempty"`
-	InventoryItemId     uint64                             `json:"inventory_item_id,omitempty"`
-	Quantity            uint64                             `json:"quantity,omitempty"`
-	FulfillableQuantity uint64                             `json:"fulfillable_quantity,omitempty"`
-	VariantId           uint64                             `json:"variant_id,omitempty"`
+	Id                  uint64 `json:"id,omitempty"`
+	ShopId              uint64 `json:"shop_id,omitempty"`
+	FulfillmentOrderId  uint64 `json:"fulfillment_order_id,omitempty"`
+	LineItemId          uint64 `json:"line_item_id,omitempty"`
+	InventoryItemId     uint64 `json:"inventory_item_id,omitempty"`
+	Quantity            uint64 `json:"quantity,omitempty"`
+	FulfillableQuantity uint64 `json:"fulfillable_quantity,omitempty"`
+	VariantId           uint64 `json:"variant_id,omitempty"`
 }
 
 // FulfillmentOrderMerchantRequest represents a MerchantRequest for a FulfillmentOrder
@@ -180,6 +179,63 @@ type FulfillmentOrder struct {
 	UpdatedAt           *time.Time                          `json:"updated_at,omitempty"`
 	Origin              *FulfillmentOrderAssignedLocation   `json:"origin,omitempty"`
 	OutgoingRequests    []FulfillmentOrderOutgoingRequest   `json:"outgoing_requests,omitempty"`
+
+	// FinancialSummaries is keyed by fulfillment order line item ID (LineItems[i].Id).
+	FinancialSummaries map[uint64][]FulfillmentOrderFinancialSummary `json:"-"`
+}
+
+// Shopify nests optional summaries inside line_items. Keep them on the order so
+// line items retain their original value equality, including when used as map keys.
+type fulfillmentOrderFields FulfillmentOrder
+
+type fulfillmentOrderLineItemJSON struct {
+	FulfillmentOrderLineItem
+	FinancialSummaries *[]FulfillmentOrderFinancialSummary `json:"financial_summaries,omitempty"`
+}
+
+func (o *FulfillmentOrder) UnmarshalJSON(data []byte) error {
+	wire := struct {
+		*fulfillmentOrderFields
+		LineItems json.RawMessage `json:"line_items"`
+	}{fulfillmentOrderFields: (*fulfillmentOrderFields)(o)}
+	if err := json.Unmarshal(data, &wire); err != nil || wire.LineItems == nil {
+		return err
+	}
+	var items []fulfillmentOrderLineItemJSON
+	if err := json.Unmarshal(wire.LineItems, &items); err != nil {
+		return err
+	}
+	o.LineItems, o.FinancialSummaries = nil, nil
+	if items != nil {
+		o.LineItems = make([]FulfillmentOrderLineItem, len(items))
+	}
+	for i, item := range items {
+		o.LineItems[i] = item.FulfillmentOrderLineItem
+		if item.FinancialSummaries != nil {
+			if o.FinancialSummaries == nil {
+				o.FinancialSummaries = make(map[uint64][]FulfillmentOrderFinancialSummary)
+			}
+			o.FinancialSummaries[item.Id] = *item.FinancialSummaries
+		}
+	}
+	return nil
+}
+
+func (o FulfillmentOrder) MarshalJSON() ([]byte, error) {
+	if len(o.FinancialSummaries) == 0 {
+		return json.Marshal((*fulfillmentOrderFields)(&o))
+	}
+	items := make([]fulfillmentOrderLineItemJSON, len(o.LineItems))
+	for i, item := range o.LineItems {
+		items[i].FulfillmentOrderLineItem = item
+		if summaries, ok := o.FinancialSummaries[item.Id]; ok {
+			items[i].FinancialSummaries = &summaries
+		}
+	}
+	return json.Marshal(struct {
+		*fulfillmentOrderFields
+		LineItems []fulfillmentOrderLineItemJSON `json:"line_items,omitempty"`
+	}{(*fulfillmentOrderFields)(&o), items})
 }
 
 // FulfillmentOrdersResource represents the result from the fulfillment_orders.json endpoint
