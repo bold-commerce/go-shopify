@@ -155,6 +155,21 @@ token, err := app.RefreshAccessToken(ctx, shopName, storedRefreshToken)
 token, err = app.MigrateToExpiringAccessToken(ctx, shopName, permanentToken)
 ```
 
+##### Online tokens and embedded apps
+
+For per-user authorization in a standalone app, call `AuthorizeOnlineURL` and
+exchange the callback code with `GetOnlineAccessToken`. Use the same state and
+signature checks shown above. The result includes the user and their granted scopes.
+
+For an embedded app, use the shop from the verified ID token and exchange the
+token for the access type your app needs:
+
+```go
+online, err := app.ExchangeIDTokenForOnlineAccessToken(ctx, shop, idToken)
+// For background work, request an offline token and store the returned pair.
+offline, err := app.ExchangeIDTokenForExpiringAccessToken(ctx, shop, idToken)
+```
+
 #### Api calls with a token
 
 With a valid access token, you can make API calls like this. These snippets use

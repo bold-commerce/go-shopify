@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -24,14 +25,28 @@ const shopifyChecksumHeader = "X-Shopify-Hmac-Sha256"
 
 var accessTokenRelPath = "admin/oauth/access_token"
 
+var shopDomain = regexp.MustCompile(`(?i)^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.myshopify\.com$`)
+
 // Returns a Shopify oauth authorization url for the given shopname and state.
 //
 // State is a unique value that can be used to check the authenticity during a
 // callback from Shopify.
 func (app App) AuthorizeUrl(shopName string, state string) (string, error) {
+	return app.authorizeURL(shopName, state, false)
+}
+
+// AuthorizeOnlineURL builds the authorization URL for a per-user online access token.
+func (app App) AuthorizeOnlineURL(shopName, state string) (string, error) {
+	return app.authorizeURL(shopName, state, true)
+}
+
+func (app App) authorizeURL(shopName, state string, online bool) (string, error) {
 	shopUrl, err := url.Parse(ShopBaseUrl(shopName))
 	if err != nil {
 		return "", err
+	}
+	if !shopDomain.MatchString(ShopFullName(shopName)) {
+		return "", errors.New("invalid Shopify shop domain")
 	}
 	shopUrl.Path = "/admin/oauth/authorize"
 	query := shopUrl.Query()
@@ -39,6 +54,9 @@ func (app App) AuthorizeUrl(shopName string, state string) (string, error) {
 	query.Set("redirect_uri", app.RedirectUrl)
 	query.Set("scope", app.Scope)
 	query.Set("state", state)
+	if online {
+		query.Set("grant_options[]", "per-user")
+	}
 	shopUrl.RawQuery = query.Encode()
 	return shopUrl.String(), nil
 }
@@ -108,6 +126,8 @@ func (app App) GetAccessToken(ctx context.Context, shopName string, code string)
 
 const (
 	tokenExchangeGrantType = "urn:ietf:params:oauth:grant-type:token-exchange"
+	idTokenType            = "urn:ietf:params:oauth:token-type:id_token"
+	onlineAccessTokenType  = "urn:shopify:params:oauth:token-type:online-access-token"
 	offlineAccessTokenType = "urn:shopify:params:oauth:token-type:offline-access-token"
 )
 
@@ -123,23 +143,52 @@ type ExpiringAccessToken struct {
 	RefreshTokenExpiresIn int `json:"refresh_token_expires_in"`
 }
 
+// OnlineAccessToken authorizes Admin API calls for the associated user.
+type OnlineAccessToken struct {
+	AccessToken         string `json:"access_token"`
+	Scope               string `json:"scope"`
+	ExpiresIn           int    `json:"expires_in"`
+	AssociatedUserScope string `json:"associated_user_scope"`
+	AssociatedUser      struct {
+		Id            uint64 `json:"id"`
+		FirstName     string `json:"first_name"`
+		LastName      string `json:"last_name"`
+		Email         string `json:"email"`
+		EmailVerified bool   `json:"email_verified"`
+		AccountOwner  bool   `json:"account_owner"`
+		Locale        string `json:"locale"`
+		Collaborator  bool   `json:"collaborator"`
+	} `json:"associated_user"`
+}
+
+// GetOnlineAccessToken exchanges the authorization code returned by AuthorizeOnlineURL.
+func (app App) GetOnlineAccessToken(ctx context.Context, shopName, code string) (*OnlineAccessToken, error) {
+	return app.requestOnlineAccessToken(ctx, shopName, map[string]string{"code": code})
+}
+
+// ExchangeIDTokenForOnlineAccessToken gets an online token for an embedded app user.
+func (app App) ExchangeIDTokenForOnlineAccessToken(ctx context.Context, shopName, idToken string) (*OnlineAccessToken, error) {
+	return app.requestOnlineAccessToken(ctx, shopName, tokenExchange(idToken, idTokenType, onlineAccessTokenType))
+}
+
+func (app App) requestOnlineAccessToken(ctx context.Context, shopName string, data map[string]string) (*OnlineAccessToken, error) {
+	var token OnlineAccessToken
+	if err := app.requestToken(ctx, shopName, data, &token); err != nil {
+		return nil, err
+	}
+	return &token, nil
+}
+
+// ExchangeIDTokenForExpiringAccessToken gets an expiring offline token for an embedded app.
+func (app App) ExchangeIDTokenForExpiringAccessToken(ctx context.Context, shopName, idToken string) (*ExpiringAccessToken, error) {
+	return app.requestExpiringAccessToken(ctx, shopName, tokenExchange(idToken, idTokenType, offlineAccessTokenType))
+}
+
 // GetExpiringAccessToken exchanges an authorization code for an expiring
 // offline access token. It is the expiring counterpart of GetAccessToken.
 // Docs: https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens
 func (app App) GetExpiringAccessToken(ctx context.Context, shopName string, code string) (*ExpiringAccessToken, error) {
-	data := struct {
-		ClientId     string `json:"client_id"`
-		ClientSecret string `json:"client_secret"`
-		Code         string `json:"code"`
-		Expiring     string `json:"expiring"`
-	}{
-		ClientId:     app.ApiKey,
-		ClientSecret: app.ApiSecret,
-		Code:         code,
-		Expiring:     "1",
-	}
-
-	return app.requestExpiringAccessToken(ctx, shopName, data)
+	return app.requestExpiringAccessToken(ctx, shopName, map[string]string{"code": code, "expiring": "1"})
 }
 
 // RefreshAccessToken gets a new expiring offline access token using a refresh
@@ -147,19 +196,7 @@ func (app App) GetExpiringAccessToken(ctx context.Context, shopName string, code
 // RefreshToken replaces the one that was passed in.
 // Docs: https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens
 func (app App) RefreshAccessToken(ctx context.Context, shopName string, refreshToken string) (*ExpiringAccessToken, error) {
-	data := struct {
-		ClientId     string `json:"client_id"`
-		ClientSecret string `json:"client_secret"`
-		GrantType    string `json:"grant_type"`
-		RefreshToken string `json:"refresh_token"`
-	}{
-		ClientId:     app.ApiKey,
-		ClientSecret: app.ApiSecret,
-		GrantType:    "refresh_token",
-		RefreshToken: refreshToken,
-	}
-
-	return app.requestExpiringAccessToken(ctx, shopName, data)
+	return app.requestExpiringAccessToken(ctx, shopName, map[string]string{"grant_type": "refresh_token", "refresh_token": refreshToken})
 }
 
 // MigrateToExpiringAccessToken exchanges a non-expiring offline access token
@@ -167,43 +204,55 @@ func (app App) RefreshAccessToken(ctx context.Context, shopName string, refreshT
 // exchange succeeds.
 // Docs: https://shopify.dev/docs/apps/build/authentication-authorization/migrate-to-expiring-offline-access-tokens
 func (app App) MigrateToExpiringAccessToken(ctx context.Context, shopName string, accessToken string) (*ExpiringAccessToken, error) {
-	data := struct {
-		ClientId           string `json:"client_id"`
-		ClientSecret       string `json:"client_secret"`
-		GrantType          string `json:"grant_type"`
-		SubjectToken       string `json:"subject_token"`
-		SubjectTokenType   string `json:"subject_token_type"`
-		RequestedTokenType string `json:"requested_token_type"`
-		Expiring           string `json:"expiring"`
-	}{
-		ClientId:           app.ApiKey,
-		ClientSecret:       app.ApiSecret,
-		GrantType:          tokenExchangeGrantType,
-		SubjectToken:       accessToken,
-		SubjectTokenType:   offlineAccessTokenType,
-		RequestedTokenType: offlineAccessTokenType,
-		Expiring:           "1",
-	}
-
-	return app.requestExpiringAccessToken(ctx, shopName, data)
+	return app.requestExpiringAccessToken(ctx, shopName, tokenExchange(accessToken, offlineAccessTokenType, offlineAccessTokenType))
 }
 
-func (app App) requestExpiringAccessToken(ctx context.Context, shopName string, data interface{}) (*ExpiringAccessToken, error) {
-	client := app.Client
-	if client == nil {
-		client = MustNewClient(app, shopName, "")
+func tokenExchange(subject, subjectType, requestedType string) map[string]string {
+	data := map[string]string{
+		"grant_type":           tokenExchangeGrantType,
+		"subject_token":        subject,
+		"subject_token_type":   subjectType,
+		"requested_token_type": requestedType,
 	}
+	if requestedType == offlineAccessTokenType {
+		data["expiring"] = "1"
+	}
+	return data
+}
 
-	req, err := client.NewRequest(ctx, "POST", accessTokenRelPath, data, nil)
+func (app App) requestExpiringAccessToken(ctx context.Context, shopName string, data map[string]string) (*ExpiringAccessToken, error) {
+	var token ExpiringAccessToken
+	if err := app.requestToken(ctx, shopName, data, &token); err != nil {
+		return nil, err
+	}
+	return &token, nil
+}
+
+func (app App) requestToken(ctx context.Context, shopName string, data map[string]string, result interface{}) error {
+	if !shopDomain.MatchString(ShopFullName(shopName)) {
+		return errors.New("invalid Shopify shop domain")
+	}
+	// Use the requested shop and keep existing API credentials out of the exchange.
+	client, err := NewClient(App{}, shopName, "")
 	if err != nil {
-		return nil, err
+		return err
 	}
+	if app.Client != nil {
+		client.Client = app.Client.Client
+		client.retries = app.Client.retries
+	}
+	// A redirect can forward the grant and the client secret to another endpoint.
+	httpClient := *client.Client
+	httpClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+	client.Client = &httpClient
 
-	token := new(ExpiringAccessToken)
-	if err := client.Do(req, token); err != nil {
-		return nil, err
+	data["client_id"] = app.ApiKey
+	data["client_secret"] = app.ApiSecret
+	req, err := client.NewRequest(ctx, http.MethodPost, accessTokenRelPath, data, nil)
+	if err != nil {
+		return err
 	}
-	return token, nil
+	return client.Do(req, result)
 }
 
 // Verify a message against a message HMAC

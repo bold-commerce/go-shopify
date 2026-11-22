@@ -561,3 +561,71 @@ func TestWebhookBodySizeLimit(t *testing.T) {
 		req.Body.Close()
 	}
 }
+
+func TestOnlineAuthorizationAndIDTokenExchange(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	ctx := context.Background()
+	authURL, err := app.AuthorizeOnlineURL("second-shop", "state")
+	if err != nil {
+		t.Fatal(err)
+	}
+	u, err := url.Parse(authURL)
+	if err != nil || u.Host != "second-shop.myshopify.com" || u.Query().Get("grant_options[]") != "per-user" || u.Query().Get("state") != "state" {
+		t.Fatalf("online authorization URL = %s", authURL)
+	}
+
+	const online = `{"access_token":"online","expires_in":42,"scope":"read_orders,read_customers","associated_user_scope":"read_orders","associated_user":{"id":9007199254740993,"first_name":"A","last_name":"B","email":"a@example.com","email_verified":true,"account_owner":true,"collaborator":false,"locale":"en"}}`
+	const endpoint = "https://second-shop.myshopify.com/admin/oauth/access_token"
+	for _, tc := range []struct {
+		name     string
+		params   map[string]string
+		response string
+	}{
+		{"online code", map[string]string{"code": "code"}, online},
+		{"online ID token", map[string]string{"grant_type": tokenExchangeGrantType, "subject_token": "id-token", "subject_token_type": idTokenType, "requested_token_type": onlineAccessTokenType}, online},
+		{"offline ID token", map[string]string{"grant_type": tokenExchangeGrantType, "subject_token": "id-token", "subject_token_type": idTokenType, "requested_token_type": offlineAccessTokenType, "expiring": "1"}, expiringAccessTokenResponse},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.params["client_id"], tc.params["client_secret"] = app.ApiKey, app.ApiSecret
+			httpmock.RegisterResponder("POST", endpoint, func(req *http.Request) (*http.Response, error) {
+				var got map[string]string
+				if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+					return nil, err
+				}
+				if !reflect.DeepEqual(got, tc.params) {
+					t.Errorf("grant fields = %v, want %v", got, tc.params)
+				}
+				if req.Header.Get("X-Shopify-Access-Token") != "" || req.Header.Get("Authorization") != "" {
+					t.Error("sent API credentials with token request")
+				}
+				return httpmock.NewStringResponse(200, tc.response), nil
+			})
+			if tc.name == "offline ID token" {
+				token, err := app.ExchangeIDTokenForExpiringAccessToken(ctx, "second-shop", "id-token")
+				if err != nil || token.AccessToken != "footoken" || token.RefreshToken != "foorefresh" || token.ExpiresIn != 3600 {
+					t.Fatalf("offline token = %+v, %v", token, err)
+				}
+				return
+			}
+			var token *OnlineAccessToken
+			var err error
+			if tc.name == "online code" {
+				token, err = app.GetOnlineAccessToken(ctx, "second-shop", "code")
+			} else {
+				token, err = app.ExchangeIDTokenForOnlineAccessToken(ctx, "second-shop", "id-token")
+			}
+			if err != nil || token.AccessToken != "online" || token.ExpiresIn != 42 || token.Scope != "read_orders,read_customers" || token.AssociatedUserScope != "read_orders" || token.AssociatedUser.Id != 9007199254740993 || !token.AssociatedUser.EmailVerified || token.AssociatedUser.Email != "a@example.com" {
+				t.Fatalf("online token = %+v, %v", token, err)
+			}
+		})
+	}
+	httpmock.RegisterResponder("POST", endpoint, httpmock.NewStringResponder(400, `{"errors":"invalid token"}`))
+	if token, err := app.ExchangeIDTokenForOnlineAccessToken(ctx, "second-shop", "expired"); err == nil || token != nil {
+		t.Fatal("expected invalid token error")
+	}
+	if token, err := app.ExchangeIDTokenForExpiringAccessToken(ctx, "bad/shop", "id-token"); err == nil || token != nil {
+		t.Fatal("expected invalid shop error")
+	}
+}
