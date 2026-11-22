@@ -60,11 +60,11 @@ func TestAppGetAccessToken(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+	httpmock.RegisterResponder("POST", "https://requested-shop.myshopify.com/admin/oauth/access_token",
 		httpmock.NewStringResponder(200, `{"access_token":"footoken"}`))
 
 	app.Client = client
-	token, err := app.GetAccessToken(context.Background(), "fooshop", "foocode")
+	token, err := app.GetAccessToken(context.Background(), "requested-shop", "foocode")
 	if err != nil {
 		t.Fatalf("App.GetAccessToken(): %v", err)
 	}
@@ -79,11 +79,11 @@ func TestAppGetAccessTokenWithClientCredentialsGrant(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+	httpmock.RegisterResponder("POST", "https://requested-shop.myshopify.com/admin/oauth/access_token",
 		httpmock.NewStringResponder(200, `{"access_token":"footoken","scope":"read_products","expires_in":86399}`))
 
 	app.Client = client
-	token, err := app.GetAccessTokenWithClientCredentialsGrant(context.Background(), "fooshop")
+	token, err := app.GetAccessTokenWithClientCredentialsGrant(context.Background(), "requested-shop")
 	if err != nil {
 		t.Fatalf("App.GetAccessTokenWithClientCredentialsGrant(): %v", err)
 	}
@@ -153,7 +153,8 @@ func TestAppGetAccessTokenError(t *testing.T) {
 	setup()
 	defer teardown()
 
-	// app.Client isn't specified so MustNewClient called
+	app.Client = client
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token", httpmock.NewStringResponder(404, `{"errors":"application_cannot_be_found"}`))
 	expectedError := errors.New("application_cannot_be_found")
 
 	token, err := app.GetAccessToken(context.Background(), "fooshop", "")
@@ -304,20 +305,18 @@ func TestAppMigrateToExpiringAccessToken(t *testing.T) {
 }
 
 func TestAppExpiringAccessTokenNilClient(t *testing.T) {
-	setup()
-	defer teardown()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+		httpmock.NewStringResponder(200, expiringAccessTokenResponse))
 
-	oldPath := accessTokenRelPath
-	accessTokenRelPath = "://example.com" // cause NewRequest to trip a parse error
-	defer func() { accessTokenRelPath = oldPath }()
-
-	// app.Client isn't specified so MustNewClient called
+	app := App{ApiKey: "apikey", ApiSecret: "hush"}
 	token, err := app.GetExpiringAccessToken(context.Background(), "fooshop", "foocode")
-	if err == nil || !strings.Contains(err.Error(), "missing protocol scheme") {
-		t.Errorf("Expected missing protocol scheme error, got: %v", err)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if token != nil {
-		t.Errorf("Expected nil token received %v", token)
+	if token == nil || token.AccessToken != "footoken" || token.RefreshToken != "foorefresh" {
+		t.Fatal("expected the access and refresh tokens from the requested shop")
 	}
 }
 
