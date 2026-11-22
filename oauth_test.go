@@ -2,7 +2,10 @@ package goshopify
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -316,11 +319,12 @@ func TestAppExpiringAccessTokenNilClient(t *testing.T) {
 }
 
 func TestAppVerifyAuthorizationURL(t *testing.T) {
+	app := App{ApiSecret: "hush"}
 	// These credentials are from the Shopify example page:
 	// https://shopify.dev/docs/api/admin-rest/latest/resources/oauth#verification
-	urlOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&signature=11813d1e7bbf4629edcda0628a3f7a20&timestamp=1337178173")
-	urlOkWithState, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=7db6973c2aff68295ebcf354c2ce528a6b09aef1146baafccc2e0b369fff5f6d&shop=some-shop.myshopify.com&signature=11813d1e7bbf4629edcda0628a3f7a20&timestamp=1337178173&state=abcd")
-	urlNotOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&signature=11813d1e7bbf4629edcda0628a3f7a20&timestamp=133717817")
+	urlOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&timestamp=1337178173")
+	urlOkWithState, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=7db6973c2aff68295ebcf354c2ce528a6b09aef1146baafccc2e0b369fff5f6d&shop=some-shop.myshopify.com&timestamp=1337178173&state=abcd")
+	urlNotOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&timestamp=133717817")
 
 	cases := []struct {
 		u        *url.URL
@@ -501,5 +505,25 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 	isValid, err = app.VerifyWebhookRequestVerbose(req)
 	if err == nil || isValid == true || err.Error() != errors.New("test-error").Error() {
 		t.Errorf("Expected error %s got %s", errors.New("test-error"), err)
+	}
+}
+
+func TestVerifySignedQueryInputs(t *testing.T) {
+	app := App{ApiSecret: "hush"}
+	const digest = "4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20"
+	const message = "code=0907a61c0c8d55e99db179b68161bc00&shop=some-shop.myshopify.com&timestamp=1337178173"
+	mac := hmac.New(sha256.New, nil)
+	mac.Write([]byte(message))
+	emptyKeyMAC := hex.EncodeToString(mac.Sum(nil))
+	if (App{}).VerifyMessage(message, emptyKeyMAC) || app.VerifyMessage(message, digest+"zz") {
+		t.Fatal("accepted invalid authentication")
+	}
+	if (App{}).VerifySignature(&url.URL{RawQuery: "signature=b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad"}) {
+		t.Fatal("accepted empty proxy secret")
+	}
+	for _, extra := range []string{"&signature=extra", "&field=%zz", "&hmac=" + digest} {
+		if ok, _ := app.VerifyAuthorizationURL(&url.URL{RawQuery: message + "&hmac=" + digest + extra}); ok {
+			t.Fatal("accepted invalid callback", extra)
+		}
 	}
 }

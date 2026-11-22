@@ -205,24 +205,36 @@ func (app App) requestExpiringAccessToken(ctx context.Context, shopName string, 
 
 // Verify a message against a message HMAC
 func (app App) VerifyMessage(message, messageMAC string) bool {
+	if app.ApiSecret == "" || len(messageMAC) != hex.EncodedLen(sha256.Size) {
+		return false
+	}
+	actualMac, err := hex.DecodeString(messageMAC)
+	if err != nil {
+		return false
+	}
 	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
 	mac.Write([]byte(message))
 	expectedMAC := mac.Sum(nil)
-
-	// shopify HMAC is in hex so it needs to be decoded
-	actualMac, _ := hex.DecodeString(messageMAC)
 
 	return hmac.Equal(actualMac, expectedMAC)
 }
 
 // Verifying URL callback parameters.
 func (app App) VerifyAuthorizationURL(u *url.URL) (bool, error) {
-	q := u.Query()
+	if u == nil {
+		return false, errors.New("missing callback URL")
+	}
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return false, err
+	}
+	if len(q["hmac"]) != 1 {
+		return false, nil
+	}
 	messageMAC := q.Get("hmac")
 
-	// Remove hmac and signature and leave the rest of the parameters alone.
+	// Shopify signs every callback parameter except hmac.
 	q.Del("hmac")
-	q.Del("signature")
 
 	message, err := url.QueryUnescape(q.Encode())
 
@@ -289,7 +301,13 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 // Shopify adds a signature paramter that is used to verify that the request was sent by Shopify.
 // https://shopify.dev/tutorials/display-dynamic-store-data-with-app-proxies
 func (app App) VerifySignature(u *url.URL) bool {
-	val := u.Query()
+	if u == nil {
+		return false
+	}
+	val, err := url.ParseQuery(u.RawQuery)
+	if err != nil || len(val["signature"]) != 1 {
+		return false
+	}
 	sig := val.Get("signature")
 	val.Del("signature")
 
@@ -301,16 +319,5 @@ func (app App) VerifySignature(u *url.URL) bool {
 
 	joined := strings.Join(keys, "")
 
-	return hmacSHA256([]byte(app.ApiSecret), []byte(joined), []byte(sig))
-}
-
-func hmacSHA256(key, body, expected []byte) bool {
-	mac := hmac.New(sha256.New, key)
-	mac.Write(body)
-	result := mac.Sum(nil)
-
-	dst := make([]byte, hex.EncodedLen(len(result)))
-	hex.Encode(dst, result)
-
-	return hmac.Equal(dst, expected)
+	return app.VerifyMessage(joined, sig)
 }
