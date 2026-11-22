@@ -123,16 +123,20 @@ func TestRefundFullShippingRequest(t *testing.T) {
 func TestRefundCalculateLineItems(t *testing.T) {
 	amount := decimal.RequireFromString("10.50")
 	tax := decimal.RequireFromString("0.75")
+	price := decimal.RequireFromString("5.00")
+	discountedPrice := decimal.RequireFromString("4.75")
+	discountedTotalPrice := decimal.RequireFromString("9.50")
+	totalCartDiscountAmount := decimal.RequireFromString("0.50")
 	parent := int64(9007199254740993)
 	items := []RefundLineItem{{LineItemId: 7, Quantity: 2, RestockType: "return", LocationId: 9}}
 	testFeatureEndpoint(t, featureEndpoint{
 		method:   "POST",
 		path:     "orders/11/refunds/calculate.json",
 		request:  `{"refund":{"currency":"USD","refund_line_items":[{"line_item_id":7,"quantity":2,"restock_type":"return","location_id":9}]}}`,
-		response: `{"refund":{"currency":"USD","refund_line_items":[{"line_item_id":7,"quantity":2,"restock_type":"return","location_id":9,"subtotal":"10.50","total_tax":"0.75"}],"shipping":{"amount":"10.50","tax":"0.75","maximum_refundable":"10.50"},"transactions":[{"parent_id":9007199254740993,"amount":"10.50","maximum_refundable":"10.50","kind":"suggested_refund","currency":"USD"}]}}`,
+		response: `{"refund":{"currency":"USD","refund_line_items":[{"line_item_id":7,"quantity":2,"restock_type":"return","location_id":9,"price":"5.00","discounted_price":"4.75","discounted_total_price":"9.50","total_cart_discount_amount":"0.50","subtotal":"10.50","total_tax":"0.75"}],"shipping":{"amount":"10.50","tax":"0.75","maximum_refundable":"10.50"},"transactions":[{"parent_id":9007199254740993,"amount":"10.50","maximum_refundable":"10.50","kind":"suggested_refund","currency":"USD"}]}}`,
 		want: &Refund{
 			Currency:        "USD",
-			RefundLineItems: []RefundLineItem{{LineItemId: 7, Quantity: 2, RestockType: "return", LocationId: 9, Subtotal: &amount, TotalTax: &tax}},
+			RefundLineItems: []RefundLineItem{{LineItemId: 7, Quantity: 2, RestockType: "return", LocationId: 9, Price: &price, DiscountedPrice: &discountedPrice, DiscountedTotalPrice: &discountedTotalPrice, TotalCartDiscountAmount: &totalCartDiscountAmount, Subtotal: &amount, TotalTax: &tax}},
 			Shipping:        &RefundShipping{Amount: &amount, Tax: &tax, MaximumRefundable: &amount},
 			Transactions:    []Transaction{{ParentId: &parent, Amount: &amount, MaximumRefundable: &amount, Kind: "suggested_refund", Currency: "USD"}},
 		},
