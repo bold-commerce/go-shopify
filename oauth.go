@@ -191,6 +191,9 @@ func (app App) requestExpiringAccessToken(ctx context.Context, shopName string, 
 	if err := app.requestToken(ctx, shopName, data, &token); err != nil {
 		return nil, err
 	}
+	if token.AccessToken == "" || token.RefreshToken == "" {
+		return nil, errors.New("expiring token response requires both an access token and a refresh token")
+	}
 	return &token, nil
 }
 

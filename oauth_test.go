@@ -711,3 +711,15 @@ func TestTokenExchangeRecordsRateLimitsForItsShop(t *testing.T) {
 		}
 	}
 }
+
+func TestRefreshRequiresTokenPair(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	for _, body := range []string{`{}`, `{"access_token":"only"}`, `{"refresh_token":"only"}`} {
+		httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token", httpmock.NewStringResponder(200, body))
+		if token, err := app.RefreshAccessToken(context.Background(), "fooshop", "old"); token != nil || err == nil {
+			t.Fatal("accepted incomplete token pair")
+		}
+	}
+}
