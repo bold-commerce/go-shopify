@@ -531,14 +531,15 @@ type LineItem struct {
 }
 
 type DiscountAllocations struct {
-	Amount                   *decimal.Decimal `json:"amount,omitempty"`
-	DiscountApplicationIndex int              `json:"discount_application_index,omitempty"`
-	AmountSet                *AmountSet       `json:"amount_set,omitempty"`
-	ApplicationType          string           `json:"application_type,omitempty"`
-	CreatedAt                *time.Time       `json:"created_at,omitempty"`
-	Description              string           `json:"description,omitempty"`
-	DiscountClass            string           `json:"discount_class,omitempty"`
-	Id                       *uint64          `json:"id,omitempty"`
+	DiscountApplication      *DiscountApplication `json:"discount_application,omitempty"`
+	Amount                   *decimal.Decimal     `json:"amount,omitempty"`
+	DiscountApplicationIndex int                  `json:"discount_application_index,omitempty"`
+	AmountSet                *AmountSet           `json:"amount_set,omitempty"`
+	ApplicationType          string               `json:"application_type,omitempty"`
+	CreatedAt                *time.Time           `json:"created_at,omitempty"`
+	Description              string               `json:"description,omitempty"`
+	DiscountClass            string               `json:"discount_class,omitempty"`
+	Id                       *uint64              `json:"id,omitempty"`
 }
 
 type AmountSet struct {
