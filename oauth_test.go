@@ -367,13 +367,22 @@ func TestSignature(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		ok := app.VerifySignature(c.u)
+		ok := app.verifySignatureAt(c.u, 1317327555)
 		if ok != c.expected {
 			t.Errorf("VerifySignature expected: |%v| but got: |%v|", c.expected, ok)
 		}
 	}
 }
 
+func TestProxySignatureTimestamp(t *testing.T) {
+	app := App{ApiSecret: "hush"}
+	u, _ := url.Parse("https://example.com/?extra=1&extra=2&shop=shop-name.myshopify.com&path_prefix=%2Fapps%2Fawesome_reviews&timestamp=1317327555&signature=a9718877bea71c2484f91608a7eaea1532bdf71f5c56825065fa4ccabe549ef3")
+	for _, now := range []int64{1317327555 - 91, 1317327555 + 91} {
+		if app.verifySignatureAt(u, now) {
+			t.Fatal("accepted timestamp outside tolerance")
+		}
+	}
+}
 func TestVerifyWebhookRequest(t *testing.T) {
 	setup()
 	defer teardown()

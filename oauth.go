@@ -15,7 +15,9 @@ import (
 	"net/url"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Limit webhook request bodies to 10 MiB.
@@ -334,11 +336,23 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 // Shopify adds a signature paramter that is used to verify that the request was sent by Shopify.
 // https://shopify.dev/tutorials/display-dynamic-store-data-with-app-proxies
 func (app App) VerifySignature(u *url.URL) bool {
+	return app.verifySignatureAt(u, time.Now().Unix())
+}
+
+func (app App) verifySignatureAt(u *url.URL, now int64) bool {
 	if u == nil {
 		return false
 	}
 	val, err := url.ParseQuery(u.RawQuery)
 	if err != nil || len(val["signature"]) != 1 {
+		return false
+	}
+	if len(val["timestamp"]) != 1 || len(val["shop"]) > 1 || len(val["hmac"]) > 1 {
+		return false
+	}
+	timestamp, err := strconv.ParseInt(val.Get("timestamp"), 10, 64)
+	// Match the 90-second clock tolerance of Shopify's app proxy validator.
+	if err != nil || timestamp < now-90 || timestamp > now+90 {
 		return false
 	}
 	sig := val.Get("signature")
