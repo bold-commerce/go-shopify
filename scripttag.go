@@ -2,11 +2,15 @@ package goshopify
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 )
 
 const scriptTagsBasePath = "script_tags"
+
+// ErrScriptTagWriteUnsupported is returned when creating or updating a script tag.
+var ErrScriptTagWriteUnsupported = errors.New("Shopify no longer accepts script tag writes. Use a theme app embed block")
 
 // ScriptTagService is an interface for interfacing with the ScriptTag endpoints
 // of the Shopify API.
@@ -17,7 +21,9 @@ type ScriptTagService interface {
 	ListAll(ctx context.Context, options interface{}) ([]ScriptTag, error)
 	Count(context.Context, interface{}) (int, error)
 	Get(context.Context, uint64, interface{}) (*ScriptTag, error)
+	// Deprecated: Shopify disabled script tag writes on October 1, 2026. Use an app embed block.
 	Create(context.Context, ScriptTag) (*ScriptTag, error)
+	// Deprecated: Shopify disabled script tag writes on October 1, 2026. Use an app embed block.
 	Update(context.Context, ScriptTag) (*ScriptTag, error)
 	Delete(context.Context, uint64) error
 }
@@ -110,22 +116,18 @@ func (s *ScriptTagServiceOp) Get(ctx context.Context, tagId uint64, options inte
 	return resource.ScriptTag, err
 }
 
-// Create a new script tag
+// Create returns ErrScriptTagWriteUnsupported.
+//
+// Deprecated: Shopify disabled script tag writes on October 1, 2026. Use an app embed block.
 func (s *ScriptTagServiceOp) Create(ctx context.Context, tag ScriptTag) (*ScriptTag, error) {
-	path := fmt.Sprintf("%s.json", scriptTagsBasePath)
-	wrappedData := ScriptTagResource{ScriptTag: &tag}
-	resource := &ScriptTagResource{}
-	err := s.client.Post(ctx, path, wrappedData, resource)
-	return resource.ScriptTag, err
+	return nil, ErrScriptTagWriteUnsupported
 }
 
-// Update an existing script tag
+// Update returns ErrScriptTagWriteUnsupported.
+//
+// Deprecated: Shopify disabled script tag writes on October 1, 2026. Use an app embed block.
 func (s *ScriptTagServiceOp) Update(ctx context.Context, tag ScriptTag) (*ScriptTag, error) {
-	path := fmt.Sprintf("%s/%d.json", scriptTagsBasePath, tag.Id)
-	wrappedData := ScriptTagResource{ScriptTag: &tag}
-	resource := &ScriptTagResource{}
-	err := s.client.Put(ctx, path, wrappedData, resource)
-	return resource.ScriptTag, err
+	return nil, ErrScriptTagWriteUnsupported
 }
 
 // Delete an existing script tag
