@@ -13,7 +13,7 @@ const (
 )
 
 // linkRegex is used to extract pagination links from product search results.
-var linkRegex = regexp.MustCompile(`^ *<([^>]+)>; rel="(previous|next)" *$`)
+var linkRegex = regexp.MustCompile(`^[ \t]*<([^>]+)>[ \t]*;[ \t]*rel=("previous"|"next"|previous|next)[ \t]*$`)
 
 // ProductService is an interface for interfacing with the product endpoints
 // of the Shopify API.

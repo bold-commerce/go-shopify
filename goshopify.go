@@ -788,7 +788,7 @@ func extractPagination(linkHeader string) (*Pagination, error) {
 		}
 
 		// 'rel' is either next or previous
-		if match[2] == "next" {
+		if strings.Trim(match[2], `"`) == "next" {
 			pagination.NextPageOptions = &paginationListOptions
 		} else {
 			pagination.PreviousPageOptions = &paginationListOptions
