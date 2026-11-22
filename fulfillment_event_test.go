@@ -191,6 +191,14 @@ func TestFulfillmentEventCreateFields(t *testing.T) {
 			call: func(ctx context.Context) (interface{}, error) {
 				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "delivered", City: "Ottawa", Latitude: 45.42, Longitude: -75.7})
 			}},
+		{name: "equator", request: `{"event":{"status":"delivered","latitude":0,"longitude":32.5}}`,
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "delivered", Longitude: 32.5})
+			}},
+		{name: "prime meridian", request: `{"event":{"status":"delivered","latitude":51.48,"longitude":0}}`,
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "delivered", Latitude: 51.48})
+			}},
 		{name: "explicit zero", request: `{"event":{"status":"delivered","latitude":0,"longitude":0}}`,
 			call: func(ctx context.Context) (interface{}, error) {
 				return client.FulfillmentEvent.(FulfillmentEventServiceWithOptions).CreateWithOptions(ctx, 1, 2, FulfillmentEventCreateOptions{Status: "delivered", Latitude: &zero, Longitude: &zero})
