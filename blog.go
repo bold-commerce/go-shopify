@@ -40,9 +40,16 @@ type Blog struct {
 	Metafields         []Metafield `json:"metafields,omitempty"`
 	Tags               string      `json:"tags,omitempty"`
 	TemplateSuffix     string      `json:"template_suffix,omitempty"`
-	CreatedAt          *time.Time  `json:"created_at,omitempty"`
-	UpdatedAt          *time.Time  `json:"updated_at,omitempty"`
-	AdminGraphqlApiId  string      `json:"admin_graphql_api_id,omitempty"`
+	templateSuffixSet  bool
+	CreatedAt          *time.Time `json:"created_at,omitempty"`
+	UpdatedAt          *time.Time `json:"updated_at,omitempty"`
+	AdminGraphqlApiId  string     `json:"admin_graphql_api_id,omitempty"`
+}
+
+// SetTemplateSuffix selects the template for Update. Pass "" to restore the default.
+func (b *Blog) SetTemplateSuffix(suffix string) {
+	b.TemplateSuffix = suffix
+	b.templateSuffixSet = true
 }
 
 // BlogsResource is the result from the blogs.json endpoint
@@ -113,7 +120,14 @@ func (s *BlogServiceOp) Create(ctx context.Context, blog Blog) (*Blog, error) {
 // Update an existing blog
 func (s *BlogServiceOp) Update(ctx context.Context, blog Blog) (*Blog, error) {
 	path := fmt.Sprintf("%s/%d.json", blogsBasePath, blog.Id)
-	wrappedData := BlogResource{Blog: &blog}
+	fields := struct {
+		*Blog
+		TemplateSuffix *string `json:"template_suffix,omitempty"`
+	}{Blog: &blog}
+	if blog.TemplateSuffix != "" || blog.templateSuffixSet {
+		fields.TemplateSuffix = &blog.TemplateSuffix
+	}
+	wrappedData := map[string]interface{}{"blog": fields}
 	resource := new(BlogResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Blog, err

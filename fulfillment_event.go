@@ -16,8 +16,14 @@ type FulfillmentEventService interface {
 	List(ctx context.Context, orderId uint64, fulfillmentId uint64) ([]FulfillmentEvent, error)
 	Get(ctx context.Context, orderId uint64, fulfillmentId uint64, eventId uint64) (*FulfillmentEvent, error)
 	Create(ctx context.Context, orderId uint64, fulfillmentId uint64, event FulfillmentEvent) (*FulfillmentEvent, error)
-	CreateWithOptions(ctx context.Context, orderId uint64, fulfillmentId uint64, options FulfillmentEventCreateOptions) (*FulfillmentEvent, error)
 	Delete(ctx context.Context, orderId uint64, fulfillmentId uint64, eventId uint64) error
+}
+
+// FulfillmentEventServiceWithOptions extends the original service with explicit create fields.
+// NewClient installs a service that implements both interfaces.
+type FulfillmentEventServiceWithOptions interface {
+	FulfillmentEventService
+	CreateWithOptions(ctx context.Context, orderId uint64, fulfillmentId uint64, options FulfillmentEventCreateOptions) (*FulfillmentEvent, error)
 }
 
 // FulfillmentEvent represents a Shopify fulfillment event.
@@ -92,16 +98,15 @@ func (s *FulfillmentEventServiceOp) Get(ctx context.Context, orderId uint64, ful
 	return resource.FulfillmentEvent, err
 }
 
-// Create a fulfillment event. Use CreateWithOptions to send an explicit zero coordinate.
+// Create sends both coordinates when either is nonzero. Use CreateWithOptions
+// to send (0, 0) or a single coordinate.
 func (s *FulfillmentEventServiceOp) Create(ctx context.Context, orderId uint64, fulfillmentId uint64, event FulfillmentEvent) (*FulfillmentEvent, error) {
 	options := FulfillmentEventCreateOptions{
 		Status: event.Status, Message: event.Message, HappenedAt: event.HappenedAt, EstimatedDeliveryAt: event.EstimatedDeliveryAt,
 		Address1: event.Address1, City: event.City, Province: event.Province, Country: event.Country, Zip: event.Zip,
 	}
-	if event.Latitude != 0 {
+	if event.Latitude != 0 || event.Longitude != 0 {
 		options.Latitude = &event.Latitude
-	}
-	if event.Longitude != 0 {
 		options.Longitude = &event.Longitude
 	}
 	return s.CreateWithOptions(ctx, orderId, fulfillmentId, options)

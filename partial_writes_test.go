@@ -14,6 +14,22 @@ func TestPartialWrites(t *testing.T) {
 			},
 		},
 		{
+			name: "reset blog template", method: "PUT", path: "blogs/7.json",
+			request: `{"blog":{"id":7,"title":"News","template_suffix":""}}`, response: `{"blog":{"id":7,"template_suffix":null}}`, want: &Blog{Id: 7},
+			call: func(ctx context.Context) (interface{}, error) {
+				blog := Blog{Id: 7, Title: "News", TemplateSuffix: "custom"}
+				blog.SetTemplateSuffix("")
+				return client.Blog.Update(ctx, blog)
+			},
+		},
+		{
+			name: "set blog template", method: "PUT", path: "blogs/7.json",
+			request: `{"blog":{"id":7,"template_suffix":"custom"}}`, response: `{"blog":{"id":7,"template_suffix":"custom"}}`, want: &Blog{Id: 7, TemplateSuffix: "custom"},
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.Blog.Update(ctx, Blog{Id: 7, TemplateSuffix: "custom"})
+			},
+		},
+		{
 			name: "update webhook", method: "PUT", path: "webhooks/7.json", request: `{"webhook": {"id": 7, "address": "https://example.com/events"}}`, response: `{"webhook": {"id": 7}}`, want: &Webhook{Id: 7},
 			call: func(ctx context.Context) (interface{}, error) {
 				return client.Webhook.Update(ctx, Webhook{Id: 7, Address: "https://example.com/events"})

@@ -176,6 +176,9 @@ func (app App) requestOnlineAccessToken(ctx context.Context, shopName string, da
 	if err := app.requestToken(ctx, shopName, data, &token); err != nil {
 		return nil, err
 	}
+	if token.AccessToken == "" || token.AssociatedUser.Id == 0 {
+		return nil, errors.New("online access token response requires an access token and an associated user ID")
+	}
 	return &token, nil
 }
 
@@ -237,9 +240,14 @@ func (app App) requestToken(ctx context.Context, shopName string, data map[strin
 	if err != nil {
 		return err
 	}
+	recordRateLimits := client.recordRateLimitHeaders
 	if app.Client != nil {
 		client.Client = app.Client.Client
 		client.retries = app.Client.retries
+		// A transport can serve several shops, but each shop has its own quota.
+		if app.Client.baseURL != nil && strings.EqualFold(app.Client.baseURL.Host, client.baseURL.Host) {
+			recordRateLimits = app.Client.recordRateLimitHeaders
+		}
 	}
 	// A redirect can forward the grant and the client secret to another endpoint.
 	httpClient := *client.Client
@@ -252,7 +260,8 @@ func (app App) requestToken(ctx context.Context, shopName string, data map[strin
 	if err != nil {
 		return err
 	}
-	return client.Do(req, result)
+	_, err = client.doGetHeaders(req, result, client.retryPolicy(false), recordRateLimits)
+	return err
 }
 
 // Verify a message against a message HMAC
@@ -331,10 +340,15 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	}
 	body := httpRequest.Body
 	requestBody, err := ioutil.ReadAll(io.LimitReader(body, maxWebhookBodyBytes+1))
+	var replay io.Reader = bytes.NewReader(requestBody)
+	if err != nil || len(requestBody) > maxWebhookBodyBytes {
+		// A partial read can leave unread bytes in the original body.
+		replay = io.MultiReader(replay, body)
+	}
 	httpRequest.Body = struct {
 		io.Reader
 		io.Closer
-	}{io.MultiReader(bytes.NewReader(requestBody), body), body}
+	}{replay, body}
 	if err != nil {
 		return false, err
 	}

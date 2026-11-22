@@ -191,13 +191,33 @@ func TestFulfillmentEventCreateFields(t *testing.T) {
 			call: func(ctx context.Context) (interface{}, error) {
 				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "delivered", City: "Ottawa", Latitude: 45.42, Longitude: -75.7})
 			}},
+		{name: "equator", request: `{"event":{"status":"delivered","latitude":0,"longitude":32.5}}`,
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "delivered", Longitude: 32.5})
+			}},
+		{name: "prime meridian", request: `{"event":{"status":"delivered","latitude":51.48,"longitude":0}}`,
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "delivered", Latitude: 51.48})
+			}},
 		{name: "explicit zero", request: `{"event":{"status":"delivered","latitude":0,"longitude":0}}`,
 			call: func(ctx context.Context) (interface{}, error) {
-				return client.FulfillmentEvent.CreateWithOptions(ctx, 1, 2, FulfillmentEventCreateOptions{Status: "delivered", Latitude: &zero, Longitude: &zero})
+				return client.FulfillmentEvent.(FulfillmentEventServiceWithOptions).CreateWithOptions(ctx, 1, 2, FulfillmentEventCreateOptions{Status: "delivered", Latitude: &zero, Longitude: &zero})
 			}},
 	} {
 		tc.method, tc.path = "POST", "orders/1/fulfillments/2/events.json"
 		tc.response, tc.want = `{"fulfillment_event":{"id":3}}`, &FulfillmentEvent{Id: 3}
 		t.Run(tc.name, func(t *testing.T) { testFeatureEndpoint(t, tc) })
 	}
+}
+
+func TestFulfillmentEventServiceCompatibility(t *testing.T) {
+	// A downstream service implementing the original four methods must remain assignable.
+	var legacy interface {
+		List(context.Context, uint64, uint64) ([]FulfillmentEvent, error)
+		Get(context.Context, uint64, uint64, uint64) (*FulfillmentEvent, error)
+		Create(context.Context, uint64, uint64, FulfillmentEvent) (*FulfillmentEvent, error)
+		Delete(context.Context, uint64, uint64, uint64) error
+	}
+	var _ FulfillmentEventService = legacy
+	var _ FulfillmentEventServiceWithOptions = (*FulfillmentEventServiceOp)(nil)
 }

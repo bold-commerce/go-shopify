@@ -629,3 +629,77 @@ func TestOnlineAuthorizationAndIDTokenExchange(t *testing.T) {
 		t.Fatal("expected invalid shop error")
 	}
 }
+
+func TestOnlineAccessTokenRequiresUserAndToken(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	for _, exchange := range []func(context.Context, string, string) (*OnlineAccessToken, error){
+		app.GetOnlineAccessToken, app.ExchangeIDTokenForOnlineAccessToken,
+	} {
+		for _, response := range []string{`{}`, expiringAccessTokenResponse, `{"associated_user":{"id":42}}`, `{"access_token":"online","associated_user":{"id":0}}`} {
+			httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token", httpmock.NewStringResponder(200, response))
+			if token, err := exchange(context.Background(), "fooshop", "fixture"); err == nil || token != nil {
+				t.Fatalf("expected a nil token and an error for incomplete online grant")
+			}
+		}
+	}
+}
+
+func TestVerifiedWebhookReplaysOnlyVerifiedBytes(t *testing.T) {
+	app := App{ApiSecret: "test"}
+	const payload = "webhook body"
+	body := &trackedBody{Reader: strings.NewReader(payload)}
+	req := httptest.NewRequest("POST", "/", body)
+	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
+	mac.Write([]byte(payload))
+	req.Header.Set(shopifyChecksumHeader, base64.StdEncoding.EncodeToString(mac.Sum(nil)))
+	if valid, err := app.VerifyWebhookRequestVerbose(req); !valid || err != nil {
+		t.Fatal("verification failed", err)
+	}
+	// Reading the replay must work even when the underlying reader is unavailable.
+	body.Reader = errReader{}
+	replayed, err := ioutil.ReadAll(req.Body)
+	if err != nil || string(replayed) != payload {
+		t.Fatalf("replayed body = %q, err = %v", replayed, err)
+	}
+	if err := req.Body.Close(); err != nil || body.closes != 1 {
+		t.Fatalf("original body closed %d times, err = %v", body.closes, err)
+	}
+}
+
+func TestTokenExchangeRecordsRateLimitsForItsShop(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	client.retries = 0
+	for _, tc := range []struct {
+		shop   string
+		status int
+		limit  string
+		want   int
+	}{
+		{"fooshop", 200, "7/40", 7},
+		{"fooshop.myshopify.com", 429, "40/40", 40},
+		{"different-shop", 200, "1/40", 40},
+	} {
+		endpoint := ShopBaseUrl(tc.shop) + "/admin/oauth/access_token"
+		httpmock.RegisterResponder("POST", endpoint, func(*http.Request) (*http.Response, error) {
+			body := expiringAccessTokenResponse
+			if tc.status == 429 {
+				body = `{"errors":"throttled"}`
+			}
+			response := httpmock.NewStringResponse(tc.status, body)
+			response.Header.Set("X-Shopify-Shop-Api-Call-Limit", tc.limit)
+			return response, nil
+		})
+		_, err := app.RefreshAccessToken(context.Background(), tc.shop, "refresh")
+		if (err != nil) != (tc.status == 429) {
+			t.Fatalf("%s: unexpected error %v", tc.shop, err)
+		}
+		limits := client.RateLimits()
+		if limits.RequestCount != tc.want || limits.BucketSize != 40 {
+			t.Fatalf("%s: got %d/%d, want %d/40", tc.shop, limits.RequestCount, limits.BucketSize, tc.want)
+		}
+	}
+}

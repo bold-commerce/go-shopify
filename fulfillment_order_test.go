@@ -303,16 +303,16 @@ func TestFulfillmentOrderCancelErrors(t *testing.T) {
 func TestFulfillmentOrderOptionalReadFields(t *testing.T) {
 	options := FulfillmentOrderOptions{IncludeFinancialSummaries: true, IncludeOrderReferenceFields: true}
 	const query = "include_financial_summaries=true&include_order_reference_fields=true"
-	const order = `{"order_name":"#1001","order_processed_at":"2026-01-10T11:00:00Z","channel_id":9007199254740993,"line_items":[{"financial_summaries":[{"quantity":1,"original_unit_price_set":"199.00","approximate_discounted_unit_price_set":"195.67","discount_allocations":[{"amount":"3.33","discount_application":{"allocation_method":"across","target_selection":"all","target_type":"line_item"}}]}]}]}`
+	const order = `{"order_name":"#1001","order_processed_at":"2026-01-10T11:00:00Z","channel_id":9007199254740993,"line_items":[{"id":11,"financial_summaries":[{"quantity":1,"original_unit_price_set":"199.00","approximate_discounted_unit_price_set":"195.67","discount_allocations":[{"amount":"3.33","discount_application":{"allocation_method":"across","target_selection":"all","target_type":"line_item"}}]}]}]}`
 	processed := time.Date(2026, 1, 10, 11, 0, 0, 0, time.UTC)
 	channel := uint64(9007199254740993)
 	price, discounted, amount := decimal.RequireFromString("199.00"), decimal.RequireFromString("195.67"), decimal.RequireFromString("3.33")
-	want := FulfillmentOrder{OrderName: "#1001", OrderProcessedAt: &processed, ChannelId: &channel, LineItems: []FulfillmentOrderLineItem{{
-		FinancialSummaries: []FulfillmentOrderFinancialSummary{{
+	want := FulfillmentOrder{OrderName: "#1001", OrderProcessedAt: &processed, ChannelId: &channel, LineItems: []FulfillmentOrderLineItem{{Id: 11}},
+		FinancialSummaries: map[uint64][]FulfillmentOrderFinancialSummary{11: {{
 			Quantity: 1, OriginalUnitPriceSet: &price, ApproximateDiscountedUnitPriceSet: &discounted,
 			DiscountAllocations: []DiscountAllocations{{Amount: &amount, DiscountApplication: &DiscountApplication{AllocationMethod: "across", TargetSelection: "all", TargetType: "line_item"}}},
-		}},
-	}}}
+		}}},
+	}
 	for _, tc := range []featureEndpoint{
 		{name: "Get", method: "GET", path: "fulfillment_orders/7.json", query: query, response: `{"fulfillment_order":` + order + "}", want: &want,
 			call: func(ctx context.Context) (interface{}, error) { return client.FulfillmentOrder.Get(ctx, 7, options) }},
@@ -320,5 +320,36 @@ func TestFulfillmentOrderOptionalReadFields(t *testing.T) {
 			call: func(ctx context.Context) (interface{}, error) { return client.FulfillmentOrder.List(ctx, 7, options) }},
 	} {
 		t.Run(tc.name, func(t *testing.T) { testFeatureEndpoint(t, tc) })
+	}
+}
+
+func TestFulfillmentOrderLineItemCompatibility(t *testing.T) {
+	const input = `{"line_items":[{"id":7,"financial_summaries":[{"quantity":2}]},{"id":8,"financial_summaries":[]}]}`
+	var order FulfillmentOrder
+	if err := json.Unmarshal([]byte(input), &order); err != nil {
+		t.Fatal(err)
+	}
+	keys := map[FulfillmentOrderLineItem]int{{Id: 7}: 1, {Id: 8}: 2}
+	if keys[order.LineItems[0]] != 1 || keys[order.LineItems[1]] != 2 {
+		t.Fatal("financial summaries changed line item equality")
+	}
+	encoded, err := json.Marshal(order)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got, want struct {
+		LineItems []map[string]interface{} `json:"line_items"`
+	}
+	if err := json.Unmarshal(encoded, &got); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal([]byte(input), &want); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("lost nested summaries: %s", encoded)
+	}
+	if err := json.Unmarshal([]byte(`{"line_items":[{"id":7}]}`), &order); err != nil || order.FinancialSummaries != nil {
+		t.Fatal("summaries from the previous response survived", err)
 	}
 }
