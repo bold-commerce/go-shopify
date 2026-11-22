@@ -1,6 +1,7 @@
 package goshopify
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -9,7 +10,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"strings"
@@ -525,5 +528,36 @@ func TestVerifySignedQueryInputs(t *testing.T) {
 		if ok, _ := app.VerifyAuthorizationURL(&url.URL{RawQuery: message + "&hmac=" + digest + extra}); ok {
 			t.Fatal("accepted invalid callback", extra)
 		}
+	}
+}
+
+func TestWebhookBodySizeLimit(t *testing.T) {
+	app := App{ApiSecret: "test"}
+	for _, tc := range []struct {
+		size        int
+		knownLength bool
+		valid       bool
+	}{
+		{maxWebhookBodyBytes, true, true},
+		{maxWebhookBodyBytes + 1, true, false},
+		{maxWebhookBodyBytes + 8, false, false},
+	} {
+		body := bytes.Repeat([]byte("x"), tc.size)
+		req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
+		if !tc.knownLength {
+			req.ContentLength = -1
+		}
+		mac := hmac.New(sha256.New, []byte(app.ApiSecret))
+		mac.Write(body)
+		req.Header.Set(shopifyChecksumHeader, base64.StdEncoding.EncodeToString(mac.Sum(nil)))
+		valid, err := app.VerifyWebhookRequestVerbose(req)
+		if valid != tc.valid || (err == nil) != tc.valid {
+			t.Fatalf("size %d: valid=%v err=%v", tc.size, valid, err)
+		}
+		replayed, err := ioutil.ReadAll(req.Body)
+		if err != nil || !bytes.Equal(body, replayed) {
+			t.Fatalf("size %d: replay lost data: %v", tc.size, err)
+		}
+		req.Body.Close()
 	}
 }

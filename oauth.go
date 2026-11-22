@@ -17,6 +17,9 @@ import (
 	"strings"
 )
 
+// Limit webhook request bodies to 10 MiB.
+const maxWebhookBodyBytes = 10 * 1024 * 1024
+
 const shopifyChecksumHeader = "X-Shopify-Hmac-Sha256"
 
 var accessTokenRelPath = "admin/oauth/access_token"
@@ -250,7 +253,7 @@ func (app App) VerifyWebhookRequest(httpRequest *http.Request) bool {
 
 // Verifies a webhook http request, sent by Shopify.
 // The body of the request is still readable after invoking the method.
-// This method has more verbose error output which is useful for debugging.
+// Bodies larger than 10 MiB are rejected.
 func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, error) {
 	if app.ApiSecret == "" {
 		return false, errors.New("ApiSecret is empty")
@@ -274,15 +277,21 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	}
 
 	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
-	requestBody, err := ioutil.ReadAll(httpRequest.Body)
-	if err != nil {
-		return false, err
+	if httpRequest.ContentLength > maxWebhookBodyBytes {
+		return false, errors.New("webhook body exceeds 10 MiB")
 	}
-
+	body := httpRequest.Body
+	requestBody, err := ioutil.ReadAll(io.LimitReader(body, maxWebhookBodyBytes+1))
 	httpRequest.Body = struct {
 		io.Reader
 		io.Closer
-	}{bytes.NewReader(requestBody), httpRequest.Body}
+	}{io.MultiReader(bytes.NewReader(requestBody), body), body}
+	if err != nil {
+		return false, err
+	}
+	if len(requestBody) > maxWebhookBodyBytes {
+		return false, errors.New("webhook body exceeds 10 MiB")
+	}
 	if len(requestBody) == 0 {
 		return false, errors.New("request body is empty")
 	}

@@ -392,7 +392,8 @@ func FetchWebhooks(ctx context.Context) ([]Webhook, error) {
 #### Webhooks verification
 
 In order to be sure that a webhook is sent from ShopifyApi you could easily verify
-it with the `VerifyWebhookRequest` method.
+it with the `VerifyWebhookRequest` method. Both `VerifyWebhookRequest` and
+`VerifyWebhookRequestVerbose` reject request bodies larger than 10 MiB (10,485,760 bytes).
 
 For example:
 
