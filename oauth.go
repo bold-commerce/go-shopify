@@ -176,6 +176,9 @@ func (app App) requestOnlineAccessToken(ctx context.Context, shopName string, da
 	if err := app.requestToken(ctx, shopName, data, &token); err != nil {
 		return nil, err
 	}
+	if token.AccessToken == "" || token.AssociatedUser.Id == 0 {
+		return nil, errors.New("online access token response requires an access token and an associated user ID")
+	}
 	return &token, nil
 }
 

@@ -629,3 +629,19 @@ func TestOnlineAuthorizationAndIDTokenExchange(t *testing.T) {
 		t.Fatal("expected invalid shop error")
 	}
 }
+
+func TestOnlineAccessTokenRequiresUserAndToken(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	for _, exchange := range []func(context.Context, string, string) (*OnlineAccessToken, error){
+		app.GetOnlineAccessToken, app.ExchangeIDTokenForOnlineAccessToken,
+	} {
+		for _, response := range []string{`{}`, expiringAccessTokenResponse, `{"associated_user":{"id":42}}`, `{"access_token":"online","associated_user":{"id":0}}`} {
+			httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token", httpmock.NewStringResponder(200, response))
+			if token, err := exchange(context.Background(), "fooshop", "fixture"); err == nil || token != nil {
+				t.Fatalf("expected a nil token and an error for incomplete online grant")
+			}
+		}
+	}
+}
