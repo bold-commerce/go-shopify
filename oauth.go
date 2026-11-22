@@ -23,7 +23,10 @@ import (
 // Limit webhook request bodies to 10 MiB.
 const maxWebhookBodyBytes = 10 * 1024 * 1024
 
-const shopifyChecksumHeader = "X-Shopify-Hmac-Sha256"
+const (
+	shopifyChecksumHeader       = "X-Shopify-Hmac-Sha256"
+	shopifyEventsChecksumHeader = "Shopify-Hmac-Sha256"
+)
 
 var accessTokenRelPath = "admin/oauth/access_token"
 
@@ -288,6 +291,12 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	}
 
 	shopifySha256 := httpRequest.Header.Get(shopifyChecksumHeader)
+	eventsSignature := httpRequest.Header.Get(shopifyEventsChecksumHeader)
+	if shopifySha256 == "" {
+		shopifySha256 = eventsSignature
+	} else if eventsSignature != "" && eventsSignature != shopifySha256 {
+		return false, errors.New("conflicting Shopify signature headers")
+	}
 	if shopifySha256 == "" {
 		return false, fmt.Errorf("header %s not set", shopifyChecksumHeader)
 	}

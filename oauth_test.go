@@ -661,7 +661,7 @@ func TestVerifiedWebhookReplaysOnlyVerifiedBytes(t *testing.T) {
 	req := httptest.NewRequest("POST", "/", body)
 	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
 	mac.Write([]byte(payload))
-	req.Header.Set(shopifyChecksumHeader, base64.StdEncoding.EncodeToString(mac.Sum(nil)))
+	req.Header.Set("Shopify-Hmac-Sha256", base64.StdEncoding.EncodeToString(mac.Sum(nil)))
 	if valid, err := app.VerifyWebhookRequestVerbose(req); !valid || err != nil {
 		t.Fatal("verification failed", err)
 	}
