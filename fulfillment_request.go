@@ -19,6 +19,7 @@ type FulfillmentRequestService interface {
 }
 
 type FulfillmentRequest struct {
+	NotifyCustomer            *bool                        `json:"notify_customer,omitempty"`
 	Message                   string                       `json:"message,omitempty"`
 	FulfillmentOrderLineItems []FulfillmentOrderLineItem   `json:"fulfillment_order_line_items,omitempty"`
 	Reason                    string                       `json:"reason,omitempty"`

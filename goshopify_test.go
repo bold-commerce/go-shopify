@@ -997,3 +997,81 @@ func TestListWithPagination(t *testing.T) {
 		t.Fatalf("Expected prev page: %s   got: %s", "123", pagination.PreviousPageOptions.PageInfo)
 	}
 }
+
+func TestThrottledResponseHeaders(t *testing.T) {
+	for _, body := range []string{"Too Many Requests", `{"errors":"slow down"}`, ""} {
+		transport := bodyLifecycleTransport(func(r *http.Request) (*http.Response, error) {
+			resp := httpmock.NewStringResponse(http.StatusTooManyRequests, body)
+			resp.Header.Set("Retry-After", "1.5")
+			resp.Header.Set("X-Shopify-Shop-Api-Call-Limit", "40/40")
+			return resp, nil
+		})
+		c := MustNewClient(App{}, "test", "", WithHTTPClient(&http.Client{Transport: transport}))
+		err := c.Get(context.Background(), "products.json", nil, nil)
+		var throttled RateLimitError
+		if !errors.As(err, &throttled) || throttled.RetryAfter != 2 {
+			t.Fatalf("body %q: got %v", body, err)
+		}
+		want := RateLimitInfo{RequestCount: 40, BucketSize: 40, RetryAfterSeconds: 1.5}
+		if got := c.RateLimits(); got != want {
+			t.Fatalf("body %q: limits = %+v, want %+v", body, got, want)
+		}
+	}
+}
+
+func TestPlainTextThrottleRetries(t *testing.T) {
+	calls := 0
+	transport := bodyLifecycleTransport(func(r *http.Request) (*http.Response, error) {
+		calls++
+		if calls == 1 {
+			return httpmock.NewStringResponse(429, "Too Many Requests"), nil
+		}
+		return httpmock.NewStringResponse(200, "{}"), nil
+	})
+	c := MustNewClient(App{}, "test", "", WithRetry(1), WithHTTPClient(&http.Client{Transport: transport}))
+	if err := c.Get(context.Background(), "products.json", nil, nil); err != nil || calls != 2 {
+		t.Fatalf("calls=%d, error=%v", calls, err)
+	}
+}
+
+func TestServiceUnavailableRetryByMethod(t *testing.T) {
+	for _, tc := range []struct {
+		method string
+		calls  int
+	}{
+		{"GET", 2}, {"HEAD", 2}, {"OPTIONS", 2}, {"POST", 1}, {"PUT", 1}, {"PATCH", 1}, {"DELETE", 1},
+	} {
+		t.Run(tc.method, func(t *testing.T) {
+			calls := 0
+			transport := bodyLifecycleTransport(func(r *http.Request) (*http.Response, error) {
+				calls++
+				if calls == 1 {
+					return httpmock.NewStringResponse(503, ""), nil
+				}
+				return httpmock.NewStringResponse(200, ""), nil
+			})
+			c := MustNewClient(App{}, "test", "", WithRetry(1), WithHTTPClient(&http.Client{Transport: transport}))
+			err := c.CreateAndDo(context.Background(), tc.method, "orders.json", nil, nil, nil)
+			if calls != tc.calls {
+				t.Fatalf("calls = %d, want %d", calls, tc.calls)
+			}
+			if tc.calls == 1 {
+				var apiErr ResponseError
+				if !errors.As(err, &apiErr) || apiErr.Status != 503 {
+					t.Fatalf("expected HTTP 503, got %v", err)
+				}
+			} else if err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestResponseErrorPreservesOtherFieldErrors(t *testing.T) {
+	body := `{"errors":{"email":null,"name":["required"]}}`
+	err := CheckResponseError(httpmock.NewStringResponse(422, body))
+	var response ResponseError
+	if !errors.As(err, &response) || response.Status != 422 || response.Message != "name: required" || !reflect.DeepEqual(response.Errors, []string{"name: required"}) {
+		t.Fatalf("unexpected response error: %#v", err)
+	}
+}

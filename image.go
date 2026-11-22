@@ -3,6 +3,7 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -27,19 +28,30 @@ type ImageServiceOp struct {
 
 // Image represents a Shopify product's image.
 type Image struct {
-	Id                uint64     `json:"id,omitempty"`
-	ProductId         uint64     `json:"product_id,omitempty"`
-	Position          int        `json:"position,omitempty"`
-	CreatedAt         *time.Time `json:"created_at,omitempty"`
-	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
-	Width             int        `json:"width,omitempty"`
-	Height            int        `json:"height,omitempty"`
-	Src               string     `json:"src,omitempty"`
-	Attachment        string     `json:"attachment,omitempty"`
-	Filename          string     `json:"filename,omitempty"`
-	Alt               string     `json:"alt,omitempty"`
-	VariantIds        []uint64   `json:"variant_ids,omitempty"`
-	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
+	Id                uint64      `json:"id,omitempty"`
+	ProductId         uint64      `json:"product_id,omitempty"`
+	Position          int         `json:"position,omitempty"`
+	CreatedAt         *time.Time  `json:"created_at,omitempty"`
+	UpdatedAt         *time.Time  `json:"updated_at,omitempty"`
+	Width             int         `json:"width,omitempty"`
+	Height            int         `json:"height,omitempty"`
+	Src               string      `json:"src,omitempty"`
+	Attachment        string      `json:"attachment,omitempty"`
+	Filename          string      `json:"filename,omitempty"`
+	Alt               string      `json:"alt,omitempty"`
+	Metafields        []Metafield `json:"metafields,omitempty"`
+	VariantIds        []uint64    `json:"variant_ids,omitempty"`
+	AdminGraphqlApiId string      `json:"admin_graphql_api_id,omitempty"`
+}
+
+// isEmpty reports whether the image would encode as an empty JSON object.
+func (image Image) isEmpty() bool {
+	if len(image.Metafields) > 0 || len(image.VariantIds) > 0 {
+		return false
+	}
+	// The JSON encoder omits both nil and empty slices.
+	image.Metafields, image.VariantIds = nil, nil
+	return reflect.ValueOf(image).IsZero()
 }
 
 // ImageResource represents the result form the products/X/images/Y.json endpoint

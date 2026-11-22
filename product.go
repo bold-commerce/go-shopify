@@ -67,6 +67,7 @@ type Product struct {
 	Handle                         string          `json:"handle,omitempty"`
 	CreatedAt                      *time.Time      `json:"created_at,omitempty"`
 	UpdatedAt                      *time.Time      `json:"updated_at,omitempty"`
+	Published                      *bool           `json:"published,omitempty"`
 	PublishedAt                    *time.Time      `json:"published_at,omitempty"`
 	PublishedScope                 string          `json:"published_scope,omitempty"`
 	Tags                           string          `json:"tags,omitempty"`
@@ -170,21 +171,31 @@ func (s *ProductServiceOp) Get(ctx context.Context, productId uint64, options in
 	return resource.Product, err
 }
 
+// writeRequest omits the image when none of its fields would be sent.
+func (product *Product) writeRequest() map[string]interface{} {
+	fields := struct {
+		*Product
+		Image *Image `json:"image,omitempty"`
+	}{Product: product}
+	if !product.Image.isEmpty() {
+		fields.Image = &product.Image
+	}
+	return map[string]interface{}{"product": fields}
+}
+
 // Create a new product
 func (s *ProductServiceOp) Create(ctx context.Context, product Product) (*Product, error) {
 	path := fmt.Sprintf("%s.json", productsBasePath)
-	wrappedData := ProductResource{Product: &product}
 	resource := new(ProductResource)
-	err := s.client.Post(ctx, path, wrappedData, resource)
+	err := s.client.Post(ctx, path, product.writeRequest(), resource)
 	return resource.Product, err
 }
 
 // Update an existing product
 func (s *ProductServiceOp) Update(ctx context.Context, product Product) (*Product, error) {
 	path := fmt.Sprintf("%s/%d.json", productsBasePath, product.Id)
-	wrappedData := ProductResource{Product: &product}
 	resource := new(ProductResource)
-	err := s.client.Put(ctx, path, wrappedData, resource)
+	err := s.client.Put(ctx, path, product.writeRequest(), resource)
 	return resource.Product, err
 }
 

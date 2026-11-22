@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 )
 
@@ -65,5 +66,42 @@ func TestFulfillmentRequestOptions(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) { testFeatureEndpoint(t, tc) })
+	}
+}
+
+func TestFulfillmentOriginAddressShapes(t *testing.T) {
+	for _, tc := range []struct{ input, want string }{
+		{`{"city":"Ottawa"}`, `{"city":"Paris"}`},
+		{`[{"city":"Ottawa"},{"city":"Toronto"}]`, `[{"city":"Paris"},{"city":"Toronto"}]`},
+		{`[]`, `[]`},
+		{`null`, ""},
+	} {
+		f := Fulfillment{OriginAddress: &Address{}, AdditionalOriginAddresses: []Address{{}}}
+		if err := json.Unmarshal([]byte(`{"id":7,"origin_address":`+tc.input+`}`), &f); err != nil {
+			t.Fatal(err)
+		}
+		if f.OriginAddress != nil {
+			if f.OriginAddress.City != "Ottawa" {
+				t.Fatalf("%s: first address = %+v", tc.input, f.OriginAddress)
+			}
+			f.OriginAddress = &Address{City: "Paris"}
+		}
+		data, err := json.Marshal(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var wire struct {
+			ID     int
+			Origin json.RawMessage `json:"origin_address"`
+		}
+		if err := json.Unmarshal(data, &wire); err != nil || wire.ID != 7 || string(wire.Origin) != tc.want {
+			t.Errorf("%s: got %s (%v), want origin %s", tc.input, data, err, tc.want)
+		}
+	}
+	for _, bad := range []string{`{"id":"invalid"}`, `{"origin_address":[42]}`} {
+		var f Fulfillment
+		if err := json.Unmarshal([]byte(bad), &f); err == nil {
+			t.Errorf("accepted %s", bad)
+		}
 	}
 }

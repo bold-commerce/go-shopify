@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -28,9 +29,10 @@ type InventoryLevelServiceOp struct {
 
 // InventoryLevel represents a Shopify inventory level
 type InventoryLevel struct {
-	InventoryItemId   uint64     `json:"inventory_item_id,omitempty"`
-	LocationId        uint64     `json:"location_id,omitempty"`
-	Available         int        `json:"available"`
+	InventoryItemId uint64 `json:"inventory_item_id,omitempty"`
+	LocationId      uint64 `json:"location_id,omitempty"`
+	// Available is nil for untracked inventory. A pointer to zero means out of stock.
+	Available         *int       `json:"available"`
 	CreatedAt         *time.Time `json:"created_at,omitempty"`
 	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
 	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
@@ -106,12 +108,26 @@ func (s *InventoryLevelServiceOp) Delete(ctx context.Context, itemId, locationId
 
 // Connect an inventory level
 func (s *InventoryLevelServiceOp) Connect(ctx context.Context, level InventoryLevel) (*InventoryLevel, error) {
-	return s.post(ctx, fmt.Sprintf("%s/connect.json", inventoryLevelsBasePath), level)
+	request := struct {
+		InventoryItemId     uint64 `json:"inventory_item_id"`
+		LocationId          uint64 `json:"location_id"`
+		RelocateIfNecessary bool   `json:"relocate_if_necessary,omitempty"`
+	}{level.InventoryItemId, level.LocationId, level.RelocateIfNecessary}
+	return s.post(ctx, inventoryLevelsBasePath+"/connect.json", request)
 }
 
 // Set an inventory level
 func (s *InventoryLevelServiceOp) Set(ctx context.Context, level InventoryLevel) (*InventoryLevel, error) {
-	return s.post(ctx, fmt.Sprintf("%s/set.json", inventoryLevelsBasePath), level)
+	if level.Available == nil {
+		return nil, errors.New("inventory level set requires an available quantity")
+	}
+	request := struct {
+		InventoryItemId       uint64 `json:"inventory_item_id"`
+		LocationId            uint64 `json:"location_id"`
+		Available             int    `json:"available"`
+		DisconnectIfNecessary bool   `json:"disconnect_if_necessary,omitempty"`
+	}{level.InventoryItemId, level.LocationId, *level.Available, level.DisconnectIfNecessary}
+	return s.post(ctx, inventoryLevelsBasePath+"/set.json", request)
 }
 
 // Adjust the inventory level of an inventory item at a single location

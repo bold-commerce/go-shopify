@@ -2,6 +2,7 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -1431,5 +1432,23 @@ func validShippingLines() ShippingLines {
 			},
 		},
 		Handle: "test",
+	}
+}
+
+func TestShippingLinePreservesExactFulfillmentServiceID(t *testing.T) {
+	for _, tc := range []struct{ wire, want string }{
+		{"123456789", "123456789"},
+		{"9007199254740993", "9007199254740993"},
+		{`"00321"`, "00321"},
+		{`"third_party"`, "third_party"},
+		{"null", ""},
+	} {
+		var line ShippingLines
+		if err := json.Unmarshal([]byte(`{"requested_fulfillment_service_id":`+tc.wire+`}`), &line); err != nil {
+			t.Fatal(err)
+		}
+		if line.RequestedFulfillmentServiceId != tc.want {
+			t.Errorf("got %q for %s", line.RequestedFulfillmentServiceId, tc.wire)
+		}
 	}
 }

@@ -28,6 +28,7 @@ type CustomerService interface {
 	SearchWithPagination(ctx context.Context, options interface{}) ([]Customer, *Pagination, error)
 	SearchAll(ctx context.Context, options interface{}) ([]Customer, error)
 	Create(context.Context, Customer) (*Customer, error)
+	CreateWithOptions(ctx context.Context, customer Customer, options CustomerCreateOptions) (*Customer, error)
 	Update(context.Context, Customer) (*Customer, error)
 	Delete(context.Context, uint64) error
 	ListOrders(context.Context, uint64, interface{}) ([]Order, error)
@@ -63,13 +64,13 @@ type Customer struct {
 	Currency                  string                 `json:"currency,omitempty"`
 	AcceptsMarketing          *bool                  `json:"accepts_marketing,omitempty"`
 	AcceptsMarketingUpdatedAt *time.Time             `json:"accepts_marketing_updated_at,omitempty"`
-	MarketingOptInLevel       bool                   `json:"marketing_opt_in_level,omitempty"`
+	MarketingOptInLevel       string                 `json:"marketing_opt_in_level,omitempty"`
 	AdminGraphqlApiId         string                 `json:"admin_graphql_api_id,omitempty"`
 	Tags                      string                 `json:"tags,omitempty"`
 	LastOrderId               uint64                 `json:"last_order_id,omitempty"`
 	LastOrderName             string                 `json:"last_order_name,omitempty"`
-	EmailMarketingConsent     *EmailMarketingConsent `json:"email_marketing_consent"`
-	SMSMarketingConsent       *SMSMarketingConsent   `json:"sms_marketing_consent"`
+	EmailMarketingConsent     *EmailMarketingConsent `json:"email_marketing_consent,omitempty"`
+	SMSMarketingConsent       *SMSMarketingConsent   `json:"sms_marketing_consent,omitempty"`
 	DefaultAddress            *CustomerAddress       `json:"default_address,omitempty"`
 	Addresses                 []*CustomerAddress     `json:"addresses,omitempty"`
 	CreatedAt                 *time.Time             `json:"created_at,omitempty"`
@@ -105,15 +106,15 @@ type CustomerSearchOptions struct {
 
 type EmailMarketingConsent struct {
 	State            string     `json:"state"`
-	OptInLevel       string     `json:"opt_in_level"`
-	ConsentUpdatedAt *time.Time `json:"consent_updated_at"`
+	OptInLevel       string     `json:"opt_in_level,omitempty"`
+	ConsentUpdatedAt *time.Time `json:"consent_updated_at,omitempty"`
 }
 
 type SMSMarketingConsent struct {
 	State                string     `json:"state"`
-	OptInLevel           string     `json:"opt_in_level"`
-	ConsentUpdatedAt     *time.Time `json:"consent_updated_at"`
-	ConsentCollectedFrom string     `json:"consent_collected_from"`
+	OptInLevel           string     `json:"opt_in_level,omitempty"`
+	ConsentUpdatedAt     *time.Time `json:"consent_updated_at,omitempty"`
+	ConsentCollectedFrom string     `json:"consent_collected_from,omitempty"`
 }
 
 // List customers
@@ -164,12 +165,27 @@ func (s *CustomerServiceOp) Get(ctx context.Context, customerId uint64, options 
 	return resource.Customer, err
 }
 
-// Create a new customer
+// CustomerCreateOptions controls account setup and notification emails on creation.
+type CustomerCreateOptions struct {
+	Password             string `json:"password,omitempty"`
+	PasswordConfirmation string `json:"password_confirmation,omitempty"`
+	SendEmailInvite      *bool  `json:"send_email_invite,omitempty"`
+	SendEmailWelcome     *bool  `json:"send_email_welcome,omitempty"`
+}
+
+// Create a new customer.
 func (s *CustomerServiceOp) Create(ctx context.Context, customer Customer) (*Customer, error) {
-	path := fmt.Sprintf("%s.json", customersBasePath)
-	wrappedData := CustomerResource{Customer: &customer}
+	return s.CreateWithOptions(ctx, customer, CustomerCreateOptions{})
+}
+
+// CreateWithOptions creates a customer with account setup and email options.
+func (s *CustomerServiceOp) CreateWithOptions(ctx context.Context, customer Customer, options CustomerCreateOptions) (*Customer, error) {
+	fields := struct {
+		Customer
+		CustomerCreateOptions
+	}{customer, options}
 	resource := new(CustomerResource)
-	err := s.client.Post(ctx, path, wrappedData, resource)
+	err := s.client.Post(ctx, customersBasePath+".json", map[string]interface{}{"customer": fields}, resource)
 	return resource.Customer, err
 }
 
