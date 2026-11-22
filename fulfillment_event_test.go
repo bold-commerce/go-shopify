@@ -179,3 +179,25 @@ func TestFulfillmentEventServiceOp_Delete(t *testing.T) {
 		t.Errorf("FulfillmentEvent.Delete returned error: %v", err)
 	}
 }
+
+func TestFulfillmentEventCreateFields(t *testing.T) {
+	zero := 0.0
+	for _, tc := range []featureEndpoint{
+		{name: "status only", request: `{"event":{"status":"in_transit"}}`,
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "in_transit", OrderId: 1, CreatedAt: "read-only"})
+			}},
+		{name: "supplied coordinates", request: `{"event":{"status":"delivered","city":"Ottawa","latitude":45.42,"longitude":-75.7}}`,
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.FulfillmentEvent.Create(ctx, 1, 2, FulfillmentEvent{Status: "delivered", City: "Ottawa", Latitude: 45.42, Longitude: -75.7})
+			}},
+		{name: "explicit zero", request: `{"event":{"status":"delivered","latitude":0,"longitude":0}}`,
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.FulfillmentEvent.CreateWithOptions(ctx, 1, 2, FulfillmentEventCreateOptions{Status: "delivered", Latitude: &zero, Longitude: &zero})
+			}},
+	} {
+		tc.method, tc.path = "POST", "orders/1/fulfillments/2/events.json"
+		tc.response, tc.want = `{"fulfillment_event":{"id":3}}`, &FulfillmentEvent{Id: 3}
+		t.Run(tc.name, func(t *testing.T) { testFeatureEndpoint(t, tc) })
+	}
+}

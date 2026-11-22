@@ -16,6 +16,7 @@ type FulfillmentEventService interface {
 	List(ctx context.Context, orderId uint64, fulfillmentId uint64) ([]FulfillmentEvent, error)
 	Get(ctx context.Context, orderId uint64, fulfillmentId uint64, eventId uint64) (*FulfillmentEvent, error)
 	Create(ctx context.Context, orderId uint64, fulfillmentId uint64, event FulfillmentEvent) (*FulfillmentEvent, error)
+	CreateWithOptions(ctx context.Context, orderId uint64, fulfillmentId uint64, options FulfillmentEventCreateOptions) (*FulfillmentEvent, error)
 	Delete(ctx context.Context, orderId uint64, fulfillmentId uint64, eventId uint64) error
 }
 
@@ -39,6 +40,22 @@ type FulfillmentEvent struct {
 	UpdatedAt           string  `json:"updated_at"`
 	Zip                 string  `json:"zip"`
 	AdminGraphqlApiId   string  `json:"admin_graphql_api_id,omitempty"`
+}
+
+// FulfillmentEventCreateOptions contains the writable event properties.
+// A nil coordinate is omitted. A pointer to zero sends zero.
+type FulfillmentEventCreateOptions struct {
+	Status              string   `json:"status"`
+	Message             string   `json:"message,omitempty"`
+	HappenedAt          string   `json:"happened_at,omitempty"`
+	EstimatedDeliveryAt string   `json:"estimated_delivery_at,omitempty"`
+	Address1            string   `json:"address1,omitempty"`
+	City                string   `json:"city,omitempty"`
+	Province            string   `json:"province,omitempty"`
+	Country             string   `json:"country,omitempty"`
+	Zip                 string   `json:"zip,omitempty"`
+	Latitude            *float64 `json:"latitude,omitempty"`
+	Longitude           *float64 `json:"longitude,omitempty"`
 }
 
 type FulfillmentEventCreateRequest struct {
@@ -75,10 +92,25 @@ func (s *FulfillmentEventServiceOp) Get(ctx context.Context, orderId uint64, ful
 	return resource.FulfillmentEvent, err
 }
 
-// Create a new FulfillmentEvent
+// Create a fulfillment event. Use CreateWithOptions to send an explicit zero coordinate.
 func (s *FulfillmentEventServiceOp) Create(ctx context.Context, orderId uint64, fulfillmentId uint64, event FulfillmentEvent) (*FulfillmentEvent, error) {
+	options := FulfillmentEventCreateOptions{
+		Status: event.Status, Message: event.Message, HappenedAt: event.HappenedAt, EstimatedDeliveryAt: event.EstimatedDeliveryAt,
+		Address1: event.Address1, City: event.City, Province: event.Province, Country: event.Country, Zip: event.Zip,
+	}
+	if event.Latitude != 0 {
+		options.Latitude = &event.Latitude
+	}
+	if event.Longitude != 0 {
+		options.Longitude = &event.Longitude
+	}
+	return s.CreateWithOptions(ctx, orderId, fulfillmentId, options)
+}
+
+// CreateWithOptions creates an event from the supplied writable fields.
+func (s *FulfillmentEventServiceOp) CreateWithOptions(ctx context.Context, orderId, fulfillmentId uint64, options FulfillmentEventCreateOptions) (*FulfillmentEvent, error) {
 	path := fmt.Sprintf("%s/%d/fulfillments/%d/events.json", fulfillmentEventBasePath, orderId, fulfillmentId)
-	wrappedData := FulfillmentEventResource{Event: &event}
+	wrappedData := map[string]FulfillmentEventCreateOptions{"event": options}
 	resource := new(FulfillmentEventResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.FulfillmentEvent, err
