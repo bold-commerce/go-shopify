@@ -78,6 +78,13 @@ type Customer struct {
 	Metafields                []Metafield            `json:"metafields,omitempty"`
 
 	TaxExemptions *[]string `json:"tax_exemptions,omitempty"`
+	tagsSet       bool
+}
+
+// SetTags selects the tags to send on update. Pass "" to remove all tags.
+func (v *Customer) SetTags(tags string) {
+	v.Tags = tags
+	v.tagsSet = true
 }
 
 // Represents the result from the customers/X.json endpoint
@@ -192,7 +199,11 @@ func (s *CustomerServiceOp) CreateWithOptions(ctx context.Context, customer Cust
 // Update an existing customer
 func (s *CustomerServiceOp) Update(ctx context.Context, customer Customer) (*Customer, error) {
 	path := fmt.Sprintf("%s/%d.json", customersBasePath, customer.Id)
-	wrappedData := CustomerResource{Customer: &customer}
+	fields := struct {
+		*Customer
+		Tags *string `json:"tags,omitempty"`
+	}{&customer, tagsForWrite(customer.Tags, customer.tagsSet)}
+	wrappedData := map[string]interface{}{"customer": fields}
 	resource := new(CustomerResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Customer, err

@@ -107,3 +107,10 @@ func (s *stringOrNumber) UnmarshalJSON(data []byte) error {
 
 // IntPtr returns a pointer to an integer, including zero.
 func IntPtr(v int) *int { return &v }
+
+func tagsForWrite(tags string, explicit bool) *string {
+	if tags == "" && !explicit {
+		return nil
+	}
+	return &tags
+}

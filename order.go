@@ -436,6 +436,13 @@ type Order struct {
 	TotalCashRoundingRefundAdjustmentSet  *AmountSet    `json:"total_cash_rounding_refund_adjustment_set,omitempty"`
 	AdminGraphqlApiId                     string        `json:"admin_graphql_api_id,omitempty"`
 	TaxExempt                             *bool         `json:"tax_exempt,omitempty"`
+	tagsSet                               bool
+}
+
+// SetTags selects the tags to send on update. Pass "" to remove all tags.
+func (v *Order) SetTags(tags string) {
+	v.Tags = tags
+	v.tagsSet = true
 }
 
 type Address struct {
@@ -882,7 +889,11 @@ func (s *OrderServiceOp) Create(ctx context.Context, order Order) (*Order, error
 // Update order
 func (s *OrderServiceOp) Update(ctx context.Context, order Order) (*Order, error) {
 	path := fmt.Sprintf("%s/%d.json", ordersBasePath, order.Id)
-	wrappedData := OrderResource{Order: &order}
+	fields := struct {
+		*Order
+		Tags *string `json:"tags,omitempty"`
+	}{&order, tagsForWrite(order.Tags, order.tagsSet)}
+	wrappedData := map[string]interface{}{"order": fields}
 	resource := new(OrderResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Order, err
