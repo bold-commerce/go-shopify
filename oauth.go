@@ -334,10 +334,15 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	}
 	body := httpRequest.Body
 	requestBody, err := ioutil.ReadAll(io.LimitReader(body, maxWebhookBodyBytes+1))
+	var replay io.Reader = bytes.NewReader(requestBody)
+	if err != nil || len(requestBody) > maxWebhookBodyBytes {
+		// A partial read can leave unread bytes in the original body.
+		replay = io.MultiReader(replay, body)
+	}
 	httpRequest.Body = struct {
 		io.Reader
 		io.Closer
-	}{io.MultiReader(bytes.NewReader(requestBody), body), body}
+	}{replay, body}
 	if err != nil {
 		return false, err
 	}

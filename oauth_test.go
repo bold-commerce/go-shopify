@@ -645,3 +645,25 @@ func TestOnlineAccessTokenRequiresUserAndToken(t *testing.T) {
 		}
 	}
 }
+
+func TestVerifiedWebhookReplaysOnlyVerifiedBytes(t *testing.T) {
+	app := App{ApiSecret: "test"}
+	const payload = "webhook body"
+	body := &trackedBody{Reader: strings.NewReader(payload)}
+	req := httptest.NewRequest("POST", "/", body)
+	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
+	mac.Write([]byte(payload))
+	req.Header.Set(shopifyChecksumHeader, base64.StdEncoding.EncodeToString(mac.Sum(nil)))
+	if valid, err := app.VerifyWebhookRequestVerbose(req); !valid || err != nil {
+		t.Fatal("verification failed", err)
+	}
+	// Reading the replay must work even when the underlying reader is unavailable.
+	body.Reader = errReader{}
+	replayed, err := ioutil.ReadAll(req.Body)
+	if err != nil || string(replayed) != payload {
+		t.Fatalf("replayed body = %q, err = %v", replayed, err)
+	}
+	if err := req.Body.Close(); err != nil || body.closes != 1 {
+		t.Fatalf("original body closed %d times, err = %v", body.closes, err)
+	}
+}
