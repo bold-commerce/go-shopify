@@ -22,7 +22,9 @@ type FulfillmentOrderService interface {
 	Hold(context.Context, uint64, bool, FulfillmentOrderHoldReason, string) (*FulfillmentOrder, error)
 	HoldWithOptions(context.Context, uint64, FulfillmentOrderHoldOptions) (*FulfillmentOrder, error)
 	Open(context.Context, uint64) (*FulfillmentOrder, error)
+	// ReleaseHold releases every hold on the order. Use ReleaseHoldByID to release one hold.
 	ReleaseHold(context.Context, uint64) (*FulfillmentOrder, error)
+	ReleaseHoldByID(ctx context.Context, fulfillmentOrderID uint64, holdGID string) error
 	Reschedule(context.Context, uint64, time.Time) (*FulfillmentOrder, error)
 	SetDeadline(context.Context, []uint64, time.Time) error
 	Move(context.Context, uint64, FulfillmentOrderMoveRequest) (*FulfillmentOrderMoveResource, error)
@@ -357,13 +359,45 @@ func (s *FulfillmentOrderServiceOp) Open(ctx context.Context, fulfillmentId uint
 	return resource.FulfillmentOrder, err
 }
 
-// ReleaseHold releases the fulfillment hold on a fulfillment order
+// ReleaseHold releases every hold on the fulfillment order, including holds placed
+// for other reasons. Use ReleaseHoldByID to release one hold.
 func (s *FulfillmentOrderServiceOp) ReleaseHold(ctx context.Context, fulfillmentId uint64) (*FulfillmentOrder, error) {
 	prefix := FulfillmentOrderPathPrefix("fulfillment_orders", fulfillmentId)
 	path := fmt.Sprintf("%s/release_hold.json", prefix)
 	resource := new(FulfillmentOrderResource)
 	err := s.client.Post(ctx, path, nil, resource)
 	return resource.FulfillmentOrder, err
+}
+
+// ReleaseHoldByID releases only the specified hold using its Shopify GraphQL ID.
+func (s *FulfillmentOrderServiceOp) ReleaseHoldByID(ctx context.Context, fulfillmentOrderID uint64, holdGID string) error {
+	if fulfillmentOrderID == 0 || holdGID == "" {
+		return fmt.Errorf("fulfillment order ID and hold ID are required")
+	}
+	const mutation = `mutation ReleaseHold($id: ID!, $hold: ID!) {
+  fulfillmentOrderReleaseHold(id: $id, holdIds: [$hold]) {
+   fulfillmentOrder { id }
+   userErrors { message }
+  }
+ }`
+	id := fmt.Sprintf("gid://shopify/FulfillmentOrder/%d", fulfillmentOrderID)
+	var result struct {
+		FulfillmentOrderReleaseHold struct {
+			FulfillmentOrder struct{ ID string }
+			UserErrors       []struct{ Message string }
+		}
+	}
+	if err := s.client.GraphQL.Query(ctx, mutation, map[string]string{"id": id, "hold": holdGID}, &result); err != nil {
+		return err
+	}
+	payload := result.FulfillmentOrderReleaseHold
+	if len(payload.UserErrors) > 0 {
+		return fmt.Errorf("release fulfillment hold: %s", payload.UserErrors[0].Message)
+	}
+	if payload.FulfillmentOrder.ID != id {
+		return fmt.Errorf("release fulfillment hold: missing or unexpected fulfillment order")
+	}
+	return nil
 }
 
 // Reschedule reschedules the fulfill_at time of a scheduled fulfillment order
