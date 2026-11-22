@@ -387,7 +387,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 // response. It does not make much sense to call Do without a prepared
 // interface instance.
 func (c *Client) Do(req *http.Request, v interface{}) error {
-	_, err := c.doGetHeaders(req, v, readOnlyMethod(req.Method))
+	_, err := c.doGetHeaders(req, v, c.retryPolicy(readOnlyMethod(req.Method)))
 	if err != nil {
 		return err
 	}
@@ -399,11 +399,20 @@ func readOnlyMethod(method string) bool {
 	return method == "" || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
 }
 
+// A policy belongs to one operation, including both HTTP and GraphQL retries.
+type retryPolicy struct {
+	remaining int
+	retry503  bool
+}
+
+func (c *Client) retryPolicy(retry503 bool) *retryPolicy {
+	return &retryPolicy{remaining: c.retries, retry503: retry503}
+}
+
 // doGetHeaders executes a request, decoding the response into `v` and also returns any response headers.
-func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry503 bool) (http.Header, error) {
+func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPolicy) (http.Header, error) {
 	var resp *http.Response
 	var err error
-	retries := c.retries
 
 	// copy request body so it can be re-used
 	var body, responseBody []byte
@@ -438,7 +447,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry503 bool) (
 			break
 		}
 		respErr := decodeResponseError(resp, responseBody)
-		if retries <= 0 {
+		if retry.remaining <= 0 {
 			return nil, respErr
 		}
 
@@ -450,14 +459,14 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry503 bool) (
 			if err := waitForRetry(req.Context(), wait); err != nil {
 				return nil, err
 			}
-			retries--
+			retry.remaining--
 			continue
 		}
 
 		// A write may have succeeded before Shopify returned the 503.
-		if retry503 && resp.StatusCode == http.StatusServiceUnavailable {
+		if retry.retry503 && resp.StatusCode == http.StatusServiceUnavailable {
 			c.log.Debugf("service unavailable, retrying")
-			retries--
+			retry.remaining--
 			continue
 		}
 		return nil, respErr
@@ -636,7 +645,7 @@ func (c *Client) Count(ctx context.Context, path string, options interface{}) (i
 // parameters like created_at_min
 // Any data returned from Shopify will be marshalled into resource argument.
 func (c *Client) CreateAndDo(ctx context.Context, method, relPath string, data, options, resource interface{}) error {
-	_, err := c.createAndDoGetHeaders(ctx, method, relPath, data, options, resource, readOnlyMethod(method))
+	_, err := c.createAndDoGetHeaders(ctx, method, relPath, data, options, resource, c.retryPolicy(readOnlyMethod(method)))
 	if err != nil {
 		return err
 	}
@@ -644,7 +653,7 @@ func (c *Client) CreateAndDo(ctx context.Context, method, relPath string, data, 
 }
 
 // createAndDoGetHeaders creates an executes a request while returning the response headers.
-func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath string, data, options, resource interface{}, retry503 bool) (http.Header, error) {
+func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath string, data, options, resource interface{}, retry *retryPolicy) (http.Header, error) {
 	if strings.HasPrefix(relPath, "/") {
 		// make sure it's a relative path
 		relPath = strings.TrimLeft(relPath, "/")
@@ -656,7 +665,7 @@ func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath stri
 		return nil, err
 	}
 
-	return c.doGetHeaders(req, resource, retry503)
+	return c.doGetHeaders(req, resource, retry)
 }
 
 // Get performs a GET request for the given path and saves the result in the
@@ -683,7 +692,7 @@ func forEachPage(options interface{}, fetchPage func(interface{}) (*Pagination, 
 // ListWithPagination performs a GET request for the given path and saves the result in the
 // given resource and returns the pagination.
 func (c *Client) ListWithPagination(ctx context.Context, path string, resource, options interface{}) (*Pagination, error) {
-	headers, err := c.createAndDoGetHeaders(ctx, "GET", path, nil, options, resource, true)
+	headers, err := c.createAndDoGetHeaders(ctx, "GET", path, nil, options, resource, c.retryPolicy(true))
 	if err != nil {
 		return nil, err
 	}
