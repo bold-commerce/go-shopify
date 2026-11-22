@@ -2,7 +2,12 @@ package goshopify
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"path"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -157,10 +162,7 @@ type DraftOrderCountOptions struct {
 // Create draft order
 func (s *DraftOrderServiceOp) Create(ctx context.Context, draftOrder DraftOrder) (*DraftOrder, error) {
 	path := fmt.Sprintf("%s.json", draftOrdersBasePath)
-	wrappedData := DraftOrderResource{DraftOrder: &draftOrder}
-	resource := new(DraftOrderResource)
-	err := s.client.Post(ctx, path, wrappedData, resource)
-	return resource.DraftOrder, err
+	return s.write(ctx, http.MethodPost, path, draftOrder)
 }
 
 // List draft orders
@@ -227,10 +229,7 @@ func (s *DraftOrderServiceOp) Get(ctx context.Context, draftOrderId uint64, opti
 // Update draft order
 func (s *DraftOrderServiceOp) Update(ctx context.Context, draftOrder DraftOrder) (*DraftOrder, error) {
 	path := fmt.Sprintf("%s/%d.json", draftOrdersBasePath, draftOrder.Id)
-	wrappedData := DraftOrderResource{DraftOrder: &draftOrder}
-	resource := new(DraftOrderResource)
-	err := s.client.Put(ctx, path, wrappedData, resource)
-	return resource.DraftOrder, err
+	return s.write(ctx, http.MethodPut, path, draftOrder)
 }
 
 // Complete draft order
@@ -287,4 +286,53 @@ func (s *DraftOrderServiceOp) ListMetafieldsWithPagination(ctx context.Context, 
 func (s *DraftOrderServiceOp) ListMetafieldsAll(ctx context.Context, draftOrderId uint64, options interface{}) ([]Metafield, error) {
 	metafieldService := &MetafieldServiceOp{client: s.client, resource: draftOrdersResourceName, resourceId: draftOrderId}
 	return metafieldService.ListAll(ctx, options)
+}
+
+// Shopify can accept the write before shipping and taxes are ready. Only poll
+// with GET after acceptance, since repeating the write can create a second draft.
+func (s *DraftOrderServiceOp) write(ctx context.Context, method, endpoint string, draft DraftOrder) (*DraftOrder, error) {
+	c := s.client
+	req, err := c.NewRequest(ctx, method, path.Join(c.pathPrefix, endpoint), DraftOrderResource{DraftOrder: &draft}, nil)
+	if err != nil {
+		return nil, err
+	}
+	for {
+		resp, body, err := c.doRequest(req, c.retryPolicy(req.Method == http.MethodGet), c.recordRateLimitHeaders)
+		if err != nil {
+			if req.Method == http.MethodGet {
+				return nil, fmt.Errorf("draft order write accepted, polling failed: %w", err)
+			}
+			return nil, err
+		}
+		if resp.StatusCode != http.StatusAccepted {
+			var result DraftOrderResource
+			if err := json.Unmarshal(body, &result); err != nil {
+				return nil, err
+			}
+			return result.DraftOrder, nil
+		}
+		location := resp.Header.Get("Location")
+		if location == "" && req.Method != http.MethodGet {
+			return nil, fmt.Errorf("draft order write accepted without a polling location")
+		}
+		target, err := req.URL.Parse(location)
+		if err != nil || target.User != nil || target.Scheme != c.baseURL.Scheme || !strings.EqualFold(target.Host, c.baseURL.Host) {
+			return nil, fmt.Errorf("draft order write accepted with invalid polling location")
+		}
+		delay := time.Second
+		if h := resp.Header.Get("Retry-After"); h != "" {
+			seconds, err := strconv.ParseUint(h, 10, 32)
+			if err != nil {
+				return nil, fmt.Errorf("draft order write accepted with invalid Retry-After: %w", err)
+			}
+			delay = time.Duration(seconds) * time.Second
+		}
+		if err := waitForRetry(ctx, delay); err != nil {
+			return nil, fmt.Errorf("draft order write accepted, polling interrupted: %w", err)
+		}
+		req, err = c.NewRequest(ctx, http.MethodGet, target.String(), nil, nil)
+		if err != nil {
+			return nil, err
+		}
+	}
 }

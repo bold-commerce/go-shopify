@@ -411,6 +411,19 @@ func (c *Client) retryPolicy(retry503 bool) *retryPolicy {
 
 // doGetHeaders executes a request, decoding the response into `v` and also returns any response headers.
 func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPolicy, recordRateLimits func(http.Header)) (http.Header, error) {
+	resp, responseBody, err := c.doRequest(req, retry, recordRateLimits)
+	if err != nil {
+		return nil, err
+	}
+	if v != nil {
+		if err := json.NewDecoder(bytes.NewReader(responseBody)).Decode(&v); err != nil {
+			return nil, err
+		}
+	}
+	return resp.Header, nil
+}
+
+func (c *Client) doRequest(req *http.Request, retry *retryPolicy, recordRateLimits func(http.Header)) (*http.Response, []byte, error) {
 	var resp *http.Response
 	var err error
 
@@ -420,7 +433,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPoli
 		body, err = ioutil.ReadAll(req.Body)
 		req.Body.Close()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
@@ -432,14 +445,14 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPoli
 		}
 		resp, err = c.Client.Do(req)
 		if err != nil {
-			return nil, err // http client errors, not api responses
+			return nil, nil, err // http client errors, not api responses
 		}
 
 		recordRateLimits(resp.Header)
 		responseBody, err = ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		c.logResponse(req, resp, responseBody)
 
@@ -448,7 +461,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPoli
 		}
 		respErr := decodeResponseError(resp, responseBody)
 		if retry.remaining <= 0 {
-			return nil, respErr
+			return nil, nil, respErr
 		}
 
 		if rateLimitErr, isRetryErr := respErr.(RateLimitError); isRetryErr {
@@ -457,7 +470,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPoli
 			wait := time.Duration(rateLimitErr.RetryAfter) * time.Second
 			c.log.Debugf("rate limited waiting %s", wait.String())
 			if err := waitForRetry(req.Context(), wait); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			retry.remaining--
 			continue
@@ -469,7 +482,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPoli
 			retry.remaining--
 			continue
 		}
-		return nil, respErr
+		return nil, nil, respErr
 	}
 
 	if c.apiVersion == defaultApiVersion && resp.Header.Get("X-Shopify-API-Version") != "" {
@@ -478,15 +491,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPoli
 		c.log.Infof("api version not set, now using %s", c.apiVersion)
 	}
 
-	if v != nil {
-		decoder := json.NewDecoder(bytes.NewReader(responseBody))
-		err := decoder.Decode(&v)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return resp.Header, nil
+	return resp, responseBody, nil
 }
 
 func wrapSpecificError(r *http.Response, err ResponseError) error {
