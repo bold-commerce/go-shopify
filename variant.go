@@ -157,9 +157,17 @@ func (s *VariantServiceOp) Create(ctx context.Context, productId uint64, variant
 	return resource.Variant, err
 }
 
+// Inventory levels are read-only on variant updates.
+func (v Variant) forUpdate() Variant {
+	v.InventoryQuantity = 0
+	v.OldInventoryQuantity = 0
+	return v
+}
+
 // Update existing variant
 func (s *VariantServiceOp) Update(ctx context.Context, variant Variant) (*Variant, error) {
 	path := fmt.Sprintf("%s/%d.json", variantsBasePath, variant.Id)
+	variant = variant.forUpdate()
 	wrappedData := VariantResource{Variant: &variant}
 	resource := new(VariantResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)

@@ -202,6 +202,11 @@ func (s *ProductServiceOp) Create(ctx context.Context, product Product) (*Produc
 // Update an existing product
 func (s *ProductServiceOp) Update(ctx context.Context, product Product) (*Product, error) {
 	path := fmt.Sprintf("%s/%d.json", productsBasePath, product.Id)
+	variants := make([]Variant, len(product.Variants))
+	for i, v := range product.Variants {
+		variants[i] = v.forUpdate()
+	}
+	product.Variants = variants
 	resource := new(ProductResource)
 	err := s.client.Put(ctx, path, product.writeRequest(), resource)
 	return resource.Product, err
