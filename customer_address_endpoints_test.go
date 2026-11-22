@@ -8,6 +8,20 @@ import (
 func TestCustomerAddressAddedEndpoints(t *testing.T) {
 	tests := []featureEndpoint{
 		{
+			name: "Create", method: "POST", path: "customers/11/addresses.json",
+			request: `{"address":{"city":"Toronto"}}`, response: `{"customer_address":{"id":7}}`, want: &CustomerAddress{Id: 7},
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.CustomerAddress.Create(ctx, 11, CustomerAddress{City: "Toronto"})
+			},
+		},
+		{
+			name: "Update", method: "PUT", path: "customers/11/addresses/7.json",
+			request: `{"address":{"id":7,"city":"Toronto"}}`, response: `{"customer_address":{"id":7}}`, want: &CustomerAddress{Id: 7},
+			call: func(ctx context.Context) (interface{}, error) {
+				return client.CustomerAddress.Update(ctx, 11, CustomerAddress{Id: 7, City: "Toronto"})
+			},
+		},
+		{
 			name:     "SetDefault",
 			method:   "PUT",
 			path:     "customers/11/addresses/7/default.json",

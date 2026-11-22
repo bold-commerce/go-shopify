@@ -104,16 +104,16 @@ func (s *CustomerAddressServiceOp) Get(ctx context.Context, customerId, addressI
 // Create a new address for given customer
 func (s *CustomerAddressServiceOp) Create(ctx context.Context, customerId uint64, address CustomerAddress) (*CustomerAddress, error) {
 	path := fmt.Sprintf("%s/%d/addresses.json", customersBasePath, customerId)
-	wrappedData := CustomerAddressResource{Address: &address}
+	wrappedData := map[string]CustomerAddress{"address": address}
 	resource := new(CustomerAddressResource)
 	err := s.client.Post(ctx, path, wrappedData, resource)
 	return resource.Address, err
 }
 
-// Create a new address for given customer
+// Update an existing address for the given customer.
 func (s *CustomerAddressServiceOp) Update(ctx context.Context, customerId uint64, address CustomerAddress) (*CustomerAddress, error) {
 	path := fmt.Sprintf("%s/%d/addresses/%d.json", customersBasePath, customerId, address.Id)
-	wrappedData := CustomerAddressResource{Address: &address}
+	wrappedData := map[string]CustomerAddress{"address": address}
 	resource := new(CustomerAddressResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Address, err
