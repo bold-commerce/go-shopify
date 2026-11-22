@@ -667,3 +667,39 @@ func TestVerifiedWebhookReplaysOnlyVerifiedBytes(t *testing.T) {
 		t.Fatalf("original body closed %d times, err = %v", body.closes, err)
 	}
 }
+
+func TestTokenExchangeRecordsRateLimitsForItsShop(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	client.retries = 0
+	for _, tc := range []struct {
+		shop   string
+		status int
+		limit  string
+		want   int
+	}{
+		{"fooshop", 200, "7/40", 7},
+		{"fooshop.myshopify.com", 429, "40/40", 40},
+		{"different-shop", 200, "1/40", 40},
+	} {
+		endpoint := ShopBaseUrl(tc.shop) + "/admin/oauth/access_token"
+		httpmock.RegisterResponder("POST", endpoint, func(*http.Request) (*http.Response, error) {
+			body := expiringAccessTokenResponse
+			if tc.status == 429 {
+				body = `{"errors":"throttled"}`
+			}
+			response := httpmock.NewStringResponse(tc.status, body)
+			response.Header.Set("X-Shopify-Shop-Api-Call-Limit", tc.limit)
+			return response, nil
+		})
+		_, err := app.RefreshAccessToken(context.Background(), tc.shop, "refresh")
+		if (err != nil) != (tc.status == 429) {
+			t.Fatalf("%s: unexpected error %v", tc.shop, err)
+		}
+		limits := client.RateLimits()
+		if limits.RequestCount != tc.want || limits.BucketSize != 40 {
+			t.Fatalf("%s: got %d/%d, want %d/40", tc.shop, limits.RequestCount, limits.BucketSize, tc.want)
+		}
+	}
+}

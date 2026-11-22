@@ -387,7 +387,7 @@ func NewClient(app App, shopName, token string, opts ...Option) (*Client, error)
 // response. It does not make much sense to call Do without a prepared
 // interface instance.
 func (c *Client) Do(req *http.Request, v interface{}) error {
-	_, err := c.doGetHeaders(req, v, c.retryPolicy(readOnlyMethod(req.Method)))
+	_, err := c.doGetHeaders(req, v, c.retryPolicy(readOnlyMethod(req.Method)), c.recordRateLimitHeaders)
 	if err != nil {
 		return err
 	}
@@ -410,7 +410,7 @@ func (c *Client) retryPolicy(retry503 bool) *retryPolicy {
 }
 
 // doGetHeaders executes a request, decoding the response into `v` and also returns any response headers.
-func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPolicy) (http.Header, error) {
+func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPolicy, recordRateLimits func(http.Header)) (http.Header, error) {
 	var resp *http.Response
 	var err error
 
@@ -435,7 +435,7 @@ func (c *Client) doGetHeaders(req *http.Request, v interface{}, retry *retryPoli
 			return nil, err // http client errors, not api responses
 		}
 
-		c.recordRateLimitHeaders(resp.Header)
+		recordRateLimits(resp.Header)
 		responseBody, err = ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
@@ -665,7 +665,7 @@ func (c *Client) createAndDoGetHeaders(ctx context.Context, method, relPath stri
 		return nil, err
 	}
 
-	return c.doGetHeaders(req, resource, retry)
+	return c.doGetHeaders(req, resource, retry, c.recordRateLimitHeaders)
 }
 
 // Get performs a GET request for the given path and saves the result in the
