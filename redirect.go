@@ -29,9 +29,9 @@ type RedirectServiceOp struct {
 
 // Redirect represents a Shopify redirect.
 type Redirect struct {
-	Id     uint64 `json:"id"`
-	Path   string `json:"path"`
-	Target string `json:"target"`
+	Id     uint64 `json:"id,omitempty"`
+	Path   string `json:"path,omitempty"`
+	Target string `json:"target,omitempty"`
 }
 
 // RedirectResource represents the result from the redirects/X.json endpoint

@@ -118,7 +118,30 @@ func (s *WebhookServiceOp) Create(ctx context.Context, webhook Webhook) (*Webhoo
 // Update an existing webhook.
 func (s *WebhookServiceOp) Update(ctx context.Context, webhook Webhook) (*Webhook, error) {
 	path := fmt.Sprintf("%s/%d.json", webhooksBasePath, webhook.Id)
-	wrappedData := WebhookResource{Webhook: &webhook}
+	// A nil filter leaves the subscription unchanged. An empty list clears it.
+	fields := map[string]interface{}{"id": webhook.Id}
+	if webhook.Address != "" {
+		fields["address"] = webhook.Address
+	}
+	if webhook.Topic != "" {
+		fields["topic"] = webhook.Topic
+	}
+	if webhook.Format != "" {
+		fields["format"] = webhook.Format
+	}
+	if webhook.Fields != nil {
+		fields["fields"] = webhook.Fields
+	}
+	if webhook.MetafieldNamespaces != nil {
+		fields["metafield_namespaces"] = webhook.MetafieldNamespaces
+	}
+	if webhook.PrivateMetafieldNamespaces != nil {
+		fields["private_metafield_namespaces"] = webhook.PrivateMetafieldNamespaces
+	}
+	if webhook.MetafieldIdentifiers != nil {
+		fields["metafield_identifiers"] = webhook.MetafieldIdentifiers
+	}
+	wrappedData := map[string]interface{}{"webhook": fields}
 	resource := new(WebhookResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Webhook, err
