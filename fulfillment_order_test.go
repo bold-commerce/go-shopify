@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+	"github.com/shopspring/decimal"
 )
 
 func FulfillmentOrderTests(t *testing.T, fulfillmentOrder FulfillmentOrder) {
@@ -296,5 +297,28 @@ func TestFulfillmentOrderCancelErrors(t *testing.T) {
 		if got, err := client.FulfillmentOrder.Cancel(context.Background(), 1); err == nil || got != nil {
 			t.Fatalf("Cancel = %+v, %v; want nil and error", got, err)
 		}
+	}
+}
+
+func TestFulfillmentOrderOptionalReadFields(t *testing.T) {
+	options := FulfillmentOrderOptions{IncludeFinancialSummaries: true, IncludeOrderReferenceFields: true}
+	const query = "include_financial_summaries=true&include_order_reference_fields=true"
+	const order = `{"order_name":"#1001","order_processed_at":"2026-01-10T11:00:00Z","channel_id":9007199254740993,"line_items":[{"financial_summaries":[{"quantity":1,"original_unit_price_set":"199.00","approximate_discounted_unit_price_set":"195.67","discount_allocations":[{"amount":"3.33","discount_application":{"allocation_method":"across","target_selection":"all","target_type":"line_item"}}]}]}]}`
+	processed := time.Date(2026, 1, 10, 11, 0, 0, 0, time.UTC)
+	channel := uint64(9007199254740993)
+	price, discounted, amount := decimal.RequireFromString("199.00"), decimal.RequireFromString("195.67"), decimal.RequireFromString("3.33")
+	want := FulfillmentOrder{OrderName: "#1001", OrderProcessedAt: &processed, ChannelId: &channel, LineItems: []FulfillmentOrderLineItem{{
+		FinancialSummaries: []FulfillmentOrderFinancialSummary{{
+			Quantity: 1, OriginalUnitPriceSet: &price, ApproximateDiscountedUnitPriceSet: &discounted,
+			DiscountAllocations: []DiscountAllocations{{Amount: &amount, DiscountApplication: &DiscountApplication{AllocationMethod: "across", TargetSelection: "all", TargetType: "line_item"}}},
+		}},
+	}}}
+	for _, tc := range []featureEndpoint{
+		{name: "Get", method: "GET", path: "fulfillment_orders/7.json", query: query, response: `{"fulfillment_order":` + order + "}", want: &want,
+			call: func(ctx context.Context) (interface{}, error) { return client.FulfillmentOrder.Get(ctx, 7, options) }},
+		{name: "List", method: "GET", path: "orders/7/fulfillment_orders.json", query: query, response: `{"fulfillment_orders":[` + order + "]}", want: []FulfillmentOrder{want},
+			call: func(ctx context.Context) (interface{}, error) { return client.FulfillmentOrder.List(ctx, 7, options) }},
+	} {
+		t.Run(tc.name, func(t *testing.T) { testFeatureEndpoint(t, tc) })
 	}
 }

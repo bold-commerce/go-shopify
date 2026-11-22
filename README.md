@@ -56,78 +56,118 @@ import "github.com/bold-commerce/go-shopify"
 
 This gives you access to the `goshopify` package.
 
-#### Oauth
+#### OAuth
 
-If you don't have an access token yet, you can obtain one with the OAuth flow.
-The handler fragments below show the library calls. Generate a random, single-use
-state value for each authorization attempt and store it in the user's session.
-In the callback, verify that the returned state matches the stored value before
-exchanging the code. The fixed state below is only a placeholder.
+These handlers use an expiring offline token. They assume your HTTPS session
+middleware supplies a server-validated `sessionID(r)` for the current browser.
+In this PostgreSQL example, each row in `app_sessions` has an `id` and nullable
+`oauth_state` (text), `oauth_shop` (text), and `oauth_expires_at` (timestamptz)
+columns. `db` is your database connection.
 
 ```go
-// Create an app somewhere.
 var app = goshopify.App{
-    ApiKey: "abcd",
-    ApiSecret: "efgh",
+    ApiKey: os.Getenv("SHOPIFY_API_KEY"),
+    ApiSecret: os.Getenv("SHOPIFY_API_SECRET"),
     RedirectUrl: "https://example.com/shopify/callback",
     Scope: "read_products,read_orders",
 }
 
-// Create an oauth-authorize url for the app and redirect to it.
-// In some request handler, you probably want something like this:
+var shopDomain = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?\.myshopify\.com$`)
+
 func MyHandler(w http.ResponseWriter, r *http.Request) {
-    shopName := r.URL.Query().Get("shop")
-    state := "nonce"
-    authUrl, err := app.AuthorizeUrl(shopName, state)
-    if err != nil {
+    shop := r.URL.Query().Get("shop")
+    if !shopDomain.MatchString(shop) {
         http.Error(w, "Invalid shop", http.StatusBadRequest)
         return
     }
-    http.Redirect(w, r, authUrl, http.StatusFound)
+    var nonce [32]byte
+    if _, err := rand.Read(nonce[:]); err != nil { // crypto/rand
+        http.Error(w, "Cannot start authorization", http.StatusInternalServerError)
+        return
+    }
+    state := hex.EncodeToString(nonce[:])
+    authURL, err := app.AuthorizeUrl(shop, state)
+    if err != nil {
+        http.Error(w, "Invalid authorization URL", http.StatusBadRequest)
+        return
+    }
+    var id string
+    err = db.QueryRowContext(r.Context(), `UPDATE app_sessions
+        SET oauth_state=$1, oauth_shop=$2, oauth_expires_at=now()+interval '10 minutes'
+        WHERE id=$3 RETURNING id`, state, shop, sessionID(r)).Scan(&id)
+    if err != nil {
+        http.Error(w, "Cannot save authorization state", http.StatusInternalServerError)
+        return
+    }
+    http.Redirect(w, r, authURL, http.StatusFound)
 }
 
-// Fetch a permanent access token in the callback
 func MyCallbackHandler(w http.ResponseWriter, r *http.Request) {
-    // Validate the single-use state against the user's session here.
-    // Check that the callback signature is valid
-    if ok, _ := app.VerifyAuthorizationURL(r.URL); !ok {
-        http.Error(w, "Invalid Signature", http.StatusUnauthorized)
+    q := r.URL.Query()
+    shop, state, code := q.Get("shop"), q.Get("state"), q.Get("code")
+    ok, err := app.VerifyAuthorizationURL(r.URL)
+    if err != nil || !ok || !shopDomain.MatchString(shop) || state == "" || code == "" {
+        http.Error(w, "Invalid callback", http.StatusUnauthorized)
         return
     }
 
-    query := r.URL.Query()
-    shopName := query.Get("shop")
-    code := query.Get("code")
+    // Match and consume the state in one operation, even for concurrent callbacks.
     ctx := r.Context()
-    token, err := app.GetAccessToken(ctx, shopName, code)
+    var id string
+    err = db.QueryRowContext(ctx, `UPDATE app_sessions
+        SET oauth_state=NULL, oauth_shop=NULL, oauth_expires_at=NULL
+        WHERE id=$1 AND oauth_state=$2 AND oauth_shop=$3 AND oauth_expires_at>now()
+        RETURNING id`, sessionID(r), state, shop).Scan(&id)
+    if err == sql.ErrNoRows {
+        http.Error(w, "Invalid or expired state", http.StatusUnauthorized)
+        return
+    }
+    if err != nil {
+        http.Error(w, "Cannot verify state", http.StatusInternalServerError)
+        return
+    }
+    token, err := app.GetExpiringAccessToken(ctx, shop, code)
     if err != nil {
         http.Error(w, "Token exchange failed", http.StatusBadGateway)
         return
     }
-
-    // Do something with the token, like store it in a DB.
+    // Implement saveTokenPair in your app. Store both tokens and their expiry times together.
+    if err := saveTokenPair(ctx, shop, token); err != nil {
+        http.Error(w, "Cannot save tokens", http.StatusInternalServerError)
+        return
+    }
+    w.WriteHeader(http.StatusNoContent)
 }
 ```
 
-##### Expiring offline access tokens
+##### Refresh and migrate offline tokens
 
-Shopify is replacing permanent offline access tokens with
-[expiring offline access tokens](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens)
-for public apps. An expiring token comes with a refresh token:
+Shopify requires expiring offline tokens for public apps created on or after
+April 1, 2026, and for custom apps created on or after December 1, 2026.
+[Shopify offline token requirements](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens)
 
 ```go
-// In the callback, fetch an expiring token instead of a permanent one.
-token, err := app.GetExpiringAccessToken(ctx, shopName, code)
-// Store token.AccessToken, token.RefreshToken and both lifetimes
-// (token.ExpiresIn and token.RefreshTokenExpiresIn, in seconds).
+// Before expiry, refresh the token. On success, store the new access and refresh
+// tokens together. ExpiresIn and RefreshTokenExpiresIn are lifetimes in seconds.
+token, err := app.RefreshAccessToken(ctx, shopName, storedRefreshToken)
 
-// Before the access token expires, refresh it. The refresh token is rotated,
-// so store the returned token again.
-token, err = app.RefreshAccessToken(ctx, shopName, token.RefreshToken)
-
-// Exchange a permanent token that was stored earlier for an expiring one.
-// Shopify invalidates the permanent token.
+// To migrate an existing permanent token, exchange it once and store the pair.
 token, err = app.MigrateToExpiringAccessToken(ctx, shopName, permanentToken)
+```
+
+##### Online tokens and embedded apps
+
+For per-user authorization in a standalone app, call `AuthorizeOnlineURL` and
+exchange the callback code with `GetOnlineAccessToken`. Use the same state and
+signature checks shown above. The result includes the user and their granted scopes.
+
+For an embedded app, use the shop from the verified ID token and exchange the
+token for the access type your app needs:
+
+```go
+online, err := app.ExchangeIDTokenForOnlineAccessToken(ctx, shop, idToken)
+// For background work, request an offline token and store the returned pair.
+offline, err := app.ExchangeIDTokenForExpiringAccessToken(ctx, shop, idToken)
 ```
 
 #### Api calls with a token
@@ -392,7 +432,8 @@ func FetchWebhooks(ctx context.Context) ([]Webhook, error) {
 #### Webhooks verification
 
 In order to be sure that a webhook is sent from ShopifyApi you could easily verify
-it with the `VerifyWebhookRequest` method.
+it with the `VerifyWebhookRequest` method. Both `VerifyWebhookRequest` and
+`VerifyWebhookRequestVerbose` reject request bodies larger than 10 MiB (10,485,760 bytes).
 
 For example:
 

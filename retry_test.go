@@ -160,3 +160,60 @@ func TestWaitForRetryCancelledContext(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestGraphQLMixedRetryBudget(t *testing.T) {
+	const throttled = `{"errors":[{"message":"Throttled","extensions":{"code":"THROTTLED"}}]}`
+	for _, tc := range []struct {
+		name       string
+		statuses   []int
+		retries    int
+		wantStatus int
+	}{
+		{"HTTP then GraphQL", []int{429, 200}, 1, 200},
+		{"GraphQL then HTTP", []int{200, 503}, 1, 503},
+		{"mixed success", []int{503, 200, 429, 200}, 3, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			setup()
+			defer teardown()
+			client.retries = tc.retries
+			calls := 0
+			endpoint := fmt.Sprintf("https://fooshop.myshopify.com/%s/graphql.json", client.pathPrefix)
+			httpmock.RegisterResponder("POST", endpoint, func(req *http.Request) (*http.Response, error) {
+				if calls >= len(tc.statuses) {
+					t.Fatal("sent an extra request")
+				}
+				status := tc.statuses[calls]
+				calls++
+				body := `{"errors":"unavailable"}`
+				if status == 200 {
+					body = throttled
+					if tc.wantStatus == 0 && calls == len(tc.statuses) {
+						body = `{"data":{}}`
+					}
+				}
+				return httpmock.NewStringResponse(status, body), nil
+			})
+			err := client.GraphQL.Query(context.Background(), "query {shop {id}}", nil, nil)
+			switch tc.wantStatus {
+			case 0:
+				if err != nil {
+					t.Fatal(err)
+				}
+			case 200:
+				var limit RateLimitError
+				if !errors.As(err, &limit) || limit.Status != 200 {
+					t.Fatalf("got %v, want GraphQL throttle", err)
+				}
+			case 503:
+				var response ResponseError
+				if !errors.As(err, &response) || response.Status != 503 {
+					t.Fatalf("got %v, want HTTP 503", err)
+				}
+			}
+			if calls != tc.retries+1 {
+				t.Fatalf("got %d calls, want %d", calls, tc.retries+1)
+			}
+		})
+	}
+}

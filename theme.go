@@ -33,16 +33,16 @@ type ThemeServiceOp struct {
 
 // Theme represents a Shopify theme
 type Theme struct {
-	Id                uint64     `json:"id"`
-	Name              string     `json:"name"`
-	Previewable       bool       `json:"previewable"`
-	Processing        bool       `json:"processing"`
-	Role              string     `json:"role"`
+	Id                uint64     `json:"id,omitempty"`
+	Name              string     `json:"name,omitempty"`
+	Previewable       bool       `json:"previewable,omitempty"`
+	Processing        bool       `json:"processing,omitempty"`
+	Role              string     `json:"role,omitempty"`
 	Src               string     `json:"src,omitempty"` // Public URL of the theme ZIP file used for creation.
-	ThemeStoreId      uint64     `json:"theme_store_id"`
-	AdminGraphqlApiId string     `json:"admin_graphql_api_id"`
-	CreatedAt         *time.Time `json:"created_at"`
-	UpdatedAt         *time.Time `json:"updated_at"`
+	ThemeStoreId      uint64     `json:"theme_store_id,omitempty"`
+	AdminGraphqlApiId string     `json:"admin_graphql_api_id,omitempty"`
+	CreatedAt         *time.Time `json:"created_at,omitempty"`
+	UpdatedAt         *time.Time `json:"updated_at,omitempty"`
 }
 
 // ThemesResource is the result from the themes/X.json endpoint
@@ -83,7 +83,7 @@ func (s *ThemeServiceOp) Get(ctx context.Context, themeId uint64, options interf
 // Update a theme
 func (s *ThemeServiceOp) Update(ctx context.Context, theme Theme) (*Theme, error) {
 	path := fmt.Sprintf("%s/%d.json", themesBasePath, theme.Id)
-	wrappedData := ThemeResource{Theme: &theme}
+	wrappedData := ThemeResource{Theme: &Theme{Id: theme.Id, Name: theme.Name, Role: theme.Role}}
 	resource := new(ThemeResource)
 	err := s.client.Put(ctx, path, wrappedData, resource)
 	return resource.Theme, err

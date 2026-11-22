@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 // FulfillmentOrderService is an interface for interfacing with the fulfillment
@@ -102,16 +104,31 @@ type FulfillmentOrderInternationalDuties struct {
 	IncoTerm string `json:"incoterm,omitempty"`
 }
 
+// FulfillmentOrderOptions requests extra fields on Get and List.
+type FulfillmentOrderOptions struct {
+	IncludeFinancialSummaries   bool `url:"include_financial_summaries,omitempty"`
+	IncludeOrderReferenceFields bool `url:"include_order_reference_fields,omitempty"`
+}
+
+// FulfillmentOrderFinancialSummary contains prices and discounts for a line item.
+type FulfillmentOrderFinancialSummary struct {
+	Quantity                          int                   `json:"quantity,omitempty"`
+	OriginalUnitPriceSet              *decimal.Decimal      `json:"original_unit_price_set,omitempty"`
+	ApproximateDiscountedUnitPriceSet *decimal.Decimal      `json:"approximate_discounted_unit_price_set,omitempty"`
+	DiscountAllocations               []DiscountAllocations `json:"discount_allocations,omitempty"`
+}
+
 // FulfillmentOrderLineItem represents a line item for a FulfillmentOrder
 type FulfillmentOrderLineItem struct {
-	Id                  uint64 `json:"id,omitempty"`
-	ShopId              uint64 `json:"shop_id,omitempty"`
-	FulfillmentOrderId  uint64 `json:"fulfillment_order_id,omitempty"`
-	LineItemId          uint64 `json:"line_item_id,omitempty"`
-	InventoryItemId     uint64 `json:"inventory_item_id,omitempty"`
-	Quantity            uint64 `json:"quantity,omitempty"`
-	FulfillableQuantity uint64 `json:"fulfillable_quantity,omitempty"`
-	VariantId           uint64 `json:"variant_id,omitempty"`
+	FinancialSummaries  []FulfillmentOrderFinancialSummary `json:"financial_summaries,omitempty"`
+	Id                  uint64                             `json:"id,omitempty"`
+	ShopId              uint64                             `json:"shop_id,omitempty"`
+	FulfillmentOrderId  uint64                             `json:"fulfillment_order_id,omitempty"`
+	LineItemId          uint64                             `json:"line_item_id,omitempty"`
+	InventoryItemId     uint64                             `json:"inventory_item_id,omitempty"`
+	Quantity            uint64                             `json:"quantity,omitempty"`
+	FulfillableQuantity uint64                             `json:"fulfillable_quantity,omitempty"`
+	VariantId           uint64                             `json:"variant_id,omitempty"`
 }
 
 // FulfillmentOrderMerchantRequest represents a MerchantRequest for a FulfillmentOrder
@@ -140,6 +157,9 @@ type FulfillmentOrderAssignedLocation struct {
 
 // FulfillmentOrder represents a Shopify Fulfillment Order
 type FulfillmentOrder struct {
+	OrderName           string                              `json:"order_name,omitempty"`
+	OrderProcessedAt    *time.Time                          `json:"order_processed_at,omitempty"`
+	ChannelId           *uint64                             `json:"channel_id,omitempty"`
 	Id                  uint64                              `json:"id,omitempty"`
 	AssignedLocation    FulfillmentOrderAssignedLocation    `json:"assigned_location,omitempty"`
 	AssignedLocationId  uint64                              `json:"assigned_location_id,omitempty"`

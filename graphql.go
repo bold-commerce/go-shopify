@@ -80,18 +80,14 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 		Variables: vars,
 	}
 
-	retry503 := graphQLReadQuery.MatchString(q)
-	attempts := 0
+	retry := s.client.retryPolicy(graphQLReadQuery.MatchString(q))
 
 	for {
 		gr := graphQLResponse{
 			Data: resp,
 		}
 
-		_, err := s.client.createAndDoGetHeaders(ctx, http.MethodPost, "graphql.json", data, nil, &gr, retry503)
-
-		// Count the initial GraphQL request as well as each throttled retry.
-		attempts += 1
+		_, err := s.client.createAndDoGetHeaders(ctx, http.MethodPost, "graphql.json", data, nil, &gr, retry)
 
 		var retryAfterSecs float64
 
@@ -109,7 +105,7 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 
 			for _, err := range gr.Errors {
 				if err.Extensions != nil && err.Extensions.Code == graphQLErrorCodeThrottled {
-					if attempts > s.client.retries {
+					if retry.remaining <= 0 {
 						return RateLimitError{
 							RetryAfter: int(math.Ceil(retryAfterSecs)),
 							ResponseError: ResponseError{
@@ -132,6 +128,7 @@ func (s *GraphQLServiceOp) Query(ctx context.Context, q string, vars, resp inter
 				if err := waitForRetry(ctx, wait); err != nil {
 					return err
 				}
+				retry.remaining--
 				continue
 			}
 

@@ -63,50 +63,19 @@ func TestScriptTagGet(t *testing.T) {
 	}
 }
 
-func scriptTagTests(t *testing.T, tag ScriptTag) {
-	expected := uint64(870402688)
-	if tag.Id != expected {
-		t.Errorf("tag.Id is %+v, expected %+v", tag.Id, expected)
-	}
-}
-
-func TestScriptTagCreate(t *testing.T) {
+func TestScriptTagWritesUnsupported(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("script_tags.json")))
-
-	tag0 := ScriptTag{
-		Src:          "https://djavaskripped.org/fancy.js",
-		Event:        "onload",
-		DisplayScope: "all",
+	for _, write := range []func(context.Context, ScriptTag) (*ScriptTag, error){client.ScriptTag.Create, client.ScriptTag.Update} {
+		tag, err := write(context.Background(), ScriptTag{Id: 1})
+		if tag != nil || err != ErrScriptTagWriteUnsupported {
+			t.Fatalf("got %v, %v", tag, err)
+		}
 	}
-
-	returnedTag, err := client.ScriptTag.Create(context.Background(), tag0)
-	if err != nil {
-		t.Errorf("ScriptTag.Create returned error: %v", err)
+	if calls := httpmock.GetTotalCallCount(); calls != 0 {
+		t.Fatalf("sent %d requests", calls)
 	}
-	scriptTagTests(t, *returnedTag)
-}
-
-func TestScriptTagUpdate(t *testing.T) {
-	setup()
-	defer teardown()
-
-	httpmock.RegisterResponder("PUT", fmt.Sprintf("https://fooshop.myshopify.com/%s/script_tags/1.json", client.pathPrefix),
-		httpmock.NewBytesResponder(200, loadFixture("script_tags.json")))
-
-	tag := ScriptTag{
-		Id:  1,
-		Src: "https://djavaskripped.org/fancy.js",
-	}
-
-	returnedTag, err := client.ScriptTag.Update(context.Background(), tag)
-	if err != nil {
-		t.Errorf("ScriptTag.Update returned error: %v", err)
-	}
-	scriptTagTests(t, *returnedTag)
 }
 
 func TestScriptTagDelete(t *testing.T) {

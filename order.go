@@ -531,14 +531,15 @@ type LineItem struct {
 }
 
 type DiscountAllocations struct {
-	Amount                   *decimal.Decimal `json:"amount,omitempty"`
-	DiscountApplicationIndex int              `json:"discount_application_index,omitempty"`
-	AmountSet                *AmountSet       `json:"amount_set,omitempty"`
-	ApplicationType          string           `json:"application_type,omitempty"`
-	CreatedAt                *time.Time       `json:"created_at,omitempty"`
-	Description              string           `json:"description,omitempty"`
-	DiscountClass            string           `json:"discount_class,omitempty"`
-	Id                       *uint64          `json:"id,omitempty"`
+	DiscountApplication      *DiscountApplication `json:"discount_application,omitempty"`
+	Amount                   *decimal.Decimal     `json:"amount,omitempty"`
+	DiscountApplicationIndex int                  `json:"discount_application_index,omitempty"`
+	AmountSet                *AmountSet           `json:"amount_set,omitempty"`
+	ApplicationType          string               `json:"application_type,omitempty"`
+	CreatedAt                *time.Time           `json:"created_at,omitempty"`
+	Description              string               `json:"description,omitempty"`
+	DiscountClass            string               `json:"discount_class,omitempty"`
+	Id                       *uint64              `json:"id,omitempty"`
 }
 
 type AmountSet struct {
@@ -804,17 +805,21 @@ const (
 )
 
 type RefundLineItem struct {
-	AlreadyStocked *bool            `json:"already_stocked,omitempty"`
-	RestockType    string           `json:"restock_type,omitempty"`
-	LocationId     uint64           `json:"location_id,omitempty"`
-	Id             uint64           `json:"id,omitempty"`
-	Quantity       int              `json:"quantity,omitempty"`
-	LineItemId     uint64           `json:"line_item_id,omitempty"`
-	LineItem       *LineItem        `json:"line_item,omitempty"`
-	Subtotal       *decimal.Decimal `json:"subtotal,omitempty"`
-	TotalTax       *decimal.Decimal `json:"total_tax,omitempty"`
-	SubTotalSet    *AmountSet       `json:"subtotal_set,omitempty"`
-	TotalTaxSet    *AmountSet       `json:"total_tax_set,omitempty"`
+	Price                   *decimal.Decimal `json:"price,omitempty"`
+	DiscountedPrice         *decimal.Decimal `json:"discounted_price,omitempty"`
+	DiscountedTotalPrice    *decimal.Decimal `json:"discounted_total_price,omitempty"`
+	TotalCartDiscountAmount *decimal.Decimal `json:"total_cart_discount_amount,omitempty"`
+	AlreadyStocked          *bool            `json:"already_stocked,omitempty"`
+	RestockType             string           `json:"restock_type,omitempty"`
+	LocationId              uint64           `json:"location_id,omitempty"`
+	Id                      uint64           `json:"id,omitempty"`
+	Quantity                int              `json:"quantity,omitempty"`
+	LineItemId              uint64           `json:"line_item_id,omitempty"`
+	LineItem                *LineItem        `json:"line_item,omitempty"`
+	Subtotal                *decimal.Decimal `json:"subtotal,omitempty"`
+	TotalTax                *decimal.Decimal `json:"total_tax,omitempty"`
+	SubTotalSet             *AmountSet       `json:"subtotal_set,omitempty"`
+	TotalTaxSet             *AmountSet       `json:"total_tax_set,omitempty"`
 }
 
 // List orders

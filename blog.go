@@ -31,17 +31,17 @@ type BlogServiceOp struct {
 
 // Blog represents a Shopify blog
 type Blog struct {
-	Id                 uint64      `json:"id"`
-	Title              string      `json:"title"`
-	Commentable        string      `json:"commentable"`
-	Feedburner         string      `json:"feedburner"`
-	FeedburnerLocation string      `json:"feedburner_location"`
-	Handle             string      `json:"handle"`
+	Id                 uint64      `json:"id,omitempty"`
+	Title              string      `json:"title,omitempty"`
+	Commentable        string      `json:"commentable,omitempty"`
+	Feedburner         string      `json:"feedburner,omitempty"`
+	FeedburnerLocation string      `json:"feedburner_location,omitempty"`
+	Handle             string      `json:"handle,omitempty"`
 	Metafields         []Metafield `json:"metafields,omitempty"`
-	Tags               string      `json:"tags"`
-	TemplateSuffix     string      `json:"template_suffix"`
-	CreatedAt          *time.Time  `json:"created_at"`
-	UpdatedAt          *time.Time  `json:"updated_at"`
+	Tags               string      `json:"tags,omitempty"`
+	TemplateSuffix     string      `json:"template_suffix,omitempty"`
+	CreatedAt          *time.Time  `json:"created_at,omitempty"`
+	UpdatedAt          *time.Time  `json:"updated_at,omitempty"`
 	AdminGraphqlApiId  string      `json:"admin_graphql_api_id,omitempty"`
 }
 

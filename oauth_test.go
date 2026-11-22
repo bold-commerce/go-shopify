@@ -1,12 +1,18 @@
 package goshopify
 
 import (
+	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"strings"
@@ -316,11 +322,12 @@ func TestAppExpiringAccessTokenNilClient(t *testing.T) {
 }
 
 func TestAppVerifyAuthorizationURL(t *testing.T) {
+	app := App{ApiSecret: "hush"}
 	// These credentials are from the Shopify example page:
 	// https://shopify.dev/docs/api/admin-rest/latest/resources/oauth#verification
-	urlOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&signature=11813d1e7bbf4629edcda0628a3f7a20&timestamp=1337178173")
-	urlOkWithState, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=7db6973c2aff68295ebcf354c2ce528a6b09aef1146baafccc2e0b369fff5f6d&shop=some-shop.myshopify.com&signature=11813d1e7bbf4629edcda0628a3f7a20&timestamp=1337178173&state=abcd")
-	urlNotOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&signature=11813d1e7bbf4629edcda0628a3f7a20&timestamp=133717817")
+	urlOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&timestamp=1337178173")
+	urlOkWithState, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=7db6973c2aff68295ebcf354c2ce528a6b09aef1146baafccc2e0b369fff5f6d&shop=some-shop.myshopify.com&timestamp=1337178173&state=abcd")
+	urlNotOk, _ := url.Parse("http://example.com/callback?code=0907a61c0c8d55e99db179b68161bc00&hmac=4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20&shop=some-shop.myshopify.com&timestamp=133717817")
 
 	cases := []struct {
 		u        *url.URL
@@ -501,5 +508,124 @@ func TestVerifyWebhookRequestVerbose(t *testing.T) {
 	isValid, err = app.VerifyWebhookRequestVerbose(req)
 	if err == nil || isValid == true || err.Error() != errors.New("test-error").Error() {
 		t.Errorf("Expected error %s got %s", errors.New("test-error"), err)
+	}
+}
+
+func TestVerifySignedQueryInputs(t *testing.T) {
+	app := App{ApiSecret: "hush"}
+	const digest = "4712bf92ffc2917d15a2f5a273e39f0116667419aa4b6ac0b3baaf26fa3c4d20"
+	const message = "code=0907a61c0c8d55e99db179b68161bc00&shop=some-shop.myshopify.com&timestamp=1337178173"
+	mac := hmac.New(sha256.New, nil)
+	mac.Write([]byte(message))
+	emptyKeyMAC := hex.EncodeToString(mac.Sum(nil))
+	if (App{}).VerifyMessage(message, emptyKeyMAC) || app.VerifyMessage(message, digest+"zz") {
+		t.Fatal("accepted invalid authentication")
+	}
+	if (App{}).VerifySignature(&url.URL{RawQuery: "signature=b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad"}) {
+		t.Fatal("accepted empty proxy secret")
+	}
+	for _, extra := range []string{"&signature=extra", "&field=%zz", "&hmac=" + digest} {
+		if ok, _ := app.VerifyAuthorizationURL(&url.URL{RawQuery: message + "&hmac=" + digest + extra}); ok {
+			t.Fatal("accepted invalid callback", extra)
+		}
+	}
+}
+
+func TestWebhookBodySizeLimit(t *testing.T) {
+	app := App{ApiSecret: "test"}
+	for _, tc := range []struct {
+		size        int
+		knownLength bool
+		valid       bool
+	}{
+		{maxWebhookBodyBytes, true, true},
+		{maxWebhookBodyBytes + 1, true, false},
+		{maxWebhookBodyBytes + 8, false, false},
+	} {
+		body := bytes.Repeat([]byte("x"), tc.size)
+		req := httptest.NewRequest("POST", "/", bytes.NewReader(body))
+		if !tc.knownLength {
+			req.ContentLength = -1
+		}
+		mac := hmac.New(sha256.New, []byte(app.ApiSecret))
+		mac.Write(body)
+		req.Header.Set(shopifyChecksumHeader, base64.StdEncoding.EncodeToString(mac.Sum(nil)))
+		valid, err := app.VerifyWebhookRequestVerbose(req)
+		if valid != tc.valid || (err == nil) != tc.valid {
+			t.Fatalf("size %d: valid=%v err=%v", tc.size, valid, err)
+		}
+		replayed, err := ioutil.ReadAll(req.Body)
+		if err != nil || !bytes.Equal(body, replayed) {
+			t.Fatalf("size %d: replay lost data: %v", tc.size, err)
+		}
+		req.Body.Close()
+	}
+}
+
+func TestOnlineAuthorizationAndIDTokenExchange(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	ctx := context.Background()
+	authURL, err := app.AuthorizeOnlineURL("second-shop", "state")
+	if err != nil {
+		t.Fatal(err)
+	}
+	u, err := url.Parse(authURL)
+	if err != nil || u.Host != "second-shop.myshopify.com" || u.Query().Get("grant_options[]") != "per-user" || u.Query().Get("state") != "state" {
+		t.Fatalf("online authorization URL = %s", authURL)
+	}
+
+	const online = `{"access_token":"online","expires_in":42,"scope":"read_orders,read_customers","associated_user_scope":"read_orders","associated_user":{"id":9007199254740993,"first_name":"A","last_name":"B","email":"a@example.com","email_verified":true,"account_owner":true,"collaborator":false,"locale":"en"}}`
+	const endpoint = "https://second-shop.myshopify.com/admin/oauth/access_token"
+	for _, tc := range []struct {
+		name     string
+		params   map[string]string
+		response string
+	}{
+		{"online code", map[string]string{"code": "code"}, online},
+		{"online ID token", map[string]string{"grant_type": tokenExchangeGrantType, "subject_token": "id-token", "subject_token_type": idTokenType, "requested_token_type": onlineAccessTokenType}, online},
+		{"offline ID token", map[string]string{"grant_type": tokenExchangeGrantType, "subject_token": "id-token", "subject_token_type": idTokenType, "requested_token_type": offlineAccessTokenType, "expiring": "1"}, expiringAccessTokenResponse},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.params["client_id"], tc.params["client_secret"] = app.ApiKey, app.ApiSecret
+			httpmock.RegisterResponder("POST", endpoint, func(req *http.Request) (*http.Response, error) {
+				var got map[string]string
+				if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+					return nil, err
+				}
+				if !reflect.DeepEqual(got, tc.params) {
+					t.Errorf("grant fields = %v, want %v", got, tc.params)
+				}
+				if req.Header.Get("X-Shopify-Access-Token") != "" || req.Header.Get("Authorization") != "" {
+					t.Error("sent API credentials with token request")
+				}
+				return httpmock.NewStringResponse(200, tc.response), nil
+			})
+			if tc.name == "offline ID token" {
+				token, err := app.ExchangeIDTokenForExpiringAccessToken(ctx, "second-shop", "id-token")
+				if err != nil || token.AccessToken != "footoken" || token.RefreshToken != "foorefresh" || token.ExpiresIn != 3600 {
+					t.Fatalf("offline token = %+v, %v", token, err)
+				}
+				return
+			}
+			var token *OnlineAccessToken
+			var err error
+			if tc.name == "online code" {
+				token, err = app.GetOnlineAccessToken(ctx, "second-shop", "code")
+			} else {
+				token, err = app.ExchangeIDTokenForOnlineAccessToken(ctx, "second-shop", "id-token")
+			}
+			if err != nil || token.AccessToken != "online" || token.ExpiresIn != 42 || token.Scope != "read_orders,read_customers" || token.AssociatedUserScope != "read_orders" || token.AssociatedUser.Id != 9007199254740993 || !token.AssociatedUser.EmailVerified || token.AssociatedUser.Email != "a@example.com" {
+				t.Fatalf("online token = %+v, %v", token, err)
+			}
+		})
+	}
+	httpmock.RegisterResponder("POST", endpoint, httpmock.NewStringResponder(400, `{"errors":"invalid token"}`))
+	if token, err := app.ExchangeIDTokenForOnlineAccessToken(ctx, "second-shop", "expired"); err == nil || token != nil {
+		t.Fatal("expected invalid token error")
+	}
+	if token, err := app.ExchangeIDTokenForExpiringAccessToken(ctx, "bad/shop", "id-token"); err == nil || token != nil {
+		t.Fatal("expected invalid shop error")
 	}
 }
