@@ -14,6 +14,18 @@ Response fields without a documented fixed shape use `json.RawMessage` (or a sli
 The Go versions tested by CI are listed in the [test workflow](.github/workflows/tests.yml).
 Older versions are not covered by CI.
 
+## Install v5
+
+v5 fixes a few bugs and adds a few endpoints. Some field types and method signatures changed, so rebuild your app and its mocks after switching to `/v5`.
+
+```console
+$ go get github.com/bold-commerce/go-shopify/v5
+```
+
+```go
+import "github.com/bold-commerce/go-shopify/v5"
+```
+
 ## Install v4
 
 ```console
@@ -173,7 +185,7 @@ offline, err := app.ExchangeIDTokenForExpiringAccessToken(ctx, shop, idToken)
 #### Api calls with a token
 
 With a valid access token, you can make API calls like this. These snippets use
-the v4 package. Import `context` and use a request context when available, or
+the v5 package. Import `context` and use a request context when available, or
 `context.Background()` for a standalone call.
 
 ```go
