@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -481,4 +482,33 @@ func TestDraftOrderPollAcceptedWrites(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDraftOrderWriteMissingDraft(t *testing.T) {
+	setup()
+	defer teardown()
+	endpoint := fmt.Sprintf("https://fooshop.myshopify.com/%s/draft_orders", client.pathPrefix)
+	ctx := context.Background()
+
+	t.Run("create accepted then null draft", func(t *testing.T) {
+		httpmock.RegisterResponder("POST", endpoint+".json", func(*http.Request) (*http.Response, error) {
+			resp := httpmock.NewStringResponse(http.StatusAccepted, "")
+			resp.Header.Set("Location", endpoint+"/7.json")
+			resp.Header.Set("Retry-After", "0")
+			return resp, nil
+		})
+		httpmock.RegisterResponder("GET", endpoint+"/7.json", httpmock.NewStringResponder(200, `{"draft_order":null}`))
+		draft, err := client.DraftOrder.Create(ctx, DraftOrder{})
+		if draft != nil || err == nil || !strings.Contains(err.Error(), "no draft_order") {
+			t.Fatalf("Create returned draft=%v, err=%v", draft, err)
+		}
+	})
+
+	t.Run("update missing draft", func(t *testing.T) {
+		httpmock.RegisterResponder("PUT", endpoint+"/7.json", httpmock.NewStringResponder(200, `{}`))
+		draft, err := client.DraftOrder.Update(ctx, DraftOrder{Id: 7})
+		if draft != nil || err == nil || !strings.Contains(err.Error(), "no draft_order") {
+			t.Fatalf("Update returned draft=%v, err=%v", draft, err)
+		}
+	})
 }

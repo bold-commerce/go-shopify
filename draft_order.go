@@ -309,6 +309,9 @@ func (s *DraftOrderServiceOp) write(ctx context.Context, method, endpoint string
 			if err := json.Unmarshal(body, &result); err != nil {
 				return nil, err
 			}
+			if result.DraftOrder == nil {
+				return nil, fmt.Errorf("draft order write accepted, but %s response contains no draft_order", req.Method)
+			}
 			return result.DraftOrder, nil
 		}
 		location := resp.Header.Get("Location")
