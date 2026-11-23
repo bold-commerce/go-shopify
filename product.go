@@ -13,7 +13,7 @@ const (
 )
 
 // linkRegex is used to extract pagination links from product search results.
-var linkRegex = regexp.MustCompile(`^ *<([^>]+)>; rel="(previous|next)" *$`)
+var linkRegex = regexp.MustCompile(`^[ \t]*<([^>]+)>[ \t]*;[ \t]*rel=("previous"|"next"|previous|next)[ \t]*$`)
 
 // ProductService is an interface for interfacing with the product endpoints
 // of the Shopify API.
@@ -81,6 +81,13 @@ type Product struct {
 	MetafieldsGlobalDescriptionTag string          `json:"metafields_global_description_tag,omitempty"`
 	Metafields                     []Metafield     `json:"metafields,omitempty"`
 	AdminGraphqlApiId              string          `json:"admin_graphql_api_id,omitempty"`
+	tagsSet                        bool
+}
+
+// SetTags selects the tags to send on update. Pass "" to remove all tags.
+func (v *Product) SetTags(tags string) {
+	v.Tags = tags
+	v.tagsSet = true
 }
 
 // The options provided by Shopify
@@ -175,8 +182,9 @@ func (s *ProductServiceOp) Get(ctx context.Context, productId uint64, options in
 func (product *Product) writeRequest() map[string]interface{} {
 	fields := struct {
 		*Product
-		Image *Image `json:"image,omitempty"`
-	}{Product: product}
+		Image *Image  `json:"image,omitempty"`
+		Tags  *string `json:"tags,omitempty"`
+	}{Product: product, Tags: tagsForWrite(product.Tags, product.tagsSet)}
 	if !product.Image.isEmpty() {
 		fields.Image = &product.Image
 	}
@@ -194,6 +202,11 @@ func (s *ProductServiceOp) Create(ctx context.Context, product Product) (*Produc
 // Update an existing product
 func (s *ProductServiceOp) Update(ctx context.Context, product Product) (*Product, error) {
 	path := fmt.Sprintf("%s/%d.json", productsBasePath, product.Id)
+	variants := make([]Variant, len(product.Variants))
+	for i, v := range product.Variants {
+		variants[i] = v.forUpdate()
+	}
+	product.Variants = variants
 	resource := new(ProductResource)
 	err := s.client.Put(ctx, path, product.writeRequest(), resource)
 	return resource.Product, err

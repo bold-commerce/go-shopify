@@ -217,6 +217,9 @@ func (s *FulfillmentServiceOp) Create(ctx context.Context, fulfillment Fulfillme
 		return nil, errors.New("use LineItemsByFulfillmentOrder for partial fulfillment; legacy LineItems cannot be sent")
 	}
 	for _, order := range fulfillment.LineItemsByFulfillmentOrder {
+		if order.FulfillmentOrderLineItems != nil && len(order.FulfillmentOrderLineItems) == 0 {
+			return nil, errors.New("empty fulfillment item selection: use nil to fulfill all items")
+		}
 		if order.FulfillmentOrderId == 0 {
 			return nil, ErrFulfillmentRequiresFulfillmentOrders
 		}

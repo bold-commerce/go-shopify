@@ -60,11 +60,11 @@ func TestAppGetAccessToken(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+	httpmock.RegisterResponder("POST", "https://requested-shop.myshopify.com/admin/oauth/access_token",
 		httpmock.NewStringResponder(200, `{"access_token":"footoken"}`))
 
 	app.Client = client
-	token, err := app.GetAccessToken(context.Background(), "fooshop", "foocode")
+	token, err := app.GetAccessToken(context.Background(), "requested-shop", "foocode")
 	if err != nil {
 		t.Fatalf("App.GetAccessToken(): %v", err)
 	}
@@ -79,11 +79,11 @@ func TestAppGetAccessTokenWithClientCredentialsGrant(t *testing.T) {
 	setup()
 	defer teardown()
 
-	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+	httpmock.RegisterResponder("POST", "https://requested-shop.myshopify.com/admin/oauth/access_token",
 		httpmock.NewStringResponder(200, `{"access_token":"footoken","scope":"read_products","expires_in":86399}`))
 
 	app.Client = client
-	token, err := app.GetAccessTokenWithClientCredentialsGrant(context.Background(), "fooshop")
+	token, err := app.GetAccessTokenWithClientCredentialsGrant(context.Background(), "requested-shop")
 	if err != nil {
 		t.Fatalf("App.GetAccessTokenWithClientCredentialsGrant(): %v", err)
 	}
@@ -153,7 +153,8 @@ func TestAppGetAccessTokenError(t *testing.T) {
 	setup()
 	defer teardown()
 
-	// app.Client isn't specified so MustNewClient called
+	app.Client = client
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token", httpmock.NewStringResponder(404, `{"errors":"application_cannot_be_found"}`))
 	expectedError := errors.New("application_cannot_be_found")
 
 	token, err := app.GetAccessToken(context.Background(), "fooshop", "")
@@ -304,20 +305,18 @@ func TestAppMigrateToExpiringAccessToken(t *testing.T) {
 }
 
 func TestAppExpiringAccessTokenNilClient(t *testing.T) {
-	setup()
-	defer teardown()
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token",
+		httpmock.NewStringResponder(200, expiringAccessTokenResponse))
 
-	oldPath := accessTokenRelPath
-	accessTokenRelPath = "://example.com" // cause NewRequest to trip a parse error
-	defer func() { accessTokenRelPath = oldPath }()
-
-	// app.Client isn't specified so MustNewClient called
+	app := App{ApiKey: "apikey", ApiSecret: "hush"}
 	token, err := app.GetExpiringAccessToken(context.Background(), "fooshop", "foocode")
-	if err == nil || !strings.Contains(err.Error(), "missing protocol scheme") {
-		t.Errorf("Expected missing protocol scheme error, got: %v", err)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if token != nil {
-		t.Errorf("Expected nil token received %v", token)
+	if token == nil || token.AccessToken != "footoken" || token.RefreshToken != "foorefresh" {
+		t.Fatal("expected the access and refresh tokens from the requested shop")
 	}
 }
 
@@ -368,13 +367,22 @@ func TestSignature(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		ok := app.VerifySignature(c.u)
+		ok := app.verifySignatureAt(c.u, 1317327555)
 		if ok != c.expected {
 			t.Errorf("VerifySignature expected: |%v| but got: |%v|", c.expected, ok)
 		}
 	}
 }
 
+func TestProxySignatureTimestamp(t *testing.T) {
+	app := App{ApiSecret: "hush"}
+	u, _ := url.Parse("https://example.com/?extra=1&extra=2&shop=shop-name.myshopify.com&path_prefix=%2Fapps%2Fawesome_reviews&timestamp=1317327555&signature=a9718877bea71c2484f91608a7eaea1532bdf71f5c56825065fa4ccabe549ef3")
+	for _, now := range []int64{1317327555 - 91, 1317327555 + 91} {
+		if app.verifySignatureAt(u, now) {
+			t.Fatal("accepted timestamp outside tolerance")
+		}
+	}
+}
 func TestVerifyWebhookRequest(t *testing.T) {
 	setup()
 	defer teardown()
@@ -653,7 +661,7 @@ func TestVerifiedWebhookReplaysOnlyVerifiedBytes(t *testing.T) {
 	req := httptest.NewRequest("POST", "/", body)
 	mac := hmac.New(sha256.New, []byte(app.ApiSecret))
 	mac.Write([]byte(payload))
-	req.Header.Set(shopifyChecksumHeader, base64.StdEncoding.EncodeToString(mac.Sum(nil)))
+	req.Header.Set("Shopify-Hmac-Sha256", base64.StdEncoding.EncodeToString(mac.Sum(nil)))
 	if valid, err := app.VerifyWebhookRequestVerbose(req); !valid || err != nil {
 		t.Fatal("verification failed", err)
 	}
@@ -700,6 +708,18 @@ func TestTokenExchangeRecordsRateLimitsForItsShop(t *testing.T) {
 		limits := client.RateLimits()
 		if limits.RequestCount != tc.want || limits.BucketSize != 40 {
 			t.Fatalf("%s: got %d/%d, want %d/40", tc.shop, limits.RequestCount, limits.BucketSize, tc.want)
+		}
+	}
+}
+
+func TestRefreshRequiresTokenPair(t *testing.T) {
+	setup()
+	defer teardown()
+	app.Client = client
+	for _, body := range []string{`{}`, `{"access_token":"only"}`, `{"refresh_token":"only"}`} {
+		httpmock.RegisterResponder("POST", "https://fooshop.myshopify.com/admin/oauth/access_token", httpmock.NewStringResponder(200, body))
+		if token, err := app.RefreshAccessToken(context.Background(), "fooshop", "old"); token != nil || err == nil {
+			t.Fatal("accepted incomplete token pair")
 		}
 	}
 }

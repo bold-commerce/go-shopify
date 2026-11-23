@@ -14,7 +14,7 @@ import (
 func TestPaginationFields(t *testing.T) {
 	for _, fields := range []string{"id,title", "id%2Ctitle"} {
 		for _, nextFirst := range []bool{false, true} {
-			next := fmt.Sprintf(`<https://shop.myshopify.com/admin/products.json?page_info=a%%2Bb%%3D&limit=2&fields=%s>; rel="next"`, fields)
+			next := fmt.Sprintf(`<https://shop.myshopify.com/admin/products.json?page_info=a%%2Bb%%3D&limit=2&fields=%s>;rel=next`, fields)
 			previous := fmt.Sprintf(`<https://shop.myshopify.com/admin/products.json?fields=%s&limit=5&page_info=previous>; rel="previous"`, fields)
 			header := previous + ", " + next
 			if nextFirst {

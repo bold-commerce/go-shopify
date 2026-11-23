@@ -3,6 +3,7 @@ package goshopify
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -439,5 +440,45 @@ func TestDraftOrderCountDateFilters(t *testing.T) {
 	got, err := client.DraftOrder.Count(context.Background(), DraftOrderCountOptions{SinceId: 42, Status: DraftOrderStatusCompleted, UpdatedAtMin: &min, UpdatedAtMax: &max})
 	if err != nil || got != 3 {
 		t.Fatalf("Count = %d, %v; want 3, nil", got, err)
+	}
+}
+
+func TestDraftOrderPollAcceptedWrites(t *testing.T) {
+	for _, method := range []string{"POST", "PUT"} {
+		t.Run(method, func(t *testing.T) {
+			setup()
+			defer teardown()
+			endpoint := fmt.Sprintf("https://fooshop.myshopify.com/admin/api/%s/draft_orders", testApiVersion)
+			writeURL := endpoint + ".json"
+			if method == "PUT" {
+				writeURL = endpoint + "/7.json"
+			}
+			httpmock.RegisterResponder(method, writeURL, func(*http.Request) (*http.Response, error) {
+				r := httpmock.NewStringResponse(202, "")
+				r.Header.Set("Location", endpoint+"/7.json")
+				r.Header.Set("Retry-After", "0")
+				return r, nil
+			})
+			polls := 0
+			httpmock.RegisterResponder("GET", endpoint+"/7.json", func(*http.Request) (*http.Response, error) {
+				polls++
+				if polls == 1 {
+					r := httpmock.NewStringResponse(202, "")
+					r.Header.Set("Retry-After", "0")
+					return r, nil
+				}
+				return httpmock.NewStringResponse(200, `{"draft_order":{"id":7}}`), nil
+			})
+			var result *DraftOrder
+			var err error
+			if method == "POST" {
+				result, err = client.DraftOrder.Create(context.Background(), DraftOrder{})
+			} else {
+				result, err = client.DraftOrder.Update(context.Background(), DraftOrder{Id: 7})
+			}
+			if err != nil || result == nil || result.Id != 7 || polls != 2 {
+				t.Fatalf("result=%v polls=%d err=%v", result, polls, err)
+			}
+		})
 	}
 }

@@ -233,6 +233,7 @@ func TestFulfillmentInvalidCreation(t *testing.T) {
 		want  error
 	}{
 		{"missing fulfillment orders", Fulfillment{}, ErrFulfillmentRequiresFulfillmentOrders},
+		{"explicit empty selection", Fulfillment{LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{{FulfillmentOrderId: 10, FulfillmentOrderLineItems: []LineItemByFulfillmentOrderItemQuantity{}}}}, nil},
 		{"zero fulfillment order ID", Fulfillment{LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{{}}}, ErrFulfillmentRequiresFulfillmentOrders},
 		{"legacy line items", Fulfillment{LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{{FulfillmentOrderId: 10}}, LineItems: []LineItem{{Id: 20, Quantity: 1}}}, nil},
 		{"multiple tracking numbers", Fulfillment{LineItemsByFulfillmentOrder: []LineItemByFulfillmentOrder{{FulfillmentOrderId: 10}}, TrackingNumbers: []string{"1", "2"}}, nil},

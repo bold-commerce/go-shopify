@@ -15,13 +15,18 @@ import (
 	"net/url"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // Limit webhook request bodies to 10 MiB.
 const maxWebhookBodyBytes = 10 * 1024 * 1024
 
-const shopifyChecksumHeader = "X-Shopify-Hmac-Sha256"
+const (
+	shopifyChecksumHeader       = "X-Shopify-Hmac-Sha256"
+	shopifyEventsChecksumHeader = "Shopify-Hmac-Sha256"
+)
 
 var accessTokenRelPath = "admin/oauth/access_token"
 
@@ -70,58 +75,19 @@ type ClientCredentialsToken struct {
 // GetAccessTokenWithClientCredentialsGrant gets an access token using the client credentials grant type.
 // Docs: https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/client-credentials-grant
 func (app App) GetAccessTokenWithClientCredentialsGrant(ctx context.Context, shopName string) (*ClientCredentialsToken, error) {
-	data := struct {
-		GrantType    string `json:"grant_type"`
-		ClientId     string `json:"client_id"`
-		ClientSecret string `json:"client_secret"`
-	}{
-		GrantType:    "client_credentials",
-		ClientId:     app.ApiKey,
-		ClientSecret: app.ApiSecret,
-	}
-
-	client := app.Client
-	if client == nil {
-		client = MustNewClient(app, shopName, "")
-	}
-
-	req, err := client.NewRequest(ctx, "POST", accessTokenRelPath, data, nil)
-	if err != nil {
+	var token ClientCredentialsToken
+	if err := app.requestToken(ctx, shopName, map[string]string{"grant_type": "client_credentials"}, &token); err != nil {
 		return nil, err
 	}
-	clientCredentialsToken := &ClientCredentialsToken{}
-	err = client.Do(req, clientCredentialsToken)
-	return clientCredentialsToken, err
+	return &token, nil
 }
 
 func (app App) GetAccessToken(ctx context.Context, shopName string, code string) (string, error) {
-	type Token struct {
-		Token string `json:"access_token"`
+	var token struct {
+		AccessToken string `json:"access_token"`
 	}
-
-	data := struct {
-		ClientId     string `json:"client_id"`
-		ClientSecret string `json:"client_secret"`
-		Code         string `json:"code"`
-	}{
-		ClientId:     app.ApiKey,
-		ClientSecret: app.ApiSecret,
-		Code:         code,
-	}
-
-	client := app.Client
-	if client == nil {
-		client = MustNewClient(app, shopName, "")
-	}
-
-	req, err := client.NewRequest(ctx, "POST", accessTokenRelPath, data, nil)
-	if err != nil {
-		return "", err
-	}
-
-	token := new(Token)
-	err = client.Do(req, token)
-	return token.Token, err
+	err := app.requestToken(ctx, shopName, map[string]string{"code": code}, &token)
+	return token.AccessToken, err
 }
 
 const (
@@ -228,6 +194,9 @@ func (app App) requestExpiringAccessToken(ctx context.Context, shopName string, 
 	if err := app.requestToken(ctx, shopName, data, &token); err != nil {
 		return nil, err
 	}
+	if token.AccessToken == "" || token.RefreshToken == "" {
+		return nil, errors.New("expiring token response requires both an access token and a refresh token")
+	}
 	return &token, nil
 }
 
@@ -322,6 +291,12 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 	}
 
 	shopifySha256 := httpRequest.Header.Get(shopifyChecksumHeader)
+	eventsSignature := httpRequest.Header.Get(shopifyEventsChecksumHeader)
+	if shopifySha256 == "" {
+		shopifySha256 = eventsSignature
+	} else if eventsSignature != "" && eventsSignature != shopifySha256 {
+		return false, errors.New("conflicting Shopify signature headers")
+	}
 	if shopifySha256 == "" {
 		return false, fmt.Errorf("header %s not set", shopifyChecksumHeader)
 	}
@@ -373,11 +348,23 @@ func (app App) VerifyWebhookRequestVerbose(httpRequest *http.Request) (bool, err
 // Shopify adds a signature paramter that is used to verify that the request was sent by Shopify.
 // https://shopify.dev/tutorials/display-dynamic-store-data-with-app-proxies
 func (app App) VerifySignature(u *url.URL) bool {
+	return app.verifySignatureAt(u, time.Now().Unix())
+}
+
+func (app App) verifySignatureAt(u *url.URL, now int64) bool {
 	if u == nil {
 		return false
 	}
 	val, err := url.ParseQuery(u.RawQuery)
 	if err != nil || len(val["signature"]) != 1 {
+		return false
+	}
+	if len(val["timestamp"]) != 1 || len(val["shop"]) > 1 || len(val["hmac"]) > 1 {
+		return false
+	}
+	timestamp, err := strconv.ParseInt(val.Get("timestamp"), 10, 64)
+	// Match the 90-second clock tolerance of Shopify's app proxy validator.
+	if err != nil || timestamp < now-90 || timestamp > now+90 {
 		return false
 	}
 	sig := val.Get("signature")
