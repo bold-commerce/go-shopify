@@ -16,7 +16,7 @@ Older versions are not covered by CI.
 
 ## Install v5
 
-v5 fixes a few bugs and adds a few endpoints. Some field types and method signatures changed, so rebuild your app and its mocks after switching to `/v5`.
+v5 fixes quite a few bugs and adds a lot of missing endpoints. Some field types and method signatures changed, so rebuild your app and its mocks after switching to `/v5`.
 
 ```console
 $ go get github.com/bold-commerce/go-shopify/v5
